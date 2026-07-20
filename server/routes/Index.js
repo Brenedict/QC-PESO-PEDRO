@@ -5,4 +5,9 @@ router.get("/", (req, res) => {
     res.send("Default route");
 });
 
+router.use("/", (err, req, res, next) => {
+    console.error(err);
+});
+
 module.exports = router;
+
