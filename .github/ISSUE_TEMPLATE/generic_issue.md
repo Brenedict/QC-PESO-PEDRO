@@ -1,5 +1,5 @@
 ---
-name: Generic Issue
+name: 🛠️ Generic Issue
 about: Create a generic issue for any other type of concern
 title: '[ISSUE] '
 labels: ''

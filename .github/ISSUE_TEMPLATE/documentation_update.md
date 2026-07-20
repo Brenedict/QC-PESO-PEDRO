@@ -9,7 +9,7 @@ assignees: ''
 ## Description
 <!-- A brief description of the documentation issue or update needed. -->
 
-## Section or Page Affected
+## Affected Files
 - **File/Document**: <!-- e.g., README.md, CONTRIBUTING.md -->
 - **Section**: <!-- e.g., Installation, API Reference -->
 - **Page URL**: <!-- If applicable, paste the URL -->
@@ -36,11 +36,11 @@ assignees: ''
 ## Reason for Change
 <!-- Explain why this documentation update is needed. -->
 
-- Outdated information
-- Unclear instructions
-- Missing details
-- Grammar/typo
-- Example needed
+- [ ]Outdated information
+- [ ] Unclear instructions
+- [ ] Missing details
+- [ ] Grammar/typo
+- [ ] Example needed
 
 ## Supporting Materials
 - **Screenshots**: <!-- Drag & drop or paste images -->
