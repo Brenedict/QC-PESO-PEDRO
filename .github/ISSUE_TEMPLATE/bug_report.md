@@ -9,7 +9,7 @@ assignees: ''
 ## Description
 <!-- A clear and concise description of what the bug is. -->
 
-## Steps to Reproduce
+## Steps to Reproduce the bug
 <!-- Steps to reproduce the behavior: -->
 1. Go to '...'
 2. Click on '...'
@@ -21,7 +21,6 @@ assignees: ''
 
 ## Actual Behavior
 <!-- A clear and concise description of what actually happened. -->
-
 
 ## Screenshots / Recordings
 <!-- If applicable, add screenshots or recordings to help explain your problem. -->
