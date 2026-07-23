@@ -1,8 +1,12 @@
 import { useOutletContext } from "react-router";
 import { Link } from "react-router";
 
+interface ContextType {
+    text: string
+}
+
 function About() {
-    const { text } = useOutletContext();
+    const { text } = useOutletContext<ContextType>();
 
     return (
         <>
