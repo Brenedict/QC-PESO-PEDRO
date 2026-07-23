@@ -1,10 +1,10 @@
-const express = require("express");
+import express from "express";
 const app = express();
 const port = 3000;
 
 // List of routes
-const indexRoutes = require("./routes/Index");
-const userRoutes = require("./routes/User"); // Temporary route
+import indexRoutes from "./routes/Index.js";
+import userRoutes from "./routes/User.js"; // Temporary route
 
 // Form submission request config
 app.use(express.urlencoded({ extended: true }));
@@ -16,4 +16,3 @@ app.use("/", indexRoutes);
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
 });
-
