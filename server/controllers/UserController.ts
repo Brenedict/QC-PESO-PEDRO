@@ -5,4 +5,3 @@ export default {
         res.send("This is the user route");
     },
 };
-
