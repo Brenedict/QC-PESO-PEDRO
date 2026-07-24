@@ -1,4 +1,5 @@
 import { GeneralInput } from "./components/Input";
+import { NavBar } from "./components/Navbar";
 
 function App() {
     return (
@@ -8,6 +9,7 @@ function App() {
                 <GeneralInput type="email" id="emailAddress" name="emailAddress" placeholder="Enter your email here">
                     QC Government Email
                 </GeneralInput>
+                <NavBar userType="admin" />
             </div>
         </>
     );
