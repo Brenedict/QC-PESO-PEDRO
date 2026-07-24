@@ -3,4 +3,17 @@
 
 @theme {
     --font-sans: "Inter", sans-serif;
+    --color-black: #000;
+    --color-white: #fff;
+    --color-primary-blue: #004b87;
+    --color-off-white: #f8fafc;
+    --color-off-white-border: #e2e8f0;
+    --color-dark-blue: #1e293b;
+    --color-grayish-blue: #64748b;
+    --color-grayish-blue-opaque: #64748b1a;
+    --color-red: #ef4444;
+    --color-red-opaque: #ef44441a;
+    --color-green: #10b981;
+    --color-light-blue: #38bdf8;
+    --color-pink: #f472b6;
 }
