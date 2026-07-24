@@ -31,7 +31,7 @@ const sizeStyles: Record<Size, string> = {
 
 // Standard base styles for ALL buttons
 const baseStyle =
-    "inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-all duration-200";
+    "inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-all duration-200 shadow-sm";
 
 // Main logic of the Button component
 const Button = ({
@@ -58,4 +58,3 @@ const Button = ({
 };
 
 export default Button;
-
