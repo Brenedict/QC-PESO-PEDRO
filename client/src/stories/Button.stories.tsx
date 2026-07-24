@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import Button from "../components/Button";
+import "../index.css";
 
 const meta = {
     title: "Components/Button",
@@ -72,4 +73,3 @@ export const OutlineWhite: Story = {
         size: "small",
     },
 };
-
