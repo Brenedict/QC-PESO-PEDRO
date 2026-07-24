@@ -1,11 +1,11 @@
 import VisiblityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 interface LabelProp {
     id: string;
-    children?: React.ReactNode;
+    children?: ReactNode;
 }
 
 function Label({ id, children }: LabelProp) {
