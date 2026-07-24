@@ -1,4 +1,6 @@
+import Button from "./components/Button";
 import { GeneralInput } from "./components/Input";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 function App() {
     return (
@@ -8,6 +10,10 @@ function App() {
                 <GeneralInput type="email" id="emailAddress" name="emailAddress" placeholder="Enter your email here">
                     QC Government Email
                 </GeneralInput>
+                <Button>
+                    Hello World!
+                    <SearchOutlinedIcon />{" "}
+                </Button>
             </div>
         </>
     );
