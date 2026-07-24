@@ -2,7 +2,10 @@
 @import "tailwindcss";
 
 @theme {
+    /* ==== Inter Font ==== */
     --font-sans: "Inter", sans-serif;
+
+    /* ==== Color Palette ==== */
     --color-black: #000;
     --color-white: #fff;
     --color-primary-blue: #004b87;
@@ -16,4 +19,73 @@
     --color-green: #10b981;
     --color-light-blue: #38bdf8;
     --color-pink: #f472b6;
+
+    /* ==== Typography (Sizes only) ==== */
+    --text-giant: 2.25rem;
+    --text-bigger: 1.875rem;
+    --text-big: 1.5rem;
+    --text-medium: 1.125rem;
+    --text-normal: 1rem;
+    --text-description: 0.875rem;
+    --text-small-description: 0.75rem;
+    --text-smaller-description: 0.625rem;
+}
+
+@layer components {
+    .font-giant-text {
+        font-size: 2.25rem;
+        font-style: normal;
+        font-weight: 700;
+        color: var(--color-black);
+    }
+
+    .font-bigger-text {
+        font-size: 1.875rem;
+        font-style: normal;
+        font-weight: 700;
+        color: var(--color-dark-blue);
+    }
+
+    .font-big-text {
+        font-size: 1.5rem;
+        font-style: normal;
+        font-weight: 700;
+        color: var(--color-dark-blue);
+    }
+
+    .font-medium-text {
+        font-size: 1.125rem;
+        font-style: normal;
+        font-weight: 700;
+        color: var(--color-dark-blue);
+    }
+
+    .font-normal-text {
+        font-size: 1rem;
+        font-style: normal;
+        font-weight: 700;
+        color: var(--color-dark-blue);
+    }
+
+    .font-description {
+        font-size: 0.875rem;
+        font-style: normal;
+        font-weight: 400;
+        color: var(--color-grayish-blue);
+    }
+
+    .font-small-description {
+        font-size: 0.75rem;
+        font-style: normal;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--color-grayish-blue);
+    }
+
+    .font-small-description {
+        font-size: 0.625rem;
+        font-style: normal;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
 }
