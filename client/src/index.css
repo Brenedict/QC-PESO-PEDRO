@@ -21,14 +21,14 @@
     --color-pink: #f472b6;
 
     /* ==== Typography (Sizes only) ==== */
-    --text-giant: 2.25rem;
-    --text-bigger: 1.875rem;
-    --text-big: 1.5rem;
-    --text-medium: 1.125rem;
-    --text-normal: 1rem;
-    --text-description: 0.875rem;
-    --text-small-description: 0.75rem;
-    --text-smaller-description: 0.625rem;
+    --text-giant: 2.25rem; /* 36px */
+    --text-bigger: 1.875rem; /* 30px */
+    --text-big: 1.5rem; /* 24px */
+    --text-medium: 1.125rem; /* 18px */
+    --text-normal: 1rem; /* 16px */
+    --text-description: 0.875rem; /* 14px */
+    --text-small-description: 0.75rem; /* 12px */
+    --text-smaller-description: 0.625rem; /* 10px */
 }
 
 @layer components {
