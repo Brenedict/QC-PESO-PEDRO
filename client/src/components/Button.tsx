@@ -15,11 +15,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 // Tailwind CSS classes per color variant
 const variantStyles: Record<Variant, string> = {
-    blue: "bg-[#004B87] text-white border-none hover:bg-[#003865]",
-    red: "bg-[#EF4444] text-white border-none hover:bg-[#dc2626]",
-    green: "bg-[#10B981] text-white border-none hover:bg-[#059669]",
-    navy: "bg-[#1E293B] text-white border-none hover:bg-[#0f172a]",
-    white: "bg-white text-[#64748B] border border-[#E2E8F0] hover:bg-[#F8FAFC]",
+    blue: "bg-[#004B87] text-white border-none hover:bg-[#003865] hover:scale-105",
+    red: "bg-[#EF4444] text-white border-none hover:bg-[#dc2626] hover:scale-105",
+    green: "bg-[#10B981] text-white border-none hover:bg-[#059669] hover:scale-105",
+    navy: "bg-[#1E293B] text-white border-none hover:bg-[#0f172a] hover:scale-105",
+    white: "bg-white text-[#64748B] border border-[#E2E8F0] hover:bg-[#F8FAFC] hover:scale-105",
 };
 
 // Tailwind CSS classes per size variant
@@ -31,7 +31,7 @@ const sizeStyles: Record<Size, string> = {
 
 // Standard base styles for ALL buttons
 const baseStyle =
-    "inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-all duration-200 shadow-sm";
+    "inline-flex items-center justify-center gap-2 font-semibold cursor-pointer transition-trasform transicion-colors duration-200 shadow-sm";
 
 // Main logic of the Button component
 const Button = ({
