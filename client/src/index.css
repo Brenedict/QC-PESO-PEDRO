@@ -4,6 +4,7 @@
 @theme {
     /* ==== Inter Font ==== */
     --font-sans: "Inter", sans-serif;
+    --font-consolas: Consolas;
 
     /* ==== Color Palette ==== */
     --color-black: #000;

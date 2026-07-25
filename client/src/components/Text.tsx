@@ -36,13 +36,32 @@ const weightClasses = {
 // Extracts: "bold" | "normal" | "thin"
 export type WeightVariant = keyof typeof weightClasses;
 
+const fontClasses = {
+    default: "font-sans",
+    consolas: "font-consolas",
+} as const;
+
+// Extracts: "default" | "consolas"
+export type FontVariant = keyof typeof fontClasses;
+
 interface HeadingProp {
     children: React.ReactNode;
     size?: SizeVariant;
     variant?: HeadingVariant;
     weight?: WeightVariant;
+    font?: FontVariant;
 }
 
-export function Text({ children, size = "normal", variant = "black", weight = "normal" }: HeadingProp) {
-    return <p className={`${sizeClasses[size]} ${variantClasses[variant]} ${weightClasses[weight]}`}>{children}</p>;
+export function Text({
+    children,
+    size = "normal",
+    variant = "black",
+    weight = "normal",
+    font = "default",
+}: HeadingProp) {
+    return (
+        <p className={`${sizeClasses[size]} ${variantClasses[variant]} ${weightClasses[weight]} ${fontClasses[font]}`}>
+            {children}
+        </p>
+    );
 }

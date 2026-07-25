@@ -15,6 +15,7 @@ const meta = {
     args: {
         weight: "thin",
         variant: "black",
+        font: "default",
     },
 } satisfies Meta<typeof Text>;
 
@@ -27,10 +28,7 @@ export const TextUse: Story = {
         weight: "bold",
         variant: "pink",
         children: "test",
+        font: "default",
     },
-    render: (args) => (
-        <Text size={args.size} weight={args.weight} variant={args.variant}>
-            {args.children}
-        </Text>
-    ),
+    render: (args) => <Text {...args}>{args.children}</Text>,
 };
