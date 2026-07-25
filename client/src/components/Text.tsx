@@ -2,6 +2,7 @@ const sizeClasses = {
     giant: "text-giant",
     bigger: "text-bigger",
     big: "text-big",
+    smallBig: "text-small-big",
     medium: "text-medium",
     normal: "text-normal",
     description: "text-description",
