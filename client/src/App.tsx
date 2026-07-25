@@ -2,6 +2,7 @@ import Button from "./components/Button";
 import { GeneralInput } from "./components/Input";
 import { NavBar } from "./components/Navbar";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import Status from "./components/Status";
 
 function App() {
     return (
@@ -12,6 +13,8 @@ function App() {
                     QC Government Email
                 </GeneralInput>
                 <NavBar userType="admin" />
+                <Status type="type" variant="walkin"></Status>
+
                 <Button>
                     Hello World!
                     <SearchOutlinedIcon />{" "}
