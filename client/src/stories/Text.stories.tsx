@@ -38,11 +38,13 @@ export const TextGuide: Story = {
             <Text size="giant">Giant Text 2.25rem</Text>
             <Text size="bigger">Bigger Text 1.875rem</Text>
             <Text size="big">Big Text 1.5rem</Text>
+            <Text size="bigMedium">Big Medium Text 1.25rem</Text>
             <Text size="medium">Medium Text 1.125rem</Text>
             <Text size="normal">Normal Text 1rem</Text>
             <Text size="description">Description 0.875rem</Text>
             <Text size="small">SMALL DESCRIPTION 0.75REM</Text>
             <Text size="smaller">SMALLER DESCRIPTION 0.625REM</Text>
+            <Text size="smallest">SMALLEST DESCRIPTION 0.5REM</Text>
         </div>
     ),
 };

@@ -1,16 +1,16 @@
-import type { SvgIconTypeMap } from "@mui/material";
-import type { OverridableComponent } from "@mui/material/OverridableComponent";
+import type { MaterialIcon } from "../utils/Svg";
 
 const sizeClasses = {
     giant: "text-giant",
     bigger: "text-bigger",
     big: "text-big",
-    smallBig: "text-small-big",
+    bigMedium: "text-big-medium",
     medium: "text-medium",
     normal: "text-normal",
     description: "text-description",
     small: "text-small-description",
     smaller: "text-smaller-description",
+    smallest: "text-smallest-description",
 } as const;
 
 // Extracts: "bold" | "normal" | "thin"
@@ -68,9 +68,7 @@ interface HeadingProp {
     font?: FontVariant;
     svg?: {
         //Icon type (you can pass the name here)
-        icon: OverridableComponent<SvgIconTypeMap<object, "svg">> & {
-            muiName: string;
-        };
+        icon: MaterialIcon;
         position: svgPosition;
         gap: gapVariant;
         size: SizeVariant;
@@ -90,9 +88,9 @@ export function Text({
             className={`flex items-center ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
         >
             {svg && (
-                <span>
+                <>
                     <svg.icon className={`${variantClasses[variant]} ${sizeClasses[svg.size]}!`} />
-                </span>
+                </>
             )}
             <p
                 className={`${sizeClasses[size]} ${variantClasses[variant]} ${weightClasses[weight]} ${fontClasses[font]}`}
