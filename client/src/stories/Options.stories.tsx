@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { fn } from "storybook/test";
 
-import ChecklistItem from "../components/ChecklistItem";
+import { ChecklistItem } from "../components/Options";
 import { Text } from "../components/Text";
 import Button from "../components/Button";
 
@@ -18,7 +18,8 @@ const meta = {
     args: {
         children: "default",
         name: "default",
-        variant: "normal",
+        type: "checkbox",
+        stylized: false,
     },
 } satisfies Meta<typeof ChecklistItem>;
 
@@ -29,7 +30,7 @@ export const ChecklistItemUse: Story = {
     args: {
         name: "consent",
         children: "I consent to this",
-        variant: "normal",
+        stylized: false,
     },
     render: (args) => <ChecklistItem {...args}>{args.children}</ChecklistItem>,
 };
@@ -40,10 +41,10 @@ export const MultiChecklistItemUse: Story = {
             <Text size="description" variant="black" weight="normal">
                 Allergies:
             </Text>
-            <ChecklistItem name="nutAllergy" variant="normal">
+            <ChecklistItem name="nutAllergy" type="checkbox" stylized={false}>
                 Nuts
             </ChecklistItem>
-            <ChecklistItem name="chocoAllergy" variant="normal">
+            <ChecklistItem name="chocoAllergy" type="checkbox" stylized={false}>
                 Chocolate
             </ChecklistItem>
         </div>
@@ -70,19 +71,19 @@ export const FormUsage: Story = {
             }}
         >
             <div className="flex gap-2">
-                <ChecklistItem variant="stylized" name="firstTimeJobSeeker">
+                <ChecklistItem type="checkbox" stylized={true} name="firstTimeJobSeeker">
                     First Time Job Seeker
                 </ChecklistItem>
-                <ChecklistItem variant="stylized" name="personWithDisability">
+                <ChecklistItem type="checkbox" stylized={true} name="personWithDisability">
                     Person With Disability (PWD)
                 </ChecklistItem>
-                <ChecklistItem variant="stylized" name="seniorCitizen">
+                <ChecklistItem type="checkbox" stylized={true} name="seniorCitizen">
                     Senior Citizen
                 </ChecklistItem>
-                <ChecklistItem variant="stylized" name="youngWorker">
+                <ChecklistItem type="checkbox" stylized={true} name="youngWorker">
                     Young Worker
                 </ChecklistItem>
-                <ChecklistItem variant="stylized" name="student">
+                <ChecklistItem type="checkbox" stylized={true} name="student">
                     Student
                 </ChecklistItem>
             </div>
