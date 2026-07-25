@@ -4,6 +4,7 @@
 @theme {
     /* ==== Inter Font ==== */
     --font-sans: "Inter", sans-serif;
+    --font-consolas: Consolas;
 
     /* ==== Color Palette ==== */
     --color-black: #000;
@@ -19,11 +20,13 @@
     --color-green: #10b981;
     --color-light-blue: #38bdf8;
     --color-pink: #f472b6;
+    --color-green: #10b9811a;
 
     /* ==== Typography (Sizes only) ==== */
     --text-giant: 2.25rem; /* 36px */
     --text-bigger: 1.875rem; /* 30px */
     --text-big: 1.5rem; /* 24px */
+    --text-small-big: 1.25rem; /* 20px */
     --text-medium: 1.125rem; /* 18px */
     --text-normal: 1rem; /* 16px */
     --text-description: 0.875rem; /* 14px */

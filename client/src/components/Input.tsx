@@ -1,11 +1,11 @@
 import VisiblityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 interface LabelProp {
     id: string;
-    children?: React.ReactNode;
+    children?: ReactNode;
 }
 
 function Label({ id, children }: LabelProp) {
@@ -70,9 +70,9 @@ export function PasswordInput({ id, name, placeholder, children }: LabelProp & I
             <label className="absolute bottom-2 right-3 cursor-pointer hover:bg-gray-200 p-1 rounded-lg box-content">
                 <input type="checkbox" onChange={handleVisible} checked={visible} className="sr-only" />
                 {visible ? (
-                    <VisiblityIcon className="text-grayish-blue stroke-0" fontSize="small" />
+                    <VisiblityIcon className="text-grayish-blue stroke-0 text-small-big!" />
                 ) : (
-                    <VisibilityOffIcon className="text-grayish-blue stroke-0" fontSize="small" />
+                    <VisibilityOffIcon className="text-grayish-blue stroke-0 text-small-big!" />
                 )}
             </label>
         </div>
@@ -104,7 +104,7 @@ export function SearchInput({ id, name, placeholder }: LabelProp & InputProp) {
                 name={name}
                 extraClass="pl-10 text-sm py-2 px-4 rounded-3xl"
             />
-            <SearchOutlinedIcon className="text-grayish-blue stroke-0 absolute bottom-2 left-3.5 " fontSize="small" />
+            <SearchOutlinedIcon className="text-grayish-blue stroke-0 absolute bottom-2 left-3.5 text-small-big!" />
         </div>
     );
 }
