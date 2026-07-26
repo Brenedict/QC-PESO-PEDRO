@@ -13,7 +13,7 @@ export type StatusType = "connection" | "type" | "outcome" | "verification";
 // Available variants for each status type
 type StatusVariantMap = {
     connection: "online" | "offline";
-    type: "walkin" | "online" | "referral";
+    type: "walkin" | "online" | "inhouse";
     outcome: "pending" | "mismatched" | "success";
     verification: "pending" | "approved" | "needsrevision" | "rejected";
 };
@@ -44,9 +44,9 @@ const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
         offline: { text: "Offline", variant: "red", theme: colorClasses.red, icon: WifiOffIcon },
     },
     type: {
-        walkin: { text: "Walk-In", variant: "primary-blue", theme: colorClasses.blue },
-        online: { text: "Online", variant: "primary-blue", theme: colorClasses.blue },
-        referral: { text: "Referral", variant: "primary-blue", theme: colorClasses.blue },
+        walkin: { text: "Walk-In Referral", variant: "primary-blue", theme: colorClasses.blue },
+        online: { text: "Online Referral", variant: "primary-blue", theme: colorClasses.blue },
+        inhouse: { text: "In-house Recruitment", variant: "primary-blue", theme: colorClasses.blue },
     },
     outcome: {
         pending: { text: "Pending", variant: "grayish-blue", theme: colorClasses.offWhite },

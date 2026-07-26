@@ -20,7 +20,7 @@ const meta = {
         },
         variant: {
             control: "select",
-            options: ["walkin", "online", "referral"],
+            options: ["walkin", "online", "inhouse"],
         },
     },
     args: {
@@ -46,9 +46,9 @@ export const Online: Story = {
     },
 };
 
-export const Referral: Story = {
+export const Inhouse: Story = {
     args: {
         type: "type",
-        variant: "referral",
+        variant: "inhouse",
     },
 };
