@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router";
 
 // Meta for NavBar
 const navBarMeta = {
+    title: "NavBar",
     component: NavBar,
     parameters: {
         layout: "centered",

@@ -4,6 +4,7 @@ import "../../index.css";
 
 // Meta for TextAreaInput
 const textAreaMeta = {
+    title: "Input/TextArea",
     component: TextAreaInput,
     parameters: {
         layout: "centered",

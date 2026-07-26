@@ -4,6 +4,7 @@ import "../../index.css";
 
 // Meta for PasswordInput
 const passwordInputMeta = {
+    title: "Input/Password",
     component: PasswordInput,
     parameters: {
         layout: "centered",

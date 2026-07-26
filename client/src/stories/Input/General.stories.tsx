@@ -4,6 +4,7 @@ import "../../index.css";
 
 // Meta for GeneralInput
 const generalInputMeta = {
+    title: "Input/General",
     component: GeneralInput,
     parameters: {
         layout: "centered",

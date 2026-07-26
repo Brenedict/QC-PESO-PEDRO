@@ -4,6 +4,7 @@ import "../../index.css";
 
 // Meta for SearchInput
 const searchMeta = {
+    title: "Input/Search",
     component: SearchInput,
     parameters: {
         layout: "centered",
