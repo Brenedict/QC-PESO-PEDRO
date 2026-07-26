@@ -1,4 +1,4 @@
-import type { MaterialIcon } from "../utils/Svg";
+import type { MaterialIcon } from "../types/common.ts";
 
 const sizeClasses = {
     giant: "text-giant",

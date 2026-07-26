@@ -4,7 +4,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { Text } from "./Text";
-import type { MaterialIcon } from "../utils/Svg";
+import type { MaterialIcon } from "../types/common.ts";
 import type { HeadingVariant } from "./Text";
 
 // Types of status that can be displayed

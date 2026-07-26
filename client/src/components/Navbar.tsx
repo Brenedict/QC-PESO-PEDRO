@@ -13,6 +13,7 @@ import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import SensorOccupiedOutlinedIcon from "@mui/icons-material/SensorOccupiedOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import type { Role } from "../types/common.ts";
 
 function NavHeader({ userFullName, profilePicUrl, children }: { children: ReactNode } & ProfileBaseProps) {
     return (
@@ -91,9 +92,7 @@ function NavBodyAdmin() {
     );
 }
 
-export type UserType = "admin" | "frontline";
-
-function NavBody({ userType }: { userType: UserType }) {
+function NavBody({ userType }: { userType: Role }) {
     return (
         <div className="py-6 px-4 flex flex-col">{userType === "admin" ? <NavBodyAdmin /> : <NavBodyFrontline />}</div>
     );
@@ -113,7 +112,7 @@ export function NavBar({
     profilePicUrl,
     headerText = "PED System",
 }: {
-    userType: UserType;
+    userType: Role;
     headerText?: string;
 } & ProfileBaseProps) {
     return (
