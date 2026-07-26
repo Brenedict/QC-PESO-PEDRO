@@ -33,6 +33,7 @@ export type HeadingVariant = keyof typeof variantClasses;
 
 const weightClasses = {
     bold: "font-bold",
+    medium: "font-medium",
     normal: "font-normal",
     thin: "font-thin",
 } as const;
@@ -53,6 +54,7 @@ const gapClasses = {
     none: "gap-0",
     small: "gap-1",
     medium: "gap-2",
+    big: "gap-3",
     large: "gap-4",
     extraLarge: "gap-6",
 } as const;
@@ -85,7 +87,7 @@ export function Text({
 }: HeadingProp) {
     return (
         <div
-            className={`flex items-center ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
+            className={`flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
         >
             {svg && (
                 <>

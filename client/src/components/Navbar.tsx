@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router";
+import { Text } from "./Text";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
@@ -54,11 +55,17 @@ function NavButton({ linkType, to }: { linkType: LinkType; to: string }) {
         <NavLink
             to={to}
             className={({ isActive }) =>
-                `px-3 py-2.5 flex justify-start items-center gap-3 mb-1 text-white rounded-xl transition-colors ${isActive ? "bg-primary-blue hover:bg-blue-800" : "hover:bg-blue-900"}`
+                `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${isActive ? "bg-primary-blue hover:bg-blue-800" : "hover:bg-blue-900"}`
             }
         >
-            <LinkIcon className="stroke-0 " fontSize="small" />
-            <div className=" text-description font-medium ">{content}</div>
+            <Text
+                size="description"
+                weight="medium"
+                variant="white"
+                svg={{ gap: "big", icon: LinkIcon, position: "left", size: "big" }}
+            >
+                {content}
+            </Text>
         </NavLink>
     );
 }
