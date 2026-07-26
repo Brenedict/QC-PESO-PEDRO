@@ -53,7 +53,7 @@ function NotifButton() {
             className="hover:bg-off-white-border transition-colors p-2 cursor-pointer rounded-xl flex justify-center"
         >
             <Icon
-                variant="grayish-blue"
+                variant={hasNotif ? "red" : "grayish-blue"}
                 icon={hasNotif ? NotificationImportantOutlinedIcon : NotificationsNoneOutlinedIcon}
                 size="big"
             />
