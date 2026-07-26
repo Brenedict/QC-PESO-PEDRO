@@ -89,7 +89,10 @@ export function Text({
         >
             {svg && (
                 <>
-                    <svg.icon className={`${variantClasses[variant]} ${sizeClasses[svg.size]}!`} />
+                    <svg.icon
+                        className={`${variantClasses[variant]}`}
+                        style={{ fontSize: `var(--${sizeClasses[svg.size]})` }}
+                    />
                 </>
             )}
             <p
