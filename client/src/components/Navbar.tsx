@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router";
 import { Text } from "./Text";
+import Profile, { type ProfileBaseProps } from "./Profile";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
@@ -13,18 +14,10 @@ import SensorOccupiedOutlinedIcon from "@mui/icons-material/SensorOccupiedOutlin
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
-function NavProfile({ children }: { children: ReactNode }) {
-    return (
-        <div className="rounded-3xl w-8 h-8 bg-primary-blue text-white text-small-description font-bold flex justify-center items-center">
-            <div>{children}</div>
-        </div>
-    );
-}
-
-function NavHeader({ profileText, children }: { profileText: string; children: ReactNode }) {
+function NavHeader({ userFullName, profilePicUrl, children }: { children: ReactNode } & ProfileBaseProps) {
     return (
         <div className="flex justify-start items-center gap-3 px-6 py-4">
-            <NavProfile>{profileText}</NavProfile>
+            <Profile size="small" userFullName={userFullName} profilePicUrl={profilePicUrl} />
             <h1 className="text-white text-medium font-bold">{children}</h1>
         </div>
     );
@@ -116,16 +109,18 @@ function NavFooter() {
 
 export function NavBar({
     userType,
-    profileText = "QC",
+    userFullName = "Quezon City",
+    profilePicUrl,
     headerText = "PED System",
 }: {
     userType: UserType;
-    profileText?: string;
     headerText?: string;
-}) {
+} & ProfileBaseProps) {
     return (
         <aside className="bg-dark-blue">
-            <NavHeader profileText={profileText}>{headerText}</NavHeader>
+            <NavHeader userFullName={userFullName} profilePicUrl={profilePicUrl}>
+                {headerText}
+            </NavHeader>
             <NavBody userType={userType} />
             <NavFooter />
         </aside>
