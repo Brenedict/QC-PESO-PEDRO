@@ -10,6 +10,7 @@ export type Role = "admin" | "frontline";
 
 // Size Classes (Text and SVG)
 export const SizeClasses = {
+    iconHero: "text-icon-hero",
     giant: "text-giant",
     bigger: "text-bigger",
     big: "text-big",
