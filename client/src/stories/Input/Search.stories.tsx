@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SearchInput } from "../../components/Input";
 import "../../index.css";
+import { fn } from "storybook/test";
 
 // Meta for SearchInput
 const searchMeta = {
@@ -15,6 +16,7 @@ const searchMeta = {
         name: "password",
         placeholder: "Enter password",
         children: "Password",
+        onChange: fn(),
     },
 } satisfies Meta<typeof SearchInput>;
 

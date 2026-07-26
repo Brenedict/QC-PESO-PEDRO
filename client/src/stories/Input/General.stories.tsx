@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { GeneralInput } from "../../components/Input";
 import "../../index.css";
 
+import { fn } from "storybook/test";
+
 // Meta for GeneralInput
 const generalInputMeta = {
     title: "Input/General",
@@ -16,6 +18,7 @@ const generalInputMeta = {
         name: "generalInput",
         placeholder: "Enter anything here",
         type: "text",
+        onChange: fn(),
     },
 } satisfies Meta<typeof GeneralInput>;
 
