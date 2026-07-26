@@ -11,7 +11,7 @@ export interface ProfileProps extends ProfileBaseProps {
 
 const profileMap = {
     small: "w-9 h-9 ",
-    big: "w-24 h-24 border-4 border-white shadow-[0_1px_3px_0_rgba(0,0,0,0.10),0_1px_2px_-1px_rgba(0,0,0,0.10)] ", // Based on figma
+    big: "w-24 h-24 border-4 border-white shadow-default", // Based on figma
 } as const;
 
 function Profile({ userFullName, profilePicUrl, size }: ProfileProps) {
@@ -32,7 +32,7 @@ function Profile({ userFullName, profilePicUrl, size }: ProfileProps) {
                     : { backgroundColor: "var(--color-primary-blue)" }
             }
         >
-            {text && (
+            {text && !profilePicUrl && (
                 <Text size={size === "small" ? "small" : "bigger"} variant="white" weight="bold">
                     {text}
                 </Text>

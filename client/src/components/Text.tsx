@@ -1,38 +1,9 @@
-import type { MaterialIcon } from "../types/common.ts";
-
-const sizeClasses = {
-    giant: "text-giant",
-    bigger: "text-bigger",
-    big: "text-big",
-    bigMedium: "text-big-medium",
-    medium: "text-medium",
-    normal: "text-normal",
-    description: "text-description",
-    small: "text-small-description",
-    smaller: "text-smaller-description",
-    smallest: "text-smallest-description",
-} as const;
-
-// Extracts: "bold" | "normal" | "thin"
-export type SizeVariant = keyof typeof sizeClasses;
-
-const variantClasses = {
-    black: "text-black",
-    white: "text-white",
-    "primary-blue": "text-primary-blue",
-    "dark-blue": "text-dark-blue",
-    "grayish-blue": "text-grayish-blue",
-    red: "text-red",
-    green: "text-green",
-    "light-blue": "text-light-blue",
-    pink: "text-pink",
-} as const;
-
-// Extracts: "black" | "white" | "primary-blue" | "dark-blue"
-export type HeadingVariant = keyof typeof variantClasses;
+import Icon, { type IconProps } from "./Icon";
+import { SizeClasses, type SizeVariant, ColorClasses, type ColorVariant } from "../types/common.ts";
 
 const weightClasses = {
     bold: "font-bold",
+    semiBold: "font-semibold",
     medium: "font-medium",
     normal: "font-normal",
     thin: "font-thin",
@@ -53,6 +24,7 @@ export type svgPosition = "left" | "right"; // For position
 const gapClasses = {
     none: "gap-0",
     small: "gap-1",
+    base: "gap-1.5",
     medium: "gap-2",
     big: "gap-3",
     large: "gap-4",
@@ -63,17 +35,15 @@ const gapClasses = {
 export type gapVariant = keyof typeof gapClasses;
 
 interface HeadingProp {
-    children: React.ReactNode;
+    children?: React.ReactNode;
     size?: SizeVariant;
-    variant?: HeadingVariant;
+    variant?: ColorVariant;
     weight?: WeightVariant;
     font?: FontVariant;
-    svg?: {
+    svg?: Omit<IconProps, "variant"> & {
         //Icon type (you can pass the name here)
-        icon: MaterialIcon;
         position: svgPosition;
         gap: gapVariant;
-        size: SizeVariant;
     };
 }
 
@@ -89,16 +59,9 @@ export function Text({
         <div
             className={`flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
         >
-            {svg && (
-                <>
-                    <svg.icon
-                        className={`${variantClasses[variant]}`}
-                        style={{ fontSize: `var(--${sizeClasses[svg.size]})` }}
-                    />
-                </>
-            )}
+            {svg && <Icon icon={svg.icon} size={svg.size} variant={variant} />}
             <p
-                className={`${sizeClasses[size]} ${variantClasses[variant]} ${weightClasses[weight]} ${fontClasses[font]}`}
+                className={`${SizeClasses[size]} ${ColorClasses[variant]} ${weightClasses[weight]} ${fontClasses[font]} grow`}
             >
                 {children}
             </p>
