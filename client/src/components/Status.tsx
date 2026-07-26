@@ -4,11 +4,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { Text } from "./Text";
-import type { MaterialIcon } from "../types/common.ts";
-import type { HeadingVariant } from "./Text";
-
-// Types of status that can be displayed
-export type StatusType = "connection" | "type" | "outcome" | "verification";
+import type { MaterialIcon, ColorVariant } from "../types/common.ts";
 
 // Available variants for each status type
 type StatusVariantMap = {
@@ -17,6 +13,9 @@ type StatusVariantMap = {
     outcome: "pending" | "mismatched" | "success";
     verification: "pending" | "approved" | "needsrevision" | "rejected";
 };
+
+// Types of status that can be displayed
+export type StatusType = "connection" | "type" | "outcome" | "verification";
 
 // Dynamic variant type based on status type
 export type StatusVariant<T extends StatusType> = StatusVariantMap[T];
@@ -33,7 +32,7 @@ const colorClasses = {
 interface StatusConfig {
     text: string;
     theme: string;
-    variant: HeadingVariant;
+    variant: ColorVariant;
     icon?: MaterialIcon;
 }
 
