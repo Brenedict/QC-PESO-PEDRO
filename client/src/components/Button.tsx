@@ -1,6 +1,8 @@
 import React from "react";
+import Icon, { type IconProps } from "./Icon";
 
 // Available color and size variants
+
 type Variant = "blue" | "red" | "green" | "navy" | "white";
 type Size = "small" | "normal" | "large";
 
@@ -8,8 +10,8 @@ type Size = "small" | "normal" | "large";
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: Variant;
     size?: Size;
-    leftIcon?: React.ReactNode;
-    rightIcon?: React.ReactNode;
+    leftIcon?: IconProps;
+    rightIcon?: IconProps;
     children: React.ReactNode;
 }
 
@@ -44,10 +46,13 @@ const Button = ({
     ...props
 }: ButtonProps) => {
     return (
-        <button className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`} {...props}>
-            {leftIcon && <span className="flex items-center">{leftIcon}</span>}
-            {children}
-            {rightIcon && <span className="flex items-center">{rightIcon}</span>}
+        <button
+            className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${className} flex items-center`}
+            {...props}
+        >
+            {leftIcon && <Icon {...leftIcon} />}
+            <div>{children}</div>
+            {rightIcon && <Icon {...rightIcon} />}
         </button>
     );
 };

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import Button from "../components/Button";
 import "../index.css";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 
 const meta = {
     title: "Button",
@@ -71,5 +72,25 @@ export const OutlineWhite: Story = {
         children: "Cancel",
         variant: "white",
         size: "small",
+    },
+};
+
+export const OutlineWhiteLeftIcon: Story = {
+    args: {
+        children: "Cancel",
+        variant: "white",
+        size: "small",
+        className: "text-black",
+        leftIcon: { icon: AccountCircleOutlinedIcon, variant: "black", size: "medium" },
+    },
+};
+
+export const OutlineWhiteRightIcon: Story = {
+    args: {
+        children: "Cancel",
+        variant: "white",
+        size: "small",
+        className: "text-black",
+        rightIcon: { icon: AccountCircleOutlinedIcon, variant: "black", size: "bigMedium" },
     },
 };

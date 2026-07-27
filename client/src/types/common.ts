@@ -26,17 +26,28 @@ export const SizeClasses = {
 // Extracts: "giant" | "bigger"| "big" | "bigMedium"...
 export type SizeVariant = keyof typeof SizeClasses;
 
-export const ColorClasses = {
-    black: "text-black",
-    white: "text-white",
-    "primary-blue": "text-primary-blue",
-    "dark-blue": "text-dark-blue",
-    "grayish-blue": "text-grayish-blue",
-    red: "text-red",
-    green: "text-green",
-    "light-blue": "text-light-blue",
-    pink: "text-pink",
-} as const;
+const colors = [
+    "black",
+    "white",
+    "primary-blue",
+    "off-white",
+    "off-white-border",
+    "dark-blue",
+    "grayish-blue",
+    "grayish-blue-opaque",
+    "red",
+    "red-opaque",
+    "green",
+    "green-opaque",
+    "light-blue",
+    "pink",
+] as const;
+
+// typeof colors = readonly ["black", "white", "red"]
+// (typeof colors)[number] = "black" | "white" | "red" -> Extract elements as types
+export const ColorClasses = Object.fromEntries(
+    colors.map((color) => [color, { text: `text-${color}`, bg: `bg-${color}` }]) // Key-vaue pair
+) as Readonly<Record<(typeof colors)[number], { text: string; bg: string }>>;
 
 // Extracts: "black" | "white" | "primary-blue" | "dark-blue"
 export type ColorVariant = keyof typeof ColorClasses;
