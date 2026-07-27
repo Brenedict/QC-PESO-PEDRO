@@ -14,7 +14,7 @@ const generalInputMeta = {
     tags: ["autodocs"],
     args: {
         id: "generalInput",
-        children: "Text",
+        label: "Text",
         name: "generalInput",
         placeholder: "Enter anything here",
         type: "text",
@@ -30,7 +30,7 @@ type Story = StoryObj<typeof generalInputMeta>;
 export const TextInput: Story = {
     args: {
         id: "textInput",
-        children: "Text",
+        label: "Text",
         name: "textInput",
         placeholder: "Enter anything here",
         type: "text",
@@ -40,7 +40,7 @@ export const TextInput: Story = {
 export const NumberInput: Story = {
     args: {
         id: "numberInput",
-        children: "Age",
+        label: "Age",
         name: "numberInput",
         placeholder: "Input your age",
         type: "number",
@@ -50,7 +50,7 @@ export const NumberInput: Story = {
 export const EmailInput: Story = {
     args: {
         id: "emailInput",
-        children: "Email Address",
+        label: "Email Address",
         name: "emailInput",
         placeholder: "Enter your email",
         type: "text",

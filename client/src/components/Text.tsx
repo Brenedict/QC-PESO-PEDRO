@@ -34,12 +34,22 @@ const gapClasses = {
 // Extracts: "none", "small", "medium", "large", "extraLarge"
 export type gapVariant = keyof typeof gapClasses;
 
+const alignClasses = {
+    left: "text-left",
+    right: "text-right",
+    center: "text-center",
+} as const;
+
+// Extracts: "left", "right", "center"
+export type AlignVariant = keyof typeof alignClasses;
+
 interface HeadingProp {
     children?: React.ReactNode;
     size?: SizeVariant;
     variant?: ColorVariant;
     weight?: WeightVariant;
     font?: FontVariant;
+    align?: AlignVariant;
     svg?: Omit<IconProps, "variant"> & {
         //Icon type (you can pass the name here)
         position: svgPosition;
@@ -53,15 +63,16 @@ export function Text({
     variant = "black",
     weight = "normal",
     font = "default",
+    align = "left",
     svg,
 }: HeadingProp) {
     return (
         <div
-            className={`flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
+            className={`w-full flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
         >
             {svg && <Icon icon={svg.icon} size={svg.size} variant={variant} />}
             <p
-                className={`${SizeClasses[size]} ${ColorClasses[variant]} ${weightClasses[weight]} ${fontClasses[font]} grow`}
+                className={`${SizeClasses[size]} ${ColorClasses[variant]} ${weightClasses[weight]} ${fontClasses[font]} ${alignClasses[align]}  grow `}
             >
                 {children}
             </p>

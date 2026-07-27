@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TextAreaInput } from "../../components/Input";
-import { fn } from "storybook/test";
 import "../../index.css";
 
 // Meta for TextAreaInput
@@ -12,11 +11,10 @@ const textAreaMeta = {
     },
     tags: ["autodocs"],
     args: {
-        id: "password",
-        name: "password",
-        placeholder: "Enter password",
-        children: "Password",
-        onChange: fn(),
+        id: "comment",
+        name: "comment",
+        label: "Comment",
+        placeholder: "Enter your comment here",
     },
 } satisfies Meta<typeof TextAreaInput>;
 
@@ -27,7 +25,7 @@ export const TextAreaInputStory: Story = {
     args: {
         id: "comment",
         name: "comment",
-        children: "Comment",
+        label: "Comment",
         placeholder: "Enter your comment here",
     },
 };

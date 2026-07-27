@@ -33,7 +33,7 @@ function Profile({ userFullName, profilePicUrl, size }: ProfileProps) {
             }
         >
             {text && !profilePicUrl && (
-                <Text size={size === "small" ? "small" : "bigger"} variant="white" weight="bold">
+                <Text size={size === "small" ? "small" : "bigger"} variant="white" weight="bold" align="center">
                     {text}
                 </Text>
             )}
