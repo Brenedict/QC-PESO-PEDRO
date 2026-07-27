@@ -12,10 +12,11 @@ type StatusVariantMap = {
     type: "walkin" | "online" | "inhouse";
     outcome: "pending" | "mismatched" | "success";
     verification: "pending" | "approved" | "needsrevision" | "rejected";
+    status: "active" | "inactive";
 };
 
 // Types of status that can be displayed
-export type StatusType = "connection" | "type" | "outcome" | "verification";
+export type StatusType = "connection" | "type" | "outcome" | "verification" | "status";
 
 // Dynamic variant type based on status type
 export type StatusVariant<T extends StatusType> = StatusVariantMap[T];
@@ -62,6 +63,10 @@ const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
             icon: ReportProblemOutlinedIcon,
         },
         rejected: { text: "Rejected", variant: "red", theme: colorClasses.red, icon: CancelOutlinedIcon },
+    },
+    status: {
+        active: { text: "Active", variant: "green", theme: colorClasses.green },
+        inactive: { text: "Inactive", variant: "red", theme: colorClasses.red },
     },
 };
 
