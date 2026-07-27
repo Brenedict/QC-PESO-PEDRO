@@ -72,7 +72,7 @@ export function Text({
         >
             {svg && <Icon icon={svg.icon} size={svg.size} variant={variant} />}
             <p
-                className={`${SizeClasses[size]} ${ColorClasses[variant]} ${weightClasses[weight]} ${fontClasses[font]} ${alignClasses[align]}  grow `}
+                className={`${SizeClasses[size]} ${ColorClasses[variant].text} ${weightClasses[weight]} ${fontClasses[font]} ${alignClasses[align]}  grow `}
             >
                 {children}
             </p>

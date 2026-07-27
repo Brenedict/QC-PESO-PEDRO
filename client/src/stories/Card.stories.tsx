@@ -117,7 +117,7 @@ export const InsertingOtherComponents: Story = {
                     Something
                 </Button>
             </Card.Body>
-            <Card.Footer variant="off-white" bordered={false}>
+            <Card.Footer variant="grayish-blue-opaque" bordered={false}>
                 <Button variant="red" size="small">
                     Subscribe
                 </Button>
@@ -130,13 +130,13 @@ export const DifferentCardSizes: Story = {
     parameters: {
         docs: {
             description: {
-                story: "The card component does not have a fix sized. You can use the `additionalClass` attirbute to set your own custom TailwindCSS styles.",
+                story: "The card component does not have a fix sized. You can use the `className` attirbute to add your own TailwindCSS styles.",
             },
         },
     },
     render: () => (
         <div className="flex flex-wrap">
-            <Card additionalClass="w-[65%]">
+            <Card className="w-[65%]">
                 <Card.Header variant="white" bordered={false}>
                     <Text size="medium" weight="bold">
                         65% Width
@@ -155,14 +155,14 @@ export const DifferentCardSizes: Story = {
                     </Text>
                 </Card.Footer>
             </Card>
-            <Card additionalClass="w-[35%]">
+            <Card className="w-[35%]">
                 <Card.Body>
                     <Text size="big" weight="bold">
                         35% Width
                     </Text>
                 </Card.Body>
             </Card>
-            <Card additionalClass="w-[100%]">
+            <Card className="w-[100%]">
                 <Card.Body>
                     <Text size="big" weight="bold">
                         100% Width

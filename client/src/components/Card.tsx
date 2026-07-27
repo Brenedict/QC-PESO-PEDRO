@@ -1,16 +1,11 @@
 import React, { type ReactNode } from "react";
+import { ColorClasses } from "../types/common";
 
-export const CardBgClasses = {
-    white: "bg-white",
-    "off-white": "bg-off-white",
-    "grayish-blue-opaque": "bg-grayish-blue-opaque",
-} as const;
-
-export type CardColorVariant = keyof typeof CardBgClasses;
+export type ReducedColorVariant = Extract<keyof typeof ColorClasses, "white" | "off-white" | "grayish-blue-opaque">;
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: ReactNode;
-    variant?: CardColorVariant;
+    variant?: ReducedColorVariant;
     bordered?: true | false;
     className?: string;
 }
@@ -27,7 +22,7 @@ function CardContainer({ children, className, ...props }: { children?: ReactNode
 }
 
 function Header({ children, variant = "off-white", bordered = true, className, ...props }: CardProps) {
-    const defaultClass = `${CardBgClasses[variant]} ${bordered == true ? "border-b border-off-white-border" : ""}`;
+    const defaultClass = `${ColorClasses[variant].bg} ${bordered == true ? "border-b border-off-white-border" : ""}`;
     return (
         <div className={`${defaultClass} w-full px-[24px] py-[16px] ${className}`} {...props}>
             {children}
@@ -36,7 +31,7 @@ function Header({ children, variant = "off-white", bordered = true, className, .
 }
 
 function Body({ children, variant = "white", bordered = false, className, ...props }: CardProps) {
-    const defaultClass = `${CardBgClasses[variant]} ${bordered == true ? "border-b border-t border-off-white-border" : ""}`;
+    const defaultClass = `${ColorClasses[variant].bg} ${bordered == true ? "border-b border-t border-off-white-border" : ""}`;
     return (
         <div className={`${defaultClass} w-full px-[24px] py-[16px] ${className}`} {...props}>
             {children}
@@ -45,7 +40,7 @@ function Body({ children, variant = "white", bordered = false, className, ...pro
 }
 
 function Footer({ children, variant = "off-white", bordered = true, className, ...props }: CardProps) {
-    const defaultClass = `${CardBgClasses[variant]} ${bordered == true ? "border-t border-off-white-border" : ""}`;
+    const defaultClass = `${ColorClasses[variant].bg} ${bordered == true ? "border-t border-off-white-border" : ""}`;
     return (
         <div className={`${defaultClass} w-full px-[24px] py-[16px] ${className}`} {...props}>
             {children}
