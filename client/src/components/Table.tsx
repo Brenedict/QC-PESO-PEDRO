@@ -9,9 +9,6 @@ import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeft
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { Form } from "react-router";
 
-type TableType = "pagination" | "filter" | "search" | "base";
-type RowType = "head" | "data";
-
 function Row({ children }: { children: ReactNode }) {
     return <tr>{children}</tr>;
 }
