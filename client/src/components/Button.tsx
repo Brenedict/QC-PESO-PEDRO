@@ -47,7 +47,7 @@ const Button = ({
 }: ButtonProps) => {
     return (
         <button
-            className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${className} flex items-center`}
+            className={`${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${className} flex items-center w-max`}
             {...props}
         >
             {leftIcon && <Icon {...leftIcon} />}
