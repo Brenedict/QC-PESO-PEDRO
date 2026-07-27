@@ -49,10 +49,9 @@ export function GeneralInput({ type, placeholder, label, className = "", ...prop
             <Label htmlFor={props.id} label={label} />
             <BaseInput
                 type={type}
-                id={props.id}
                 placeholder={placeholder}
-                name={props.name}
                 className={`px-4 py-3 rounded-2xl ${className}`}
+                {...props}
             />
         </div>
     );
@@ -104,10 +103,9 @@ export function SearchInput({ placeholder, className = "", ...props }: LabelProp
         <div className="text-dark-blue w-full  relative">
             <BaseInput
                 type="search"
-                id={props.id}
                 placeholder={placeholder}
-                name={props.name}
                 className={`pl-10 text-sm py-2 px-4 rounded-3xl ${className}`}
+                {...props}
             />
             <SearchOutlinedIcon className="text-grayish-blue stroke-0 absolute bottom-2 left-3.5 text-big-medium!" />
         </div>
@@ -119,9 +117,8 @@ export function SelectInput({ label, className = "", optionList, ...props }: Lab
         <div className="text-dark-blue w-full relative">
             <Label label={label} />
             <select
-                name={props.name}
-                id={props.id}
                 className={`appearance-none  block rounded-2xl text-description font-normal px-4 py-3 pr-10 border border-off-white-border  bg-off-white w-full placeholder-grayish-blue hover:bg-off-white-border transition-colors  ${className} `}
+                {...props}
             >
                 {optionList.map((option) => (
                     <option value={option.value}>{option.content}</option>
