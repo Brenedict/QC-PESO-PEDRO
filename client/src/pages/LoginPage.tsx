@@ -127,7 +127,7 @@ function LoginForm({ onSubmit, className }: FormProps & React.HTMLAttributes<HTM
 
 function RightSection({ onSubmit }: FormProps) {
     return (
-        <section className="flex flex-col px-4 pt-24 pb-20 order-1 md:order-2  md:pb-6.5  md:px-14 lg:px-20 xl:px-38 2xl:px-45 w-full md:w-1/2 relative min-h-125 md:min-h-0">
+        <section className="flex flex-col px-20 pt-6.5 pb-20 order-1 md:order-2 md:pb-6.5 md:pt-30 md:px-14 lg:px-20 xl:px-38 2xl:px-60 w-full md:w-1/2 relative min-h-125 md:min-h-0">
             <MainHeader className="mb-8" />
             <LoginForm onSubmit={onSubmit} className="mb-6" />
             <p className="mt-auto">
