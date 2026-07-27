@@ -26,28 +26,22 @@ export const SizeClasses = {
 // Extracts: "giant" | "bigger"| "big" | "bigMedium"...
 export type SizeVariant = keyof typeof SizeClasses;
 
-const colors = [
-    "black",
-    "white",
-    "primary-blue",
-    "off-white",
-    "off-white-border",
-    "dark-blue",
-    "grayish-blue",
-    "grayish-blue-opaque",
-    "red",
-    "red-opaque",
-    "green",
-    "green-opaque",
-    "light-blue",
-    "pink",
-] as const;
-
-// typeof colors = readonly ["black", "white", "red"]
-// (typeof colors)[number] = "black" | "white" | "red" -> Extract elements as types
-export const ColorClasses = Object.fromEntries(
-    colors.map((color) => [color, { text: `text-${color}`, bg: `bg-${color}` }]) // Key-vaue pair
-) as Readonly<Record<(typeof colors)[number], { text: string; bg: string }>>;
+export const ColorClasses = {
+    black: { bg: "bg-black", text: "text-black" },
+    white: { bg: "bg-white", text: "text-white" },
+    "primary-blue": { bg: "bg-primary-blue", text: "text-primary-blue" },
+    "off-white": { bg: "bg-off-white", text: "text-off-white" },
+    "off-white-border": { bg: "bg-off-white-border", text: "text-off-white-border" },
+    "dark-blue": { bg: "bg-dark-blue", text: "text-dark-blue" },
+    "grayish-blue": { bg: "bg-grayish-blue", text: "text-grayish-blue" },
+    "grayish-blue-opaque": { bg: "bg-grayish-blue-opaque", text: "text-grayish-blue-opaque" },
+    red: { bg: "bg-red", text: "text-red" },
+    "red-opaque": { bg: "bg-red-opaque", text: "text-red-opaque" },
+    green: { bg: "bg-green", text: "text-green" },
+    "green-opaque": { bg: "bg-green-opaque", text: "text-green-opaque" },
+    "light-blue": { bg: "bg-light-blue", text: "text-light-blue" },
+    pink: { bg: "bg-pink", text: "text-pink" },
+} as const;
 
 // Extracts: "black" | "white" | "primary-blue" | "dark-blue"
 export type ColorVariant = keyof typeof ColorClasses;

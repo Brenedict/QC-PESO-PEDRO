@@ -30,9 +30,7 @@ const meta = {
             },
         },
         bg: {
-            table: {
-                disable: true,
-            },
+            control: "boolean",
         },
         variant: {
             control: "select",
@@ -53,17 +51,17 @@ const meta = {
     },
 
     render: (args) => {
-        const { bg_variant, bg_padding, bg_type, ...restArgs } = args;
-        const bg = {
+        const { bg, bg_variant, bg_padding, bg_type, ...restArgs } = args;
+        const bgProps = {
             variant: bg_variant,
             padding: bg_padding,
             type: bg_type,
         };
-        return <Icon {...restArgs} bg={bg} />;
+        return <Icon {...restArgs} bg={bg ? bgProps : undefined} />;
     },
 } satisfies Meta<
     Omit<ComponentProps<typeof Icon>, "bg"> & {
-        bg: undefined;
+        bg?: boolean;
         bg_variant: ColorVariant;
         bg_padding: "small" | "big";
         bg_type: "normal" | "circle";
@@ -78,9 +76,17 @@ export const IconPreview: Story = {
         variant: "white",
         icon: AccountCircleOutlinedIcon,
         size: "bigger",
-        bg: undefined,
         bg_variant: "primary-blue",
         bg_padding: "big",
         bg_type: "normal",
+    },
+    parameters: {
+        docs: {
+            description: {
+                component:
+                    "An Icon wraps a Material UI icon and lets you control its color, size, and an optional background container.",
+                story: "Use the controls below to explore every visual aspect of the Icon component.\n\n- **icon**: The Material UI icon to render. The icon is fixed in this story; swap components or import a different one to try others.\n- **size**: Maps to a typographic scale token (e.g. giant, bigger, big, medium, normal, description, small, smaller, smallest).\n- **variant**: Sets the icon's color from the shared palette (e.g. white, black, primary-blue, dark-blue, red, green, etc.).\n- **bg**: Toggles the background container on or off. When enabled, additional controls appear:\n  - **bg_variant**: Color of the background container, drawn from the same palette.\n  - **bg_padding**: Spacing inside the container (small = p-2, big = p-3).\n  - **bg_type**: Shape of the container (normal = rounded square, circle = fully rounded).",
+            },
+        },
     },
 };
