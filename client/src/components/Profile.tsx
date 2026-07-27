@@ -1,3 +1,4 @@
+import { type ColorVariant, ColorClasses } from "../types/common";
 import { Text } from "./Text";
 
 export interface ProfileBaseProps {
@@ -6,6 +7,7 @@ export interface ProfileBaseProps {
 }
 
 export interface ProfileProps extends ProfileBaseProps {
+    bg?: ColorVariant;
     size: "small" | "big";
 }
 
@@ -14,7 +16,7 @@ const profileMap = {
     big: "w-24 h-24 border-4 border-white shadow-default", // Based on figma
 } as const;
 
-function Profile({ userFullName, profilePicUrl, size }: ProfileProps) {
+function Profile({ userFullName, profilePicUrl, size, bg = "primary-blue" }: ProfileProps) {
     let text: string | null = null;
 
     // Get the initals of first name and last name
@@ -29,7 +31,7 @@ function Profile({ userFullName, profilePicUrl, size }: ProfileProps) {
             style={
                 profilePicUrl
                     ? { backgroundImage: `url(${profilePicUrl})` }
-                    : { backgroundColor: "var(--color-primary-blue)" }
+                    : { backgroundColor: `var(--${ColorClasses[bg]})` }
             }
         >
             {text && !profilePicUrl && (
