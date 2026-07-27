@@ -349,3 +349,28 @@ export const TableBase: Story = {
         </Table>
     ),
 };
+
+export const TableEmpty: Story = {
+    args: {
+        children: "",
+    },
+    parameters: {
+        docs: {
+            description: {
+                story: "Fallback message shown when the table is empty",
+            },
+        },
+    },
+    render: (args) => (
+        <Table pagination={args.pagination} onFilterSubmit={args.onFilterSubmit}>
+            {/* Header row */}
+            <Table.Row>
+                <Table.Header text="ID" />
+                <Table.Header text="Name" />
+                <Table.Header text="Position" />
+                <Table.Header text="Status" />
+                <Table.Header text="Date Applied" />
+            </Table.Row>
+        </Table>
+    ),
+};

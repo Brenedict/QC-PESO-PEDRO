@@ -181,10 +181,22 @@ function Table({ extraFilters, onFilterSubmit, children, pagination }: TableProp
             {onFilterSubmit && <FilterSection onSubmit={onFilterSubmit}>{extraFilters}</FilterSection>}
 
             {/* Body */}
-            <Card.Body className="p-0!">
+            <Card.Body className={`p-0!  `}>
                 <table className="table-auto w-full">
                     <thead>{header}</thead>
-                    <tbody>{viewRows}</tbody>
+                    <tbody>
+                        {viewRows.length <= 0 ? (
+                            <tr>
+                                <td colSpan={9999} className="p-20">
+                                    <Text size="big" variant="grayish-blue" align="center" weight="bold">
+                                        No data to show here!
+                                    </Text>
+                                </td>
+                            </tr>
+                        ) : (
+                            viewRows
+                        )}
+                    </tbody>
                 </table>
             </Card.Body>
 
