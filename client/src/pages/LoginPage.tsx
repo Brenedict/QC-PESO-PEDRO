@@ -23,9 +23,9 @@ function HeroIcons({ className }: React.HTMLAttributes<HTMLDivElement>) {
     );
 }
 
-function HeroText({ className }: React.HTMLAttributes<HTMLElement>) {
+function HeroText() {
     return (
-        <header className={className}>
+        <header>
             <h1 className="mb-6">
                 <Text size="giant" weight="bold" variant="white" align="center">
                     Empowering QC Citizens
@@ -40,9 +40,11 @@ function HeroText({ className }: React.HTMLAttributes<HTMLElement>) {
     );
 }
 
-function LeftSection() {
+function LeftSection({ className }: React.HTMLAttributes<HTMLElement>) {
     return (
-        <section className="bg-primary-blue flex justify-center items-center relative w-1/2 p-8">
+        <section
+            className={`bg-primary-blue flex  p-20 justify-center items-center relative w-full md:w-1/2  min-h-75 md:min-h-0 ${className}`}
+        >
             <div className="max-w-116">
                 <HeroIcons className="mb-8" />
                 <HeroText />
@@ -76,9 +78,9 @@ function MainHeader({ className }: React.HTMLAttributes<HTMLDivElement>) {
     );
 }
 
-function LoginForm({ onSubmit }: FormProps) {
+function LoginForm({ onSubmit, className }: FormProps & React.HTMLAttributes<HTMLFormElement>) {
     return (
-        <Form method="POST" onSubmit={onSubmit}>
+        <Form method="POST" onSubmit={onSubmit} className={className}>
             <GeneralInput
                 type="email"
                 name="email"
@@ -125,9 +127,9 @@ function LoginForm({ onSubmit }: FormProps) {
 
 function RightSection({ onSubmit }: FormProps) {
     return (
-        <section className="flex flex-col px-4 pt-24 pb-8 md:px-14 lg:px-20 xl:px-38 2xl:px-60 w-1/2 relative">
+        <section className="flex flex-col px-4 pt-24 pb-20 order-1 md:order-2  md:pb-6.5  md:px-14 lg:px-20 xl:px-38 2xl:px-45 w-full md:w-1/2 relative min-h-125 md:min-h-0">
             <MainHeader className="mb-8" />
-            <LoginForm onSubmit={onSubmit} />
+            <LoginForm onSubmit={onSubmit} className="mb-6" />
             <p className="mt-auto">
                 <Text size="small" variant="grayish-blue" weight="normal" align="center">
                     v2.0.1 • QC PESO Public Employment Division
@@ -138,8 +140,8 @@ function RightSection({ onSubmit }: FormProps) {
 }
 function LoginPage({ onSubmit }: FormProps) {
     return (
-        <main className="flex h-screen ">
-            <LeftSection />
+        <main className="flex flex-col md:flex-row min-h-screen ">
+            <LeftSection className="order-2 md:order-1" />
             <RightSection onSubmit={onSubmit} />
         </main>
     );
