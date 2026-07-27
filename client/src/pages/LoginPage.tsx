@@ -51,11 +51,11 @@ function LeftSection({ className }: React.HTMLAttributes<HTMLElement>) {
             </div>
 
             {/* Copyright Text */}
-            <p className="absolute bottom-8 left-8">
+            <span className="absolute bottom-8 left-8">
                 <Text size="small" weight="normal" variant="white">
                     Quezon City Government © 2026
                 </Text>
-            </p>
+            </span>
         </section>
     );
 }
@@ -130,11 +130,11 @@ function RightSection({ onSubmit }: FormProps) {
         <section className="flex flex-col px-20 pt-6.5 pb-20 order-1 md:order-2 md:pb-6.5  md:px-14 lg:px-20 xl:px-38  2xl:px-60 2xl:pt-20 w-full md:w-1/2 relative min-h-125 md:min-h-0">
             <MainHeader className="mb-8" />
             <LoginForm onSubmit={onSubmit} className="mb-6" />
-            <p className="mt-auto">
+            <span className="mt-auto">
                 <Text size="small" variant="grayish-blue" weight="normal" align="center">
                     v2.0.1 • QC PESO Public Employment Division
                 </Text>
-            </p>
+            </span>
         </section>
     );
 }
