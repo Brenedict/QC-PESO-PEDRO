@@ -35,7 +35,7 @@ function Header({ children, variant = "off-white", bordered = true, ...props }: 
 }
 
 function Body({ children, variant = "white", bordered = false, ...props }: CardProps) {
-    const additionalClass = `${CardBgClasses[variant]} ${bordered == true ? "border-b-1 border-t-1 border-off-white-border" : ""}`;
+    const additionalClass = `${CardBgClasses[variant]} ${bordered == true ? "border-b border-t border-off-white-border" : ""}`;
     return (
         <div className={`${additionalClass} w-full px-[24px] py-[16px]`} {...props}>
             {children}
@@ -44,7 +44,7 @@ function Body({ children, variant = "white", bordered = false, ...props }: CardP
 }
 
 function Footer({ children, variant = "off-white", bordered = true, ...props }: CardProps) {
-    const additionalClass = `${CardBgClasses[variant]} ${bordered == true ? "border-1 border-off-white-border" : ""}`;
+    const additionalClass = `${CardBgClasses[variant]} ${bordered == true ? "border-t border-off-white-border" : ""}`;
     return (
         <div className={`${additionalClass} w-full px-[24px] py-[16px]`} {...props}>
             {children}
