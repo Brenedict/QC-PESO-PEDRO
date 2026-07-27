@@ -15,7 +15,7 @@ const passwordInputMeta = {
         id: "password",
         name: "password",
         placeholder: "Enter password",
-        children: "Password",
+        label: "Password",
         onChange: fn(),
     },
 } satisfies Meta<typeof PasswordInput>;

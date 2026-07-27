@@ -12,10 +12,9 @@ const searchMeta = {
     },
     tags: ["autodocs"],
     args: {
-        id: "password",
-        name: "password",
-        placeholder: "Enter password",
-        children: "Password",
+        id: "search",
+        name: "search",
+        placeholder: "Search anything here",
         onChange: fn(),
     },
 } satisfies Meta<typeof SearchInput>;
