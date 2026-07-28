@@ -146,9 +146,10 @@ interface TableProps {
     onFilterSubmit?: SubmitEventHandler<HTMLFormElement>;
     extraFilters?: ReactNode;
     pagination?: number;
+    noCardStyle?: boolean;
 }
 
-function Table({ extraFilters, onFilterSubmit, children, pagination }: TableProps) {
+function Table({ extraFilters, onFilterSubmit, children, pagination, noCardStyle = false }: TableProps) {
     const [page, setPage] = useState<number>(1);
 
     let paginationSection = null;
@@ -176,12 +177,12 @@ function Table({ extraFilters, onFilterSubmit, children, pagination }: TableProp
     }
 
     return (
-        <Card>
+        <Card {...(noCardStyle && { dropShadow: false, className: "rounded-none! border-0!" })}>
             {/* Header */}
             {onFilterSubmit && <FilterSection onSubmit={onFilterSubmit}>{extraFilters}</FilterSection>}
 
             {/* Body */}
-            <Card.Body className={`p-0!  `}>
+            <Card.Body className="p-0!">
                 <table className="table-auto w-full">
                     <thead>{header}</thead>
                     <tbody>
