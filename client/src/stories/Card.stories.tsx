@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 
 export const CardWithNoHeaderAndFooter: Story = {
     render: () => (
-        <Card>
+        <Card dropShadow={true}>
             <Card.Body>
                 <Text>This is a card component using a text component</Text>
             </Card.Body>

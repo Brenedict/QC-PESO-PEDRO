@@ -10,10 +10,19 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     className?: string;
 }
 
-function CardContainer({ children, className, ...props }: { children?: ReactNode; className?: string }) {
+function CardContainer({
+    children,
+    className,
+    dropShadow = true,
+    ...props
+}: {
+    children?: ReactNode;
+    className?: string;
+    dropShadow?: boolean;
+}) {
     return (
         <div
-            className={`bg-white border-1 border-off-white-border rounded-xl drop-shadow-sm overflow-clip ${className}`}
+            className={`bg-white border-1 border-off-white-border rounded-xl overflow-clip ${dropShadow ? "drop-shadow-sm" : ""} ${className}`}
             {...props}
         >
             {children}
