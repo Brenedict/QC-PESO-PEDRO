@@ -8,6 +8,7 @@ import { Text } from "../components/Text";
 
 import "../index.css";
 import { createMemoryRouter, RouterProvider } from "react-router";
+import Button from "../components/Button";
 
 const meta = {
     title: "Table",
@@ -233,6 +234,7 @@ export const TableFullView: Story = {
                 <Table.Header text="Position" />
                 <Table.Header text="Status" />
                 <Table.Header text="Date Applied" />
+                <Table.Header text="Action" />
             </Table.Row>
 
             {/* Data rows */}
@@ -249,6 +251,14 @@ export const TableFullView: Story = {
                         <Status type="verification" variant={applicant.status}></Status>
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
+                    <Table.Data>
+                        <Button variant="white" size="small">
+                            Edit
+                        </Button>
+                        <Button variant="white" size="small">
+                            Delete
+                        </Button>
+                    </Table.Data>
                 </Table.Row>
             ))}
         </Table>
@@ -276,6 +286,7 @@ export const TablePaginationOnly: Story = {
                 <Table.Header text="Position" />
                 <Table.Header text="Status" />
                 <Table.Header text="Date Applied" />
+                <Table.Header text="Action" />
             </Table.Row>
 
             {/* Data rows */}
@@ -292,6 +303,14 @@ export const TablePaginationOnly: Story = {
                         <Status type="verification" variant={applicant.status}></Status>
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
+                    <Table.Data>
+                        <Button variant="white" size="small">
+                            Edit
+                        </Button>
+                        <Button variant="white" size="small">
+                            Delete
+                        </Button>
+                    </Table.Data>
                 </Table.Row>
             ))}
         </Table>
@@ -319,6 +338,7 @@ export const TableFilterOnly: Story = {
                 <Table.Header text="Position" />
                 <Table.Header text="Status" />
                 <Table.Header text="Date Applied" />
+                <Table.Header text="Action" />
             </Table.Row>
 
             {/* Data rows */}
@@ -335,6 +355,14 @@ export const TableFilterOnly: Story = {
                         <Status type="verification" variant={applicant.status}></Status>
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
+                    <Table.Data>
+                        <Button variant="white" size="small">
+                            Edit
+                        </Button>
+                        <Button variant="white" size="small">
+                            Delete
+                        </Button>
+                    </Table.Data>
                 </Table.Row>
             ))}
         </Table>
@@ -361,6 +389,7 @@ export const TableBase: Story = {
                 <Table.Header text="Position" />
                 <Table.Header text="Status" />
                 <Table.Header text="Date Applied" />
+                <Table.Header text="Action" />
             </Table.Row>
 
             {/* Data rows */}
@@ -377,6 +406,14 @@ export const TableBase: Story = {
                         <Status type="verification" variant={applicant.status}></Status>
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
+                    <Table.Data>
+                        <Button variant="white" size="small">
+                            Edit
+                        </Button>
+                        <Button variant="white" size="small">
+                            Delete
+                        </Button>
+                    </Table.Data>
                 </Table.Row>
             ))}
         </Table>
@@ -403,6 +440,7 @@ export const TableEmpty: Story = {
                 <Table.Header text="Position" />
                 <Table.Header text="Status" />
                 <Table.Header text="Date Applied" />
+                <Table.Header text="Action" />
             </Table.Row>
         </Table>
     ),

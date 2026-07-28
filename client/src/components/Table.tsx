@@ -30,7 +30,7 @@ function Data({ children, nowrap }: { children: ReactNode; nowrap?: boolean }) {
         <td
             className={`${nowrap ? "whitespace-nowrap" : ""} py-4 border-0 border-b border-y-off-white-border bg-white align-middle text-center text-small-description`}
         >
-            <div className="flex justify-center">{children}</div>
+            <div className="flex justify-center px-4 gap-2">{children}</div>
         </td>
     );
 }
