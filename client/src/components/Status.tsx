@@ -4,7 +4,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { Text } from "./Text";
-import type { MaterialIcon, ColorVariant } from "../types/common.ts";
+import type { MaterialIcon, ColorVariant, AlignVariant } from "../types/common.ts";
+import { alignClasses } from "../types/common.ts";
 
 // Available variants for each status type
 type StatusVariantMap = {
@@ -74,9 +75,10 @@ const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
 interface StatusProps<T extends StatusType> {
     type: T;
     variant: StatusVariant<T>;
+    align?: AlignVariant;
 }
 
-function Status<T extends StatusType>({ type, variant }: StatusProps<T>) {
+function Status<T extends StatusType>({ type, variant, align = "center" }: StatusProps<T>) {
     const config = statusMap[type]?.[variant];
 
     if (!config) {
@@ -86,12 +88,13 @@ function Status<T extends StatusType>({ type, variant }: StatusProps<T>) {
     const Icon = config.icon;
 
     return (
-        <div className={`px-2.5 py-1 rounded-3xl border flex items-center gap-1.5 ${config.theme}`}>
+        <div className={`px-2.5 py-1 rounded-3xl border flex items-center gap-1.5 w-fit ${config.theme}`}>
             <Text
                 size="small"
                 weight="bold"
                 variant={config.variant}
                 svg={Icon ? { gap: "small", icon: Icon, position: "left", size: "medium" } : undefined}
+                align={align}
             >
                 {config.text}
             </Text>

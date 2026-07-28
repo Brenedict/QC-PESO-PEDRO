@@ -1,5 +1,12 @@
 import Icon, { type IconProps } from "./Icon";
-import { SizeClasses, type SizeVariant, ColorClasses, type ColorVariant } from "../types/common.ts";
+import {
+    SizeClasses,
+    type SizeVariant,
+    ColorClasses,
+    type ColorVariant,
+    type AlignVariant,
+    alignClasses,
+} from "../types/common.ts";
 
 const weightClasses = {
     bold: "font-bold",
@@ -33,15 +40,6 @@ const gapClasses = {
 
 // Extracts: "none", "small", "medium", "large", "extraLarge"
 export type gapVariant = keyof typeof gapClasses;
-
-const alignClasses = {
-    left: "text-left",
-    right: "text-right",
-    center: "text-center",
-} as const;
-
-// Extracts: "left", "right", "center"
-export type AlignVariant = keyof typeof alignClasses;
 
 interface HeadingProp {
     children?: React.ReactNode;

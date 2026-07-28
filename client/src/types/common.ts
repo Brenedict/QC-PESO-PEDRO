@@ -45,3 +45,12 @@ export const ColorClasses = {
 
 // Extracts: "black" | "white" | "primary-blue" | "dark-blue"
 export type ColorVariant = keyof typeof ColorClasses;
+
+export const alignClasses = {
+    left: "text-left",
+    right: "text-right",
+    center: "text-center",
+} as const;
+
+// Extracts: "left", "right", "center"
+export type AlignVariant = keyof typeof alignClasses;
