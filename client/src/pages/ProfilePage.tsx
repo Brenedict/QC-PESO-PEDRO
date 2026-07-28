@@ -166,7 +166,7 @@ function AccountInfoCard() {
 // Sidebar, Topbar, and the Profile Content
 function ProfilePage() {
     return (
-        <div className="p-8 h-full">
+        <div className="p-8">
             <PageHeader />
             <div className="flex flex-col md:flex-row gap-6">
                 <ProfileSummaryCard />
