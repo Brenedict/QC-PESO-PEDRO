@@ -252,10 +252,10 @@ export const TableFullView: Story = {
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
                     <Table.Data>
-                        <Button variant="white" size="small">
+                        <Button variant="white-black" size="tiny">
                             Edit
                         </Button>
-                        <Button variant="white" size="small">
+                        <Button variant="white-red" size="tiny">
                             Delete
                         </Button>
                     </Table.Data>
@@ -304,10 +304,10 @@ export const TablePaginationOnly: Story = {
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
                     <Table.Data>
-                        <Button variant="white" size="small">
+                        <Button variant="white-black" size="tiny">
                             Edit
                         </Button>
-                        <Button variant="white" size="small">
+                        <Button variant="white-red" size="tiny">
                             Delete
                         </Button>
                     </Table.Data>
@@ -356,10 +356,10 @@ export const TableFilterOnly: Story = {
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
                     <Table.Data>
-                        <Button variant="white" size="small">
+                        <Button variant="white-black" size="tiny">
                             Edit
                         </Button>
-                        <Button variant="white" size="small">
+                        <Button variant="white-red" size="tiny">
                             Delete
                         </Button>
                     </Table.Data>
@@ -407,10 +407,10 @@ export const TableBase: Story = {
                     </Table.Data>
                     <Table.Data>{applicant.dateApplied}</Table.Data>
                     <Table.Data>
-                        <Button variant="white" size="small">
+                        <Button variant="white-black" size="tiny">
                             Edit
                         </Button>
-                        <Button variant="white" size="small">
+                        <Button variant="white-red" size="tiny">
                             Delete
                         </Button>
                     </Table.Data>
