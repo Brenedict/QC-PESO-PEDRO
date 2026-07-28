@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
 import Button from "../components/Button";
@@ -8,24 +7,7 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import type { Transaction } from "../data/transactions";
 import Table from "../components/Table";
 import Status from "../components/Status";
-
-function ColumnText({ children }: { children: ReactNode }) {
-    return (
-        <>
-            <Text variant="dark-blue" size="description" align="center" weight="semiBold">
-                {children}
-            </Text>
-        </>
-    );
-}
-
-function Identifier({ children }: { children: ReactNode }) {
-    return (
-        <Text font="consolas" size="small" weight="medium" variant="grayish-blue" align="center">
-            {children}
-        </Text>
-    );
-}
+import { BoldColumnText, ConsolasText } from "../components/TableColumn";
 
 function DateTime({ dateTime }: { dateTime: Date }) {
     return (
@@ -108,7 +90,7 @@ function TransactionHistory({
                 {transactions.map((transaction) => (
                     <Table.Row key={transaction.id}>
                         <Table.Data>
-                            <Identifier>{transaction.id}</Identifier>
+                            <ConsolasText>{transaction.id}</ConsolasText>
                         </Table.Data>
                         <Table.Data>
                             <DateTime dateTime={transaction.dateTime} />
@@ -117,7 +99,7 @@ function TransactionHistory({
                             <Status type="type" variant={transaction.type} />
                         </Table.Data>
                         <Table.Data>
-                            <ColumnText>{transaction.applicant}</ColumnText>
+                            <BoldColumnText>{transaction.applicant}</BoldColumnText>
                         </Table.Data>
                         <Table.Data>
                             <Status type="outcome" variant={transaction.outcome} />
