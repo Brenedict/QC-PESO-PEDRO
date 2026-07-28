@@ -42,14 +42,14 @@ const linkTypeMap = {
 // Use keyof typeof to get the keys as a union type
 export type LinkType = keyof typeof linkTypeMap;
 
-function NavButton({ linkType, to }: { linkType: LinkType; to: string }) {
+function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to: string; isLogout?: boolean }) {
     const { content, icon: LinkIcon } = linkTypeMap[linkType];
 
     return (
         <NavLink
             to={to}
             className={({ isActive }) =>
-                `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${isActive ? "bg-primary-blue hover:bg-blue-800" : "hover:bg-blue-900"}`
+                `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${isActive ? `bg-primary-blue hover:bg-blue-800` : !isLogout ? `hover:bg-blue-900` : "hover:bg-red-900"}`
             }
         >
             <Text
@@ -101,7 +101,7 @@ function NavBody({ userType }: { userType: Role }) {
 function NavFooter() {
     return (
         <div className="p-4">
-            <NavButton linkType="logout" to="/test" />
+            <NavButton linkType="logout" to="/test" isLogout />
         </div>
     );
 }

@@ -48,16 +48,18 @@ function DateTime() {
 function NotifButton() {
     const { onNotifClick, hasNotif } = useContext(TopBarContext);
     return (
-        <button
+        <Button
             onClick={onNotifClick}
-            className="hover:bg-off-white-border transition-colors p-2 cursor-pointer rounded-xl flex justify-center"
+            size="small"
+            variant="white-black"
+            className="min-w-0! aspect-square h-10 w-auto "
         >
             <Icon
                 variant={hasNotif ? "red" : "grayish-blue"}
                 icon={hasNotif ? NotificationImportantOutlinedIcon : NotificationsNoneOutlinedIcon}
                 size="big"
             />
-        </button>
+        </Button>
     );
 }
 
