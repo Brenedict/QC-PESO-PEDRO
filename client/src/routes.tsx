@@ -4,7 +4,11 @@ import ProfilePage from "./pages/ProfilePage";
 import TransactionHistory from "./pages/TransactionHistory";
 import EndShiftVerification from "./pages/EndShiftVerification";
 import { transactions } from "./data/transactions";
+<<<<<<< HEAD
 import { shiftRecords } from "./data/shiftRecords"; 
+=======
+import LoginMonitoring from "./pages/LoginMonitoring";
+>>>>>>> 6284784f79279f976d585ea79548b54577804ceb
 
 const routes = [
     {
@@ -30,6 +34,10 @@ const routes = [
             {
                 path: "history",
                 element: <TransactionHistory onFilterSubmit={() => {}} transactions={transactions} />,
+            },
+            {
+                path: "monitoring",
+                element: <LoginMonitoring />,
             },
         ],
     },
