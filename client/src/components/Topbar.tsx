@@ -112,7 +112,7 @@ function RightSection() {
 function TopBar(props: TopBarContextValue) {
     return (
         <TopBarContext value={props}>
-            <header className="flex items-center justify-between px-8 py-4 shadow-default w-full">
+            <header className="flex items-center justify-between px-8 py-4 shadow-default w-full sticky top-0 z-50 bg-white">
                 {/* Left Section */}
                 <LeftSection />
 
