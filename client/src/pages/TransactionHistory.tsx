@@ -4,6 +4,7 @@ import { Text } from "../components/Text";
 import Button from "../components/Button";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import type { Transaction } from "../data/transactions";
 import Table from "../components/Table";
 import Status from "../components/Status";
@@ -82,10 +83,15 @@ function TransactionHistory({
 }) {
     return (
         <>
-            <PageHeader
-                primaryText="History Ledger"
-                secondaryText="Comprehensive view of all historical transactions"
-            />
+            <PageHeader primaryText="History Ledger" secondaryText="Comprehensive view of all historical transactions">
+                <Button
+                    size="small"
+                    variant="white-black"
+                    leftIcon={{ icon: FileDownloadOutlinedIcon, size: "medium", variant: "black" }}
+                >
+                    Export
+                </Button>
+            </PageHeader>
 
             <Table pagination={6} onFilterSubmit={onFilterSubmit}>
                 {/* Header row */}
