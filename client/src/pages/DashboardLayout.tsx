@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import { NavBar } from "../components/Navbar";
 import TopBar from "../components/Topbar";
+import { Overview} from "../components/Overview";
 
 function DashboardLayout() {
     return (
@@ -16,9 +17,12 @@ function DashboardLayout() {
                     onSearchChange={() => console.log()}
                 ></TopBar>
                 <Outlet />
+                <Overview/>
             </section>
+
         </main>
     );
 }
-
 export default DashboardLayout;
+
+
