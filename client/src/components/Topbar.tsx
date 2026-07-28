@@ -66,10 +66,10 @@ function ProfileSection() {
     return (
         <div className="flex">
             <div className="mr-3 flex flex-col text-right">
-                <Text size="description" variant="dark-blue" weight="semiBold">
+                <Text size="description" variant="dark-blue" weight="semiBold" align="right">
                     {userFullName}
                 </Text>
-                <Text size="small" variant="primary-blue" weight="medium">
+                <Text size="small" variant="primary-blue" weight="medium" align="right">
                     {roleType === "admin" ? "Administrator" : "Frontline Encoder"}
                 </Text>
             </div>
@@ -113,7 +113,6 @@ function TopBar(props: TopBarContextValue) {
     return (
         <TopBarContext value={props}>
             <header className="flex items-center justify-between px-8 py-4 shadow-default w-full min-w-max sticky top-0 z-50 bg-white">
-
                 {/* Left Section */}
                 <LeftSection />
 
