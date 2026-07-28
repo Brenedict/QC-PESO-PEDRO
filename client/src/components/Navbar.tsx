@@ -116,7 +116,7 @@ export function NavBar({
     headerText?: string;
 } & ProfileBaseProps) {
     return (
-        <aside className="bg-dark-blue h-screen flex flex-col justify-between sticky top-0">
+        <aside className="bg-dark-blue h-screen flex flex-col justify-between sticky top-0 min-w-64">
             <div>
                 <NavHeader userFullName={userFullName} profilePicUrl={profilePicUrl}>
                     {headerText}

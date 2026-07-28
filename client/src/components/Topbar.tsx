@@ -14,7 +14,7 @@ import Button from "./Button.tsx";
 function LeftSection() {
     const { onSearchChange } = useContext(TopBarContext);
     return (
-        <section className="flex items-center">
+        <section className="flex items-center mr-20">
             <SearchInput placeholder="Search transactions..." onChange={onSearchChange} />
         </section>
     );
@@ -112,7 +112,7 @@ function RightSection() {
 function TopBar(props: TopBarContextValue) {
     return (
         <TopBarContext value={props}>
-            <header className="flex items-center justify-between px-8 py-4 shadow-default w-full">
+            <header className="flex items-center justify-between px-8 py-4 shadow-default w-full min-w-max">
                 {/* Left Section */}
                 <LeftSection />
 
