@@ -3,7 +3,7 @@ import Icon, { type IconProps } from "./Icon";
 
 // Available color and size variants
 
-type Variant = "blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red";
+type Variant = "blue" | "opaque-blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red";
 type Size = "tiny" | "smaller" | "small" | "normal" | "large";
 
 // Properties that can be passed to the button component
@@ -18,6 +18,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 // Tailwind CSS classes per color variant
 const variantStyles: Record<Variant, string> = {
     blue: "bg-[#004B87] text-white border-none hover:bg-[#003865] hover:scale-105",
+    "opaque-blue": "bg-grayish-blue-opaque text-primary-blue border-none hover:bg-[#e0e7fe] hover:scale-105",
     red: "bg-[#EF4444] text-white border-none hover:bg-[#dc2626] hover:scale-105",
     green: "bg-[#10B981] text-white border-none hover:bg-[#059669] hover:scale-105",
     navy: "bg-[#1E293B] text-white border-none hover:bg-[#0f172a] hover:scale-105",
