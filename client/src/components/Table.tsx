@@ -28,9 +28,9 @@ function Header({ text, nowrap }: { text: string; nowrap?: boolean }) {
 function Data({ children, nowrap }: { children: ReactNode; nowrap?: boolean }) {
     return (
         <td
-            className={`${nowrap ? "whitespace-nowrap" : ""} px-16 py-4 border-0 border-b border-y-off-white-border bg-white align-middle text-center text-small-description`}
+            className={`${nowrap ? "whitespace-nowrap" : ""} py-4 border-0 border-b border-y-off-white-border bg-white align-middle text-center text-small-description`}
         >
-            {children}
+            <div className="flex justify-center">{children}</div>
         </td>
     );
 }
