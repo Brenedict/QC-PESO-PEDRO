@@ -1,5 +1,6 @@
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
+import ProfilePage from "./pages/ProfilePage";
 
 const routes = [
     {
@@ -11,7 +12,11 @@ const routes = [
         element: <DashboardLayout />,
         children: [
             {
-                path: "login",
+                path: "profile",
+                element: <ProfilePage />,
+            },
+            {
+                path: "loginTest",
                 element: <LoginPage onSubmit={() => {}} />,
             },
         ],

@@ -6,7 +6,7 @@ function DashboardLayout() {
     return (
         <main className="w-full min-h-screen flex">
             <NavBar userType="frontline"></NavBar>
-            <section className="w-full">
+            <section className="flex-1">
                 <TopBar
                     status="online"
                     hasNotif={true}
