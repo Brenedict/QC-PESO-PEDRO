@@ -13,12 +13,13 @@ import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import type { MaterialIcon } from "../types/common";
 
 // Title and description of the page
 function PageHeader() {
     return (
         <div className="mb-6">
-            <Text size="giant" weight="bold" variant="dark-blue">
+            <Text size="big" weight="bold" variant="dark-blue">
                 My Profile
             </Text>
             <Text size="normal" weight="normal" variant="grayish-blue">
@@ -31,7 +32,7 @@ function PageHeader() {
 //  Profile picture, name, role, and change password button
 function ProfileSummaryCard() {
     return (
-        <Card className="w-full md:w-1/3 flex flex-col h-fit">
+        <Card className="w-full md:w-1/3 flex flex-col">
             <Card.Header variant="off-white" bordered={true} className="h-28">
                 {null}
             </Card.Header>
@@ -49,22 +50,22 @@ function ProfileSummaryCard() {
                 </div>
 
                 {/*Role*/}
-                <div className="bg-[#E0F2FE] text-[#0369A1] px-3 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold mb-4 tracking-wide uppercase">
+                <div className="bg-grayish-blue-opaque text-primary-blue px-3 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold mb-4 tracking-wide uppercase">
                     <Icon icon={SecurityOutlinedIcon} size="small" variant="primary-blue" />
                     Frontline Encoder
                 </div>
 
-                <Text size="small" variant="grayish-blue" align="center">
+                <Text size="description" variant="grayish-blue" align="center">
                     Processing daily walk-ins and referral transactions for the Public Employment Division.
                 </Text>
             </Card.Body>
 
-            <Card.Footer variant="white" bordered={false} className="pt-2">
+            <Card.Footer variant="white" bordered={false} className="pt-2 pb-6 px-6">
                 <Button
-                    variant="white"
+                    variant="white-black"
                     size="normal"
                     className="w-full text-sm font-semibold"
-                    leftIcon={{ icon: KeyOutlinedIcon, size: "small", variant: "grayish-blue" }}
+                    leftIcon={{ icon: KeyOutlinedIcon, size: "medium", variant: "black" }}
                 >
                     Change Password
                 </Button>
@@ -75,22 +76,29 @@ function ProfileSummaryCard() {
 
 // read-only inputs and system toggles
 function AccountInfoCard() {
-    const renderLabel = (IconComponent: any, text: string) => (
-        <span className="flex items-center gap-1.5 text-xs tracking-wider text-gray-500 font-semibold uppercase mb-1">
-            <IconComponent fontSize="small" />
-            {text}
-        </span>
+    const renderLabel = (IconComponent: MaterialIcon, text: string) => (
+        <div className="uppercase mb-2">
+            <Text
+                variant="grayish-blue"
+                size="small"
+                weight="bold"
+                svg={{ icon: IconComponent, gap: "small", position: "left", size: "medium" }}
+            >
+                {text}
+            </Text>
+        </div>
     );
 
     return (
         <Card className="w-full md:w-2/3 h-fit">
-            <Card.Body className="p-8">
-                <Text size="big" weight="bold" variant="dark-blue">
+            <Card.Header variant="off-white" bordered>
+                <Text size="medium" weight="bold" variant="dark-blue">
                     Account Information
                 </Text>
-
+            </Card.Header>
+            <Card.Body className="p-6!">
                 {/*Grid layout for the Account Inputs*/}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <GeneralInput
                         type="text"
                         id="fullName"
@@ -131,12 +139,12 @@ function AccountInfoCard() {
 
                 <hr className="my-8 border-off-white-border" />
 
-                <Text size="big" weight="bold" variant="dark-blue">
+                <Text size="normal" weight="bold" variant="dark-blue">
                     System Preferences
                 </Text>
 
                 {/*Notification Toggles*/}
-                <div className="mt-6 flex flex-col gap-4">
+                <div className="mt-4 flex flex-col gap-4">
                     <ChoiceItem inputVariant="checkbox" stylized={false} defaultChecked>
                         Enable email notifications for system announcements
                     </ChoiceItem>
@@ -146,7 +154,7 @@ function AccountInfoCard() {
                 </div>
 
                 <div className="mt-8 flex justify-end">
-                    <Button variant="blue" size="normal">
+                    <Button variant="blue" size="normal" className="text-description!">
                         Save Preferences
                     </Button>
                 </div>
@@ -158,7 +166,7 @@ function AccountInfoCard() {
 // Sidebar, Topbar, and the Profile Content
 function ProfilePage() {
     return (
-        <div className="p-8 flex-1">
+        <div className="p-8 h-full">
             <PageHeader />
             <div className="flex flex-col md:flex-row gap-6">
                 <ProfileSummaryCard />
