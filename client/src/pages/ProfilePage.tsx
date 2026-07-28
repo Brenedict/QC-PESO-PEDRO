@@ -14,20 +14,7 @@ import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import type { MaterialIcon } from "../types/common";
-
-// Title and description of the page
-function PageHeader() {
-    return (
-        <div className="mb-6">
-            <Text size="big" weight="bold" variant="dark-blue">
-                My Profile
-            </Text>
-            <Text size="normal" weight="normal" variant="grayish-blue">
-                Manage your personal information and account security.
-            </Text>
-        </div>
-    );
-}
+import PageHeader from "../components/PageHeader";
 
 //  Profile picture, name, role, and change password button
 function ProfileSummaryCard() {
@@ -166,13 +153,16 @@ function AccountInfoCard() {
 // Sidebar, Topbar, and the Profile Content
 function ProfilePage() {
     return (
-        <div className="p-8">
-            <PageHeader />
+        <>
+            <PageHeader
+                primaryText="My Profile"
+                secondaryText="Manage your personal information and account security."
+            />
             <div className="flex flex-col md:flex-row gap-6">
                 <ProfileSummaryCard />
                 <AccountInfoCard />
             </div>
-        </div>
+        </>
     );
 }
 
