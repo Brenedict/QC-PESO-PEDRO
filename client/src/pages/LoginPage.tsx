@@ -118,7 +118,7 @@ function LoginForm({ onSubmit, className }: FormProps & React.HTMLAttributes<HTM
                 </Link>
             </div>
 
-            <Button variant="blue" size="normal" className="w-full">
+            <Button variant="blue" size="normal" className="w-full!">
                 Sign in
             </Button>
         </Form>
