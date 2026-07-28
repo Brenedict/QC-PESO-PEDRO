@@ -29,9 +29,7 @@ function Profile({ userFullName, profilePicUrl, size, bg = "primary-blue" }: Pro
         <div
             className={`${profileMap[size]} bg-cover bg-center rounded-full flex justify-center items-center`}
             style={
-                profilePicUrl
-                    ? { backgroundImage: `url(${profilePicUrl})` }
-                    : { backgroundColor: `var(--${ColorClasses[bg]})` }
+                profilePicUrl ? { backgroundImage: `url(${profilePicUrl})` } : { backgroundColor: `var(--color-${bg})` }
             }
         >
             {text && !profilePicUrl && (
