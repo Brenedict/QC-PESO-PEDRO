@@ -6,6 +6,7 @@ function DashboardLayout() {
     return (
         <main className="w-full min-h-screen flex">
             <NavBar userType="frontline" />
+
             <section className="flex-1">
                 <TopBar
                     status="online"
@@ -15,7 +16,10 @@ function DashboardLayout() {
                     onNotifClick={() => console.log()}
                     onSearchChange={() => console.log()}
                 />
-                <Outlet />
+
+                <main className="p-8">
+                    <Outlet />
+                </main>
             </section>
         </main>
     );
