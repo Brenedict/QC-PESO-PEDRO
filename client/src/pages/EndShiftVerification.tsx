@@ -10,8 +10,9 @@ import type { ShiftRecord } from "../data/shiftRecords";
 
 // Icon
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import { ActionButton, DateTime } from "../components/TableCells";
 
-// Define the props 
+// Define the props
 interface EndShiftVerificationProps {
     shiftData: ShiftRecord[];
 }
@@ -36,9 +37,9 @@ function StatCard({ title, value, valueVariant = "dark-blue" }: { title: string;
 
 function EmployeeCell({ name }: { name: string }) {
     return (
-        <div className="flex items-center gap-3 w-full justify-center md:justify-start">
+        <div className="flex items-center gap-3 w-full justify-center md:justify-start md:pl-5">
             <div className="shrink-0">
-                <Profile size="small" userFullName={name} />
+                <Profile size="small" userFullName={name} bg="grayish-blue-opaque" textColor="primary-blue" />
             </div>
             <Text size="description" weight="bold" variant="dark-blue">
                 {name}
@@ -47,38 +48,15 @@ function EmployeeCell({ name }: { name: string }) {
     );
 }
 
-function ActionButtons({ shiftId }: { shiftId: string }) {
-    const handleReview = () => {
-        console.log("Reviewing shift record:", shiftId);
-    };
-
-    return (
-        <Button variant="white-black" size="smaller" onClick={handleReview}>
-            Review
-        </Button>
-    );
-}
-
-function DateTime({ dateTime }: { dateTime: Date }) {
-    return (
-        <>
-            <div>
-                <Text size="description" variant="black" align="center" weight="medium">
-                    {dateTime.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </Text>
-                <Text size="small" variant="grayish-blue" align="center" weight="normal">
-                    {dateTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
-                </Text>
-            </div>
-        </>
-    );
-}
-
-// Main Page 
+// Main Page
 function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
     const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Filter applied");
+    };
+
+    const handleReview = (id: string) => () => {
+        console.log("Reviewing shift record:", id);
     };
 
     return (
@@ -137,7 +115,7 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
                             <Status type="verification" variant={row.status} />
                         </Table.Data>
                         <Table.Data>
-                            <ActionButtons shiftId={row.id} />
+                            <ActionButton handleClick={handleReview} id={row.id} text="Review" />
                         </Table.Data>
                     </Table.Row>
                 ))}

@@ -3,7 +3,7 @@ import Icon, { type IconProps } from "./Icon";
 
 // Available color and size variants
 
-type Variant = "blue" | "opaque-blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red";
+type Variant = "blue" | "opaque-blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red" | "white-blue";
 type Size = "tiny" | "smaller" | "small" | "normal" | "large";
 
 // Properties that can be passed to the button component
@@ -25,6 +25,7 @@ const variantStyles: Record<Variant, string> = {
     white: "bg-white text-[#64748B] border border-[#E2E8F0] hover:bg-[#F3FAFC] hover:scale-105",
     "white-red": "bg-white text-[#EF4444] border border-[#E2E8F0] hover:bg-[#F3FAFC] hover:scale-105",
     "white-black": "bg-white text-[#1E293B] border border-[#E2E8F0] hover:bg-[#F3FAFC] hover:scale-105",
+    "white-blue": "bg-white text-[#004B87] border border-[#E2E8F0] hover:bg-[#F3FAFC] hover:scale-105",
 };
 
 // Tailwind CSS classes per size variant

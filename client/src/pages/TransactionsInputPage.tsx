@@ -16,6 +16,9 @@ import { Form } from "react-router";
 import { transactions } from "../data/transactions";
 import Status from "../components/Status";
 
+import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
+import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+
 interface FormProps {
     onSubmit: React.SubmitEventHandler<HTMLFormElement>;
 }
@@ -160,6 +163,14 @@ function TransactionsInputForm({ onSubmit }: FormProps) {
 }
 
 function TransactionsLedger() {
+    const handleEdit = (id: string) => () => {
+        console.log(id);
+    };
+
+    const handleDelete = (id: string) => () => {
+        console.log(id);
+    };
+
     return (
         <Card>
             <Card.Header variant="white">
@@ -193,7 +204,23 @@ function TransactionsLedger() {
                             <Status type="outcome" variant={transaction.outcome} />
                         </Table.Data>
                         <Table.Data>
-                            <ActionButtons transactionId={transaction.id} />
+                            <ActionButtons
+                                id={transaction.id}
+                                actions={[
+                                    {
+                                        color: "black",
+                                        icon: BorderColorOutlinedIcon,
+                                        handleClick: handleEdit,
+                                        text: "Edit",
+                                    },
+                                    {
+                                        color: "red",
+                                        icon: PersonRemoveOutlinedIcon,
+                                        handleClick: handleDelete,
+                                        text: "Delete",
+                                    },
+                                ]}
+                            />
                         </Table.Data>
                     </Table.Row>
                 ))}
