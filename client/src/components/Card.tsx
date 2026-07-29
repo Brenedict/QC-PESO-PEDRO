@@ -22,7 +22,7 @@ function CardContainer({
 }) {
     return (
         <div
-            className={`bg-white border-1 border-off-white-border rounded-xl overflow-clip ${dropShadow ? "drop-shadow-sm" : ""} ${className}`}
+            className={`bg-white border-1 border-off-white-border rounded-2xl overflow-clip ${dropShadow ? "drop-shadow-sm" : ""} ${className}`}
             {...props}
         >
             {children}

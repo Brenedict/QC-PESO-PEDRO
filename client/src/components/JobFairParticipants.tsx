@@ -1,4 +1,7 @@
 import { Card } from "./Card";
+import { CardHeader, Divider, FemaleText, MaleText, NumberText, NumberTitle } from "./DashboardCard";
+
+import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 
 export interface JobFairParticipantsProps {
     title: string;
@@ -23,38 +26,34 @@ export function JobFairParticipants({
 }: JobFairParticipantsProps) {
     return (
         <Card className="w-full">
-            <Card.Header>
-                <h3 className="font-semibold">{title}</h3>
-            </Card.Header>
+            <Card.Body variant="white" className="p-5!">
+                <CardHeader icon={PeopleOutlineOutlinedIcon}>{title}</CardHeader>
 
-            <Card.Body>
-                <div className="grid grid-cols-2 gap-8">
+                <Divider />
+                <section className="grid grid-cols-2 gap-8">
                     <div>
-                        <p className="text-xs uppercase text-gray-400">Registered</p>
+                        <NumberTitle>Registered</NumberTitle>
+                        <NumberText>{registered}</NumberText>
 
-                        <h1 className="text-4xl font-bold mt-1">{registered}</h1>
-
-                        <div className="flex gap-3 mt-3 text-sm">
-                            <span className="text-blue-500">♂ {registeredMale}</span>
-
-                            <span className="text-pink-500">♀ {registeredFemale}</span>
+                        <div className="flex  mt-2 ">
+                            <MaleText className="w-fit!">{registeredMale}</MaleText>
+                            <span className="ml-1.5">|</span>
+                            <FemaleText className="w-fit!">{registeredFemale}</FemaleText>
                         </div>
                     </div>
 
                     <div>
-                        <p className="text-xs uppercase text-gray-400">Hired</p>
+                        <NumberTitle>hired</NumberTitle>
+                        <NumberText>{hired}</NumberText>
 
-                        <h1 className="text-4xl font-bold mt-1">{hired}</h1>
-
-                        <div className="flex gap-3 mt-3 text-sm">
-                            <span className="text-blue-500">♂ {hiredMale}</span>
-
-                            <span className="text-pink-500">♀ {hiredFemale}</span>
+                        <div className="flex  mt-3 text-sm">
+                            <MaleText className="w-fit!">{hiredMale}</MaleText>
+                            <span className="ml-1.5">|</span>
+                            <FemaleText className="w-fit!">{hiredFemale}</FemaleText>
                         </div>
                     </div>
-                </div>
+                </section>
             </Card.Body>
         </Card>
     );
 }
-

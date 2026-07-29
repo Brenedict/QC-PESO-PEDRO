@@ -1,4 +1,7 @@
 import { Card } from "./Card";
+import { CardHeader, Divider, FemaleText, MaleText, NumberText, NumberTitle } from "./DashboardCard";
+
+import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 
 interface WHIPCardProps {
     title: string;
@@ -9,21 +12,27 @@ interface WHIPCardProps {
 export function WHIPCard({ title, totalparticipants, male, female }: WHIPCardProps) {
     return (
         <Card className="w-full">
-            <Card.Header>
-                <h3 className="font-semibold">{title}</h3>
-            </Card.Header>
+            <Card.Body variant="white" className="p-5!">
+                <CardHeader icon={PeopleOutlineOutlinedIcon}>{title}</CardHeader>
+                <Divider />
 
-            <Card.Body>
-                <p className="text-xs uppercase text-gray-400">Total Participants</p>
+                <NumberTitle>Total Participants</NumberTitle>
+                <NumberText>{totalparticipants}</NumberText>
 
-                <h1 className="text-4xl font-bold">{totalparticipants}</h1>
+                <Divider />
 
                 <div className="flex justify-between mt-6">
-                    <span className="text-blue-500">Male: {male}</span>
-                    <span className="text-pink-500">Female: {female}</span>
+                    <MaleText>
+                        <span className="mr-2">Male</span>
+                        <span className="text-black font-bold">{male}</span>
+                    </MaleText>
+
+                    <FemaleText className="grow-0 justify-end!">
+                        <span className="mr-2">Female</span>
+                        <span className="text-black font-bold">{female}</span>
+                    </FemaleText>
                 </div>
             </Card.Body>
         </Card>
     );
 }
-

@@ -12,85 +12,104 @@ import {
     jobFairData,
     WHIPData,
 } from "../data/overviewDashboard";
+import { Children, type ReactNode } from "react";
+
+function OverviewSection({ children }: { children: ReactNode }) {
+    return <section className="mt-8">{children}</section>;
+}
+
+function CardGroup({ children }: { children: ReactNode }) {
+    // For some reason ayaw gumana ng string substitute kaya eto nag array ako
+    // Palitan nyo nalang kung maayos niyo
+    const columnClass = ["grid-cols-1", "grid-cols-2", "grid-cols-3", "grid-cols-4"];
+    const cardCol = Math.min(Children.count(children), 4);
+
+    return (
+        <>
+            <hr className="mt-2 border-0 bg-off-white-border h-0.5" />
+            <section className={`grid ${columnClass[cardCol - 1]} gap-6 mt-4`}>{children}</section>
+        </>
+    );
+}
 
 function DailyTransactions() {
     return (
-        <div className="grid grid-cols-5 gap-6">
+        <CardGroup>
             {dailyTransactionCards.map((card) => (
                 <StatsCard key={card.title} className="w-full" {...card} />
             ))}
-        </div>
+        </CardGroup>
     );
 }
 
 function ApplicantsDemographics() {
     return (
-        <div className="grid grid-cols-3 gap-6">
+        <CardGroup>
             {applicantCards.map((card) => (
                 <StatsCard key={card.title} className="w-full" {...card} />
             ))}
-        </div>
+        </CardGroup>
     );
 }
 
 function EmploymentOutcomes() {
     return (
-        <div className="grid grid-cols-3 gap-6">
+        <CardGroup>
             {employmentOutcomeCards.map((card) => (
                 <StatsCard key={card.title} className="w-full" {...card} />
             ))}
-        </div>
+        </CardGroup>
     );
 }
 
 function EmploymentEvents() {
     return (
-        <div className="grid grid-cols-3 gap-6">
+        <CardGroup>
             <JobFairParticipants {...jobFairData} />
             <AccreditationCard {...accreditationData} />
             <WHIPCard {...WHIPData} />
-        </div>
+        </CardGroup>
     );
 }
 
 // Main Overview Component
 export function Overview() {
     return (
-        <div className="m-6">
+        <>
             <PageHeader
                 primaryText="Overview"
                 secondaryText="Welcome back. Here's what's happening today."
             ></PageHeader>
 
-            <section>
+            <OverviewSection>
                 <Text size="medium" weight="bold" variant="primary-blue">
                     Daily Transactions
                 </Text>
                 <DailyTransactions />
-            </section>
+            </OverviewSection>
 
-            <section className="border-t border-gray-200 pt-6 mt-8">
+            <OverviewSection>
                 <Text size="medium" weight="bold" variant="primary-blue">
                     Applicant Demographics
                 </Text>
 
                 <ApplicantsDemographics />
-            </section>
+            </OverviewSection>
 
-            <section className="border-t border-gray-200 pt-6 mt-8">
+            <OverviewSection>
                 <Text size="medium" weight="bold" variant="primary-blue">
                     Employment Outcomes
                 </Text>
                 <EmploymentOutcomes />
-            </section>
+            </OverviewSection>
 
-            <section className="border-t border-gray-200 pt-6 mt-8">
+            <OverviewSection>
                 <Text size="medium" weight="bold" variant="primary-blue">
                     Employment Events
                 </Text>
 
                 <EmploymentEvents />
-            </section>
-        </div>
+            </OverviewSection>
+        </>
     );
 }

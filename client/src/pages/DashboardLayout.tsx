@@ -4,7 +4,7 @@ import TopBar from "../components/Topbar";
 
 function DashboardLayout() {
     return (
-        <main className="w-full min-h-screen flex">
+        <main className="w-full min-h-screen flex antialiased">
             <NavBar userType="frontline" />
 
             <section className="flex-1">
@@ -16,8 +16,8 @@ function DashboardLayout() {
                     onNotifClick={() => console.log()}
                     onSearchChange={() => console.log()}
                 ></TopBar>
-                <main className="p-8">
-                    <Outlet />              
+                <main className="p-8 bg-off-white">
+                    <Outlet />
                 </main>
             </section>
         </main>

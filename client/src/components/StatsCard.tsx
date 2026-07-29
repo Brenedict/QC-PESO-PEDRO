@@ -1,38 +1,43 @@
+import { CardHeader } from "../components/DashboardCard";
 import { Card } from "./Card";
+import { Divider, FemaleText, MaleText, NumberText, NumberTitle, PercentageChange } from "./DashboardCard";
+import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 
 interface StatsCardProps {
     title: string;
     total: number;
     male: number;
     female: number;
-    change: string;
-    isPositive?: boolean;
+    previous: number;
     className?: string;
 }
-export function StatsCard({ title, total, male, female, change, isPositive = true, className }: StatsCardProps) {
+
+export function StatsCard({ title, total, male, female, previous, className }: StatsCardProps) {
     return (
         <Card className={`w-full ${className ?? ""}`}>
-            <Card.Header>
-                <h3 className="font-semibold">{title}</h3>
-            </Card.Header>
+            <Card.Body variant="white" className="p-5!">
+                <CardHeader icon={PeopleOutlineOutlinedIcon}>{title}</CardHeader>
+                <Divider />
 
-            <Card.Body>
-                <p className="text-xs uppercase text-gray-400">TOTAL</p>
+                <NumberTitle>TOTAL</NumberTitle>
+                <NumberText>{total}</NumberText>
 
-                <h1 className="text-5xl font-bold mt-2">{total}</h1>
+                <Divider />
 
-                <div className="flex justify-between mt-6">
-                    <span className="text-blue-500">Male {male}</span>
+                <div className="flex justify-between">
+                    <MaleText>
+                        <span className="mr-2">Male</span>
+                        <span className="text-black font-bold">{male}</span>
+                    </MaleText>
 
-                    <span className="text-pink-500">Female {female}</span>
+                    <FemaleText className="grow-0 justify-end!">
+                        <span className="mr-2">Female</span>
+                        <span className="text-black font-bold">{female}</span>
+                    </FemaleText>
                 </div>
-            </Card.Body>
 
-            <Card.Footer
-                className={`text-center text-sm font-semibold ${isPositive ? "text-green-500" : "text-red-500"}`}
-            >
-                {change}
-            </Card.Footer>
+                <PercentageChange current={total} previous={previous} />
+            </Card.Body>
         </Card>
     );
 }
