@@ -1,6 +1,6 @@
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
-import { Overview } from "./components/Overview";
+import { Overview } from "./pages/Overview";
 import ProfilePage from "./pages/ProfilePage";
 import TransactionHistory from "./pages/TransactionHistory";
 import { transactions } from "./data/transactions";

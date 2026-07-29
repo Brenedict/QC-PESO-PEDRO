@@ -1,9 +1,9 @@
-import PageHeader from "./PageHeader";
-import { Text } from "./Text";
-import { StatsCard } from "./StatsCard";
-import { JobFairParticipants } from "./JobFairParticipants";
-import { AccreditationCard } from "./AccreditationCard";
-import { WHIPCard } from "./WHIPCard";
+import PageHeader from "../components/PageHeader";
+import { Text } from "../components/Text";
+import { StatsCard } from "../components/StatsCard";
+import { JobFairParticipants } from "../components/JobFairParticipants";
+import { AccreditationCard } from "../components/AccreditationCard";
+import { WHIPCard } from "../components/WHIPCard";
 
 //DATA
 const dailyTransactionCards = [
