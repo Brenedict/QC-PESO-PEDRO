@@ -9,6 +9,7 @@ import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
 
 
+
 const routes = [
     {
         path: "/auth",
@@ -24,7 +25,7 @@ const routes = [
             },
             {
                 path: "end-shift",
-                element: <EndShiftVerification shiftData={shiftRecords} />, 
+                element: <EndShiftVerification shiftData={shiftRecords} />,
             },
             {
                 path: "loginTest",
