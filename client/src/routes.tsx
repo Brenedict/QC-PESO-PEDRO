@@ -8,6 +8,7 @@ import { transactions } from "./data/transactions";
 import { shiftRecords } from "./data/shiftRecords";
 import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
+import { BasicPopup } from "./pages/TransactionHistory";
 
 const routes = [
     {
@@ -29,6 +30,12 @@ const routes = [
             {
                 path: "history",
                 element: <TransactionHistory onFilterSubmit={() => {}} transactions={transactions} />,
+                children: [
+                    {
+                        path: ":userId/edit",
+                        element: <BasicPopup />,
+                    },
+                ],
             },
             {
                 path: "monitoring",

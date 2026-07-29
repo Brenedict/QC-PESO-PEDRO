@@ -4,10 +4,35 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import type { Transaction } from "../data/transactions";
 import Table from "../components/Table";
 import Status from "../components/Status";
+import { Dialog } from "../components/Dialog";
+import { Text } from "../components/Text";
 import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
-
+import { Outlet } from "react-router";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+import { useNavigateDefault } from "../hooks/reroute";
+
+export function BasicPopup() {
+    const useNavigate = useNavigateDefault();
+
+    return (
+        <Dialog dropShadow={true} onClose={() => useNavigate("history")}>
+            <Dialog.Header
+                toggleRightIcon={true}
+                onRightAction={() => useNavigate("history")}
+                variant="grayish-blue-opaque"
+            >
+                <Text weight="bold">Edit Transaction: TX-260716-001</Text>
+            </Dialog.Header>
+            <Dialog.Body>
+                <Text>This is a Dialog component using a text component</Text>
+            </Dialog.Body>
+            <Dialog.Footer>
+                <Button size="normal">Save Changes</Button>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
 
 function TransactionHistory({
     transactions,
@@ -16,8 +41,10 @@ function TransactionHistory({
     transactions: Transaction[];
     onFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
 }) {
+    const useNavigate = useNavigateDefault();
     const handleEdit = (id: string) => () => {
         console.log(id);
+        useNavigate("historyEdit");
     };
 
     const handleDelete = (id: string) => () => {
@@ -87,6 +114,7 @@ function TransactionHistory({
                     </Table.Row>
                 ))}
             </Table>
+            <Outlet />
         </>
     );
 }
