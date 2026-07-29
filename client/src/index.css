@@ -8,6 +8,7 @@
 
     /* ==== Color Palette ==== */
     --color-black: #000;
+    --color-black-opaque: #00000099;
     --color-white: #fff;
     --color-primary-blue: #004b87;
     --color-off-white: #f8fafc;

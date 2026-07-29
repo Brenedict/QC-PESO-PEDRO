@@ -2,14 +2,14 @@ import { Text } from "./Text";
 
 interface OptionsProp extends React.ButtonHTMLAttributes<HTMLInputElement> {
     children: React.ReactNode;
-    inputVariant: "checkbox" | "radio";
-    stylized: boolean;
+    inputVariant?: "checkbox" | "radio";
+    stylized?: boolean;
 }
 
 function ChoiceItem({ children, inputVariant = "checkbox", stylized = false, ...props }: OptionsProp) {
-    const additionalClass = stylized ? "bg-off-white border-1 border-off-white-border rounded-xl py-1.5 px-3" : "";
+    const baseClass = stylized ? "bg-off-white border-1 border-off-white-border rounded-xl py-1.5 px-3" : "";
     return (
-        <label className={`flex gap-2 ${additionalClass}`}>
+        <label className={`flex gap-2 ${baseClass}`}>
             <input className="accent-primary-blue" type={inputVariant} {...props} />
             <Text size="description" variant="black">
                 {children}

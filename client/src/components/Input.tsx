@@ -23,12 +23,12 @@ interface SelectProp extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 interface GeneralInputProp extends LabelProp, InputProp {
-    type: "text" | "email" | "number";
+    type: "text" | "email" | "number" | "time" | "date";
 }
 
 function Label({ htmlFor, label }: LabelProp) {
     return (
-        <label htmlFor={htmlFor} className="text-description font-medium  block w-full mb-1">
+        <label htmlFor={htmlFor} className="text-description font-medium block w-full mb-1">
             {label}
         </label>
     );
@@ -38,7 +38,7 @@ function BaseInput({ className, ...props }: InputProp) {
     return (
         <input
             {...props}
-            className={`block  text-description font-normal border border-off-white-border  bg-off-white w-full placeholder-grayish-blue ${className}`}
+            className={`block  text-description font-normal border border-off-white-border bg-off-white w-full placeholder-grayish-blue ${className}`}
         />
     );
 }

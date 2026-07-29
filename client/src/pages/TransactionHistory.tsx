@@ -1,60 +1,13 @@
 import PageHeader from "../components/PageHeader";
-import { Text } from "../components/Text";
 import Button from "../components/Button";
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import type { Transaction } from "../data/transactions";
 import Table from "../components/Table";
 import Status from "../components/Status";
-import { BoldColumnText, ConsolasText } from "../components/TableColumn";
+import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
 
-function DateTime({ dateTime }: { dateTime: Date }) {
-    return (
-        <>
-            <div>
-                <Text size="description" variant="black" align="center" weight="medium">
-                    {dateTime.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </Text>
-                <Text size="small" variant="grayish-blue" align="center" weight="normal">
-                    {dateTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
-                </Text>
-            </div>
-        </>
-    );
-}
-
-function ActionButtons({ transactionId }: { transactionId: string }) {
-    // Dummy handler lang (babaguhin pa in future)
-    const handleEdit = async () => {
-        console.log(transactionId);
-    };
-
-    const handleDisable = async () => {
-        console.log(transactionId);
-    };
-
-    return (
-        <>
-            <Button
-                variant="white-black"
-                size="tiny"
-                leftIcon={{ icon: BorderColorOutlinedIcon, size: "medium", variant: "black" }}
-                onClick={handleEdit}
-            >
-                Edit
-            </Button>
-            <Button
-                variant="white-red"
-                size="tiny"
-                leftIcon={{ icon: PersonRemoveOutlinedIcon, size: "medium", variant: "red" }}
-                onClick={handleDisable}
-            >
-                Delete
-            </Button>
-        </>
-    );
-}
+import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
+import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
 function TransactionHistory({
     transactions,
@@ -63,6 +16,14 @@ function TransactionHistory({
     transactions: Transaction[];
     onFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
 }) {
+    const handleEdit = (id: string) => () => {
+        console.log(id);
+    };
+
+    const handleDelete = (id: string) => () => {
+        console.log(id);
+    };
+
     return (
         <>
             <PageHeader primaryText="History Ledger" secondaryText="Comprehensive view of all historical transactions">
@@ -90,7 +51,7 @@ function TransactionHistory({
                 {transactions.map((transaction) => (
                     <Table.Row key={transaction.id}>
                         <Table.Data>
-                            <ConsolasText>{transaction.id}</ConsolasText>
+                            <Identifier>{transaction.id}</Identifier>
                         </Table.Data>
                         <Table.Data>
                             <DateTime dateTime={transaction.dateTime} />
@@ -99,13 +60,29 @@ function TransactionHistory({
                             <Status type="type" variant={transaction.type} />
                         </Table.Data>
                         <Table.Data>
-                            <BoldColumnText>{transaction.applicant}</BoldColumnText>
+                            <ColumnText>{transaction.applicant}</ColumnText>
                         </Table.Data>
                         <Table.Data>
                             <Status type="outcome" variant={transaction.outcome} />
                         </Table.Data>
                         <Table.Data>
-                            <ActionButtons transactionId={transaction.id} />
+                            <ActionButtons
+                                id={transaction.id}
+                                actions={[
+                                    {
+                                        color: "black",
+                                        icon: BorderColorOutlinedIcon,
+                                        handleClick: handleEdit,
+                                        text: "Edit",
+                                    },
+                                    {
+                                        color: "red",
+                                        icon: PersonRemoveOutlinedIcon,
+                                        handleClick: handleDelete,
+                                        text: "Delete",
+                                    },
+                                ]}
+                            />
                         </Table.Data>
                     </Table.Row>
                 ))}

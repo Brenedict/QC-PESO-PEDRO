@@ -12,8 +12,7 @@ import { Text } from "../components/Text";
 import Table from "../components/Table";
 import { type EmployeeSession } from "../data/employeeSessions";
 import Status from "../components/Status";
-import Button from "../components/Button";
-import { BoldColumnText, ConsolasText } from "../components/TableColumn";
+import { ActionButton, ColumnText } from "../components/TableCells";
 
 const iconClasses = {
     green: { variant: "green", bgVariant: "green-opaque" },
@@ -108,6 +107,10 @@ function LoginMonitoring({
     onFilterSubmit,
     employeeSessions,
 }: LoginMonitoringProps) {
+    const handleHistory = (id: string) => () => {
+        console.log(id);
+    };
+
     return (
         <>
             {/* Page Header */}
@@ -149,7 +152,7 @@ function LoginMonitoring({
                 {employeeSessions.map((employee) => (
                     <Table.Row>
                         <Table.Data>
-                            <BoldColumnText>{employee.name}</BoldColumnText>
+                            <ColumnText>{employee.name}</ColumnText>
                         </Table.Data>
                         <Table.Data>{employee.role === "admin" ? "Administrator" : "Frontline Encoder"}</Table.Data>
                         <Table.Data>{employee.totalLoginSessions}</Table.Data>
@@ -161,9 +164,8 @@ function LoginMonitoring({
                         </Table.Data>
 
                         <Table.Data>
-                            <Button variant="opaque-blue" size="tiny">
-                                View History
-                            </Button>
+                            <ActionButton id={employee.name} handleClick={handleHistory} text="View History" />
+                            {/* Yung employee.name di pa final yan dapat id */}
                         </Table.Data>
                     </Table.Row>
                 ))}

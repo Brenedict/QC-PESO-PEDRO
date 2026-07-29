@@ -2,8 +2,11 @@ import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
 import { Overview } from "./pages/Overview";
 import ProfilePage from "./pages/ProfilePage";
+import TransactionsInputPage from "./pages/TransactionsInputPage";
 import TransactionHistory from "./pages/TransactionHistory";
+import EndShiftVerification from "./pages/EndShiftVerification";
 import { transactions } from "./data/transactions";
+import { shiftRecords } from "./data/shiftRecords";
 import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
 
@@ -25,8 +28,8 @@ const routes = [
                 element: <ProfilePage />,
             },
             {
-                path: "loginTest",
-                element: <LoginPage onSubmit={() => {}} />,
+                path: "end-shift",
+                element: <EndShiftVerification shiftData={shiftRecords} />,
             },
             {
                 path: "history",
@@ -44,6 +47,10 @@ const routes = [
                         employeeSessions={employeeSessions}
                     />
                 ),
+            },
+            {
+                path: "applicant-form",
+                element: <TransactionsInputPage onSubmit={() => {}} />,
             },
         ],
     },
