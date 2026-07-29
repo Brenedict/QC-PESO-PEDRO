@@ -6,8 +6,9 @@ import { Overview} from "../components/Overview";
 function DashboardLayout() {
     return (
         <main className="w-full min-h-screen flex">
-            <NavBar userType="frontline"></NavBar>
-            <section className="">
+            <NavBar userType="frontline" />
+
+            <section className="flex-1">
                 <TopBar
                     status="online"
                     hasNotif={true}
@@ -15,9 +16,11 @@ function DashboardLayout() {
                     roleType="frontline"
                     onNotifClick={() => console.log()}
                     onSearchChange={() => console.log()}
-                ></TopBar>
-                <Outlet />
-                <Overview/>
+                />
+                <main className="p-8">
+                    <Outlet />
+                    <Overview />
+                </main>
             </section>
 
         </main>

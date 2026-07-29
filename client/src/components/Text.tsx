@@ -1,4 +1,4 @@
-import Icon, { type IconProps } from "./Icon";
+import Icon from "./Icon";
 import {
     SizeClasses,
     type SizeVariant,
@@ -6,6 +6,7 @@ import {
     type ColorVariant,
     type AlignVariant,
     alignClasses,
+    type MaterialIcon,
 } from "../types/common.ts";
 
 const weightClasses = {
@@ -48,8 +49,11 @@ interface HeadingProp {
     weight?: WeightVariant;
     font?: FontVariant;
     align?: AlignVariant;
-    svg?: Omit<IconProps, "variant"> & {
+    svg?: {
         //Icon type (you can pass the name here)
+        icon: MaterialIcon;
+        size: SizeVariant;
+        variant?: ColorVariant;
         position: svgPosition;
         gap: gapVariant;
     };
@@ -68,7 +72,7 @@ export function Text({
         <div
             className={`w-full flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
         >
-            {svg && <Icon icon={svg.icon} size={svg.size} variant={variant} />}
+            {svg && <Icon icon={svg.icon} size={svg.size} variant={svg.variant || variant} />}
             <p
                 className={`${SizeClasses[size]} ${ColorClasses[variant].text} ${weightClasses[weight]} ${fontClasses[font]} ${alignClasses[align]}  grow `}
             >

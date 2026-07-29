@@ -1,5 +1,8 @@
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
+import ProfilePage from "./pages/ProfilePage";
+import TransactionHistory from "./pages/TransactionHistory";
+import { transactions } from "./data/transactions";
 
 const routes = [
     {
@@ -11,8 +14,16 @@ const routes = [
         element: <DashboardLayout />,
         children: [
             {
-                path: "login",
+                path: "profile",
+                element: <ProfilePage />,
+            },
+            {
+                path: "loginTest",
                 element: <LoginPage onSubmit={() => {}} />,
+            },
+            {
+                path: "history",
+                element: <TransactionHistory onFilterSubmit={() => {}} transactions={transactions} />,
             },
         ],
     },

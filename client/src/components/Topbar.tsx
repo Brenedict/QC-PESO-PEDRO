@@ -14,7 +14,7 @@ import Button from "./Button.tsx";
 function LeftSection() {
     const { onSearchChange } = useContext(TopBarContext);
     return (
-        <section className="flex items-center">
+        <section className="flex items-center mr-20">
             <SearchInput placeholder="Search transactions..." onChange={onSearchChange} />
         </section>
     );
@@ -48,16 +48,18 @@ function DateTime() {
 function NotifButton() {
     const { onNotifClick, hasNotif } = useContext(TopBarContext);
     return (
-        <button
+        <Button
             onClick={onNotifClick}
-            className="hover:bg-off-white-border transition-colors p-2 cursor-pointer rounded-xl flex justify-center"
+            size="small"
+            variant="white-black"
+            className="min-w-0! aspect-square h-10 w-auto "
         >
             <Icon
                 variant={hasNotif ? "red" : "grayish-blue"}
                 icon={hasNotif ? NotificationImportantOutlinedIcon : NotificationsNoneOutlinedIcon}
                 size="big"
             />
-        </button>
+        </Button>
     );
 }
 
@@ -66,10 +68,10 @@ function ProfileSection() {
     return (
         <div className="flex">
             <div className="mr-3 flex flex-col text-right">
-                <Text size="description" variant="dark-blue" weight="semiBold">
+                <Text size="description" variant="dark-blue" weight="semiBold" align="right">
                     {userFullName}
                 </Text>
-                <Text size="small" variant="primary-blue" weight="medium">
+                <Text size="small" variant="primary-blue" weight="medium" align="right">
                     {roleType === "admin" ? "Administrator" : "Frontline Encoder"}
                 </Text>
             </div>
@@ -112,7 +114,7 @@ function RightSection() {
 function TopBar(props: TopBarContextValue) {
     return (
         <TopBarContext value={props}>
-            <header className="flex items-center justify-between px-8 py-4 shadow-default w-full">
+            <header className="flex items-center justify-between px-8 py-4 shadow-default w-full min-w-max sticky top-0 z-50 bg-white">
                 {/* Left Section */}
                 <LeftSection />
 

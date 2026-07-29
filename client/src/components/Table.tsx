@@ -8,6 +8,7 @@ import Icon from "./Icon";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { Form } from "react-router";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 function Row({ children }: { children: ReactNode }) {
     return <tr>{children}</tr>;
@@ -146,9 +147,10 @@ interface TableProps {
     onFilterSubmit?: SubmitEventHandler<HTMLFormElement>;
     extraFilters?: ReactNode;
     pagination?: number;
+    noCardStyle?: boolean;
 }
 
-function Table({ extraFilters, onFilterSubmit, children, pagination }: TableProps) {
+function Table({ extraFilters, onFilterSubmit, children, pagination, noCardStyle = false }: TableProps) {
     const [page, setPage] = useState<number>(1);
 
     let paginationSection = null;
@@ -176,21 +178,36 @@ function Table({ extraFilters, onFilterSubmit, children, pagination }: TableProp
     }
 
     return (
-        <Card>
+        <Card {...(noCardStyle && { dropShadow: false, className: "rounded-none! border-0!" })}>
             {/* Header */}
             {onFilterSubmit && <FilterSection onSubmit={onFilterSubmit}>{extraFilters}</FilterSection>}
 
             {/* Body */}
-            <Card.Body className={`p-0!  `}>
+            <Card.Body className="p-0!">
                 <table className="table-auto w-full">
                     <thead>{header}</thead>
                     <tbody>
                         {viewRows.length <= 0 ? (
                             <tr>
                                 <td colSpan={9999} className="p-20">
-                                    <Text size="big" variant="grayish-blue" align="center" weight="bold">
-                                        No data to show here!
-                                    </Text>
+                                    <div className="flex justify-center">
+                                        <div className="w-fit bg-red-opaque py-2 px-5 rounded-2xl">
+                                            <Text
+                                                size="description"
+                                                variant="red"
+                                                align="center"
+                                                weight="bold"
+                                                svg={{
+                                                    gap: "big",
+                                                    icon: CancelIcon,
+                                                    position: "left",
+                                                    size: "bigMedium",
+                                                }}
+                                            >
+                                                No data to show here!
+                                            </Text>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         ) : (
