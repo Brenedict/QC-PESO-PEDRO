@@ -9,6 +9,8 @@ import { transactions } from "./data/transactions";
 import { shiftRecords } from "./data/shiftRecords";
 import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
+import SystemAuditLogs from "./pages/SystemAuditLogs";
+import { auditLogData } from "./data/auditLogs";
 
 const routes = [
     {
@@ -51,6 +53,10 @@ const routes = [
             {
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
+            },
+            {
+                path: "audit-logs",
+                element: <SystemAuditLogs logsData={auditLogData} />,
             },
         ],
     },
