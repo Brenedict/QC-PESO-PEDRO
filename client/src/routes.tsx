@@ -8,7 +8,8 @@ import { transactions } from "./data/transactions";
 import { shiftRecords } from "./data/shiftRecords";
 import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
-import { BasicPopup } from "./pages/TransactionHistory";
+import { PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
+import type { ActionFunctionArgs } from "react-router";
 
 const routes = [
     {
@@ -32,8 +33,14 @@ const routes = [
                 element: <TransactionHistory onFilterSubmit={() => {}} transactions={transactions} />,
                 children: [
                     {
-                        path: ":userId/edit",
-                        element: <BasicPopup />,
+                        path: ":transactionId/edit",
+                        element: <PopupDeleteTransaction />,
+                        action: async ({ request, params }: ActionFunctionArgs) => {
+                            let formData = await request.formData();
+
+                            console.log([...formData.entries()]);
+                            return { success: true };
+                        },
                     },
                 ],
             },
