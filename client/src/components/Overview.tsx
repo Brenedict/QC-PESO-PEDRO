@@ -1,3 +1,5 @@
+import PageHeader from "./PageHeader";
+import { Text } from "./Text";
 import { StatsCard } from "./StatsCard";
 import { JobFairParticipants } from "./JobFairParticipants";
 import { AccreditationCard } from "./AccreditationCard";
@@ -13,7 +15,7 @@ const dailyTransactionCards = [
         change: "↗ +12% vs Yesterday",
         isPositive: true,
     },
-     {
+    {
         title: "Walk ins",
         total: 48,
         male: 26,
@@ -21,7 +23,7 @@ const dailyTransactionCards = [
         change: "↗ 5% vs Yesterday",
         isPositive: true,
     },
-     {
+    {
         title: "Online Referrals",
         total: 31,
         male: 18,
@@ -29,7 +31,7 @@ const dailyTransactionCards = [
         change: "",
         isPositive: true,
     },
-     {
+    {
         title: "in-house Referrals",
         total: 17,
         male: 8,
@@ -37,7 +39,7 @@ const dailyTransactionCards = [
         change: "",
         isPositive: true,
     },
-     {
+    {
         title: "Other inqueries",
         total: 12,
         male: 6,
@@ -56,7 +58,7 @@ const applicantCards = [
         change: "↘ -2% vs Yesterday",
         isPositive: false,
     },
-     {
+    {
         title: "PWD",
         total: 9,
         male: 5,
@@ -64,7 +66,7 @@ const applicantCards = [
         change: "",
         isPositive: false,
     },
-     {
+    {
         title: "Senior Citizens",
         total: 11,
         male: 4,
@@ -83,7 +85,7 @@ const employmentOutcomeCards = [
         change: "↗ +8% vs Yesterday",
         isPositive: true,
     },
-     {
+    {
         title: "Pending Applications",
         total: 12,
         male: 7,
@@ -91,7 +93,7 @@ const employmentOutcomeCards = [
         change: "",
         isPositive: true,
     },
-     {
+    {
         title: "Mismatched Skills",
         total: 6,
         male: 4,
@@ -127,28 +129,19 @@ const WHIPData = {
 
 function DailyTransactions() {
     return (
-        <div className="grid grid-cols-5 gap-6">   
+        <div className="grid grid-cols-5 gap-6">
             {dailyTransactionCards.map((card) => (
-                 <StatsCard
-                    key={card.title}
-                    className="w-full"
-                    {...card}
-/>
+                <StatsCard key={card.title} className="w-full" {...card} />
             ))}
         </div>
     );
 }
 
-
 function ApplicantsDemographics() {
     return (
-        <div className="grid grid-cols-3 gap-6">   
+        <div className="grid grid-cols-3 gap-6">
             {applicantCards.map((card) => (
-                <StatsCard
-                    key={card.title}
-                    className="w-full"
-                    {...card}
-                />
+                <StatsCard key={card.title} className="w-full" {...card} />
             ))}
         </div>
     );
@@ -156,21 +149,17 @@ function ApplicantsDemographics() {
 
 function EmploymentOutcomes() {
     return (
-        <div className="grid grid-cols-3 gap-6">   
+        <div className="grid grid-cols-3 gap-6">
             {employmentOutcomeCards.map((card) => (
-                <StatsCard
-                    key={card.title}
-                    className="w-full"
-                    {...card}
-                />
+                <StatsCard key={card.title} className="w-full" {...card} />
             ))}
         </div>
     );
 }
-          
+
 function EmploymentEvents() {
     return (
-        <div className="grid grid-cols-3 gap-6">   
+        <div className="grid grid-cols-3 gap-6">
             <JobFairParticipants {...jobFairData} />
             <AccreditationCard {...accreditationData} />
             <WHIPCard {...WHIPData} />
@@ -182,49 +171,40 @@ function EmploymentEvents() {
 export function Overview() {
     return (
         <div className="m-6">
-
-            <div className="mb-8">
-                <h2 className="text-3xl font-bold">
-                    Overview
-                </h2>
-
-                <p className="text-gray-600 text-sm mt-1">
-                    Welcome back. Here's what's happening today.
-                </p>
-            </div>
+            <PageHeader
+                primaryText="Overview"
+                secondaryText="Welcome back. Here's what's happening today."
+            ></PageHeader>
 
             <section>
-                <h2 className="text-xl font-bold text-blue-500 mb-4">
+                <Text size="medium" weight="bold" variant="primary-blue">
                     Daily Transactions
-                </h2>
-
+                </Text>
                 <DailyTransactions />
             </section>
 
             <section className="border-t border-gray-200 pt-6 mt-8">
-                <h2 className="text-xl font-bold text-blue-500 mb-4">
+                <Text size="medium" weight="bold" variant="primary-blue">
                     Applicant Demographics
-                </h2>
+                </Text>
 
                 <ApplicantsDemographics />
             </section>
 
             <section className="border-t border-gray-200 pt-6 mt-8">
-                <h2 className="text-xl font-bold text-blue-500 mb-4">
+                <Text size="medium" weight="bold" variant="primary-blue">
                     Employment Outcomes
-                </h2>
-
+                </Text>
                 <EmploymentOutcomes />
             </section>
 
             <section className="border-t border-gray-200 pt-6 mt-8">
-                <h2 className="text-xl font-bold text-blue-500 mb-4">
+                <Text size="medium" weight="bold" variant="primary-blue">
                     Employment Events
-                </h2>
+                </Text>
 
                 <EmploymentEvents />
             </section>
-
         </div>
     );
 }

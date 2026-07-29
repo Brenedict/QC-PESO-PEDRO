@@ -1,8 +1,11 @@
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
+import { Overview } from "./components/Overview";
 import ProfilePage from "./pages/ProfilePage";
 import TransactionHistory from "./pages/TransactionHistory";
 import { transactions } from "./data/transactions";
+import LoginMonitoring from "./pages/LoginMonitoring";
+import { employeeSessions } from "./data/employeeSessions";
 
 const routes = [
     {
@@ -14,6 +17,10 @@ const routes = [
         element: <DashboardLayout />,
         children: [
             {
+                path: "",
+                element: <Overview />,
+            },
+            {
                 path: "profile",
                 element: <ProfilePage />,
             },
@@ -24,6 +31,19 @@ const routes = [
             {
                 path: "history",
                 element: <TransactionHistory onFilterSubmit={() => {}} transactions={transactions} />,
+            },
+            {
+                path: "monitoring",
+                element: (
+                    <LoginMonitoring
+                        currentlyLogged={12}
+                        totalLogins={18}
+                        totalLogouts={6}
+                        sessionDuration={"8h 12m"}
+                        onFilterSubmit={() => {}}
+                        employeeSessions={employeeSessions}
+                    />
+                ),
             },
         ],
     },
