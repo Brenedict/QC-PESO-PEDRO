@@ -8,6 +8,7 @@ export interface ProfileBaseProps {
 
 export interface ProfileProps extends ProfileBaseProps {
     bg?: ColorVariant;
+    textColor?: ColorVariant;
     size: "small" | "big";
 }
 
@@ -16,7 +17,7 @@ const profileMap = {
     big: "w-24 h-24 border-4 border-white shadow-default", // Based on figma
 } as const;
 
-function Profile({ userFullName, profilePicUrl, size, bg = "primary-blue" }: ProfileProps) {
+function Profile({ userFullName, profilePicUrl, size, bg = "primary-blue", textColor = "white" }: ProfileProps) {
     let text: string | null = null;
 
     // Get the initals of first name and last name
@@ -27,13 +28,13 @@ function Profile({ userFullName, profilePicUrl, size, bg = "primary-blue" }: Pro
 
     return (
         <div
-            className={`${profileMap[size]} bg-cover bg-center rounded-full flex justify-center items-center`}
+            className={`${profileMap[size]} select-none  bg-cover bg-center rounded-full flex justify-center items-center`}
             style={
                 profilePicUrl ? { backgroundImage: `url(${profilePicUrl})` } : { backgroundColor: `var(--color-${bg})` }
             }
         >
             {text && !profilePicUrl && (
-                <Text size={size === "small" ? "small" : "bigger"} variant="white" weight="bold" align="center">
+                <Text size={size === "small" ? "small" : "bigger"} variant={textColor} weight="bold" align="center">
                     {text}
                 </Text>
             )}

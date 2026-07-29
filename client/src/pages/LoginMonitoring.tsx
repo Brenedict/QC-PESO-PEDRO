@@ -107,6 +107,10 @@ function LoginMonitoring({
     onFilterSubmit,
     employeeSessions,
 }: LoginMonitoringProps) {
+    const handleHistory = (id: string) => () => {
+        console.log(id);
+    };
+
     return (
         <>
             {/* Page Header */}
@@ -160,7 +164,7 @@ function LoginMonitoring({
                         </Table.Data>
 
                         <Table.Data>
-                            <ActionButton id={employee.name}>View History</ActionButton>{" "}
+                            <ActionButton id={employee.name} handleClick={handleHistory} text="View History" />
                             {/* Yung employee.name di pa final yan dapat id */}
                         </Table.Data>
                     </Table.Row>

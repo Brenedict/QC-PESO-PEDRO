@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 import { Text } from "../components/Text";
 import Button from "../components/Button";
 
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+import type { ColorVariant, MaterialIcon } from "../types/common";
 
 export function ColumnText({ children }: { children: ReactNode }) {
     return (
@@ -38,46 +37,55 @@ export function DateTime({ dateTime }: { dateTime: Date }) {
     );
 }
 
-export function ActionButtons({ id }: { id: string }) {
-    // Dummy handler lang (babaguhin pa in future)
-    const handleEdit = async () => {
-        console.log(id);
-    };
+export type Action = {
+    icon: MaterialIcon;
+    text: string;
+    handleClick: (id: string) => React.MouseEventHandler<HTMLButtonElement>;
+    color: "red" | "black" | "blue";
+};
 
-    const handleDisable = async () => {
-        console.log(id);
-    };
+export type ActionTypes = Action[];
 
+const buttonMap = {
+    red: { variant: "white-red", iconVariant: "red" },
+    blue: { variant: "white-blue", iconVariant: "primary-blue" },
+    black: { variant: "white-black", iconVariant: "black" },
+} as const;
+
+export function ActionButtons({ id, actions }: { id: string; actions: ActionTypes }) {
     return (
         <>
-            <Button
-                variant="white-black"
-                size="tiny"
-                leftIcon={{ icon: BorderColorOutlinedIcon, size: "medium", variant: "black" }}
-                onClick={handleEdit}
-            >
-                Edit
-            </Button>
-            <Button
-                variant="white-red"
-                size="tiny"
-                leftIcon={{ icon: PersonRemoveOutlinedIcon, size: "medium", variant: "red" }}
-                onClick={handleDisable}
-            >
-                Delete
-            </Button>
+            {actions.map((action) => (
+                <Button
+                    key={action.text}
+                    variant={buttonMap[action.color].variant}
+                    size="tiny"
+                    leftIcon={{
+                        icon: action.icon,
+                        size: "medium",
+                        variant: buttonMap[action.color].iconVariant as ColorVariant,
+                    }}
+                    onClick={action.handleClick(id)}
+                >
+                    {action.text}
+                </Button>
+            ))}
         </>
     );
 }
 
-export function ActionButton({ id, children }: { id: string; children: ReactNode }) {
-    const handleClick = async () => {
-        console.log(id);
-    };
-
+export function ActionButton({
+    id,
+    text,
+    handleClick,
+}: {
+    id: string;
+    text: string;
+    handleClick: (id: string) => React.MouseEventHandler<HTMLButtonElement>;
+}) {
     return (
-        <Button variant="opaque-blue" size="tiny" onClick={handleClick}>
-            {children}
+        <Button variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
+            {text}
         </Button>
     );
 }

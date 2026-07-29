@@ -6,6 +6,9 @@ import Table from "../components/Table";
 import Status from "../components/Status";
 import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
 
+import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
+import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+
 function TransactionHistory({
     transactions,
     onFilterSubmit,
@@ -13,6 +16,14 @@ function TransactionHistory({
     transactions: Transaction[];
     onFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
 }) {
+    const handleEdit = (id: string) => () => {
+        console.log(id);
+    };
+
+    const handleDelete = (id: string) => () => {
+        console.log(id);
+    };
+
     return (
         <>
             <PageHeader primaryText="History Ledger" secondaryText="Comprehensive view of all historical transactions">
@@ -55,7 +66,23 @@ function TransactionHistory({
                             <Status type="outcome" variant={transaction.outcome} />
                         </Table.Data>
                         <Table.Data>
-                            <ActionButtons id={transaction.id} />
+                            <ActionButtons
+                                id={transaction.id}
+                                actions={[
+                                    {
+                                        color: "black",
+                                        icon: BorderColorOutlinedIcon,
+                                        handleClick: handleEdit,
+                                        text: "Edit",
+                                    },
+                                    {
+                                        color: "red",
+                                        icon: PersonRemoveOutlinedIcon,
+                                        handleClick: handleDelete,
+                                        text: "Delete",
+                                    },
+                                ]}
+                            />
                         </Table.Data>
                     </Table.Row>
                 ))}
