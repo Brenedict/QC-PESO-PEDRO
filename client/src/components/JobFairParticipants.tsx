@@ -1,7 +1,6 @@
 import { Card } from "./Card";
 import { CardHeader, Divider, FemaleText, MaleText, NumberText, NumberTitle } from "./DashboardCard";
-
-import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
+import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
 
 export interface JobFairParticipantsProps {
     title: string;
@@ -27,7 +26,7 @@ export function JobFairParticipants({
     return (
         <Card className="w-full">
             <Card.Body variant="white" className="p-5!">
-                <CardHeader icon={PeopleOutlineOutlinedIcon}>{title}</CardHeader>
+                <CardHeader icon={BusinessCenterOutlinedIcon}>{title}</CardHeader>
 
                 <Divider />
                 <section className="grid grid-cols-2 gap-8">

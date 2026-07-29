@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { WHIPCard } from "../components/WHIPCard";
+import "../index.css";
 
 const meta: Meta<typeof WHIPCard> = {
     title: "Dashboard/WHIP Card",
@@ -19,3 +20,4 @@ export const Default: Story = {
         female: 50,
     },
 };
+

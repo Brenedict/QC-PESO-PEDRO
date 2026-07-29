@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { AccreditationCard } from "../components/AccreditationCard";
+import "../index.css";
 
 const meta: Meta<typeof AccreditationCard> = {
     title: "Dashboard/AccreditationCard",
@@ -19,3 +20,4 @@ export const Default: Story = {
         renewalCount: 10,
     },
 };
+

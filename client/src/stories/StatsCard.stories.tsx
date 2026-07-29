@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { StatsCard } from "../components/StatsCard";
+import "../index.css";
 
 const meta: Meta<typeof StatsCard> = {
     title: "Dashboard/Stats Card",
@@ -17,8 +18,7 @@ export const TotalTransactions: Story = {
         total: 142,
         male: 82,
         female: 60,
-        change: "↗ +12% vs Yesterday",
-        isPositive: true,
+        previous: 20,
     },
 };
 
@@ -28,8 +28,7 @@ export const WalkIns: Story = {
         total: 48,
         male: 26,
         female: 22,
-        change: "↗ +5% vs Yesterday",
-        isPositive: true,
+        previous: 30,
     },
 };
 
@@ -39,8 +38,7 @@ export const OnlineReferrals: Story = {
         total: 31,
         male: 18,
         female: 13,
-        change: "",
-        isPositive: true,
+        previous: 10,
     },
 };
 
@@ -50,8 +48,7 @@ export const InHouseReferrals: Story = {
         total: 17,
         male: 8,
         female: 9,
-        change: "",
-        isPositive: true,
+        previous: 10,
     },
 };
 
@@ -61,8 +58,7 @@ export const OtherInquiries: Story = {
         total: 12,
         male: 6,
         female: 6,
-        change: "",
-        isPositive: true,
+        previous: 10,
     },
 };
 
@@ -72,8 +68,7 @@ export const FirstTimeJobSeekers: Story = {
         total: 41,
         male: 19,
         female: 22,
-        change: "↘ -2% vs Yesterday",
-        isPositive: false,
+        previous: 10,
     },
 };
 
@@ -83,8 +78,7 @@ export const PWD: Story = {
         total: 9,
         male: 5,
         female: 4,
-        change: "",
-        isPositive: true,
+        previous: 10,
     },
 };
 
@@ -94,8 +88,7 @@ export const SeniorCitizens: Story = {
         total: 11,
         male: 4,
         female: 7,
-        change: "",
-        isPositive: true,
+        previous: 10,
     },
 };
 
@@ -105,8 +98,7 @@ export const SuccessfulReferrals: Story = {
         total: 84,
         male: 45,
         female: 39,
-        change: "↗ +8% vs Yesterday",
-        isPositive: true,
+        previous: 10,
     },
 };
 
@@ -116,8 +108,7 @@ export const PendingApplications: Story = {
         total: 12,
         male: 7,
         female: 5,
-        change: "",
-        isPositive: true,
+        previous: 10,
     },
 };
 
@@ -127,7 +118,7 @@ export const MismatchedSkills: Story = {
         total: 6,
         male: 4,
         female: 2,
-        change: "",
-        isPositive: true,
+        previous: 10,
     },
 };
+

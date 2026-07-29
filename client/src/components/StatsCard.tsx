@@ -1,4 +1,5 @@
 import { CardHeader } from "../components/DashboardCard";
+import type { MaterialIcon } from "../types/common";
 import { Card } from "./Card";
 import { Divider, FemaleText, MaleText, NumberText, NumberTitle, PercentageChange } from "./DashboardCard";
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
@@ -10,13 +11,14 @@ interface StatsCardProps {
     female: number;
     previous: number;
     className?: string;
+    specialIcon?: MaterialIcon;
 }
 
-export function StatsCard({ title, total, male, female, previous, className }: StatsCardProps) {
+export function StatsCard({ title, total, male, female, previous, className, specialIcon }: StatsCardProps) {
     return (
         <Card className={`w-full ${className ?? ""}`}>
             <Card.Body variant="white" className="p-5!">
-                <CardHeader icon={PeopleOutlineOutlinedIcon}>{title}</CardHeader>
+                <CardHeader icon={specialIcon || PeopleOutlineOutlinedIcon}>{title}</CardHeader>
                 <Divider />
 
                 <NumberTitle>TOTAL</NumberTitle>
@@ -41,4 +43,3 @@ export function StatsCard({ title, total, male, female, previous, className }: S
         </Card>
     );
 }
-

@@ -1,3 +1,7 @@
+import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
+import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
+import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
+
 export const dailyTransactionCards = [
     {
         title: "Total Transactions",
@@ -28,6 +32,23 @@ export const dailyTransactionCards = [
         previous: 17,
     },
     {
+        title: "Work Immersion",
+        total: 24,
+        male: 14,
+        female: 10,
+        previous: 20,
+        specialIcon: BusinessCenterOutlinedIcon,
+    },
+    {
+        title: "Internship Referral",
+        total: 15,
+        male: 9,
+        female: 6,
+        previous: 13,
+        specialIcon: BusinessCenterOutlinedIcon,
+    },
+
+    {
         title: "Other Inquiries",
         total: 12,
         male: 6,
@@ -43,6 +64,7 @@ export const applicantCards = [
         male: 19,
         female: 22,
         previous: 42,
+        specialIcon: AssignmentIndOutlinedIcon,
     },
     {
         title: "PWD",
@@ -50,6 +72,7 @@ export const applicantCards = [
         male: 5,
         female: 4,
         previous: 9,
+        specialIcon: AssignmentIndOutlinedIcon,
     },
     {
         title: "Senior Citizens",
@@ -57,6 +80,23 @@ export const applicantCards = [
         male: 4,
         female: 7,
         previous: 11,
+        specialIcon: AssignmentIndOutlinedIcon,
+    },
+    {
+        title: "Young Workers",
+        total: 23,
+        male: 10,
+        female: 13,
+        previous: 14,
+        specialIcon: AssignmentIndOutlinedIcon,
+    },
+    {
+        title: "Students",
+        total: 23,
+        male: 10,
+        female: 13,
+        previous: 11,
+        specialIcon: AssignmentIndOutlinedIcon,
     },
 ];
 
@@ -67,6 +107,7 @@ export const employmentOutcomeCards = [
         male: 45,
         female: 39,
         previous: 78,
+        specialIcon: BusinessCenterOutlinedIcon,
     },
     {
         title: "Pending Applications",
@@ -74,6 +115,7 @@ export const employmentOutcomeCards = [
         male: 7,
         female: 5,
         previous: 12,
+        specialIcon: FindInPageOutlinedIcon,
     },
     {
         title: "Mismatched Skills",
@@ -81,6 +123,7 @@ export const employmentOutcomeCards = [
         male: 4,
         female: 2,
         previous: 6,
+        specialIcon: FindInPageOutlinedIcon,
     },
 ];
 
