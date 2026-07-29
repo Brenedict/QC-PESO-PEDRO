@@ -8,6 +8,7 @@ import Icon from "./Icon";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { Form } from "react-router";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 function Row({ children }: { children: ReactNode }) {
     return <tr>{children}</tr>;
@@ -189,9 +190,24 @@ function Table({ extraFilters, onFilterSubmit, children, pagination, noCardStyle
                         {viewRows.length <= 0 ? (
                             <tr>
                                 <td colSpan={9999} className="p-20">
-                                    <Text size="big" variant="grayish-blue" align="center" weight="bold">
-                                        No data to show here!
-                                    </Text>
+                                    <div className="flex justify-center">
+                                        <div className="w-fit bg-red-opaque py-2 px-5 rounded-2xl">
+                                            <Text
+                                                size="description"
+                                                variant="red"
+                                                align="center"
+                                                weight="bold"
+                                                svg={{
+                                                    gap: "big",
+                                                    icon: CancelIcon,
+                                                    position: "left",
+                                                    size: "bigMedium",
+                                                }}
+                                            >
+                                                No data to show here!
+                                            </Text>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         ) : (

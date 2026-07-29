@@ -37,7 +37,9 @@ function StatCard({ title, value, valueVariant = "dark-blue" }: { title: string;
 function EmployeeCell({ name }: { name: string }) {
     return (
         <div className="flex items-center gap-3 w-full justify-center md:justify-start">
-            <Profile size="small" userFullName={name} />
+            <div className="shrink-0">
+                <Profile size="small" userFullName={name} />
+            </div>
             <Text size="description" weight="bold" variant="dark-blue">
                 {name}
             </Text>

@@ -6,6 +6,7 @@ import EndShiftVerification from "./pages/EndShiftVerification";
 import { transactions } from "./data/transactions";
 import { shiftRecords } from "./data/shiftRecords"; 
 import LoginMonitoring from "./pages/LoginMonitoring";
+import { employeeSessions } from "./data/employeeSessions";
 
 
 const routes = [
@@ -35,7 +36,16 @@ const routes = [
             },
             {
                 path: "monitoring",
-                element: <LoginMonitoring />,
+                element: (
+                    <LoginMonitoring
+                        currentlyLogged={12}
+                        totalLogins={18}
+                        totalLogouts={6}
+                        sessionDuration={"8h 12m"}
+                        onFilterSubmit={() => {}}
+                        employeeSessions={employeeSessions}
+                    />
+                ),
             },
         ],
     },

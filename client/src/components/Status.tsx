@@ -1,5 +1,6 @@
 import WifiIcon from "@mui/icons-material/Wifi";
 import WifiOffIcon from "@mui/icons-material/WifiOff";
+import LogoutIcon from "@mui/icons-material/Logout";
 import CheckIcon from "@mui/icons-material/Check";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
@@ -9,7 +10,7 @@ import { alignClasses } from "../types/common.ts";
 
 // Available variants for each status type
 type StatusVariantMap = {
-    connection: "online" | "offline";
+    connection: "online" | "offline" | "loggedout";
     type: "walkin" | "online" | "inhouse";
     outcome: "pending" | "mismatched" | "success";
     verification: "pending" | "approved" | "needsrevision" | "rejected";
@@ -42,6 +43,7 @@ interface StatusConfig {
 const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
     connection: {
         online: { text: "Online", variant: "green", theme: colorClasses.green, icon: WifiIcon },
+        loggedout: { text: "Logged Out", variant: "grayish-blue", theme: colorClasses.offWhite, icon: LogoutIcon },
         offline: { text: "Offline", variant: "red", theme: colorClasses.red, icon: WifiOffIcon },
     },
     type: {
