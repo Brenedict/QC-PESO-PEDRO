@@ -6,28 +6,17 @@ interface AccreditationCardProps {
     newCount: number;
     renewalCount: number;
 }
-export function AccreditationCard({
-    title,
-    total,
-    newCount,
-    renewalCount,
-}: AccreditationCardProps) {
+export function AccreditationCard({ title, total, newCount, renewalCount }: AccreditationCardProps) {
     return (
         <Card className="w-full">
             <Card.Header>
-                <h3 className="font-semibold">
-                    {title}
-                </h3>
+                <h3 className="font-semibold">{title}</h3>
             </Card.Header>
 
             <Card.Body>
-                <p className="text-xs uppercase text-gray-400">
-                    Total Accredited
-                </p>
+                <p className="text-xs uppercase text-gray-400">Total Accredited</p>
 
-                <h1 className="text-4xl font-bold">
-                    {total}
-                </h1>
+                <h1 className="text-4xl font-bold">{total}</h1>
 
                 <div className="flex justify-between mt-6">
                     <span>New: {newCount}</span>
