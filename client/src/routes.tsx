@@ -1,5 +1,6 @@
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
+import { Overview } from "./pages/Overview";
 import ProfilePage from "./pages/ProfilePage";
 import TransactionsInputPage from "./pages/TransactionsInputPage";
 import TransactionHistory from "./pages/TransactionHistory";
@@ -18,6 +19,10 @@ const routes = [
         path: "/",
         element: <DashboardLayout />,
         children: [
+            {
+                path: "",
+                element: <Overview pending={5} approved={18} revision={2} role="admin" />,
+            },
             {
                 path: "profile",
                 element: <ProfilePage />,
