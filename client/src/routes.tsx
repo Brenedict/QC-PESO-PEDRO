@@ -2,9 +2,13 @@ import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
 import ProfilePage from "./pages/ProfilePage";
 import TransactionHistory from "./pages/TransactionHistory";
+import EndShiftVerification from "./pages/EndShiftVerification";
 import { transactions } from "./data/transactions";
+import { shiftRecords } from "./data/shiftRecords"; 
 import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
+
+
 
 const routes = [
     {
@@ -18,6 +22,10 @@ const routes = [
             {
                 path: "profile",
                 element: <ProfilePage />,
+            },
+            {
+                path: "end-shift",
+                element: <EndShiftVerification shiftData={shiftRecords} />,
             },
             {
                 path: "loginTest",
