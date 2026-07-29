@@ -6,6 +6,11 @@ import TrendingDownOutlinedIcon from "@mui/icons-material/TrendingDownOutlined";
 import type { ReactNode } from "react";
 import type { MaterialIcon } from "../types/common";
 
+interface ExtendedTextProps extends React.HTMLAttributes<HTMLParagraphElement> {
+    children: ReactNode;
+    className?: string;
+}
+
 export function CardHeader({ icon, children }: { icon: MaterialIcon; children: ReactNode }) {
     return (
         <Text
@@ -54,17 +59,13 @@ export function PercentageChange({ current, previous }: { current: number; previ
     );
 }
 
-interface GenderTextProps extends React.HTMLAttributes<HTMLParagraphElement> {
-    children: ReactNode;
-}
-
 const iconProps = {
     gap: "base",
     size: "medium",
     position: "left",
 } as const;
 
-export function MaleText({ children, className }: GenderTextProps) {
+export function MaleText({ children, className }: ExtendedTextProps) {
     return (
         <Text
             variant="light-blue"
@@ -78,7 +79,7 @@ export function MaleText({ children, className }: GenderTextProps) {
     );
 }
 
-export function FemaleText({ children, className }: GenderTextProps) {
+export function FemaleText({ children, className }: ExtendedTextProps) {
     return (
         <Text
             variant="pink"
@@ -97,17 +98,17 @@ export function Divider() {
     return <div className="my-3 border-0 bg-off-white-border h-0.5" />;
 }
 
-export function NumberTitle({ children }: { children: ReactNode }) {
+export function NumberTitle({ children, className }: ExtendedTextProps) {
     return (
-        <Text size="smaller" align="left" variant="grayish-blue" weight="bold">
+        <Text size="smaller" align="left" variant="grayish-blue" weight="bold" className={className}>
             <span className="uppercase">{children}</span>
         </Text>
     );
 }
 
-export function NumberText({ children }: { children: ReactNode }) {
+export function NumberText({ children, className }: ExtendedTextProps) {
     return (
-        <Text size="bigger" weight="black" variant="dark-blue">
+        <Text size="bigger" weight="black" variant="dark-blue" className={className}>
             {children}
         </Text>
     );

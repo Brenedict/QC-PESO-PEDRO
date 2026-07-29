@@ -21,7 +21,7 @@ const routes = [
         children: [
             {
                 path: "",
-                element: <Overview />,
+                element: <Overview pending={5} approved={18} revision={2} role="admin" />,
             },
             {
                 path: "profile",
