@@ -1,13 +1,13 @@
 import { Outlet } from "react-router";
 import { NavBar } from "../components/Navbar";
 import TopBar from "../components/Topbar";
-import { Overview} from "../components/Overview";
 
 function DashboardLayout() {
     return (
         <main className="w-full min-h-screen flex">
-            <NavBar userType="frontline"></NavBar>
-            <section className="">
+            <NavBar userType="frontline" />
+
+            <section className="flex-1">
                 <TopBar
                     status="online"
                     hasNotif={true}
@@ -16,13 +16,11 @@ function DashboardLayout() {
                     onNotifClick={() => console.log()}
                     onSearchChange={() => console.log()}
                 ></TopBar>
-                <Outlet />
-                <Overview/>
+                <main className="p-8">
+                    <Outlet />
+                </main>
             </section>
-
         </main>
     );
 }
 export default DashboardLayout;
-
-

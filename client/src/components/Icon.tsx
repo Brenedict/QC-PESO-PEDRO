@@ -1,9 +1,18 @@
 import { type MaterialIcon, type SizeVariant, SizeClasses, type ColorVariant, ColorClasses } from "../types/common";
 
+const alignClasses = {
+    left: "justify-start",
+    right: "justify-end",
+    center: "justify-center",
+} as const;
+
+type AlignType = keyof typeof alignClasses;
+
 export interface IconProps {
     icon: MaterialIcon;
     size: SizeVariant;
     variant: ColorVariant;
+    align?: AlignType;
     bg?: {
         variant: ColorVariant;
         type: "normal" | "circle";
@@ -11,7 +20,7 @@ export interface IconProps {
     };
 }
 
-function Icon({ icon, size, variant, bg }: IconProps) {
+function Icon({ icon, size, variant, bg, align = "center" }: IconProps) {
     const IconType = icon;
 
     // Get background styles if it exists
@@ -20,7 +29,7 @@ function Icon({ icon, size, variant, bg }: IconProps) {
         : "";
 
     return (
-        <div className={` aspect-square flex justify-center items-center ${bgStyles}`}>
+        <div className={` aspect-square flex w-fit ${alignClasses[align]} items-center ${bgStyles}`}>
             <IconType
                 className={`${ColorClasses[variant].text}  stroke-0 `}
                 style={{ fontSize: `var(--${SizeClasses[size]})` }}
