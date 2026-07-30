@@ -40,7 +40,7 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                 <Text size="description" variant="grayish-blue" weight="medium">
                     From:
                 </Text>
-                <GeneralInput type="date" placeholder="Start Date" className="w-36!" />
+                <GeneralInput type="date" placeholder="Start Date" className="w-36! h-9.5! px-2! py-0! rounded-xl!" />
             </div>
 
             {/* End Date */}
@@ -48,7 +48,7 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                 <Text size="description" variant="grayish-blue" weight="medium">
                     To:
                 </Text>
-                <GeneralInput type="date" placeholder="End Date" className="w-36!" />
+                <GeneralInput type="date" placeholder="End Date" className="w-36! h-9.5! px-2! py-0! rounded-xl!" />
             </div>
 
             {/* Action Filter */}
@@ -59,7 +59,8 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                     { content: "End Shift Approved", value: "approved" },
                     { content: "User Role Changed", value: "role_changed" },
                 ]}
-                className="w-48!"
+                iconClassName="top-2! right-2!"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
         </div>
     );
