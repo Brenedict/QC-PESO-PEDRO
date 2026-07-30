@@ -3,7 +3,14 @@ import { Card } from "./Card";
 import { SearchInput } from "./Input";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import { Text } from "./Text";
-import { Children, useState, type MouseEventHandler, type ReactNode, type SubmitEventHandler } from "react";
+import {
+    Children,
+    useState,
+    type ChangeEventHandler,
+    type MouseEventHandler,
+    type ReactNode,
+    type SubmitEventHandler,
+} from "react";
 import Icon from "./Icon";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
@@ -35,7 +42,6 @@ function Data({ children, nowrap }: { children: ReactNode; nowrap?: boolean }) {
         </td>
     );
 }
-
 function PaginationButtons({
     highlighted = false,
     children,
@@ -60,12 +66,18 @@ function PaginationButtons({
 interface FilterProps {
     children: ReactNode;
     onSubmit?: SubmitEventHandler<HTMLFormElement>;
+    onChange?: ChangeEventHandler<HTMLFormElement>;
 }
 
-function FilterSection({ children, onSubmit }: FilterProps) {
+function FilterSection({ children, onSubmit, onChange }: FilterProps) {
     return (
         <Card.Header variant="white">
-            <Form method="POST" className="flex justify-between items-center w-full" onSubmit={onSubmit}>
+            <Form
+                method="POST"
+                className="flex justify-between items-center w-full"
+                onSubmit={onSubmit}
+                onChange={onChange}
+            >
                 <div className="flex items-center gap-4">
                     <SearchInput
                         placeholder="Search by applicant, ID, or keywords..."
@@ -144,43 +156,62 @@ function PaginationSection({
 
 interface TableProps {
     children: ReactNode;
-    onFilterSubmit?: SubmitEventHandler<HTMLFormElement>;
+    pagination?: {
+        items: number;
+        currentPage: number;
+        handleSetPage: (page: number) => MouseEventHandler<HTMLButtonElement>;
+    };
+    handleFilterSubmit?: SubmitEventHandler<HTMLFormElement>;
+    handleFilterChange?: ChangeEventHandler<HTMLFormElement>;
     extraFilters?: ReactNode;
-    pagination?: number;
     noCardStyle?: boolean;
 }
 
-function Table({ extraFilters, onFilterSubmit, children, pagination, noCardStyle = false }: TableProps) {
-    const [page, setPage] = useState<number>(1);
-
+function Table({
+    extraFilters,
+    children,
+    pagination,
+    noCardStyle = false,
+    handleFilterSubmit,
+    handleFilterChange,
+}: TableProps) {
     let paginationSection = null;
     const header = Children.toArray(children)[0];
     let viewRows = Children.toArray(children).slice(1);
 
     if (pagination) {
-        const handleSetPage =
-            (page: number): MouseEventHandler<HTMLButtonElement> =>
-            () =>
-                setPage(page);
-
-        const [start, end] = [(page - 1) * pagination, page * pagination];
+        const [start, end] = [
+            (pagination.currentPage - 1) * pagination.items,
+            pagination.currentPage * pagination.items,
+        ];
 
         const childrenArr = Children.toArray(children).slice(1);
         viewRows = childrenArr.slice(start, end);
 
         const lastIndex = Math.min(end, childrenArr.length);
         const paginationText = `Showing ${viewRows.length > 0 ? `${start + 1} to ${lastIndex}` : "0"} out of ${childrenArr.length}`;
-        const pageNumbers = Math.ceil(childrenArr.length / pagination);
+        const pageNumbers = Math.ceil(childrenArr.length / pagination.items);
 
         paginationSection = (
-            <PaginationSection {...{ paginationText, handleSetPage, currentPage: page, pageNumbers }} />
+            <PaginationSection
+                {...{
+                    paginationText,
+                    pageNumbers,
+                    handleSetPage: pagination.handleSetPage,
+                    currentPage: pagination.currentPage,
+                }}
+            />
         );
     }
 
     return (
         <Card {...(noCardStyle && { dropShadow: false, className: "rounded-none! border-0!" })}>
             {/* Header */}
-            {onFilterSubmit && <FilterSection onSubmit={onFilterSubmit}>{extraFilters}</FilterSection>}
+            {handleFilterSubmit && (
+                <FilterSection onSubmit={handleFilterSubmit} onChange={handleFilterChange}>
+                    {extraFilters}
+                </FilterSection>
+            )}
 
             {/* Body */}
             <Card.Body className="p-0!">

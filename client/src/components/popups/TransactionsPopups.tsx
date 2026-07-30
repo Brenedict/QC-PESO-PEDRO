@@ -17,8 +17,8 @@ export function PopupViewEditTransaction() {
     const decodedId = decode(transactionId);
 
     return (
-        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root)}>
-            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.history.root)}>
+        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root, true)}>
+            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.history.root, true)}>
                 <Text weight="bold">Edit Transaction: {decodedId}</Text>
             </Dialog.Header>
             <Dialog.Body>

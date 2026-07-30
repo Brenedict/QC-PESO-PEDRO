@@ -1,5 +1,5 @@
 // General Imports
-import { redirect, type ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
@@ -43,11 +43,12 @@ const TransactionSchema = zfd.formData({
     remarks: zfd.text(z.string().optional()),
 });
 
-const routes = [
+const routes: RouteObject[] = [
     {
         path: "/auth",
         element: <LoginPage onSubmit={() => {}} />,
     },
+
     {
         path: "/",
         element: <DashboardLayout />,
@@ -62,7 +63,7 @@ const routes = [
             },
             {
                 path: "history",
-                element: <TransactionHistory onFilterSubmit={() => {}} transactions={transactions} />,
+                element: <TransactionHistory handleFilterSubmit={() => {}} transactions={transactions} />,
                 children: [
                     {
                         path: ":transactionId/edit",
@@ -84,7 +85,7 @@ const routes = [
                         totalLogins={18}
                         totalLogouts={6}
                         sessionDuration={"8h 12m"}
-                        onFilterSubmit={() => {}}
+                        handleFilterSubmit={() => {}}
                         employeeSessions={employeeSessions}
                     />
                 ),

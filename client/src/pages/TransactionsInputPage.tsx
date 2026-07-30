@@ -18,6 +18,7 @@ import Status from "../components/Status";
 
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+import { useSearchParamsTable } from "../hooks/table";
 
 interface FormProps {
     onSubmit: React.SubmitEventHandler<HTMLFormElement>;
@@ -170,6 +171,8 @@ function TransactionsInputForm({ onSubmit }: FormProps) {
 }
 
 function TransactionsLedger() {
+    const { page, handleSetPage } = useSearchParamsTable();
+
     const handleEdit = (id: string) => () => {
         console.log(id);
     };
@@ -185,7 +188,11 @@ function TransactionsLedger() {
                     Today's Ledger
                 </Text>
             </Card.Header>
-            <Table noCardStyle={true} pagination={6} onFilterSubmit={() => {}}>
+            <Table
+                noCardStyle={true}
+                pagination={{ handleSetPage, currentPage: page, items: 6 }}
+                handleFilterSubmit={() => {}}
+            >
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="Date/Time" />

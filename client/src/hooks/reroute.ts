@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { encode } from "../utils/hashids";
 
 const BASE_ROUTES = {
@@ -62,7 +62,12 @@ export const ROUTES = {
 
 export function useNavigateDefault() {
     const navigate = useNavigate();
-    return (route: string) => {
+    const location = useLocation();
+
+    return (route: string, keepQuery = false) => {
+        if (keepQuery && location.search) {
+            route = `${route}${location.search}`;
+        }
         navigate(route);
     };
 }

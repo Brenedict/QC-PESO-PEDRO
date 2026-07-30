@@ -9,18 +9,21 @@ import { Outlet } from "react-router";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import { useSearchParamsTable } from "../hooks/table";
 
 function TransactionHistory({
     transactions,
-    onFilterSubmit,
+    handleFilterSubmit,
 }: {
     transactions: Transaction[];
-    onFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
+    handleFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
 }) {
-    const useNavigate = useNavigateDefault();
+    const navigate = useNavigateDefault();
+    const { page, handleSetPage } = useSearchParamsTable();
+
     const handleEdit = (id: string) => () => {
         console.log(id);
-        useNavigate(ROUTES.history.edit(id));
+        navigate(ROUTES.history.edit(id), true);
     };
 
     const handleDelete = (id: string) => () => {
@@ -39,7 +42,7 @@ function TransactionHistory({
                 </Button>
             </PageHeader>
 
-            <Table pagination={6} onFilterSubmit={onFilterSubmit}>
+            <Table pagination={{ handleSetPage, currentPage: page, items: 6 }} handleFilterSubmit={handleFilterSubmit}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="ID" />
