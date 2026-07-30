@@ -112,7 +112,13 @@ export function SearchInput({ placeholder, className = "", ...props }: LabelProp
     );
 }
 
-export function SelectInput({ label, className = "", optionList, ...props }: LabelProp & SelectProp) {
+export function SelectInput({
+    label,
+    className = "",
+    iconClassName = "",
+    optionList,
+    ...props
+}: LabelProp & SelectProp & { iconClassName?: string }) {
     return (
         <div className="text-dark-blue w-full relative">
             <Label label={label} />
@@ -124,7 +130,9 @@ export function SelectInput({ label, className = "", optionList, ...props }: Lab
                     <option value={option.value}>{option.content}</option>
                 ))}
             </select>
-            <span className="hover:bg-off-white-border font-consolas absolute right-3.5 bottom-2  pointer-events-none ">
+            <span
+                className={`hover:bg-off-white-border font-consolas absolute right-3.5 bottom-2  pointer-events-none ${iconClassName}`}
+            >
                 <Icon icon={ArrowDropDownOutlinedIcon} size="bigger" variant="grayish-blue"></Icon>
             </span>
         </div>
