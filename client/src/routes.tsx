@@ -24,7 +24,7 @@ const routes = [
         element: <DashboardLayout />,
         children: [
             {
-                path: "",
+                index: true,
                 element: <Overview pending={5} approved={18} revision={2} role="admin" />,
             },
             {
