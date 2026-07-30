@@ -21,7 +21,7 @@ interface UserManagementProps {
     users: UserRecord[];
 }
 
-// Stat Card 
+// Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
     return (
         <Card className="w-full flex-1">
@@ -39,7 +39,7 @@ function StatCard({ title, value }: { title: string; value: string | number }) {
     );
 }
 
-// User Cell 
+// User Cell
 function UserCell({ name, email }: { name: string; email: string }) {
     return (
         <div className="flex items-center gap-3 w-full justify-start md:pl-5">
@@ -58,10 +58,10 @@ function UserCell({ name, email }: { name: string; email: string }) {
     );
 }
 
-// Badge for the Role 
+// Badge for the Role
 function RoleBadge({ role }: { role: string }) {
     return (
-        <div className="px-3 py-1 rounded-md border border-primary-blue w-fit mx-auto">
+        <div className="px-3 py-1 rounded-md border border-primary-blue w-fit mx-auto bg-grayish-blue-opaque">
             <Text size="small" weight="bold" variant="primary-blue" align="center" className="uppercase">
                 {role}
             </Text>
@@ -103,7 +103,7 @@ function UserManagement({ users }: UserManagementProps) {
         },
     ];
 
-    // Added extraFilters for User Management 
+    // Added extraFilters for User Management
     const extraFilters = (
         <div className="flex gap-4 items-center">
             <SelectInput
@@ -112,7 +112,8 @@ function UserManagement({ users }: UserManagementProps) {
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "encoder" },
                 ]}
-                className="w-48!"
+                iconClassName="top-2! right-2!"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
             <SelectInput
                 optionList={[
@@ -120,7 +121,8 @@ function UserManagement({ users }: UserManagementProps) {
                     { content: "Active", value: "active" },
                     { content: "Inactive", value: "inactive" },
                 ]}
-                className="w-48!"
+                iconClassName="top-2! right-2!"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
         </div>
     );
