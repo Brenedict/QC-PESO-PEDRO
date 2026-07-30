@@ -11,6 +11,8 @@ import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
 import SystemAuditLogs from "./pages/SystemAuditLogs";
 import { auditLogData } from "./data/auditLogs";
+import UserManagement from "./pages/UserManagement";
+import { usersData } from "./data/users";
 
 const routes = [
     {
@@ -57,6 +59,10 @@ const routes = [
             {
                 path: "audit-logs",
                 element: <SystemAuditLogs logsData={auditLogData} />,
+            },
+            {
+                path: "user-management",
+                element: <UserManagement users={usersData} />,
             },
         ],
     },
