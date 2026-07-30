@@ -1,10 +1,13 @@
+import type { StatusVariant } from "../components/Status";
+import type { Role } from "../types/common";
+
 export interface UserRecord {
     id: string;
     name: string;
     email: string;
     username: string;
-    role: "Administrator" | "Frontline Encoder";
-    status: "Active" | "Inactive";
+    role: Role;
+    status: StatusVariant<"status">;
 }
 
 export const usersData: UserRecord[] = [
@@ -13,39 +16,39 @@ export const usersData: UserRecord[] = [
         name: "Maria Santos",
         email: "m.santos@qc.gov.ph",
         username: "@maria.santos",
-        role: "Administrator",
-        status: "Active",
+        role: "admin",
+        status: "active",
     },
     {
         id: "USR-002",
         name: "Juan Cruz",
         email: "j.cruz@qc.gov.ph",
         username: "@juan.cruz",
-        role: "Frontline Encoder",
-        status: "Active",
+        role: "frontline",
+        status: "active",
     },
     {
         id: "USR-003",
         name: "Ana Lim",
         email: "a.lim@qc.gov.ph",
         username: "@ana.lim",
-        role: "Frontline Encoder",
-        status: "Active",
+        role: "frontline",
+        status: "active",
     },
     {
         id: "USR-004",
         name: "Mark Reyes",
         email: "m.reyes@qc.gov.ph",
         username: "@mark.reyes",
-        role: "Frontline Encoder",
-        status: "Inactive",
+        role: "frontline",
+        status: "inactive",
     },
     {
         id: "USR-005",
         name: "System Admin",
         email: "admin@qc.gov.ph",
         username: "@admin",
-        role: "Administrator",
-        status: "Active",
+        role: "admin",
+        status: "active",
     },
 ];

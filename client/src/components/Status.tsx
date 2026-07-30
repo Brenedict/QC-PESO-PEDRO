@@ -93,7 +93,7 @@ function Status<T extends StatusType>({ type, variant, align = "center" }: Statu
         <div className={`px-2.5 py-1 rounded-3xl border flex items-center gap-1.5 w-fit ${config.theme}`}>
             <Text
                 size="small"
-                weight="semiBold"
+                weight="bold"
                 variant={config.variant}
                 svg={Icon ? { gap: "small", icon: Icon, position: "left", size: "medium" } : undefined}
                 align={align}

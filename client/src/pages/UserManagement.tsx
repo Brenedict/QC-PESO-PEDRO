@@ -16,6 +16,7 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+import type { Role } from "../types/common";
 
 interface UserManagementProps {
     users: UserRecord[];
@@ -58,12 +59,17 @@ function UserCell({ name, email }: { name: string; email: string }) {
     );
 }
 
+const badgeMap = {
+    admin: { text: "primary-blue", bg: "border-primary-blue bg-grayish-blue-opaque" },
+    frontline: { text: "grayish-blue", bg: "border-off-white-border bg-off-white" },
+} as const;
+
 // Badge for the Role
-function RoleBadge({ role }: { role: string }) {
+function RoleBadge({ role }: { role: Role }) {
     return (
-        <div className="px-3 py-1 rounded-md border border-primary-blue w-fit mx-auto bg-grayish-blue-opaque">
-            <Text size="small" weight="bold" variant="primary-blue" align="center" className="uppercase">
-                {role}
+        <div className={`px-3 py-1 rounded-md border  w-fit mx-auto ${badgeMap[role].bg}`}>
+            <Text size="small" weight="bold" variant={badgeMap[role].text} align="center" className="uppercase">
+                {role === "admin" ? "Administrator" : "Frontline Encoder"}
             </Text>
         </div>
     );
@@ -173,7 +179,7 @@ function UserManagement({ users }: UserManagementProps) {
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center">
-                                <Status type="status" variant={row.status === "Active" ? "active" : "inactive"} />
+                                <Status type="status" variant={row.status} />
                             </div>
                         </Table.Data>
                         <Table.Data>
