@@ -36,7 +36,7 @@ const routes = [
                         path: ":transactionId/edit",
                         element: <PopupDeleteTransaction />,
                         action: async ({ request, params }: ActionFunctionArgs) => {
-                            let formData = await request.formData();
+                            const formData = await request.formData();
 
                             console.log([...formData.entries()]);
                             return { success: true };

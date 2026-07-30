@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { encode } from "../utils/hashids";
 
 const BASE_ROUTES = {
     dashboard: "/",
@@ -25,23 +26,23 @@ export const ROUTES = {
     },
     history: {
         root: BASE_ROUTES.history,
-        edit: (transactionId: string | number) => `${BASE_ROUTES.history}/${transactionId}/edit`,
-        delete: (transactionId: string | number) => `${BASE_ROUTES.history}/${transactionId}/delete`,
-        view: (transactionId: string | number) => `${BASE_ROUTES.history}/${transactionId}/view`,
+        edit: (transactionId: string | number) => `${BASE_ROUTES.history}/${encode(transactionId)}/edit`,
+        delete: (transactionId: string | number) => `${BASE_ROUTES.history}/${encode(transactionId)}/delete`,
+        view: (transactionId: string | number) => `${BASE_ROUTES.history}/${encode(transactionId)}/view`,
     },
     applicantForm: {
         root: BASE_ROUTES.applicantForm,
-        edit: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${userId}/edit`,
-        delete: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${userId}/delete`,
-        view: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${userId}/view`,
+        edit: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(userId)}/edit`,
+        delete: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(userId)}/delete`,
+        view: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(userId)}/view`,
     },
     endshift: {
         root: BASE_ROUTES.endshift,
-        review: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${shiftId}/review`,
+        review: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${encode(shiftId)}/review`,
     },
     monitoring: {
         root: BASE_ROUTES.monitoring,
-        view: (shiftId: string | number) => `${BASE_ROUTES.monitoring}/${shiftId}/view-history`,
+        view: (shiftId: string | number) => `${BASE_ROUTES.monitoring}/${encode(shiftId)}/view-history`,
     },
     reports: {
         root: BASE_ROUTES.reports,
@@ -53,9 +54,9 @@ export const ROUTES = {
     userManagement: {
         root: BASE_ROUTES.userManagement,
         create: `${BASE_ROUTES.userManagement}/create`,
-        reset: (userId: string | number) => `${BASE_ROUTES.userManagement}/${userId}/reset`,
-        disable: (userId: string | number) => `${BASE_ROUTES.userManagement}/${userId}/disable`,
-        promote: (userId: string | number) => `${BASE_ROUTES.userManagement}/${userId}/promote`,
+        reset: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/reset`,
+        disable: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/disable`,
+        promote: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/promote`,
     },
 } as const;
 

@@ -2,19 +2,23 @@ import { Form, useParams } from "react-router";
 
 import { Dialog } from "..//Dialog";
 import { Text } from "../Text";
-import Button from "../Button";
 import ChoiceItem from "../ChoiceItem";
 import { GeneralInput, SelectInput, TextAreaInput } from "../Input";
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import { decode } from "../../utils/hashids";
 
 export function PopupDeleteTransaction() {
-    const useNavigate = useNavigateDefault();
+    const navigate = useNavigateDefault();
     const { transactionId } = useParams();
 
+    if (!transactionId) return null;
+
+    const decodedId = decode(transactionId);
+
     return (
-        <Dialog dropShadow={true} onClose={() => useNavigate(ROUTES.history.root)}>
-            <Dialog.Header toggleRightIcon={true} onRightAction={() => useNavigate(ROUTES.history.root)}>
-                <Text weight="bold">Edit Transaction: {transactionId}</Text>
+        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root)}>
+            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.history.root)}>
+                <Text weight="bold">Edit Transaction: {decodedId}</Text>
             </Dialog.Header>
             <Dialog.Body>
                 <Form method="post" className="flex flex-col h-fit gap-6">
