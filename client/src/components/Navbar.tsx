@@ -68,8 +68,8 @@ function NavBodyFrontline() {
     return (
         <>
             <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/transaction-entry" />
-            <NavButton linkType="transaction_history" to="/transaction-history" />
+            <NavButton linkType="transaction_entry" to="/applicant-form" />
+            <NavButton linkType="transaction_history" to="/history" />
             <NavButton linkType="settings" to="/settings" />
         </>
     );

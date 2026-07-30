@@ -6,8 +6,9 @@ import ChoiceItem from "../ChoiceItem";
 import { GeneralInput, SelectInput, TextAreaInput } from "../Input";
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 import { decode } from "../../utils/hashids";
+import Button from "../Button";
 
-export function PopupDeleteTransaction() {
+export function PopupViewEditTransaction() {
     const navigate = useNavigateDefault();
     const { transactionId } = useParams();
 
@@ -21,24 +22,20 @@ export function PopupDeleteTransaction() {
                 <Text weight="bold">Edit Transaction: {decodedId}</Text>
             </Dialog.Header>
             <Dialog.Body>
-                <Form method="post" className="flex flex-col h-fit gap-6">
+                <Form method="post" id="transactionsFormViewEdit" className="flex flex-col h-fit gap-6">
                     {/* ID holder */}
-                    <GeneralInput
-                        hidden
-                        name="id"
-                        type="text"
-                        placeholder=""
-                        defaultValue={transactionId}
-                    ></GeneralInput>
+                    <GeneralInput hidden name="id" type="text" defaultValue={transactionId}></GeneralInput>
                     <FormRow1 />
                     <FormRow2 />
                     <FormRow3 />
                     <FormRow4 />
-                    <button type="submit" className="bg-red-300">
-                        SUBMIT
-                    </button>
                 </Form>
             </Dialog.Body>
+            <Dialog.Footer>
+                <Button type="submit" form="transactionsFormViewEdit">
+                    Test
+                </Button>
+            </Dialog.Footer>
         </Dialog>
     );
 }
@@ -55,9 +52,9 @@ function FormRow1() {
                 ></GeneralInput>
             </div>
             <div className="w-2/4 flex gap-6">
-                <GeneralInput name="date" type="date" placeholder="" label="Date"></GeneralInput>
+                <GeneralInput name="date" type="date" label="Date"></GeneralInput>
 
-                <GeneralInput name="time" type="time" placeholder="" label="Time"></GeneralInput>
+                <GeneralInput name="time" type="time" label="Time"></GeneralInput>
             </div>
         </section>
     );
@@ -71,9 +68,9 @@ function FormRow2() {
                     name="transactionType"
                     label="Transaction Type"
                     optionList={[
-                        { content: "Walk-In Referral", value: "walkin" },
-                        { content: "Online Referral", value: "online" },
-                        { content: "Inhouse Recruitment", value: "inhouse" },
+                        { content: "Walk-In Referral", value: "walkinReferral" },
+                        { content: "Online Referral", value: "onlineReferral" },
+                        { content: "Inhouse Recruitment", value: "inhouseRecruitment" },
                     ]}
                 ></SelectInput>
             </div>
@@ -113,19 +110,19 @@ function FormRow3() {
                 Applicant Classification
             </Text>
             <div className="flex flex-wrap gap-3">
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker">
                     First Time Job Seeker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability">
                     Person With Disability (PWD)
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen">
                     Senior Citizen
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker">
                     Young Worker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="student" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="student">
                     Student
                 </ChoiceItem>
             </div>

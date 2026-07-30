@@ -13,7 +13,11 @@ export const encode = (id: string | number) => {
     return hashids.encodeHex(hexValue);
 };
 
-export const decode = (hex: string) => {
+export const decode = (hex: string | undefined) => {
+    if (!hex) {
+        return null;
+    }
+
     const decodedHex = hashids.decodeHex(hex);
 
     // Convert hex back to bytes, then decode back to a string

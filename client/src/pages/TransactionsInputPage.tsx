@@ -27,12 +27,17 @@ function FormRow1() {
     return (
         <section className="flex gap-6">
             <div className="w-2/4">
-                <GeneralInput type="text" placeholder="Last Name, First Name" label="Applicant Name"></GeneralInput>
+                <GeneralInput
+                    name="name"
+                    type="text"
+                    placeholder="Last Name, First Name"
+                    label="Applicant Name"
+                ></GeneralInput>
             </div>
             <div className="w-2/4 flex gap-6">
-                <GeneralInput type="date" placeholder="" label="Date"></GeneralInput>
+                <GeneralInput name="date" type="date" placeholder="" label="Date"></GeneralInput>
 
-                <GeneralInput type="time" placeholder="" label="Time"></GeneralInput>
+                <GeneralInput name="time" type="time" placeholder="" label="Time"></GeneralInput>
             </div>
         </section>
     );
@@ -43,11 +48,12 @@ function FormRow2() {
         <section className="flex gap-6">
             <div className="w-1/3">
                 <SelectInput
+                    name="transactionType"
                     label="Transaction Type"
                     optionList={[
-                        { content: "Walk-In Referral", value: "walkin" },
-                        { content: "Online Referral", value: "online" },
-                        { content: "Inhouse Recruitment", value: "inhouse" },
+                        { content: "Walk-In Referral", value: "walkinReferral" },
+                        { content: "Online Referral", value: "onlineReferral" },
+                        { content: "Inhouse Recruitment", value: "inhouseRecruitment" },
                     ]}
                 ></SelectInput>
             </div>
@@ -58,7 +64,7 @@ function FormRow2() {
                         Gender
                     </Text>
                 </div>
-                <ChoiceItem inputVariant="radio" name="gender" value="male">
+                <ChoiceItem inputVariant="radio" name="gender" value="male" defaultChecked>
                     Male
                 </ChoiceItem>
                 <ChoiceItem inputVariant="radio" name="gender" value="female">
@@ -67,6 +73,7 @@ function FormRow2() {
             </div>
             <div className="w-1/3">
                 <SelectInput
+                    name="transactionOutcome"
                     label="Transaction Outcome"
                     optionList={[
                         { content: "Pending", value: "pending" },
@@ -86,19 +93,19 @@ function FormRow3() {
                 Applicant Classification
             </Text>
             <div className="flex flex-wrap gap-3">
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker">
                     First Time Job Seeker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability">
                     Person With Disability (PWD)
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen">
                     Senior Citizen
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker">
                     Young Worker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="student" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="student">
                     Student
                 </ChoiceItem>
             </div>
