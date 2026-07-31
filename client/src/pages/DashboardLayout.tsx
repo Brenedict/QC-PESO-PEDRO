@@ -20,6 +20,7 @@ function DashboardLayout() {
                     <Outlet />
                 </main>
             </section>
+            <Outlet />
         </main>
     );
 }

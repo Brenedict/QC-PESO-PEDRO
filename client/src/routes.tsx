@@ -7,7 +7,6 @@ import { zfd } from "zod-form-data";
 import { decode } from "./utils/hashids";
 
 // Hooks
-
 import { ROUTES, useNavigateDefault } from "./hooks/reroute";
 
 // Pages
@@ -21,7 +20,7 @@ import EndShiftVerification from "./pages/EndShiftVerification";
 import LoginMonitoring from "./pages/LoginMonitoring";
 
 // Components
-import { PopupViewEditTransaction } from "./components/popups/TransactionsPopups";
+import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
 
 // Test Data
 import { transactions } from "./data/transactions";
@@ -31,6 +30,7 @@ import SystemAuditLogs from "./pages/SystemAuditLogs";
 import { auditLogData } from "./data/auditLogs";
 import UserManagement from "./pages/UserManagement";
 import { usersData } from "./data/users";
+import { PopupTimeIn } from "./components/popups/ShiftPopups";
 
 const TransactionSchema = zfd.formData({
     id: zfd.text(z.string().optional().transform(decode)),
@@ -63,7 +63,14 @@ const routes: RouteObject[] = [
                 element: <Overview pending={5} approved={18} revision={2} role="admin" />,
             },
             {
-                path: "profile",
+                path: "time-in",
+                element: <PopupTimeIn />,
+                action: async ({ request, params }: ActionFunctionArgs) => {
+                    return redirect(ROUTES.dashboard.root);
+                },
+            },
+            {
+                path: "settings",
                 element: <ProfilePage />,
             },
             {
@@ -80,7 +87,15 @@ const routes: RouteObject[] = [
                         action: async ({ request, params }: ActionFunctionArgs) => {
                             const formData = await request.formData();
                             const data = TransactionSchema.parse(formData);
-
+                            console.log(data);
+                            return redirect("..");
+                        },
+                    },
+                    {
+                        path: ":transactionId/delete",
+                        element: <PopupDeleteTransaction />,
+                        action: async ({ request, params }: ActionFunctionArgs) => {
+                            const formData = await request.formData();
                             return redirect("..");
                         },
                     },

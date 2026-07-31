@@ -1,12 +1,23 @@
-import { Form, useParams } from "react-router";
+// General Imports
+import { Form, redirect, useParams } from "react-router";
 
+// Hooks
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+// Components
+import { Card } from "../Card";
 import { Dialog } from "..//Dialog";
 import { Text } from "../Text";
 import ChoiceItem from "../ChoiceItem";
+import Icon from "../Icon";
 import { GeneralInput, SelectInput, TextAreaInput } from "../Input";
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import { decode } from "../../utils/hashids";
 import Button from "../Button";
+
+// Icons
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+
+// Test Data
+import { decode } from "../../utils/hashids";
 
 export function PopupViewEditTransaction() {
     const navigate = useNavigateDefault();
@@ -31,9 +42,72 @@ export function PopupViewEditTransaction() {
                     <FormRow4 />
                 </Form>
             </Dialog.Body>
-            <Dialog.Footer>
-                <Button type="submit" form="transactionsFormViewEdit">
-                    Test
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <Button variant="white" size="small" onClick={() => navigate(ROUTES.history.root, true)}>
+                    Cancel
+                </Button>
+                <Button size="small" type="submit" form="transactionsFormViewEdit">
+                    Save Changes
+                </Button>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupDeleteTransaction() {
+    const navigate = useNavigateDefault();
+    const { transactionId } = useParams();
+
+    if (!transactionId) return null;
+
+    const decodedId = decode(transactionId);
+
+    return (
+        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root, true)}>
+            <Dialog.Body>
+                <Form method="post" id="transactionsFormViewEdit" className="flex flex-col h-fit gap-6">
+                    {/* ID holder */}
+                    <GeneralInput hidden name="id" type="text" defaultValue={transactionId}></GeneralInput>
+                </Form>
+                <section className="flex flex-col justify-center gap-6 max-w-md">
+                    <div className="flex justify-center">
+                        <Icon
+                            icon={DeleteOutlineOutlinedIcon}
+                            size="big"
+                            variant="red"
+                            bg={{
+                                padding: "big",
+                                type: "circle",
+                                variant: "red-opaque",
+                            }}
+                        ></Icon>
+                    </div>
+                    <Text size="medium" weight="bold" align="center">
+                        Delete Transaction?
+                    </Text>
+                    <div>
+                        <Text variant="grayish-blue" align="center">
+                            Are you sure you want to delete transaction
+                        </Text>
+                        <Text variant="grayish-blue" align="center">
+                            <span className="font-bold text-black">{decodedId}</span>?
+                        </Text>
+                    </div>
+                    <div className="flex justify-center">
+                        <Card className="w-fit">
+                            <Card.Body variant="red-opaque">
+                                <Text variant="red">This action cannot be undone and will be logged.</Text>
+                            </Card.Body>
+                        </Card>
+                    </div>
+                </section>
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <Button variant="white" size="small" onClick={() => navigate(ROUTES.history.root, true)}>
+                    Cancel
+                </Button>
+                <Button variant="red" size="small" type="submit" form="transactionsFormViewEdit">
+                    Confirm Delete
                 </Button>
             </Dialog.Footer>
         </Dialog>

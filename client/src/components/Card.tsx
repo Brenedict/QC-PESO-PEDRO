@@ -3,7 +3,10 @@ import Icon from "./Icon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { ColorClasses } from "../types/common";
 
-export type ReducedColorVariant = Extract<keyof typeof ColorClasses, "white" | "off-white" | "grayish-blue-opaque">;
+export type ReducedColorVariant = Extract<
+    keyof typeof ColorClasses,
+    "white" | "off-white" | "grayish-blue-opaque" | "red-opaque" | "primary-blue"
+>;
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: ReactNode;

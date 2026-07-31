@@ -28,6 +28,8 @@ function TransactionHistory({
 
     const handleDelete = (id: string) => () => {
         console.log(id);
+
+        navigate(ROUTES.history.delete(id), true);
     };
 
     return (
