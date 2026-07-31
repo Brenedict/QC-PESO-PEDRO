@@ -16,6 +16,7 @@ import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeft
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 import { Form } from "react-router";
 import CancelIcon from "@mui/icons-material/Cancel";
+import EmptyData from "./EmptyData";
 
 function Row({ children }: { children: ReactNode }) {
     return <tr>{children}</tr>;
@@ -222,22 +223,7 @@ function Table({
                             <tr>
                                 <td colSpan={9999} className="p-20">
                                     <div className="flex justify-center">
-                                        <div className="w-fit bg-red-opaque py-2 px-5 rounded-2xl">
-                                            <Text
-                                                size="description"
-                                                variant="red"
-                                                align="center"
-                                                weight="bold"
-                                                svg={{
-                                                    gap: "big",
-                                                    icon: CancelIcon,
-                                                    position: "left",
-                                                    size: "bigMedium",
-                                                }}
-                                            >
-                                                No data to show here!
-                                            </Text>
-                                        </div>
+                                        <EmptyData>No data to show here!</EmptyData>
                                     </div>
                                 </td>
                             </tr>

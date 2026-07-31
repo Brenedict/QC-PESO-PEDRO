@@ -1,4 +1,4 @@
-import Icon from "./Icon";
+import Icon, { type IconProps } from "./Icon";
 import {
     SizeClasses,
     type SizeVariant,
@@ -10,6 +10,7 @@ import {
 } from "../types/common.ts";
 
 const weightClasses = {
+    black: "font-black",
     bold: "font-bold",
     semiBold: "font-semibold",
     medium: "font-medium",
@@ -42,21 +43,20 @@ const gapClasses = {
 // Extracts: "none", "small", "medium", "large", "extraLarge"
 export type gapVariant = keyof typeof gapClasses;
 
-interface HeadingProp {
+interface HeadingProp extends React.HTMLAttributes<HTMLParagraphElement> {
     children?: React.ReactNode;
     size?: SizeVariant;
     variant?: ColorVariant;
     weight?: WeightVariant;
     font?: FontVariant;
     align?: AlignVariant;
-    svg?: {
+    svg?: Omit<IconProps, "variant" | "align"> & {
         //Icon type (you can pass the name here)
-        icon: MaterialIcon;
-        size: SizeVariant;
         variant?: ColorVariant;
         position: svgPosition;
         gap: gapVariant;
     };
+    className?: string;
 }
 
 export function Text({
@@ -67,14 +67,15 @@ export function Text({
     font = "default",
     align = "left",
     svg,
+    className,
 }: HeadingProp) {
     return (
         <div
-            className={`w-full flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""}`}
+            className={`w-full flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""} ${className}`}
         >
-            {svg && <Icon icon={svg.icon} size={svg.size} variant={svg.variant || variant} />}
+            {svg && <Icon icon={svg.icon} size={svg.size} variant={svg.variant || variant} bg={svg.bg} />}
             <p
-                className={`${SizeClasses[size]} ${ColorClasses[variant].text} ${weightClasses[weight]} ${fontClasses[font]} ${alignClasses[align]}  grow `}
+                className={`${SizeClasses[size]} ${ColorClasses[variant].text} ${weightClasses[weight]} ${fontClasses[font]} ${alignClasses[align]}  grow ${className}`}
             >
                 {children}
             </p>

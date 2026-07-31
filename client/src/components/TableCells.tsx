@@ -16,7 +16,7 @@ export function ColumnText({ children }: { children: ReactNode }) {
 
 export function Identifier({ children }: { children: ReactNode }) {
     return (
-        <Text font="consolas" size="small" weight="medium" variant="grayish-blue" align="center">
+        <Text font="consolas" size="description" weight="medium" variant="grayish-blue" align="center">
             {children}
         </Text>
     );

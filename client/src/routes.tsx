@@ -13,6 +13,7 @@ import { ROUTES, useNavigateDefault } from "./hooks/reroute";
 // Pages
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
+import { Overview } from "./pages/Overview";
 import ProfilePage from "./pages/ProfilePage";
 import TransactionsInputPage from "./pages/TransactionsInputPage";
 import TransactionHistory from "./pages/TransactionHistory";
@@ -26,6 +27,10 @@ import { PopupViewEditTransaction } from "./components/popups/TransactionsPopups
 import { transactions } from "./data/transactions";
 import { shiftRecords } from "./data/shiftRecords";
 import { employeeSessions } from "./data/employeeSessions";
+import SystemAuditLogs from "./pages/SystemAuditLogs";
+import { auditLogData } from "./data/auditLogs";
+import UserManagement from "./pages/UserManagement";
+import { usersData } from "./data/users";
 
 const TransactionSchema = zfd.formData({
     id: zfd.text(z.string().optional().transform(decode)),
@@ -53,6 +58,10 @@ const routes: RouteObject[] = [
         path: "/",
         element: <DashboardLayout />,
         children: [
+            {
+                index: true,
+                element: <Overview pending={5} approved={18} revision={2} role="admin" />,
+            },
             {
                 path: "profile",
                 element: <ProfilePage />,
@@ -93,6 +102,14 @@ const routes: RouteObject[] = [
             {
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
+            },
+            {
+                path: "audit-logs",
+                element: <SystemAuditLogs logsData={auditLogData} />,
+            },
+            {
+                path: "user-management",
+                element: <UserManagement users={usersData} />,
             },
         ],
     },
