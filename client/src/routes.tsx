@@ -21,6 +21,7 @@ import LoginMonitoring from "./pages/LoginMonitoring";
 
 // Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
+import { PopupTimeIn, PopupLogout, PopupEndshiftSummary } from "./components/popups/ShiftPopups";
 
 // Test Data
 import { transactions } from "./data/transactions";
@@ -30,7 +31,6 @@ import SystemAuditLogs from "./pages/SystemAuditLogs";
 import { auditLogData } from "./data/auditLogs";
 import UserManagement from "./pages/UserManagement";
 import { usersData } from "./data/users";
-import { PopupTimeIn } from "./components/popups/ShiftPopups";
 
 const TransactionSchema = zfd.formData({
     id: zfd.text(z.string().optional().transform(decode)),
@@ -67,6 +67,20 @@ const routes: RouteObject[] = [
                 element: <PopupTimeIn />,
                 action: async ({ request, params }: ActionFunctionArgs) => {
                     return redirect(ROUTES.dashboard.root);
+                },
+            },
+            {
+                path: "end-shift-confirmation",
+                element: <PopupEndshiftSummary />,
+                action: async ({ request, params }: ActionFunctionArgs) => {
+                    return redirect("/auth");
+                },
+            },
+            {
+                path: "log-out",
+                element: <PopupLogout />,
+                action: async ({ request, params }: ActionFunctionArgs) => {
+                    return redirect("/auth");
                 },
             },
             {

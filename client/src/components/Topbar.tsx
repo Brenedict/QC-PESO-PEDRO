@@ -11,6 +11,9 @@ import NotificationImportantOutlinedIcon from "@mui/icons-material/NotificationI
 import Profile from "./Profile";
 import Button from "./Button.tsx";
 
+// Hooks
+import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+
 function LeftSection() {
     const { onSearchChange } = useContext(TopBarContext);
     return (
@@ -82,7 +85,7 @@ function ProfileSection() {
 
 function RightSection() {
     const { status } = useContext(TopBarContext);
-
+    const navigate = useNavigateDefault();
     return (
         <section className="flex items-center">
             <div className="mr-4">
@@ -104,7 +107,7 @@ function RightSection() {
                 <ProfileSection />
             </div>
 
-            <Button variant="red" size="small" className="px-4 py-2 rounded-xl">
+            <Button variant="red" size="small" className="px-4 py-2 rounded-xl" onClick={() => navigate("/log-out")}>
                 End Shift
             </Button>
         </section>
