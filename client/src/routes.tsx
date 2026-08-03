@@ -13,6 +13,17 @@ import SystemAuditLogs from "./pages/SystemAuditLogs";
 import { auditLogData } from "./data/auditLogs";
 import UserManagement from "./pages/UserManagement";
 import { usersData } from "./data/users";
+import type { TopBarContextValue } from "./context/TopbarContext";
+
+//Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
+const userContext: TopBarContextValue = {
+    status: "online",
+    userFullName: "Richard Yap",
+    hasNotif: false,
+    roleType: "admin",
+    onSearchChange: () => {},
+    onNotifClick: () => {},
+};
 
 const routes = [
     {
@@ -21,15 +32,11 @@ const routes = [
     },
     {
         path: "/",
-        element: <DashboardLayout />,
+        element: <DashboardLayout {...userContext} />,
         children: [
             {
                 index: true,
-                element: <Overview pending={5} approved={18} revision={2} role="admin" />,
-            },
-            {
-                path: "profile",
-                element: <ProfilePage />,
+                element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
             },
             {
                 path: "end-shift",
@@ -37,7 +44,14 @@ const routes = [
             },
             {
                 path: "history",
-                element: <TransactionHistory onFilterSubmit={() => {}} transactions={transactions} />,
+                element: (
+                    <TransactionHistory
+                        onFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                            e.preventDefault();
+                        }}
+                        transactions={transactions}
+                    />
+                ),
             },
             {
                 path: "monitoring",
@@ -47,7 +61,9 @@ const routes = [
                         totalLogins={18}
                         totalLogouts={6}
                         sessionDuration={"8h 12m"}
-                        onFilterSubmit={() => {}}
+                        onFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                            e.preventDefault();
+                        }}
                         employeeSessions={employeeSessions}
                     />
                 ),
@@ -63,6 +79,11 @@ const routes = [
             {
                 path: "user-management",
                 element: <UserManagement users={usersData} />,
+            },
+
+            {
+                path: "settings",
+                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
             },
         ],
     },
