@@ -48,6 +48,27 @@ const TransactionSchema = zfd.formData({
     remarks: zfd.text(z.string().optional()),
 });
 
+const transactionsEditAndDelete = [
+    {
+        path: ":transactionId/edit",
+        element: <PopupViewEditTransaction />,
+        action: async ({ request, params }: ActionFunctionArgs) => {
+            const formData = await request.formData();
+            const data = TransactionSchema.parse(formData);
+            console.log(data);
+            return redirect("..");
+        },
+    },
+    {
+        path: ":transactionId/delete",
+        element: <PopupDeleteTransaction />,
+        action: async ({ request, params }: ActionFunctionArgs) => {
+            const formData = await request.formData();
+            return redirect("..");
+        },
+    },
+];
+
 const routes: RouteObject[] = [
     {
         path: "/auth",
@@ -62,6 +83,8 @@ const routes: RouteObject[] = [
                 index: true,
                 element: <Overview pending={5} approved={18} revision={2} role="admin" />,
             },
+
+            // May mga red here kasi unused sila currently (iniwan ko muna here)
             {
                 path: "time-in",
                 element: <PopupTimeIn />,
@@ -94,26 +117,7 @@ const routes: RouteObject[] = [
             {
                 path: "history",
                 element: <TransactionHistory handleFilterSubmit={() => {}} transactions={transactions} />,
-                children: [
-                    {
-                        path: ":transactionId/edit",
-                        element: <PopupViewEditTransaction />,
-                        action: async ({ request, params }: ActionFunctionArgs) => {
-                            const formData = await request.formData();
-                            const data = TransactionSchema.parse(formData);
-                            console.log(data);
-                            return redirect("..");
-                        },
-                    },
-                    {
-                        path: ":transactionId/delete",
-                        element: <PopupDeleteTransaction />,
-                        action: async ({ request, params }: ActionFunctionArgs) => {
-                            const formData = await request.formData();
-                            return redirect("..");
-                        },
-                    },
-                ],
+                children: transactionsEditAndDelete,
             },
             {
                 path: "monitoring",
@@ -131,6 +135,7 @@ const routes: RouteObject[] = [
             {
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
+                children: transactionsEditAndDelete,
             },
             {
                 path: "audit-logs",

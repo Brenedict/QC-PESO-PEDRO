@@ -22,13 +22,10 @@ function TransactionHistory({
     const { page, handleSetPage } = useSearchParamsTable();
 
     const handleEdit = (id: string) => () => {
-        console.log(id);
         navigate(ROUTES.history.edit(id), true);
     };
 
     const handleDelete = (id: string) => () => {
-        console.log(id);
-
         navigate(ROUTES.history.delete(id), true);
     };
 

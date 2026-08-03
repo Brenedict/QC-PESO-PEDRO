@@ -1,3 +1,7 @@
+// General Imports
+import { Form, Outlet } from "react-router";
+
+// Components
 import { Text } from "../components/Text";
 import { Card } from "../components/Card";
 import Button from "../components/Button";
@@ -6,19 +10,21 @@ import PageHeader from "../components/PageHeader";
 import { GeneralInput, SelectInput, TextAreaInput } from "../components/Input";
 import { ActionButtons, ColumnText, DateTime } from "../components/TableCells";
 import ChoiceItem from "../components/ChoiceItem";
+import Status from "../components/Status";
 
+// Icons
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-
-import { Form } from "react-router";
-
-import { transactions } from "../data/transactions";
-import Status from "../components/Status";
-
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+
+// Sample Data
+import { transactions } from "../data/transactions";
+
+// Hooks
 import { useSearchParamsTable } from "../hooks/table";
+import { useNavigateDefault, ROUTES } from "../hooks/reroute";
 
 interface FormProps {
     onSubmit: React.SubmitEventHandler<HTMLFormElement>;
@@ -171,14 +177,15 @@ function TransactionsInputForm({ onSubmit }: FormProps) {
 }
 
 function TransactionsLedger() {
+    const navigate = useNavigateDefault();
     const { page, handleSetPage } = useSearchParamsTable();
 
     const handleEdit = (id: string) => () => {
-        console.log(id);
+        navigate(ROUTES.applicantForm.edit(id), true);
     };
 
     const handleDelete = (id: string) => () => {
-        console.log(id);
+        navigate(ROUTES.applicantForm.delete(id), true);
     };
 
     return (
@@ -254,6 +261,9 @@ function TransactionsInputPagePage({ onSubmit }: FormProps) {
                 <TransactionsInputForm onSubmit={onSubmit} />
                 <TransactionsLedger />
             </div>
+
+            {/* For edit and delete pop up */}
+            <Outlet />
         </>
     );
 }

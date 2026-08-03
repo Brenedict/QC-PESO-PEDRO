@@ -32,9 +32,9 @@ export const ROUTES = {
     },
     applicantForm: {
         root: BASE_ROUTES.applicantForm,
-        edit: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(userId)}/edit`,
-        delete: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(userId)}/delete`,
-        view: (userId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(userId)}/view`,
+        edit: (transactionId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(transactionId)}/edit`,
+        delete: (transactionId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(transactionId)}/delete`,
+        view: (transactionId: string | number) => `${BASE_ROUTES.applicantForm}/${encode(transactionId)}/view`,
     },
     endshift: {
         root: BASE_ROUTES.endshift,
