@@ -11,11 +11,11 @@ interface LabelProp {
 }
 
 interface InputProp extends React.InputHTMLAttributes<HTMLInputElement> {
-    placeholder: string;
+    placeholder?: string;
 }
 
 interface TextAreaProp extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-    placeholder: string;
+    placeholder?: string;
 }
 
 interface SelectProp extends React.SelectHTMLAttributes<HTMLSelectElement> {

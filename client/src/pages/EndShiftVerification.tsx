@@ -11,6 +11,7 @@ import type { ShiftRecord } from "../data/shiftRecords";
 // Icon
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { ActionButton, DateTime } from "../components/TableCells";
+import { useSearchParamsTable } from "../hooks/table";
 
 // Define the props
 interface EndShiftVerificationProps {
@@ -50,7 +51,9 @@ function EmployeeCell({ name }: { name: string }) {
 
 // Main Page
 function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
-    const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const { page, handleSetPage } = useSearchParamsTable();
+
+    const handleFilterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Filter applied");
     };
@@ -82,7 +85,7 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
                 <StatCard title="Avg Approval Time" value="12m" valueVariant="primary-blue" />
             </div>
 
-            <Table pagination={5} onFilterSubmit={handleFilterSubmit}>
+            <Table pagination={{ currentPage: page, handleSetPage, items: 5 }} handleFilterSubmit={handleFilterSubmit}>
                 <Table.Row>
                     <Table.Header text="EMPLOYEE" />
                     <Table.Header text="SHIFT" />

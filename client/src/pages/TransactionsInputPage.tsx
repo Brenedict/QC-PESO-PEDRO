@@ -1,3 +1,7 @@
+// General Imports
+import { Form, Outlet } from "react-router";
+
+// Components
 import { Text } from "../components/Text";
 import { Card } from "../components/Card";
 import Button from "../components/Button";
@@ -6,18 +10,21 @@ import PageHeader from "../components/PageHeader";
 import { GeneralInput, SelectInput, TextAreaInput } from "../components/Input";
 import { ActionButtons, ColumnText, DateTime } from "../components/TableCells";
 import ChoiceItem from "../components/ChoiceItem";
+import Status from "../components/Status";
 
+// Icons
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
-
-import { Form } from "react-router";
-
-import { transactions } from "../data/transactions";
-import Status from "../components/Status";
-
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+
+// Sample Data
+import { transactions } from "../data/transactions";
+
+// Hooks
+import { useSearchParamsTable } from "../hooks/table";
+import { useNavigateDefault, ROUTES } from "../hooks/reroute";
 
 interface FormProps {
     onSubmit: React.SubmitEventHandler<HTMLFormElement>;
@@ -27,12 +34,17 @@ function FormRow1() {
     return (
         <section className="flex gap-6">
             <div className="w-2/4">
-                <GeneralInput type="text" placeholder="Last Name, First Name" label="Applicant Name"></GeneralInput>
+                <GeneralInput
+                    name="name"
+                    type="text"
+                    placeholder="Last Name, First Name"
+                    label="Applicant Name"
+                ></GeneralInput>
             </div>
             <div className="w-2/4 flex gap-6">
-                <GeneralInput type="date" placeholder="" label="Date"></GeneralInput>
+                <GeneralInput name="date" type="date" placeholder="" label="Date"></GeneralInput>
 
-                <GeneralInput type="time" placeholder="" label="Time"></GeneralInput>
+                <GeneralInput name="time" type="time" placeholder="" label="Time"></GeneralInput>
             </div>
         </section>
     );
@@ -43,11 +55,12 @@ function FormRow2() {
         <section className="flex gap-6">
             <div className="w-1/3">
                 <SelectInput
+                    name="transactionType"
                     label="Transaction Type"
                     optionList={[
-                        { content: "Walk-In Referral", value: "walkin" },
-                        { content: "Online Referral", value: "online" },
-                        { content: "Inhouse Recruitment", value: "inhouse" },
+                        { content: "Walk-In Referral", value: "walkinReferral" },
+                        { content: "Online Referral", value: "onlineReferral" },
+                        { content: "Inhouse Recruitment", value: "inhouseRecruitment" },
                     ]}
                 ></SelectInput>
             </div>
@@ -58,7 +71,7 @@ function FormRow2() {
                         Gender
                     </Text>
                 </div>
-                <ChoiceItem inputVariant="radio" name="gender" value="male">
+                <ChoiceItem inputVariant="radio" name="gender" value="male" defaultChecked>
                     Male
                 </ChoiceItem>
                 <ChoiceItem inputVariant="radio" name="gender" value="female">
@@ -67,6 +80,7 @@ function FormRow2() {
             </div>
             <div className="w-1/3">
                 <SelectInput
+                    name="transactionOutcome"
                     label="Transaction Outcome"
                     optionList={[
                         { content: "Pending", value: "pending" },
@@ -86,19 +100,19 @@ function FormRow3() {
                 Applicant Classification
             </Text>
             <div className="flex flex-wrap gap-3">
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker">
                     First Time Job Seeker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability">
                     Person With Disability (PWD)
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen">
                     Senior Citizen
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker">
                     Young Worker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="student" value="true">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="student">
                     Student
                 </ChoiceItem>
             </div>
@@ -163,12 +177,15 @@ function TransactionsInputForm({ onSubmit }: FormProps) {
 }
 
 function TransactionsLedger() {
+    const navigate = useNavigateDefault();
+    const { page, handleSetPage } = useSearchParamsTable();
+
     const handleEdit = (id: string) => () => {
-        console.log(id);
+        navigate(ROUTES.applicantForm.edit(id), true);
     };
 
     const handleDelete = (id: string) => () => {
-        console.log(id);
+        navigate(ROUTES.applicantForm.delete(id), true);
     };
 
     return (
@@ -178,7 +195,11 @@ function TransactionsLedger() {
                     Today's Ledger
                 </Text>
             </Card.Header>
-            <Table noCardStyle={true} pagination={6} onFilterSubmit={() => {}}>
+            <Table
+                noCardStyle={true}
+                pagination={{ handleSetPage, currentPage: page, items: 6 }}
+                handleFilterSubmit={() => {}}
+            >
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="Date/Time" />
@@ -240,6 +261,9 @@ function TransactionsInputPagePage({ onSubmit }: FormProps) {
                 <TransactionsInputForm onSubmit={onSubmit} />
                 <TransactionsLedger />
             </div>
+
+            {/* For edit and delete pop up */}
+            <Outlet />
         </>
     );
 }

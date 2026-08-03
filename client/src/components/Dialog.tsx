@@ -1,5 +1,6 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Card, type CardProps } from "./Card";
+import { createPortal } from "react-dom";
 
 function Header({
     children,
@@ -46,20 +47,40 @@ function DialogContainer({
     children,
     className,
     dropShadow = true,
+    onClose,
     ...props
 }: {
     children?: ReactNode;
     className?: string;
     dropShadow?: boolean;
+    onClose: () => void;
 }) {
-    return (
-        <div className="flex h-screen w-screen justify-center items-center bg-black-opaque fixed top-0 right-0 z-99999 ">
-            <section className="min-w-md min-h-fit">
+    useEffect(() => {
+        const handleEscapeKey = (e: KeyboardEvent) => {
+            if (e.key == "Escape") {
+                onClose();
+            }
+        };
+
+        document.addEventListener("keydown", handleEscapeKey);
+
+        return () => {
+            document.removeEventListener("keydown", handleEscapeKey);
+        };
+    }, [onClose]);
+
+    return createPortal(
+        <div
+            className="flex h-screen w-screen justify-center items-center bg-black-opaque fixed top-0 right-0 z-99999 "
+            onClick={onClose}
+        >
+            <section className="min-w-md min-h-fit" onClick={(e) => e.stopPropagation()}>
                 <Card {...props} className={className} dropShadow={dropShadow}>
                     {children}
                 </Card>
             </section>
-        </div>
+        </div>,
+        document.body
     );
 }
 

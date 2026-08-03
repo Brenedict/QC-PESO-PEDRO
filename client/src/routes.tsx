@@ -1,3 +1,15 @@
+// General Imports
+import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+
+// Utils
+import { decode } from "./utils/hashids";
+
+// Hooks
+import { ROUTES, useNavigateDefault, type transactionRootPage } from "./hooks/reroute";
+
+// Pages
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
 import { Overview } from "./pages/Overview";
@@ -5,9 +17,15 @@ import ProfilePage from "./pages/ProfilePage";
 import TransactionsInputPage from "./pages/TransactionsInputPage";
 import TransactionHistory from "./pages/TransactionHistory";
 import EndShiftVerification from "./pages/EndShiftVerification";
+import LoginMonitoring from "./pages/LoginMonitoring";
+
+// Components
+import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
+import { PopupTimeIn, PopupLogout, PopupEndshiftSummary } from "./components/popups/ShiftPopups";
+
+// Test Data
 import { transactions } from "./data/transactions";
 import { shiftRecords } from "./data/shiftRecords";
-import LoginMonitoring from "./pages/LoginMonitoring";
 import { employeeSessions } from "./data/employeeSessions";
 import SystemAuditLogs from "./pages/SystemAuditLogs";
 import { auditLogData } from "./data/auditLogs";
@@ -26,11 +44,49 @@ const userContext: TopBarContextValue = {
     onNotifClick: () => {},
 };
 
-const routes = [
+const TransactionSchema = zfd.formData({
+    id: zfd.text(z.string().optional().transform(decode)),
+    name: zfd.text(z.string().optional()),
+    date: zfd.text(z.string().optional()),
+    time: zfd.text(z.string().optional()),
+    transactionType: zfd.text(z.string().optional()),
+    gender: zfd.text(z.string().optional()),
+    transactionOutcome: zfd.text(z.string().optional()),
+    firstTimeJobSeeker: zfd.checkbox().default(false),
+    personsWithDisability: zfd.checkbox().default(false),
+    seniorCitizen: zfd.checkbox().default(false),
+    youngWorker: zfd.checkbox().default(false),
+    student: zfd.checkbox().default(false),
+    remarks: zfd.text(z.string().optional()),
+});
+
+const transactionsEditAndDelete = (root: transactionRootPage) => [
+    {
+        path: ":transactionId/edit",
+        element: <PopupViewEditTransaction root={root} />,
+        action: async ({ request, params }: ActionFunctionArgs) => {
+            const formData = await request.formData();
+            const data = TransactionSchema.parse(formData);
+            console.log(data);
+            return redirect("..");
+        },
+    },
+    {
+        path: ":transactionId/delete",
+        element: <PopupDeleteTransaction root={root} />,
+        action: async ({ request, params }: ActionFunctionArgs) => {
+            const formData = await request.formData();
+            return redirect("..");
+        },
+    },
+];
+
+const routes: RouteObject[] = [
     {
         path: "/auth",
         element: <LoginPage onSubmit={() => {}} />,
     },
+
     {
         path: "/",
         element: <DashboardLayout {...userContext} />,
@@ -40,6 +96,31 @@ const routes = [
                 element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
             },
             {
+                path: "time-in",
+                element: <PopupTimeIn />,
+                action: async () => {
+                    return redirect(ROUTES.dashboard.root);
+                },
+            },
+            {
+                path: "end-shift-confirmation",
+                element: <PopupEndshiftSummary />,
+                action: async () => {
+                    return redirect("/auth");
+                },
+            },
+            {
+                path: "log-out",
+                element: <PopupLogout />,
+                action: async () => {
+                    return redirect("/auth");
+                },
+            },
+            {
+                path: "settings",
+                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
+            },
+            {
                 path: "end-shift",
                 element: <EndShiftVerification shiftData={shiftRecords} />,
             },
@@ -47,12 +128,13 @@ const routes = [
                 path: "history",
                 element: (
                     <TransactionHistory
-                        onFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                        handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
                             e.preventDefault();
                         }}
                         transactions={transactions}
                     />
                 ),
+                children: transactionsEditAndDelete("history"),
             },
             {
                 path: "monitoring",
@@ -62,7 +144,7 @@ const routes = [
                         totalLogins={18}
                         totalLogouts={6}
                         sessionDuration={"8h 12m"}
-                        onFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                        handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
                             e.preventDefault();
                         }}
                         employeeSessions={employeeSessions}
@@ -72,6 +154,7 @@ const routes = [
             {
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
+                children: transactionsEditAndDelete("entry"),
             },
             {
                 path: "audit-logs",
