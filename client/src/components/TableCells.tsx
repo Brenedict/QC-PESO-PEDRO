@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Text } from "../components/Text";
 import Button from "../components/Button";
 
-import type { ColorVariant, MaterialIcon } from "../types/common";
+import type { ColorVariant, MaterialIcon, Role } from "../types/common";
 
 export function ColumnText({ children }: { children: ReactNode }) {
     return (
@@ -23,6 +23,29 @@ export function Identifier({ children }: { children: ReactNode }) {
 }
 
 export function DateTime({ dateTime }: { dateTime: Date }) {
+    // Date formatting component
+    const getRelativeDateTime = () => {
+        const now = new Date();
+        const target = new Date(dateTime);
+
+        const isToday = target.toDateString() === now.toDateString();
+
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const isYesterday = target.toDateString() === yesterday.toDateString();
+
+        const timeString = target.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+        if (isToday) {
+            return `Today, ${timeString}`;
+        }
+        if (isYesterday) {
+            return `Yesterday, ${timeString}`;
+        }
+
+        return timeString;
+    };
+
     return (
         <>
             <div>
@@ -30,7 +53,7 @@ export function DateTime({ dateTime }: { dateTime: Date }) {
                     {dateTime.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </Text>
                 <Text size="small" variant="grayish-blue" align="center" weight="normal">
-                    {dateTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
+                    {getRelativeDateTime()}
                 </Text>
             </div>
         </>
@@ -87,5 +110,21 @@ export function ActionButton({
         <Button variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
             {text}
         </Button>
+    );
+}
+
+const badgeMap = {
+    admin: { text: "primary-blue", bg: "border-primary-blue bg-grayish-blue-opaque" },
+    frontline: { text: "grayish-blue", bg: "border-off-white-border bg-off-white" },
+} as const;
+
+// Badge for the Role
+export function RoleBadge({ role }: { role: Role }) {
+    return (
+        <div className={`px-3 py-1 rounded-md border  w-fit mx-auto ${badgeMap[role].bg}`}>
+            <Text size="small" weight="bold" variant={badgeMap[role].text} align="center" className="uppercase">
+                {role === "admin" ? "Administrator" : "Frontline Encoder"}
+            </Text>
+        </div>
     );
 }

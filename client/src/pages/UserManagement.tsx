@@ -9,7 +9,7 @@ import Table from "../components/Table";
 import Profile from "../components/Profile";
 import Button from "../components/Button";
 import { SelectInput } from "../components/Input";
-import { ActionButtons, type ActionTypes } from "../components/TableCells";
+import { ActionButtons, RoleBadge, type ActionTypes } from "../components/TableCells";
 import Status from "../components/Status";
 
 // Icons
@@ -65,22 +65,6 @@ function UserCell({ name, email }: { name: string; email: string }) {
                     {email}
                 </Text>
             </div>
-        </div>
-    );
-}
-
-const badgeMap = {
-    admin: { text: "primary-blue", bg: "border-primary-blue bg-grayish-blue-opaque" },
-    frontline: { text: "grayish-blue", bg: "border-off-white-border bg-off-white" },
-} as const;
-
-// Badge for the Role
-function RoleBadge({ role }: { role: Role }) {
-    return (
-        <div className={`px-3 py-1 rounded-md border  w-fit mx-auto ${badgeMap[role].bg}`}>
-            <Text size="small" weight="bold" variant={badgeMap[role].text} align="center" className="uppercase">
-                {role === "admin" ? "Administrator" : "Frontline Encoder"}
-            </Text>
         </div>
     );
 }

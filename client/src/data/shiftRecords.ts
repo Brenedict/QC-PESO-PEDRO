@@ -13,7 +13,7 @@ export const shiftRecords: ShiftRecord[] = [
         name: "Juan Cruz",
         shift: "Morning",
         trans: 148,
-        dateTime: new Date("2026-07-20T17:02:00"),
+        dateTime: new Date("2026-08-03T17:02:00"),
         status: "pending",
     },
     {

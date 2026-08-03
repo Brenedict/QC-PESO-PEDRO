@@ -37,7 +37,7 @@ import Reports from "./pages/Reports";
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
     status: "online",
-    userFullName: "Richard Yap",
+    userFullName: "Kenneth Pabillo",
     hasNotif: false,
     roleType: "admin",
     onSearchChange: () => {},

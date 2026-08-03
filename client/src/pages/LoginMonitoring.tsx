@@ -12,7 +12,7 @@ import { Text } from "../components/Text";
 import Table from "../components/Table";
 import { type EmployeeSession } from "../data/employeeSessions";
 import Status from "../components/Status";
-import { ActionButton, ColumnText } from "../components/TableCells";
+import { ActionButton, ColumnText, DateTime, Identifier, RoleBadge } from "../components/TableCells";
 
 const iconClasses = {
     green: { variant: "green", bgVariant: "green-opaque" },
@@ -59,34 +59,6 @@ function MonitorCard({ icon, color, description, children }: MonitorCardProps) {
 
 function MonitorCardGroup({ children }: { children: ReactNode }) {
     return <section className="flex gap-4">{children}</section>;
-}
-
-// Date formatting component
-function RelativeDate({ date }: { date: Date }) {
-    const now = new Date();
-    const target = new Date(date);
-
-    const isToday = target.toDateString() === now.toDateString();
-
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const isYesterday = target.toDateString() === yesterday.toDateString();
-
-    const timeString = target.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-    if (isToday) {
-        return <span>Today, {timeString}</span>;
-    }
-    if (isYesterday) {
-        return <span>Yesterday, {timeString}</span>;
-    }
-
-    const dateString = target.toLocaleDateString([], { month: "long", day: "numeric" });
-    return (
-        <span>
-            {dateString}, {timeString}
-        </span>
-    );
 }
 
 interface LoginMonitoringProps {
@@ -154,10 +126,14 @@ function LoginMonitoring({
                         <Table.Data>
                             <ColumnText>{employee.name}</ColumnText>
                         </Table.Data>
-                        <Table.Data>{employee.role === "admin" ? "Administrator" : "Frontline Encoder"}</Table.Data>
-                        <Table.Data>{employee.totalLoginSessions}</Table.Data>
                         <Table.Data>
-                            <RelativeDate date={employee.lastLogin} />
+                            <RoleBadge role={employee.role} />
+                        </Table.Data>
+                        <Table.Data>
+                            <ColumnText>{employee.totalLoginSessions}</ColumnText>
+                        </Table.Data>
+                        <Table.Data>
+                            <DateTime dateTime={employee.lastLogin} />
                         </Table.Data>
                         <Table.Data>
                             <Status type="connection" variant={employee.status} />
