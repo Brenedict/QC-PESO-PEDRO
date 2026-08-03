@@ -5,6 +5,7 @@ import { Text } from "../components/Text";
 import { DateTime, Identifier } from "../components/TableCells";
 import { GeneralInput, SelectInput } from "../components/Input";
 import type { AuditLogRecord } from "../data/auditLogs";
+import { useSearchParamsTable } from "../hooks/table";
 
 // Define the props
 interface SystemAuditLogsProps {
@@ -27,6 +28,8 @@ function UserCell({ name, role }: { name: string; role: string }) {
 
 // Main Page
 function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
+    const { page, handleSetPage } = useSearchParamsTable();
+
     const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Audit Logs Filter applied");
@@ -72,7 +75,11 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                 secondaryText="Review transaction modifications, shift approvals, and data integrity events."
             />
 
-            <Table pagination={10} onFilterSubmit={handleFilterSubmit} extraFilters={extraFilters}>
+            <Table
+                pagination={{ currentPage: page, handleSetPage, items: 5 }}
+                handleFilterSubmit={handleFilterSubmit}
+                extraFilters={extraFilters}
+            >
                 <Table.Row>
                     <Table.Header text="DATE & TIME" />
                     <Table.Header text="USER" />

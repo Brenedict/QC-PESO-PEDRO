@@ -31,6 +31,18 @@ import SystemAuditLogs from "./pages/SystemAuditLogs";
 import { auditLogData } from "./data/auditLogs";
 import UserManagement from "./pages/UserManagement";
 import { usersData } from "./data/users";
+import type { TopBarContextValue } from "./context/TopbarContext";
+import Reports from "./pages/Reports";
+
+//Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
+const userContext: TopBarContextValue = {
+    status: "online",
+    userFullName: "Richard Yap",
+    hasNotif: false,
+    roleType: "admin",
+    onSearchChange: () => {},
+    onNotifClick: () => {},
+};
 
 const TransactionSchema = zfd.formData({
     id: zfd.text(z.string().optional().transform(decode)),
@@ -77,38 +89,36 @@ const routes: RouteObject[] = [
 
     {
         path: "/",
-        element: <DashboardLayout />,
+        element: <DashboardLayout {...userContext} />,
         children: [
             {
                 index: true,
-                element: <Overview pending={5} approved={18} revision={2} role="admin" />,
+                element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
             },
-
-            // May mga red here kasi unused sila currently (iniwan ko muna here)
             {
                 path: "time-in",
                 element: <PopupTimeIn />,
-                action: async ({ request, params }: ActionFunctionArgs) => {
+                action: async () => {
                     return redirect(ROUTES.dashboard.root);
                 },
             },
             {
                 path: "end-shift-confirmation",
                 element: <PopupEndshiftSummary />,
-                action: async ({ request, params }: ActionFunctionArgs) => {
+                action: async () => {
                     return redirect("/auth");
                 },
             },
             {
                 path: "log-out",
                 element: <PopupLogout />,
-                action: async ({ request, params }: ActionFunctionArgs) => {
+                action: async () => {
                     return redirect("/auth");
                 },
             },
             {
                 path: "settings",
-                element: <ProfilePage />,
+                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
             },
             {
                 path: "end-shift",
@@ -116,7 +126,14 @@ const routes: RouteObject[] = [
             },
             {
                 path: "history",
-                element: <TransactionHistory handleFilterSubmit={() => {}} transactions={transactions} />,
+                element: (
+                    <TransactionHistory
+                        handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                            e.preventDefault();
+                        }}
+                        transactions={transactions}
+                    />
+                ),
                 children: transactionsEditAndDelete,
             },
             {
@@ -127,7 +144,9 @@ const routes: RouteObject[] = [
                         totalLogins={18}
                         totalLogouts={6}
                         sessionDuration={"8h 12m"}
-                        handleFilterSubmit={() => {}}
+                        handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                            e.preventDefault();
+                        }}
                         employeeSessions={employeeSessions}
                     />
                 ),
@@ -144,6 +163,15 @@ const routes: RouteObject[] = [
             {
                 path: "user-management",
                 element: <UserManagement users={usersData} />,
+            },
+            {
+                path: "reports",
+                element: <Reports />,
+            },
+
+            {
+                path: "settings",
+                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
             },
         ],
     },

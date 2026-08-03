@@ -1,22 +1,18 @@
 import { Outlet } from "react-router";
 import { NavBar } from "../components/Navbar";
 import TopBar from "../components/Topbar";
+import type { TopBarContextValue } from "../context/TopbarContext";
 
-function DashboardLayout() {
+import "../index.css";
+
+function DashboardLayout(props: TopBarContextValue) {
     return (
         <main className="w-full min-h-screen flex antialiased">
-            <NavBar userType="frontline" />
+            <NavBar userType={props.roleType} />
 
-            <section className="flex-1">
-                <TopBar
-                    status="online"
-                    hasNotif={true}
-                    userFullName={"Richard Yap"}
-                    roleType="frontline"
-                    onNotifClick={() => console.log()}
-                    onSearchChange={() => console.log()}
-                ></TopBar>
-                <main className="p-8 bg-off-white">
+            <section className="flex-1 flex flex-col">
+                <TopBar {...props} />
+                <main className="p-8 bg-off-white grow">
                     <Outlet />
                 </main>
             </section>

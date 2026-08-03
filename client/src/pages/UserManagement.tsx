@@ -1,4 +1,7 @@
+// General Imports
 import React from "react";
+
+// Components
 import PageHeader from "../components/PageHeader";
 import { Card } from "../components/Card";
 import { Text } from "../components/Text";
@@ -7,7 +10,6 @@ import Profile from "../components/Profile";
 import Button from "../components/Button";
 import { SelectInput } from "../components/Input";
 import { ActionButtons, type ActionTypes } from "../components/TableCells";
-import type { UserRecord } from "../data/users";
 import Status from "../components/Status";
 
 // Icons
@@ -16,7 +18,15 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+
+// Types
 import type { Role } from "../types/common";
+
+// Test Data
+import type { UserRecord } from "../data/users";
+
+// Hooks
+import { useSearchParamsTable } from "../hooks/table";
 
 interface UserManagementProps {
     users: UserRecord[];
@@ -76,6 +86,8 @@ function RoleBadge({ role }: { role: Role }) {
 }
 
 function UserManagement({ users }: UserManagementProps) {
+    const { page, handleSetPage } = useSearchParamsTable();
+
     const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Filter applied in User Management");
@@ -155,7 +167,11 @@ function UserManagement({ users }: UserManagementProps) {
                 <StatCard title="Roles" value={2} />
             </div>
 
-            <Table pagination={10} onFilterSubmit={handleFilterSubmit} extraFilters={extraFilters}>
+            <Table
+                pagination={{ currentPage: page, handleSetPage, items: 5 }}
+                handleFilterSubmit={handleFilterSubmit}
+                extraFilters={extraFilters}
+            >
                 <Table.Row>
                     <Table.Header text="USER" />
                     <Table.Header text="USERNAME" />
