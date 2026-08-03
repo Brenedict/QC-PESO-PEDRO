@@ -67,11 +67,8 @@ function FilterSection({ children, onSubmit }: FilterProps) {
     return (
         <Card.Header variant="white">
             <Form method="POST" className="flex justify-between items-center w-full" onSubmit={onSubmit}>
-                <div className="flex items-center gap-4">
-                    <SearchInput
-                        placeholder="Search by applicant, ID, or keywords..."
-                        className="rounded-xl min-w-100"
-                    />
+                <div className="flex items-center gap-4 grow">
+                    <SearchInput placeholder="Search by applicant, ID, or keywords..." className="rounded-xl w-full" />
                     {children}
                 </div>
                 <Button
