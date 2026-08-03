@@ -16,14 +16,17 @@ interface InputProp extends React.InputHTMLAttributes<HTMLInputElement> {
 
 interface TextAreaProp extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     placeholder?: string;
+    hidden?: boolean;
 }
 
 interface SelectProp extends React.SelectHTMLAttributes<HTMLSelectElement> {
     optionList: Array<{ content: string; value: string }>;
+    hidden?: boolean;
 }
 
 interface GeneralInputProp extends LabelProp, InputProp {
     type: "text" | "email" | "number" | "time" | "date";
+    hidden?: boolean;
 }
 
 function Label({ htmlFor, label }: LabelProp) {
@@ -43,9 +46,9 @@ function BaseInput({ className, ...props }: InputProp) {
     );
 }
 
-export function GeneralInput({ type, placeholder, label, className = "", ...props }: GeneralInputProp) {
+export function GeneralInput({ type, placeholder, label, className = "", hidden = false, ...props }: GeneralInputProp) {
     return (
-        <div className="text-dark-blue w-full">
+        <div className={`text-dark-blue w-full ${hidden ? "hidden" : ""}`}>
             <Label htmlFor={props.id} label={label} />
             <BaseInput
                 type={type}
@@ -57,7 +60,7 @@ export function GeneralInput({ type, placeholder, label, className = "", ...prop
     );
 }
 
-export function PasswordInput({ placeholder, label, className = "", ...props }: LabelProp & InputProp) {
+export function PasswordInput({ placeholder, label, className = "", hidden = false, ...props }: LabelProp & InputProp) {
     const [visible, setVisible] = useState<boolean>(false);
 
     const handleVisible = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +68,7 @@ export function PasswordInput({ placeholder, label, className = "", ...props }: 
     };
 
     return (
-        <div className="text-dark-blue w-full relative">
+        <div className={`text-dark-blue w-full relative ${hidden ? "hidden" : ""}`}>
             <Label htmlFor={props.id} label={label} />
             <BaseInput
                 type={visible ? "text" : "password"}
@@ -84,9 +87,15 @@ export function PasswordInput({ placeholder, label, className = "", ...props }: 
     );
 }
 
-export function TextAreaInput({ placeholder, label, className = "", ...props }: LabelProp & TextAreaProp) {
+export function TextAreaInput({
+    placeholder,
+    label,
+    className = "",
+    hidden = false,
+    ...props
+}: LabelProp & TextAreaProp) {
     return (
-        <div className="text-dark-blue w-full">
+        <div className={`text-dark-blue w-full ${hidden ? "hidden" : ""}`}>
             <Label htmlFor={props.id} label={label} />
 
             <textarea
@@ -98,9 +107,9 @@ export function TextAreaInput({ placeholder, label, className = "", ...props }: 
     );
 }
 
-export function SearchInput({ placeholder, className = "", ...props }: LabelProp & InputProp) {
+export function SearchInput({ placeholder, className = "", hidden = false, ...props }: LabelProp & InputProp) {
     return (
-        <div className="text-dark-blue w-full  relative">
+        <div className={`text-dark-blue w-full  relative ${hidden ? "hidden" : ""}`}>
             <BaseInput
                 type="search"
                 placeholder={placeholder}
@@ -117,10 +126,11 @@ export function SelectInput({
     className = "",
     iconClassName = "",
     optionList,
+    hidden = false,
     ...props
 }: LabelProp & SelectProp & { iconClassName?: string }) {
     return (
-        <div className="text-dark-blue w-full relative">
+        <div className={`text-dark-blue w-full relative ${hidden ? "hidden" : ""}`}>
             <Label label={label} />
             <select
                 className={`appearance-none  block rounded-2xl text-description font-normal px-4 py-3 pr-10 border border-off-white-border  bg-off-white w-full placeholder-grayish-blue hover:bg-off-white-border transition-colors  ${className} `}

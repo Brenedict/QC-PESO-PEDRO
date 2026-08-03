@@ -2,6 +2,7 @@ import React, { type ReactNode } from "react";
 import Icon from "./Icon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { ColorClasses } from "../types/common";
+import Button from "./Button";
 
 export type ReducedColorVariant = Extract<
     keyof typeof ColorClasses,
@@ -49,9 +50,9 @@ function Header({
         <div className={`${defaultClass} w-full px-[24px] py-[16px] flex justify-between ${className}`} {...props}>
             {children}
             {toggleRightIcon && (
-                <button className="hover:cursor-pointer" onClick={onRightAction}>
-                    <Icon icon={CloseRoundedIcon} variant="black" size="normal"></Icon>
-                </button>
+                <Button onClick={onRightAction} size="small" variant="red" className="min-w-0! w-8">
+                    <Icon icon={CloseRoundedIcon} variant="white" size="bigMedium"></Icon>
+                </Button>
             )}
         </div>
     );

@@ -45,11 +45,11 @@ export function PopupTimeIn() {
             <Dialog.Body>
                 <Form method="post" id="timeInForm">
                     {/* Time-In Data Input Holders */}
-                    <GeneralInput hidden name="date" type="date" defaultValue={""}></GeneralInput>
-                    <GeneralInput hidden name="time" type="time" defaultValue={""}></GeneralInput>
-                    <GeneralInput hidden name="shift" type="text" defaultValue={"Morning Shift"}></GeneralInput>
+                    <GeneralInput hidden={true} name="date" type="date" defaultValue={""}></GeneralInput>
+                    <GeneralInput hidden={true} name="time" type="time" defaultValue={""}></GeneralInput>
+                    <GeneralInput hidden={true} name="shift" type="text" defaultValue={"Morning Shift"}></GeneralInput>
                     <GeneralInput
-                        hidden
+                        hidden={true}
                         name="assignedOffice"
                         type="text"
                         defaultValue={"Quezon City Hall (PESO)"}

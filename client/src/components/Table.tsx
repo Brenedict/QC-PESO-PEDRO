@@ -127,15 +127,16 @@ function PaginationSection({
                     </PaginationButtons>
                 )}
 
-                {visiblePages.map((pageNum) => (
-                    <PaginationButtons
-                        onClick={handleSetPage(pageNum)}
-                        highlighted={currentPage === pageNum}
-                        key={pageNum}
-                    >
-                        {pageNum}
-                    </PaginationButtons>
-                ))}
+                {visiblePages.length > 1 &&
+                    visiblePages.map((pageNum) => (
+                        <PaginationButtons
+                            onClick={handleSetPage(pageNum)}
+                            highlighted={currentPage === pageNum}
+                            key={pageNum}
+                        >
+                            {pageNum}
+                        </PaginationButtons>
+                    ))}
 
                 {pageNumbers > 1 && currentPage !== pageNumbers && (
                     <PaginationButtons onClick={handleSetPage(currentPage + 1)}>

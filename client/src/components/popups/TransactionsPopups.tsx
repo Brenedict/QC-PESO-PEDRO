@@ -38,7 +38,7 @@ export function PopupViewEditTransaction({ root = "history" }: { root: transacti
             <Dialog.Body>
                 <Form method="post" id="transactionsFormViewEdit" className="flex flex-col h-fit gap-6">
                     {/* ID holder */}
-                    <GeneralInput hidden name="id" type="text" defaultValue={transactionId}></GeneralInput>
+                    <GeneralInput hidden={true} name="id" type="text" defaultValue={transactionId}></GeneralInput>
                     <FormRow1 />
                     <FormRow2 />
                     <FormRow3 />
@@ -70,16 +70,16 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(returnPageOnClose, true)}>
-            <Dialog.Body>
+            <Dialog.Body className="p-6!">
                 <Form method="post" id="transactionsFormViewEdit" className="flex flex-col h-fit gap-6">
                     {/* ID holder */}
-                    <GeneralInput hidden name="id" type="text" defaultValue={transactionId}></GeneralInput>
+                    <GeneralInput hidden={true} name="id" type="text" defaultValue={transactionId}></GeneralInput>
                 </Form>
                 <section className="flex flex-col justify-center gap-6 max-w-md">
                     <div className="flex justify-center">
                         <Icon
                             icon={DeleteOutlineOutlinedIcon}
-                            size="big"
+                            size="giant"
                             variant="red"
                             bg={{
                                 padding: "big",
@@ -100,8 +100,8 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
                         </Text>
                     </div>
                     <div className="flex justify-center">
-                        <Card className="w-fit">
-                            <Card.Body variant="red-opaque">
+                        <Card className="w-fit border-red" dropShadow={false}>
+                            <Card.Body variant="red-opaque" className="p-3!">
                                 <Text variant="red">This action cannot be undone and will be logged.</Text>
                             </Card.Body>
                         </Card>
@@ -109,7 +109,7 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white" size="small" onClick={() => navigate(returnPageOnClose, true)}>
+                <Button variant="white-black" size="small" onClick={() => navigate(returnPageOnClose, true)}>
                     Cancel
                 </Button>
                 <Button variant="red" size="small" type="submit" form="transactionsFormViewEdit">

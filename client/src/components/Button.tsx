@@ -32,8 +32,8 @@ const variantStyles: Record<Variant, string> = {
 const sizeStyles: Record<Size, string> = {
     tiny: "px-3 py-1.5 text-small-description rounded-xl",
     smaller: "px-3 py-1.5 text-description rounded-xl",
-    small: "px-3 py-1.5 min-w-[100px] text-sm rounded-lg",
-    normal: "px-6 py-2.5 min-w-[160px] text-base rounded-xl",
+    small: "px-3 py-1.5 min-w-[100px] text-sm rounded-xl",
+    normal: "px-6 py-2.5 min-w-[160px] text-base rounded-2xl",
     large: "px-8 py-3 min-w-[200px] text-lg rounded-2xl",
 };
 
