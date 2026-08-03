@@ -10,9 +10,9 @@ function DashboardLayout(props: TopBarContextValue) {
         <main className="w-full min-h-screen flex antialiased">
             <NavBar userType={props.roleType} />
 
-            <section className="flex-1">
+            <section className="flex-1 flex flex-col">
                 <TopBar {...props} />
-                <main className="p-8 bg-off-white">
+                <main className="p-8 bg-off-white grow">
                     <Outlet />
                 </main>
             </section>
