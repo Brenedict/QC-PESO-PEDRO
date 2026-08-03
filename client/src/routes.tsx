@@ -14,6 +14,7 @@ import { auditLogData } from "./data/auditLogs";
 import UserManagement from "./pages/UserManagement";
 import { usersData } from "./data/users";
 import type { TopBarContextValue } from "./context/TopbarContext";
+import Reports from "./pages/Reports";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -79,6 +80,10 @@ const routes = [
             {
                 path: "user-management",
                 element: <UserManagement users={usersData} />,
+            },
+            {
+                path: "reports",
+                element: <Reports />,
             },
 
             {
