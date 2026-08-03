@@ -68,8 +68,8 @@ function NavBodyFrontline() {
     return (
         <>
             <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/transaction-entry" />
-            <NavButton linkType="transaction_history" to="/transaction-history" />
+            <NavButton linkType="transaction_entry" to="/applicant-form" />
+            <NavButton linkType="transaction_history" to="/history" />
             <NavButton linkType="settings" to="/settings" />
         </>
     );
@@ -79,12 +79,12 @@ function NavBodyAdmin() {
     return (
         <>
             <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/transaction-entry" />
-            <NavButton linkType="transaction_history" to="/transaction-history" />
-            <NavButton linkType="end_shift_verification" to="/end-shift-verification" />
-            <NavButton linkType="login_monitoring" to="/login-monitoring" />
-            <NavButton linkType="context_analytics" to="/context-analytics" />
-            <NavButton linkType="reports" to="/reports" />
+            <NavButton linkType="transaction_entry" to="/applicant-form" />
+            <NavButton linkType="transaction_history" to="/history" />
+            <NavButton linkType="end_shift_verification" to="/end-shift" />
+            <NavButton linkType="login_monitoring" to="/monitoring" />
+            {/* <NavButton linkType="context_analytics" to="/context-analytics" /> */}
+            {/* <NavButton linkType="reports" to="/reports" /> */}
             <NavButton linkType="audit_logs" to="/audit-logs" />
             <NavButton linkType="user_management" to="/user-management" />
             <NavButton linkType="settings" to="/settings" />
