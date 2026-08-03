@@ -2,7 +2,7 @@
 import { Form, redirect, useParams } from "react-router";
 
 // Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import { ROUTES, useNavigateDefault, type transactionRootPage } from "../../hooks/reroute";
 
 // Components
 import { Card } from "../Card";
@@ -19,7 +19,7 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 // Test Data
 import { decode } from "../../utils/hashids";
 
-export function PopupViewEditTransaction() {
+export function PopupViewEditTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
     const { transactionId } = useParams();
 
@@ -27,9 +27,12 @@ export function PopupViewEditTransaction() {
 
     const decodedId = decode(transactionId);
 
+    // Determines reroute on cancel between transactionEntry & transactionHistory page
+    const returnPageOnClose = root == "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
+
     return (
-        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root, true)}>
-            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.history.root, true)}>
+        <Dialog dropShadow={true} onClose={() => navigate(returnPageOnClose, true)}>
+            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(returnPageOnClose, true)}>
                 <Text weight="bold">Edit Transaction: {decodedId}</Text>
             </Dialog.Header>
             <Dialog.Body>
@@ -43,7 +46,7 @@ export function PopupViewEditTransaction() {
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white" size="small" onClick={() => navigate(ROUTES.history.root, true)}>
+                <Button variant="white" size="small" onClick={() => navigate(returnPageOnClose, true)}>
                     Cancel
                 </Button>
                 <Button size="small" type="submit" form="transactionsFormViewEdit">
@@ -54,7 +57,7 @@ export function PopupViewEditTransaction() {
     );
 }
 
-export function PopupDeleteTransaction() {
+export function PopupDeleteTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
     const { transactionId } = useParams();
 
@@ -62,8 +65,11 @@ export function PopupDeleteTransaction() {
 
     const decodedId = decode(transactionId);
 
+    // Determines reroute on cancel between transactionEntry & transactionHistory page
+    const returnPageOnClose = root == "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
+
     return (
-        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root, true)}>
+        <Dialog dropShadow={true} onClose={() => navigate(returnPageOnClose, true)}>
             <Dialog.Body>
                 <Form method="post" id="transactionsFormViewEdit" className="flex flex-col h-fit gap-6">
                     {/* ID holder */}
@@ -103,7 +109,7 @@ export function PopupDeleteTransaction() {
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white" size="small" onClick={() => navigate(ROUTES.history.root, true)}>
+                <Button variant="white" size="small" onClick={() => navigate(returnPageOnClose, true)}>
                     Cancel
                 </Button>
                 <Button variant="red" size="small" type="submit" form="transactionsFormViewEdit">

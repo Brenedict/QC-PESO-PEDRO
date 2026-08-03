@@ -60,6 +60,8 @@ export const ROUTES = {
     },
 } as const;
 
+export type transactionRootPage = "history" | "entry";
+
 export function useNavigateDefault() {
     const navigate = useNavigate();
     const location = useLocation();

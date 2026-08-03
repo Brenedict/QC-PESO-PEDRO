@@ -7,7 +7,7 @@ import { zfd } from "zod-form-data";
 import { decode } from "./utils/hashids";
 
 // Hooks
-import { ROUTES, useNavigateDefault } from "./hooks/reroute";
+import { ROUTES, useNavigateDefault, type transactionRootPage } from "./hooks/reroute";
 
 // Pages
 import LoginPage from "./pages/LoginPage";
@@ -60,10 +60,10 @@ const TransactionSchema = zfd.formData({
     remarks: zfd.text(z.string().optional()),
 });
 
-const transactionsEditAndDelete = [
+const transactionsEditAndDelete = (root: transactionRootPage) => [
     {
         path: ":transactionId/edit",
-        element: <PopupViewEditTransaction />,
+        element: <PopupViewEditTransaction root={root} />,
         action: async ({ request, params }: ActionFunctionArgs) => {
             const formData = await request.formData();
             const data = TransactionSchema.parse(formData);
@@ -73,7 +73,7 @@ const transactionsEditAndDelete = [
     },
     {
         path: ":transactionId/delete",
-        element: <PopupDeleteTransaction />,
+        element: <PopupDeleteTransaction root={root} />,
         action: async ({ request, params }: ActionFunctionArgs) => {
             const formData = await request.formData();
             return redirect("..");
@@ -134,7 +134,7 @@ const routes: RouteObject[] = [
                         transactions={transactions}
                     />
                 ),
-                children: transactionsEditAndDelete,
+                children: transactionsEditAndDelete("history"),
             },
             {
                 path: "monitoring",
@@ -154,7 +154,7 @@ const routes: RouteObject[] = [
             {
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
-                children: transactionsEditAndDelete,
+                children: transactionsEditAndDelete("entry"),
             },
             {
                 path: "audit-logs",

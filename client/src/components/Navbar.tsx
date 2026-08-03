@@ -101,7 +101,7 @@ function NavBody({ userType }: { userType: Role }) {
 function NavFooter() {
     return (
         <div className="p-4">
-            <NavButton linkType="logout" to="/test" isLogout />
+            <NavButton linkType="logout" to="/log-out" isLogout />
         </div>
     );
 }
