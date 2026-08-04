@@ -5,7 +5,7 @@
 <What is the logical approach of your solution?>
 
 ## Linked Issue
-Resolves #
+Closes #
 
 ## Type of Change
 Please select the option that best describes your changes:
