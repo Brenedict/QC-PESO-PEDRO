@@ -18,6 +18,7 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 
 // Test Data
 import { decode } from "../../utils/hashids";
+import { PopupButton } from "./PopupPartials";
 
 export function PopupViewEditTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
@@ -46,12 +47,12 @@ export function PopupViewEditTransaction({ root = "history" }: { root: transacti
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white" size="small" onClick={() => navigate(returnPageOnClose, true)}>
+                <PopupButton variant="white-black" onClick={() => navigate(returnPageOnClose, true)}>
                     Cancel
-                </Button>
-                <Button size="small" type="submit" form="transactionsFormViewEdit">
+                </PopupButton>
+                <PopupButton type="submit" form="transactionsFormViewEdit">
                     Save Changes
-                </Button>
+                </PopupButton>
             </Dialog.Footer>
         </Dialog>
     );
@@ -75,8 +76,8 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
                     {/* ID holder */}
                     <GeneralInput hidden={true} name="id" type="text" defaultValue={transactionId}></GeneralInput>
                 </Form>
-                <section className="flex flex-col justify-center gap-6 max-w-md">
-                    <div className="flex justify-center">
+                <section className="flex flex-col justify-center max-w-md">
+                    <div className="flex justify-center mb-4">
                         <Icon
                             icon={DeleteOutlineOutlinedIcon}
                             size="giant"
@@ -88,33 +89,33 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
                             }}
                         ></Icon>
                     </div>
-                    <Text size="medium" weight="bold" align="center">
+                    <Text size="medium" weight="bold" align="center" className="mb-2">
                         Delete Transaction?
                     </Text>
-                    <div>
+                    <div className="mb-4">
                         <Text variant="grayish-blue" align="center">
-                            Are you sure you want to delete transaction
-                        </Text>
-                        <Text variant="grayish-blue" align="center">
+                            Are you sure you want to delete transaction{" "}
                             <span className="font-bold text-black">{decodedId}</span>?
                         </Text>
                     </div>
                     <div className="flex justify-center">
-                        <Card className="w-fit border-red" dropShadow={false}>
+                        <Card className="w-fit border-red-opaque!" dropShadow={false}>
                             <Card.Body variant="red-opaque" className="p-3!">
-                                <Text variant="red">This action cannot be undone and will be logged.</Text>
+                                <Text variant="red" weight="medium">
+                                    This action cannot be undone and will be logged.
+                                </Text>
                             </Card.Body>
                         </Card>
                     </div>
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white-black" size="small" onClick={() => navigate(returnPageOnClose, true)}>
+                <PopupButton variant="white-black" onClick={() => navigate(returnPageOnClose, true)}>
                     Cancel
-                </Button>
-                <Button variant="red" size="small" type="submit" form="transactionsFormViewEdit">
+                </PopupButton>
+                <PopupButton variant="red" form="transactionsFormViewEdit" type="submit">
                     Confirm Delete
-                </Button>
+                </PopupButton>
             </Dialog.Footer>
         </Dialog>
     );

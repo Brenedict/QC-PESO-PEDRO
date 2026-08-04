@@ -16,12 +16,14 @@ import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 
 // Test Data
 import { decode } from "../../utils/hashids";
-import { GeneralInput } from "../Input";
+import { GeneralInput, TextAreaInput } from "../Input";
+import { LogoutOutlined } from "@mui/icons-material";
+import { ContextBadge, GrayMiniCard, LabeledSection, PopupButton } from "./PopupPartials";
 
 export function PopupTimeIn() {
     const navigate = useNavigateDefault();
     return (
-        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root, true)}>
+        <Dialog dropShadow={true} className="border-0!" onClose={() => navigate(ROUTES.history.root, true)}>
             <Dialog.Header variant="primary-blue" className="flex flex-col" toggleRightIcon={false}>
                 <div className="flex justify-center mt-3">
                     <Icon
@@ -57,54 +59,28 @@ export function PopupTimeIn() {
                 </Form>
                 <section className="flex flex-col justify-center gap-6 max-w-md">
                     <div className="grid grid-cols-2 gap-3">
-                        <Card>
-                            <Card.Body bordered={true} variant="grayish-blue-opaque">
-                                <Text variant="grayish-blue" size="small" weight="bold">
-                                    DATE
-                                </Text>
-                                <Text variant="black">Jul 20, 2026</Text>
-                            </Card.Body>
-                        </Card>
-                        <Card>
-                            <Card.Body bordered={true} variant="grayish-blue-opaque">
-                                <Text variant="grayish-blue" size="small" weight="bold">
-                                    LIVE TIME
-                                </Text>
-                                <Text variant="black">02:17 PM</Text>
-                            </Card.Body>
-                        </Card>
-                        <Card>
-                            <Card.Body bordered={true} variant="grayish-blue-opaque">
-                                <Text variant="grayish-blue" size="small" weight="bold">
-                                    SHIFT
-                                </Text>
-                                <Text variant="black">Morning Shift</Text>
-                            </Card.Body>
-                        </Card>
-                        <Card>
-                            <Card.Body bordered={true} variant="grayish-blue-opaque">
-                                <Text variant="grayish-blue" size="small" weight="bold">
-                                    ASSIGNED OFFICE
-                                </Text>
-                                <Text variant="black">Quezon City Hall (PESO)</Text>
-                            </Card.Body>
-                        </Card>
+                        <GrayMiniCard descriptionText="DATE" valueText="Jul 20, 2026" />
+                        <GrayMiniCard descriptionText="LIVE TIME" valueText="02:17 PM" variant="primary-blue" />
+                        <GrayMiniCard descriptionText="SHIFT" valueText="Morning Shift" />
+                        <GrayMiniCard
+                            descriptionText="ASSIGNED OFFICE"
+                            valueText="Quezon City Hall (PESO)"
+                            valueSize="description"
+                        />
                     </div>
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white" size="small" onClick={() => navigate(ROUTES.dashboard.root, true)}>
-                    Cancel Time In
-                </Button>
-                <Button
-                    variant="blue"
-                    size="small"
-                    type="submit"
-                    form="timeInForm"
+                <PopupButton
+                    leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
+                    variant="white"
                     onClick={() => navigate(ROUTES.dashboard.root, true)}
                 >
+                    Cancel Time In
+                </PopupButton>
+                <PopupButton variant="blue" onClick={() => navigate(ROUTES.dashboard.root, true)}>
                     Time In Now
-                </Button>
+                </PopupButton>
             </Dialog.Footer>
         </Dialog>
     );
@@ -123,13 +99,12 @@ export function PopupLogout() {
                 <Form method="post" id="timeInForm" className="flex flex-col gap-6">
                     {/* Time-In Data Input Holders */}
                     <GeneralInput label="Reason for Logout" name="date" type="text" defaultValue={""}></GeneralInput>
-                    <GeneralInput
+                    <TextAreaInput
                         label="Optional Remarks"
                         name="time"
-                        type="text"
                         defaultValue={""}
                         placeholder="Enter additional details..."
-                    ></GeneralInput>
+                    ></TextAreaInput>
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
@@ -162,37 +137,50 @@ export function PopupEndshiftSummary() {
             <Dialog.Body>
                 <Form method="post" id="timeInForm" className="flex flex-col gap-6">
                     {/* Time-In Data Input Holders */}
-                    <Card>
-                        <Card.Body bordered={true} variant="grayish-blue-opaque">
-                            <Text variant="grayish-blue" size="small" weight="bold">
-                                Total Transactions
-                            </Text>
-                            <Text variant="black">Morning Shift</Text>
-                        </Card.Body>
-                    </Card>
-                    <GeneralInput label="Reason for Logout" name="date" type="text" defaultValue={""}></GeneralInput>
-                    <GeneralInput
+                    <div className="flex gap-4">
+                        <GrayMiniCard
+                            descriptionText="Total Transactions"
+                            descriptionSize="description"
+                            valueSize="bigger"
+                            valueText="42"
+                            weight="bold"
+                        />
+                        <GrayMiniCard
+                            descriptionText="Pending"
+                            descriptionSize="description"
+                            valueSize="bigger"
+                            valueText="3"
+                            weight="bold"
+                        />
+                    </div>
+                    <LabeledSection label="Context Tags">
+                        <div className="flex gap-2">
+                            <ContextBadge highlighted={true}>Normal Operation</ContextBadge>
+                            <ContextBadge>Slow Internet</ContextBadge>
+                            <ContextBadge>Heavy Rain</ContextBadge>
+                        </div>
+                    </LabeledSection>
+
+                    <TextAreaInput
                         label="Optional Remarks"
                         name="time"
-                        type="text"
                         defaultValue={""}
-                        placeholder="Enter additional details..."
-                    ></GeneralInput>
+                        placeholder="Problems, or any other concern during the shift..."
+                    ></TextAreaInput>
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white" size="small" onClick={() => navigate(ROUTES.dashboard.root, true)}>
+                <PopupButton variant="white" onClick={() => navigate(ROUTES.dashboard.root, true)}>
                     Cancel
-                </Button>
-                <Button
-                    variant="red"
-                    size="small"
+                </PopupButton>
+                <PopupButton
+                    variant="blue"
                     type="submit"
                     form="timeInForm"
                     onClick={() => navigate(ROUTES.dashboard.root, true)}
                 >
-                    Logout
-                </Button>
+                    Submit & End Shift
+                </PopupButton>
             </Dialog.Footer>
         </Dialog>
     );

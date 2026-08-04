@@ -3,20 +3,21 @@ import Icon, { type IconProps } from "./Icon";
 
 // Available color and size variants
 
-type Variant = "blue" | "opaque-blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red" | "white-blue";
-type Size = "tiny" | "smaller" | "small" | "normal" | "large";
+export type ButtonVariant =
+    "blue" | "opaque-blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red" | "white-blue";
+export type ButtonSize = "tiny" | "smaller" | "small" | "normal" | "large";
 
 // Properties that can be passed to the button component
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: Variant;
-    size?: Size;
+    variant?: ButtonVariant;
+    size?: ButtonSize;
     leftIcon?: IconProps;
     rightIcon?: IconProps;
     children: React.ReactNode;
 }
 
 // Tailwind CSS classes per color variant
-const variantStyles: Record<Variant, string> = {
+const variantStyles: Record<ButtonVariant, string> = {
     blue: "bg-[#004B87] text-white border-none hover:bg-[#003865] hover:scale-105",
     "opaque-blue": "bg-grayish-blue-opaque text-primary-blue border-none hover:bg-[#e0e7fe] hover:scale-105",
     red: "bg-[#EF4444] text-white border-none hover:bg-[#dc2626] hover:scale-105",
@@ -29,7 +30,7 @@ const variantStyles: Record<Variant, string> = {
 };
 
 // Tailwind CSS classes per size variant
-const sizeStyles: Record<Size, string> = {
+const sizeStyles: Record<ButtonSize, string> = {
     tiny: "px-3 py-1.5 text-small-description rounded-xl",
     smaller: "px-3 py-1.5 text-description rounded-xl",
     small: "px-3 py-1.5 min-w-[100px] text-sm rounded-xl",
