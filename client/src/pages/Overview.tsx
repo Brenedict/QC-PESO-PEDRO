@@ -24,6 +24,60 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
+import { LineChart } from "../components/LineChart";
+import { PieChart } from "../components/PieChart";
+
+// This is the most basic format for the `data` argument of the chart
+export const sampleLineData = {
+    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    datasets: [
+        {
+            label: "Well-Milled High",
+            data: [45, 12, 109, 66, 255],
+            borderColor: "#38bff8",
+            backgroundColor: "#38bff8",
+            tension: 0.4,
+            fill: {
+                target: "origin" as const,
+                above: "#38bff83a",
+            },
+        },
+    ],
+};
+
+// This is the most basic format for the `options` argument of the chart
+export const sampleLineOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            position: "bottom",
+            align: "center",
+            labels: {
+                usePointStyle: true, // Changes box to a circle/point style
+                pointStyle: "circle", // Explicitly ensures it is a circle (default)
+                boxWidth: 10,
+            },
+        },
+        title: {
+            display: true,
+            text: "Chart Example",
+            position: "top",
+            align: "center",
+        },
+    },
+} as const;
+
+export const samplePieData = {
+    labels: ["Male", "Female"],
+    datasets: [
+        {
+            label: "# of Votes",
+            data: [20, 80],
+            backgroundColor: ["rgba(255, 99, 132, 0.5)", "rgba(54, 162, 235, 0.5)"],
+            borderColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+        },
+    ],
+};
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
@@ -187,6 +241,17 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
                 </Text>
 
                 <EmploymentEvents />
+            </OverviewSection>
+
+            <OverviewSection>
+                <section className="grid grid-cols-3 gap-6">
+                    <div className="col-span-2">
+                        <LineChart options={sampleLineOptions} data={sampleLineData}></LineChart>
+                    </div>
+                    <div className="bg-red-300">
+                        <PieChart options={sampleLineOptions} data={samplePieData}></PieChart>
+                    </div>
+                </section>
             </OverviewSection>
 
             <br className="block mb-14" />

@@ -3,9 +3,42 @@ import PageHeader from "../components/PageHeader";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { Card } from "../components/Card";
+import { BarChart } from "../components/BarChart";
 import Icon from "../components/Icon";
 import type { ReactNode } from "react";
 import { Text } from "../components/Text";
+
+export const smapleBarData = {
+    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    datasets: [
+        {
+            data: [90, 130, 110, 70, 40],
+            borderColor: "#38bff8",
+            backgroundColor: "#38bff890",
+        },
+    ],
+};
+
+export const sampleBarptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            position: "bottom",
+            align: "center",
+            labels: {
+                usePointStyle: true, // Changes box to a circle/point style
+                pointStyle: "circle", // Explicitly ensures it is a circle (default)
+                boxWidth: 10,
+            },
+        },
+        title: {
+            display: true,
+            text: "Chart Example",
+            position: "top",
+            align: "center",
+        },
+    },
+} as const;
 
 function ReportCard({ children }: { children: ReactNode }) {
     return (
@@ -65,7 +98,7 @@ function ButtonGroup() {
 
 function Reports() {
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen flex flex-col gap-6">
             <PageHeader primaryText="Reports Center" secondaryText="Generate and export system-wide reports.">
                 <ButtonGroup />
             </PageHeader>
@@ -77,6 +110,9 @@ function Reports() {
                 <ReportCard>SPES Report</ReportCard>
                 <ReportCard>Accreditation Report</ReportCard>
                 <ReportCard>Transaction Summary</ReportCard>
+            </div>
+            <div>
+                <BarChart options={sampleBarptions} data={smapleBarData}></BarChart>
             </div>
         </div>
     );
