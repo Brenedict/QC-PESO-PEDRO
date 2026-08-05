@@ -108,18 +108,17 @@ export function PopupLogout() {
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <Button variant="white" size="small" onClick={() => navigate(ROUTES.dashboard.root, true)}>
+                <PopupButton variant="white" onClick={() => navigate(ROUTES.dashboard.root, true)}>
                     Cancel
-                </Button>
-                <Button
+                </PopupButton>
+                <PopupButton
                     variant="red"
-                    size="small"
                     type="submit"
                     form="timeInForm"
                     onClick={() => navigate(ROUTES.dashboard.root, false)}
                 >
                     Logout
-                </Button>
+                </PopupButton>
             </Dialog.Footer>
         </Dialog>
     );

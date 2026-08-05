@@ -54,9 +54,11 @@ export const ROUTES = {
     userManagement: {
         root: BASE_ROUTES.userManagement,
         create: `${BASE_ROUTES.userManagement}/create`,
+        edit: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/edit`,
         reset: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/reset`,
         disable: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/disable`,
         promote: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/promote`,
+        demote: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/demote`,
     },
 } as const;
 

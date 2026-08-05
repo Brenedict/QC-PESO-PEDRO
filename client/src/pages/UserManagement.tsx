@@ -1,5 +1,7 @@
+import { Outlet } from "react-router";
+
 // General Imports
-import React from "react";
+import React, { type SubmitEvent } from "react";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -15,6 +17,7 @@ import Status from "../components/Status";
 // Icons
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
@@ -27,7 +30,7 @@ import type { UserRecord } from "../data/users";
 
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
-
+import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 interface UserManagementProps {
     users: UserRecord[];
 }
@@ -69,39 +72,60 @@ function UserCell({ name, email }: { name: string; email: string }) {
     );
 }
 
+// Promote and Demote Button Utils
+type RoleButton = {
+    icon: typeof RemoveModeratorOutlinedIcon | typeof ShieldOutlinedIcon;
+    text: string;
+    color: "black" | "blue";
+    handleClick: (id: string) => () => void;
+};
+
 function UserManagement({ users }: UserManagementProps) {
     const { page, handleSetPage } = useSearchParamsTable();
+    const navigate = useNavigateDefault();
 
-    const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Filter applied in User Management");
     };
 
-    // Actions depende sa current role ng user
-    const getRowActions = (role: string): ActionTypes => [
-        {
+    const RoleButtonMap: Record<Role, RoleButton> = {
+        admin: {
+            icon: RemoveModeratorOutlinedIcon,
+            text: "Demote",
+            color: "black",
+            handleClick: (id) => () => navigate(ROUTES.userManagement.demote(id), true),
+        },
+        frontline: {
             icon: ShieldOutlinedIcon,
-            text: role === "Administrator" ? "Demote" : "Promote",
+            text: "Promote",
             color: "blue",
-            handleClick: (id) => () => console.log(`${role === "Administrator" ? "Demoting" : "Promoting"} user:`, id),
+            handleClick: (id) => () => navigate(ROUTES.userManagement.promote(id), true),
+        },
+    };
+
+    // Actions depende sa current role ng user
+    const getRowActions = (role: Role): ActionTypes => [
+        {
+            ...RoleButtonMap[role],
         },
         {
             icon: EditOutlinedIcon,
             text: "Edit",
             color: "black",
-            handleClick: (id) => () => console.log("Editing user:", id),
+            handleClick: (id) => () => navigate(ROUTES.userManagement.edit(id), true),
         },
         {
             icon: VpnKeyOutlinedIcon,
             text: "Reset",
             color: "black",
-            handleClick: (id) => () => console.log("Resetting password for:", id),
+            handleClick: (id) => () => navigate(ROUTES.userManagement.reset(id), true),
         },
         {
             icon: PersonOffOutlinedIcon,
             text: "Disable",
             color: "red",
-            handleClick: (id) => () => console.log("Disabling user:", id),
+            handleClick: (id) => () => navigate(ROUTES.userManagement.disable(id), true),
         },
     ];
 
@@ -112,7 +136,7 @@ function UserManagement({ users }: UserManagementProps) {
                 optionList={[
                     { content: "All Roles", value: "" },
                     { content: "Administrator", value: "admin" },
-                    { content: "Frontline Encoder", value: "encoder" },
+                    { content: "Frontline Encoder", value: "frontline" },
                 ]}
                 iconClassName="top-2! right-2!"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
@@ -139,6 +163,7 @@ function UserManagement({ users }: UserManagementProps) {
                     size="normal"
                     variant="blue"
                     leftIcon={{ icon: PersonAddOutlinedIcon, size: "medium", variant: "white" }}
+                    onClick={() => navigate(ROUTES.userManagement.create)}
                 >
                     Add User
                 </Button>
@@ -184,12 +209,17 @@ function UserManagement({ users }: UserManagementProps) {
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center gap-2">
-                                <ActionButtons id={row.id} actions={getRowActions(row.role)} />
+                                <ActionButtons
+                                    id={row.id}
+                                    extraParams={{ name: row.name }}
+                                    actions={getRowActions(row.role)}
+                                />
                             </div>
                         </Table.Data>
                     </Table.Row>
                 ))}
             </Table>
+            <Outlet />
         </div>
     );
 }

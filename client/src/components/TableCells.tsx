@@ -63,7 +63,7 @@ export function DateTime({ dateTime }: { dateTime: Date }) {
 export type Action = {
     icon: MaterialIcon;
     text: string;
-    handleClick: (id: string) => React.MouseEventHandler<HTMLButtonElement>;
+    handleClick: (id: string, extraParams: unknown) => React.MouseEventHandler<HTMLButtonElement>;
     color: "red" | "black" | "blue";
 };
 
@@ -75,7 +75,15 @@ const buttonMap = {
     black: { variant: "white-black", iconVariant: "black" },
 } as const;
 
-export function ActionButtons({ id, actions }: { id: string; actions: ActionTypes }) {
+export function ActionButtons({
+    id,
+    extraParams,
+    actions,
+}: {
+    id: string;
+    extraParams?: unknown;
+    actions: ActionTypes;
+}) {
     return (
         <>
             {actions.map((action) => (
@@ -88,7 +96,7 @@ export function ActionButtons({ id, actions }: { id: string; actions: ActionType
                         size: "medium",
                         variant: buttonMap[action.color].iconVariant as ColorVariant,
                     }}
-                    onClick={action.handleClick(id)}
+                    onClick={action.handleClick(id, extraParams ?? {})}
                 >
                     {action.text}
                 </Button>
