@@ -33,6 +33,13 @@ import UserManagement from "./pages/UserManagement";
 import { usersData } from "./data/users";
 import type { TopBarContextValue } from "./context/TopbarContext";
 import Reports from "./pages/Reports";
+import {
+    PopupAddUser,
+    PopupDisableUser,
+    PopupEditUser,
+    PopupResetUser,
+    PopupUserPriveleges,
+} from "./components/popups/UserPopups";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -60,24 +67,38 @@ const TransactionSchema = zfd.formData({
     remarks: zfd.text(z.string().optional()),
 });
 
+const UserSchema = zfd.formData({
+    id: zfd.text(z.string().optional().transform(decode)),
+    fullName: zfd.text(z.string().optional()),
+    userName: zfd.text(z.string().optional()),
+    role: zfd.text(z.string().optional()),
+    status: zfd.text(z.string().optional()),
+    position: zfd.text(z.string().optional()),
+    assignedOffice: zfd.text(z.string().optional()),
+    password: zfd.text(z.string().optional()),
+});
+
+// Helper function
+type SchemaType = typeof TransactionSchema | typeof UserSchema;
+const testActionFn =
+    (schema: SchemaType) =>
+    async ({ request }: ActionFunctionArgs) => {
+        const formData = await request.formData();
+        const data = schema.parse(formData);
+        console.log(data);
+        return redirect("..");
+    };
+
 const transactionsEditAndDelete = (root: transactionRootPage) => [
     {
         path: ":transactionId/edit",
         element: <PopupViewEditTransaction root={root} />,
-        action: async ({ request, params }: ActionFunctionArgs) => {
-            const formData = await request.formData();
-            const data = TransactionSchema.parse(formData);
-            console.log(data);
-            return redirect("..");
-        },
+        action: testActionFn(TransactionSchema),
     },
     {
         path: ":transactionId/delete",
         element: <PopupDeleteTransaction root={root} />,
-        action: async ({ request, params }: ActionFunctionArgs) => {
-            const formData = await request.formData();
-            return redirect("..");
-        },
+        action: testActionFn(TransactionSchema),
     },
 ];
 
@@ -163,6 +184,38 @@ const routes: RouteObject[] = [
             {
                 path: "user-management",
                 element: <UserManagement users={usersData} />,
+                children: [
+                    {
+                        path: "create",
+                        element: <PopupAddUser />,
+                        action: testActionFn(UserSchema),
+                    },
+                    {
+                        path: ":userId/edit",
+                        element: <PopupEditUser />,
+                        action: testActionFn(UserSchema),
+                    },
+                    {
+                        path: ":userId/disable",
+                        element: <PopupDisableUser />,
+                        action: testActionFn(UserSchema),
+                    },
+                    {
+                        path: ":userId/promote",
+                        element: <PopupUserPriveleges privilegeType="promote" />,
+                        action: testActionFn(UserSchema),
+                    },
+                    {
+                        path: ":userId/demote",
+                        element: <PopupUserPriveleges privilegeType="demote" />,
+                        action: testActionFn(UserSchema),
+                    },
+                    {
+                        path: ":userId/reset",
+                        element: <PopupResetUser />,
+                        action: testActionFn(UserSchema),
+                    },
+                ],
             },
             {
                 path: "reports",

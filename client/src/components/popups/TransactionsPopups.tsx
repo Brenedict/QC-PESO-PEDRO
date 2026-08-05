@@ -18,7 +18,7 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 
 // Test Data
 import { decode } from "../../utils/hashids";
-import { PopupButton } from "./PopupPartials";
+import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
 
 export function PopupViewEditTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
@@ -77,36 +77,13 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
                     <GeneralInput hidden={true} name="id" type="text" defaultValue={transactionId}></GeneralInput>
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
-                    <div className="flex justify-center mb-4">
-                        <Icon
-                            icon={DeleteOutlineOutlinedIcon}
-                            size="giant"
-                            variant="red"
-                            bg={{
-                                padding: "big",
-                                type: "circle",
-                                variant: "red-opaque",
-                            }}
-                        ></Icon>
-                    </div>
-                    <Text size="medium" weight="bold" align="center" className="mb-2">
-                        Delete Transaction?
-                    </Text>
-                    <div className="mb-4">
-                        <Text variant="grayish-blue" align="center">
-                            Are you sure you want to delete transaction{" "}
-                            <span className="font-bold text-black">{decodedId}</span>?
-                        </Text>
-                    </div>
-                    <div className="flex justify-center">
-                        <Card className="w-fit border-red-opaque!" dropShadow={false}>
-                            <Card.Body variant="red-opaque" className="p-3!">
-                                <Text variant="red" weight="medium">
-                                    This action cannot be undone and will be logged.
-                                </Text>
-                            </Card.Body>
-                        </Card>
-                    </div>
+                    <PopupIcon icon={DeleteOutlineOutlinedIcon} />
+                    <PopupHeader>Delete Transaction?</PopupHeader>
+                    <PopupDescription>
+                        Are you sure you want to delete transaction{" "}
+                        <span className="font-bold text-black">{decodedId}</span>?
+                    </PopupDescription>
+                    <PopupNotice>This action cannot be undone and will be logged.</PopupNotice>
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
