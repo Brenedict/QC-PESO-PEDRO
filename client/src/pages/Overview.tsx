@@ -26,6 +26,7 @@ import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
 import { LineChart } from "../components/LineChart";
 import { PieChart } from "../components/PieChart";
+import { ChartColorClasses } from "../types/charts";
 
 // This is the most basic format for the `data` argument of the chart
 export const sampleLineData = {
@@ -34,12 +35,12 @@ export const sampleLineData = {
         {
             label: "Well-Milled High",
             data: [45, 12, 109, 66, 255],
-            borderColor: "#38bff8",
-            backgroundColor: "#38bff8",
+            borderColor: ChartColorClasses["light-blue"],
+            backgroundColor: ChartColorClasses["light-blue"],
             tension: 0.4,
             fill: {
                 target: "origin" as const,
-                above: "#38bff83a",
+                above: ChartColorClasses["light-blue-opaque"],
             },
         },
     ],
@@ -54,7 +55,6 @@ export const sampleLineOptions = {
             align: "center",
             labels: {
                 usePointStyle: true, // Changes box to a circle/point style
-                pointStyle: "circle", // Explicitly ensures it is a circle (default)
                 boxWidth: 10,
             },
         },
@@ -68,13 +68,13 @@ export const sampleLineOptions = {
 } as const;
 
 export const samplePieData = {
-    labels: ["Male", "Female"],
+    labels: ["Female", "Male"],
     datasets: [
         {
             label: "# of Votes",
-            data: [20, 80],
-            backgroundColor: ["rgba(255, 99, 132, 0.5)", "rgba(54, 162, 235, 0.5)"],
-            borderColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
+            data: [67, 33],
+            backgroundColor: [ChartColorClasses["pink-opaque"], ChartColorClasses["light-blue-opaque"]],
+            borderColor: [ChartColorClasses["pink"], ChartColorClasses["light-blue"]],
         },
     ],
 };
@@ -245,12 +245,14 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
 
             <OverviewSection>
                 <section className="grid grid-cols-3 gap-6">
-                    <div className="col-span-2">
-                        <LineChart options={sampleLineOptions} data={sampleLineData}></LineChart>
-                    </div>
-                    <div className="bg-red-300">
+                    <Card className="col-span-2">
+                        <Card.Body>
+                            <LineChart options={sampleLineOptions} data={sampleLineData}></LineChart>
+                        </Card.Body>
+                    </Card>
+                    <Card className="col-span-1 p-4">
                         <PieChart options={sampleLineOptions} data={samplePieData}></PieChart>
-                    </div>
+                    </Card>
                 </section>
             </OverviewSection>
 

@@ -7,14 +7,15 @@ import { BarChart } from "../components/BarChart";
 import Icon from "../components/Icon";
 import type { ReactNode } from "react";
 import { Text } from "../components/Text";
+import { ChartColorClasses } from "../types/charts";
 
 export const smapleBarData = {
     labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
     datasets: [
         {
+            label: "Total Transactions",
             data: [90, 130, 110, 70, 40],
-            borderColor: "#38bff8",
-            backgroundColor: "#38bff890",
+            backgroundColor: ChartColorClasses["primary-blue"],
         },
     ],
 };
@@ -23,19 +24,32 @@ export const sampleBarptions = {
     responsive: true,
     plugins: {
         legend: {
+            display: false,
             position: "bottom",
             align: "center",
             labels: {
-                usePointStyle: true, // Changes box to a circle/point style
-                pointStyle: "circle", // Explicitly ensures it is a circle (default)
+                usePointStyle: true,
+                pointStyle: "circle",
                 boxWidth: 10,
             },
         },
         title: {
-            display: true,
+            display: false,
             text: "Chart Example",
             position: "top",
             align: "center",
+        },
+    },
+    scales: {
+        y: {
+            ticks: {
+                stepSize: 45,
+            },
+        },
+        x: {
+            grid: {
+                display: false,
+            },
         },
     },
 } as const;
@@ -111,9 +125,14 @@ function Reports() {
                 <ReportCard>Accreditation Report</ReportCard>
                 <ReportCard>Transaction Summary</ReportCard>
             </div>
-            <div>
-                <BarChart options={sampleBarptions} data={smapleBarData}></BarChart>
-            </div>
+            <Card className="">
+                <Card.Header bordered={false}>
+                    <Text weight="bold">Transaction Summary Preview</Text>
+                </Card.Header>
+                <Card.Body>
+                    <BarChart options={sampleBarptions} data={smapleBarData} height="50px"></BarChart>
+                </Card.Body>
+            </Card>
         </div>
     );
 }

@@ -2,9 +2,6 @@
 import type { ComponentProps } from "react";
 import { Line } from "react-chartjs-2";
 
-// Components
-import { Card } from "./Card";
-
 // Types
 import type { ChartConfigs, ChartData } from "../types/charts";
 
@@ -31,11 +28,5 @@ interface CustomLineChartProps extends LineChartProps {
 }
 
 export function LineChart({ options, data, ...props }: CustomLineChartProps) {
-    return (
-        <Card>
-            <Card.Body>
-                <Line options={options} data={data} {...props} />
-            </Card.Body>
-        </Card>
-    );
+    return <Line options={options} data={data} {...props} />;
 }

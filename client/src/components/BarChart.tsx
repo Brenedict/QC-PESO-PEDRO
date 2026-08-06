@@ -2,9 +2,6 @@
 import type { ComponentProps } from "react";
 import { Bar } from "react-chartjs-2";
 
-// Components
-import { Card } from "./Card";
-
 // Types
 import type { ChartConfigs, ChartData } from "../types/charts";
 
@@ -30,11 +27,5 @@ interface CustomBarChartProps extends BarChartProps {
 }
 
 export function BarChart({ options, data, ...props }: CustomBarChartProps) {
-    return (
-        <Card>
-            <Card.Body>
-                <Bar options={options} data={data} {...props} />
-            </Card.Body>
-        </Card>
-    );
+    return <Bar options={options} data={data} {...props} />;
 }
