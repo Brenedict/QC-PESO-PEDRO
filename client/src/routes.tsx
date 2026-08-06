@@ -22,6 +22,7 @@ import LoginMonitoring from "./pages/LoginMonitoring";
 // Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary } from "./components/popups/ShiftPopups";
+import { PopupEndShiftReview } from "./components/popups/EndShiftPopups";
 
 // Test Data
 import { transactions } from "./data/transactions";
@@ -144,6 +145,12 @@ const routes: RouteObject[] = [
             {
                 path: "end-shift",
                 element: <EndShiftVerification shiftData={shiftRecords} />,
+                children: [
+                    {
+                        path: ":shiftId/review",
+                        element: <PopupEndShiftReview />,
+                    },
+                ],
             },
             {
                 path: "history",
