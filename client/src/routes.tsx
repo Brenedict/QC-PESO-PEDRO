@@ -40,6 +40,7 @@ import {
     PopupResetUser,
     PopupUserPriveleges,
 } from "./components/popups/UserPopups";
+import { PopupViewHistory } from "./components/popups/MonitoringPopups";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -171,6 +172,12 @@ const routes: RouteObject[] = [
                         employeeSessions={employeeSessions}
                     />
                 ),
+                children: [
+                    {
+                        path: ":shiftId/view-history",
+                        element: <PopupViewHistory />,
+                    },
+                ],
             },
             {
                 path: "applicant-form",

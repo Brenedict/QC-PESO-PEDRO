@@ -136,3 +136,19 @@ export function RoleBadge({ role }: { role: Role }) {
         </div>
     );
 }
+
+export function ColumnDesc({ children }: { children: ReactNode }) {
+    return (
+        <Text size="description" variant="grayish-blue" align="center">
+            {children}
+        </Text>
+    );
+}
+
+export function ColumnDescItalic({ children }: { children: ReactNode }) {
+    return (
+        <Text size="description" variant="grayish-blue" align="center" className="italic">
+            {children}
+        </Text>
+    );
+}
