@@ -219,6 +219,8 @@ function UserManagement({ users }: UserManagementProps) {
                     </Table.Row>
                 ))}
             </Table>
+
+            {/* Popup Uses */}
             <Outlet />
         </div>
     );
