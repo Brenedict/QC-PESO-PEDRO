@@ -147,7 +147,7 @@ const routes: RouteObject[] = [
                 children: [...shiftPopups(ROUTES.dashboard.root)],
             },
             {
-                path: "settings",
+                path: "profile",
                 element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
                 children: [...shiftPopups(ROUTES.profile.root)],
             },
@@ -198,7 +198,7 @@ const routes: RouteObject[] = [
             {
                 path: "audit-logs",
                 element: <SystemAuditLogs logsData={auditLogData} />,
-                children: [...shiftPopups(ROUTES.applicantForm.root)],
+                children: [...shiftPopups(ROUTES.auditLogs.root)],
             },
             {
                 path: "user-management",
@@ -240,12 +240,6 @@ const routes: RouteObject[] = [
             {
                 path: "reports",
                 element: <Reports />,
-                children: [...shiftPopups(ROUTES.reports.root)],
-            },
-
-            {
-                path: "settings",
-                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
                 children: [...shiftPopups(ROUTES.reports.root)],
             },
         ],
