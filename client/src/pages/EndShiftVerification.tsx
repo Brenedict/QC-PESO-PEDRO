@@ -12,6 +12,7 @@ import type { ShiftRecord } from "../data/shiftRecords";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { ActionButton, DateTime } from "../components/TableCells";
 import { useSearchParamsTable } from "../hooks/table";
+import { Outlet } from "react-router";
 
 // Define the props
 interface EndShiftVerificationProps {
@@ -123,6 +124,9 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
                     </Table.Row>
                 ))}
             </Table>
+
+            {/* Popup Uses */}
+            <Outlet />
         </div>
     );
 }

@@ -6,6 +6,7 @@ import { Card } from "../components/Card";
 import Icon from "../components/Icon";
 import type { MouseEventHandler, ReactNode } from "react";
 import { Text } from "../components/Text";
+import { Outlet } from "react-router";
 
 function ReportCard({ children, onClick }: { children: ReactNode; onClick?: MouseEventHandler<HTMLDivElement> }) {
     return (
@@ -80,6 +81,9 @@ function Reports() {
                 <ReportCard>Accreditation Report</ReportCard>
                 <ReportCard>Transaction Summary</ReportCard>
             </div>
+
+            {/* Popup Uses */}
+            <Outlet />
         </div>
     );
 }

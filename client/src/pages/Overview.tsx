@@ -202,6 +202,8 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
             <br className="block mb-14" />
 
             <RecentActivity items={recentActivity} onViewAll={() => alert("View all clicked")} />
+
+            {/* Popup Uses */}
             <Outlet />
         </>
     );

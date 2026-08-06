@@ -21,7 +21,7 @@ import LoginMonitoring from "./pages/LoginMonitoring";
 
 // Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
-import { PopupTimeIn, PopupLogout, PopupEndshiftSummary } from "./components/popups/ShiftPopups";
+import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "./components/popups/ShiftPopups";
 
 // Test Data
 import { transactions } from "./data/transactions";
@@ -101,6 +101,34 @@ const transactionsEditAndDelete = (root: transactionRootPage) => [
         path: ":transactionId/delete",
         element: <PopupDeleteTransaction root={root} />,
         action: testActionFn(TransactionSchema),
+    },
+];
+
+const shiftPopups = (root: string) => [
+    {
+        path: "time-in",
+        element: <PopupTimeIn root={root} />,
+        action: async () => {
+            return redirect(root);
+        },
+    },
+    {
+        path: "end-shift-confirmation",
+        element: <PopupEndshiftSummary root={root} />,
+        action: async () => {
+            return redirect("/auth");
+        },
+    },
+    {
+        path: "session-end",
+        element: <PopupSessionEnd root={root} />,
+    },
+    {
+        path: "log-out",
+        element: <PopupLogout root={root} />,
+        action: async () => {
+            return redirect("/auth");
+        },
     },
 ];
 
@@ -202,36 +230,18 @@ const routes: RouteObject[] = [
                             />
                         ),
                     },
+                    ...shiftPopups(ROUTES.dashboard.root)
                 ],
             },
             {
-                path: "time-in",
-                element: <PopupTimeIn />,
-                action: async () => {
-                    return redirect(ROUTES.dashboard.root);
-                },
-            },
-            {
-                path: "end-shift-confirmation",
-                element: <PopupEndshiftSummary />,
-                action: async () => {
-                    return redirect("/auth");
-                },
-            },
-            {
-                path: "log-out",
-                element: <PopupLogout />,
-                action: async () => {
-                    return redirect("/auth");
-                },
-            },
-            {
-                path: "settings",
+                path: "profile",
                 element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
+                children: [...shiftPopups(ROUTES.profile.root)],
             },
             {
                 path: "end-shift",
                 element: <EndShiftVerification shiftData={shiftRecords} />,
+                children: [...shiftPopups(ROUTES.endshift.root)],
             },
             {
                 path: "history",
@@ -243,7 +253,7 @@ const routes: RouteObject[] = [
                         transactions={transactions}
                     />
                 ),
-                children: transactionsEditAndDelete("history"),
+                children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
             },
             {
                 path: "monitoring",
@@ -264,16 +274,18 @@ const routes: RouteObject[] = [
                         path: ":shiftId/view-history",
                         element: <PopupViewHistory />,
                     },
+                    ...shiftPopups(ROUTES.monitoring.root),
                 ],
             },
             {
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
-                children: transactionsEditAndDelete("entry"),
+                children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
             },
             {
                 path: "audit-logs",
                 element: <SystemAuditLogs logsData={auditLogData} />,
+                children: [...shiftPopups(ROUTES.auditLogs.root)],
             },
             {
                 path: "user-management",
@@ -309,16 +321,13 @@ const routes: RouteObject[] = [
                         element: <PopupResetUser />,
                         action: testActionFn(UserSchema),
                     },
+                    ...shiftPopups(ROUTES.userManagement.root),
                 ],
             },
             {
                 path: "reports",
                 element: <Reports />,
-            },
-
-            {
-                path: "settings",
-                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
+                children: [...shiftPopups(ROUTES.reports.root)],
             },
         ],
     },
