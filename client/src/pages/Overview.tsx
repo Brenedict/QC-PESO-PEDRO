@@ -1,3 +1,4 @@
+import { Outlet } from "react-router";
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
 import { StatsCard } from "../components/StatsCard";
@@ -24,7 +25,10 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
-import { Outlet } from "react-router";
+import { LineChart } from "../components/LineChart";
+import { PieChart } from "../components/PieChart";
+import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/overviewCharts";
+import { DoughnutChartGraph, ProgressChartGraph } from "./ContextAnalysis";
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
@@ -188,6 +192,27 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
                 </Text>
 
                 <EmploymentEvents />
+            </OverviewSection>
+
+            <OverviewSection>
+                <section className="grid grid-cols-3 gap-6">
+                    <Card className="col-span-2">
+                        <Card.Header bordered={false} variant="white">
+                            <Text weight="bold">Weekly Transaction Volume</Text>
+                        </Card.Header>
+                        <Card.Body>
+                            <LineChart options={sampleLineOptions} data={sampleLineData}></LineChart>
+                        </Card.Body>
+                    </Card>
+                    <Card className="col-span-1">
+                        <Card.Header bordered={false} variant="white">
+                            <Text weight="bold">Gender Split</Text>
+                        </Card.Header>
+                        <Card.Body className="pb-10! h-full flex! items-center!">
+                            <PieChart options={samplePieOptions} data={samplePieData}></PieChart>
+                        </Card.Body>
+                    </Card>
+                </section>
             </OverviewSection>
 
             <br className="block mb-14" />

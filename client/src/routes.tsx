@@ -41,6 +41,7 @@ import {
     PopupUserPriveleges,
 } from "./components/popups/UserPopups";
 import { PopupViewHistory } from "./components/popups/MonitoringPopups";
+import { ContextAnalysis } from "./pages/ContextAnalysis";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -241,6 +242,11 @@ const routes: RouteObject[] = [
                 path: "reports",
                 element: <Reports />,
                 children: [...shiftPopups(ROUTES.reports.root)],
+            },
+            {
+                path: "context-analysis",
+                element: <ContextAnalysis />,
+                children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
         ],
     },
