@@ -59,6 +59,12 @@ interface HeadingProp extends React.HTMLAttributes<HTMLParagraphElement> {
     className?: string;
 }
 
+const alignFlexClasses = {
+    center: "justify-center",
+    left: "justify-start",
+    right: "justify-end",
+} as const;
+
 export function Text({
     children,
     size = "normal",
@@ -71,11 +77,11 @@ export function Text({
 }: HeadingProp) {
     return (
         <div
-            className={`w-full flex items-center justify-start ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""} ${className}`}
+            className={`w-full flex items-center ${alignFlexClasses[align]} ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""} ${className}`}
         >
             {svg && <Icon icon={svg.icon} size={svg.size} variant={svg.variant || variant} bg={svg.bg} />}
             <p
-                className={`${SizeClasses[size]} ${ColorClasses[variant].text} ${weightClasses[weight]} ${fontClasses[font]} ${alignClasses[align]}  grow ${className}`}
+                className={`${SizeClasses[size]} ${ColorClasses[variant].text} ${weightClasses[weight]} ${fontClasses[font]} `}
             >
                 {children}
             </p>

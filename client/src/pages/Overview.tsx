@@ -24,6 +24,8 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
+import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import { Outlet } from "react-router";
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
@@ -44,10 +46,16 @@ function CardGroup({ children }: { children: ReactNode }) {
 }
 
 function DailyTransactions() {
+    const navigate = useNavigateDefault();
     return (
         <CardGroup>
             {dailyTransactionCards.map((card) => (
-                <StatsCard key={card.title} className="w-full" {...card} />
+                <StatsCard
+                    key={card.title}
+                    className="w-full"
+                    onClick={() => navigate(ROUTES.dashboard.preview(card.type))}
+                    {...card}
+                />
             ))}
         </CardGroup>
     );
@@ -86,7 +94,9 @@ function EmploymentEvents() {
 function EndShiftValue({ title, children }: { title: string; children: ReactNode }) {
     return (
         <div>
-            <NumberText className="text-big text-center!">{children}</NumberText>
+            <NumberText className="text-big text-center!" align="center">
+                {children}
+            </NumberText>
             <NumberTitle className="text-center!">{title}</NumberTitle>
         </div>
     );
@@ -192,6 +202,7 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
             <br className="block mb-14" />
 
             <RecentActivity items={recentActivity} onViewAll={() => alert("View all clicked")} />
+            <Outlet />
         </>
     );
 }

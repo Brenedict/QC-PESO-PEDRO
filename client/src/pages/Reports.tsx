@@ -4,27 +4,29 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { Card } from "../components/Card";
 import Icon from "../components/Icon";
-import type { ReactNode } from "react";
+import type { MouseEventHandler, ReactNode } from "react";
 import { Text } from "../components/Text";
 
-function ReportCard({ children }: { children: ReactNode }) {
+function ReportCard({ children, onClick }: { children: ReactNode; onClick?: MouseEventHandler<HTMLDivElement> }) {
     return (
-        <Button className="bg-white gap-5! p-5! block" variant="white-black">
-            <div className="w-full flex justify-center ">
-                <Icon
-                    icon={DescriptionOutlinedIcon}
-                    size="giant"
-                    variant="primary-blue"
-                    align="center"
-                    bg={{ variant: "grayish-blue-opaque", type: "circle", padding: "big" }}
-                />
-            </div>
-            <br className="mb-3 block" />
+        <Card onClick={onClick}>
+            <Card.Body className="bg-transparent! gap-5! p-5!">
+                <div className="w-full flex justify-center ">
+                    <Icon
+                        icon={DescriptionOutlinedIcon}
+                        size="giant"
+                        variant="primary-blue"
+                        align="center"
+                        bg={{ variant: "grayish-blue-opaque", type: "circle", padding: "big" }}
+                    />
+                </div>
+                <br className="mb-3 block" />
 
-            <Text align="center" weight="bold">
-                {children}
-            </Text>
-        </Button>
+                <Text align="center" weight="bold" variant="dark-blue" size="description">
+                    {children}
+                </Text>
+            </Card.Body>
+        </Card>
     );
 }
 

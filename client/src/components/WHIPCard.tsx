@@ -8,11 +8,12 @@ interface WHIPCardProps {
     totalparticipants: number;
     male: number;
     female: number;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
-export function WHIPCard({ title, totalparticipants, male, female }: WHIPCardProps) {
+export function WHIPCard({ title, totalparticipants, male, female, onClick }: WHIPCardProps) {
     return (
-        <Card className="w-full">
-            <Card.Body variant="white" className="p-5!">
+        <Card className="w-full" onClick={onClick}>
+            <Card.Body className="bg-transparent! p-5!">
                 <CardHeader icon={PeopleOutlineOutlinedIcon}>{title}</CardHeader>
                 <Divider />
 
