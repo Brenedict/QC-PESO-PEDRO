@@ -6,7 +6,7 @@ import Button from "./Button";
 
 export type ReducedColorVariant = Extract<
     keyof typeof ColorClasses,
-    "white" | "off-white" | "grayish-blue-opaque" | "red-opaque" | "primary-blue"
+    "white" | "off-white" | "grayish-blue-opaque" | "red-opaque" | "primary-blue" | "gray"
 >;
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {

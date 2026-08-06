@@ -40,6 +40,7 @@ import {
     PopupResetUser,
     PopupUserPriveleges,
 } from "./components/popups/UserPopups";
+import { PopupReportPreview } from "./components/popups/ReportPopups";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -220,6 +221,12 @@ const routes: RouteObject[] = [
             {
                 path: "reports",
                 element: <Reports />,
+                children: [
+                    { path: "daily", element: <PopupReportPreview type={"daily"} /> },
+                    { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
+                    { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
+                    { path: "overall", element: <PopupReportPreview type={"overall"} /> },
+                ],
             },
 
             {
