@@ -262,7 +262,7 @@ function TransactionsInputPagePage({ onSubmit }: FormProps) {
                 <TransactionsLedger />
             </div>
 
-            {/* For edit and delete pop up */}
+            {/* Popup Uses */}
             <Outlet />
         </>
     );

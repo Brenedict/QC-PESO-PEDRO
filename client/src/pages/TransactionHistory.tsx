@@ -92,6 +92,8 @@ function TransactionHistory({
                     </Table.Row>
                 ))}
             </Table>
+
+            {/* Popup Uses */}
             <Outlet />
         </>
     );

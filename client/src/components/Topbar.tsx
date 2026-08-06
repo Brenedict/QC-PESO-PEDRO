@@ -107,7 +107,12 @@ function RightSection() {
                 <ProfileSection />
             </div>
 
-            <Button variant="red" size="small" className="px-4 py-2 rounded-xl" onClick={() => navigate("/log-out")}>
+            <Button
+                variant="red"
+                size="small"
+                className="px-4 py-2 rounded-xl"
+                onClick={() => navigate(`${window.location.pathname}/end-shift-confirmation`)}
+            >
                 End Shift
             </Button>
         </section>

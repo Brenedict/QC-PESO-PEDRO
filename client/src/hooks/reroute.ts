@@ -73,6 +73,6 @@ export function useNavigateDefault() {
         if (keepQuery && location.search) {
             route = `${route}${location.search}`;
         }
-        navigate(route);
+        navigate(route, { state: { backgroundLocation: location } });
     };
 }
