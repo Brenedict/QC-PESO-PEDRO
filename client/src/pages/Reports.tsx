@@ -131,7 +131,7 @@ function Reports() {
                     <Text weight="bold">Transaction Summary Preview</Text>
                 </Card.Header>
                 <Card.Body>
-                    <BarChart options={sampleBarptions} data={smapleBarData}></BarChart>
+                    <BarChart options={sampleBarptions} data={smapleBarData} height={"50px"}></BarChart>
                 </Card.Body>
             </Card>
 

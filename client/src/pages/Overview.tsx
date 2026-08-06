@@ -27,58 +27,8 @@ import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
 import { LineChart } from "../components/LineChart";
 import { PieChart } from "../components/PieChart";
-import { ChartColorClasses } from "../types/charts";
-
-// This is the most basic format for the `data` argument of the chart
-export const sampleLineData = {
-    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    datasets: [
-        {
-            label: "Well-Milled High",
-            data: [45, 12, 109, 66, 255],
-            borderColor: ChartColorClasses["light-blue"],
-            backgroundColor: ChartColorClasses["light-blue"],
-            tension: 0.4,
-            fill: {
-                target: "origin" as const,
-                above: ChartColorClasses["light-blue-opaque"],
-            },
-        },
-    ],
-};
-
-// This is the most basic format for the `options` argument of the chart
-export const sampleLineOptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            position: "bottom",
-            align: "center",
-            labels: {
-                usePointStyle: true, // Changes box to a circle/point style
-                boxWidth: 10,
-            },
-        },
-        title: {
-            display: true,
-            text: "Chart Example",
-            position: "top",
-            align: "center",
-        },
-    },
-} as const;
-
-export const samplePieData = {
-    labels: ["Female", "Male"],
-    datasets: [
-        {
-            label: "# of Votes",
-            data: [67, 33],
-            backgroundColor: [ChartColorClasses["pink-opaque"], ChartColorClasses["light-blue-opaque"]],
-            borderColor: [ChartColorClasses["pink"], ChartColorClasses["light-blue"]],
-        },
-    ],
-};
+import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/overviewCharts";
+import { DoughnutChartGraph, ProgressChartGraph } from "./ContextAnalysis";
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
@@ -247,12 +197,20 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
             <OverviewSection>
                 <section className="grid grid-cols-3 gap-6">
                     <Card className="col-span-2">
+                        <Card.Header bordered={false} variant="white">
+                            <Text weight="bold">Weekly Transaction Volume</Text>
+                        </Card.Header>
                         <Card.Body>
                             <LineChart options={sampleLineOptions} data={sampleLineData}></LineChart>
                         </Card.Body>
                     </Card>
-                    <Card className="col-span-1 p-4">
-                        <PieChart options={sampleLineOptions} data={samplePieData}></PieChart>
+                    <Card className="col-span-1">
+                        <Card.Header bordered={false} variant="white">
+                            <Text weight="bold">Gender Split</Text>
+                        </Card.Header>
+                        <Card.Body className="pb-10! h-full flex! items-center!">
+                            <PieChart options={samplePieOptions} data={samplePieData}></PieChart>
+                        </Card.Body>
                     </Card>
                 </section>
             </OverviewSection>
