@@ -19,7 +19,9 @@ QC-PESO-PEDRO/
 │
 ├── server/                  # Express Backend
 │   ├── src/                 # Express source code (Routes, Controllers, Models, Middleware)
+│   │   ├── config/          # Backend Configs (ORM, auth, etc.)
 │   │   ├── controllers/     # Controller files setup
+│   │   ├── middlewares/     # Middleware Functions (Validation, Error handling, etc.)
 │   │   ├── routes/          # Directory for specified routes
 │   │   ├── models/          # Directory for entity models
 │   │   └── server.ts        # Entry point for Express app
@@ -101,10 +103,21 @@ cd QC-PESO-PEDRO
     npm install
     ```
 
-<!-- 3.  Create a `.env` file in the `server` root directory:
-    ````bash
-    cp .env.example .env   # Or create .env manually
-    ```` -->
+3. **Copy the .env.example into .env**  
+   ```.env
+    # Modify this to your PostgreSQL url
+    DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=pthisublic" 
+   ```
+
+4. **Generate Prisma client**  
+   ```bash
+   npx prisma generate
+   ```
+
+5. **Run database migrations**  
+   ```bash
+   npx prisma migrate dev 
+   ```
 
 ---
 
