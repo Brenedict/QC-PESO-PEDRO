@@ -2,7 +2,7 @@ import React from "react";
 import PageHeader from "../components/PageHeader";
 import Table from "../components/Table";
 import { Text } from "../components/Text";
-import { DateTime, Identifier } from "../components/TableCells";
+import { ColumnDesc, ColumnDescItalic, DateTime, Identifier } from "../components/TableCells";
 import { GeneralInput, SelectInput } from "../components/Input";
 import type { AuditLogRecord } from "../data/auditLogs";
 import { useSearchParamsTable } from "../hooks/table";
@@ -106,14 +106,10 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                             <Identifier>{row.recordId}</Identifier>
                         </Table.Data>
                         <Table.Data>
-                            <Text size="description" variant="grayish-blue" align="center">
-                                {row.details}
-                            </Text>
+                            <ColumnDesc>{row.details}</ColumnDesc>
                         </Table.Data>
                         <Table.Data>
-                            <Text size="description" variant="grayish-blue" align="center" className="italic">
-                                {row.remarks}
-                            </Text>
+                            <ColumnDescItalic>{row.remarks}</ColumnDescItalic>
                         </Table.Data>
                     </Table.Row>
                 ))}
