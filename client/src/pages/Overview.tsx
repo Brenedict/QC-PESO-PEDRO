@@ -24,6 +24,7 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
+import { Outlet } from "react-router";
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
@@ -192,6 +193,7 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
             <br className="block mb-14" />
 
             <RecentActivity items={recentActivity} onViewAll={() => alert("View all clicked")} />
+            <Outlet />
         </>
     );
 }
