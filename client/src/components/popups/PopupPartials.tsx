@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ColorVariant, MaterialIcon, SizeVariant } from "../../types/common";
-import Button, { type ButtonProps, type ButtonVariant } from "../Button";
+import Button, { type ButtonVariant } from "../Button";
 import { Card } from "../Card";
 import { Text, type WeightVariant } from "../Text";
 import Icon from "../Icon";
