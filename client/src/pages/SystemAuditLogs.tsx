@@ -6,6 +6,7 @@ import { ColumnDesc, ColumnDescItalic, DateTime, Identifier } from "../component
 import { GeneralInput, SelectInput } from "../components/Input";
 import type { AuditLogRecord } from "../data/auditLogs";
 import { useSearchParamsTable } from "../hooks/table";
+import { Outlet } from "react-router";
 
 // Define the props
 interface SystemAuditLogsProps {
@@ -114,6 +115,9 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                     </Table.Row>
                 ))}
             </Table>
+
+            {/* Popup Uses */}
+            <Outlet />
         </div>
     );
 }
