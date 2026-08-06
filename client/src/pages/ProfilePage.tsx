@@ -16,6 +16,7 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import type { MaterialIcon, Role } from "../types/common";
 import PageHeader from "../components/PageHeader";
 import type { StatusVariant } from "../components/Status";
+import { Outlet } from "react-router";
 
 interface UserProps {
     roleType: Role;
@@ -168,6 +169,9 @@ function ProfilePage(props: UserProps) {
                 <ProfileSummaryCard {...props} />
                 <AccountInfoCard />
             </div>
+
+            {/* Popup Uses */}
+            <Outlet />
         </>
     );
 }

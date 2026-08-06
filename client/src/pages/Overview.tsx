@@ -1,3 +1,4 @@
+import { Outlet } from "react-router";
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
 import { StatsCard } from "../components/StatsCard";
@@ -259,6 +260,9 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
             <br className="block mb-14" />
 
             <RecentActivity items={recentActivity} onViewAll={() => alert("View all clicked")} />
+
+            {/* Popup Uses */}
+            <Outlet />
         </>
     );
 }

@@ -15,15 +15,23 @@ import Button from "../Button";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 
 // Test Data
-import { decode } from "../../utils/hashids";
 import { GeneralInput, TextAreaInput } from "../Input";
 import { LogoutOutlined } from "@mui/icons-material";
-import { ContextBadge, GrayMiniCard, LabeledSection, PopupButton } from "./PopupPartials";
+import {
+    ContextBadge,
+    GrayMiniCard,
+    LabeledSection,
+    PopupButton,
+    PopupDescription,
+    PopupHeader,
+    PopupIcon,
+} from "./PopupPartials";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
-export function PopupTimeIn() {
+export function PopupTimeIn({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     return (
-        <Dialog dropShadow={true} className="border-0!" onClose={() => navigate(ROUTES.history.root, true)}>
+        <Dialog dropShadow={true} className="border-0!" onClose={() => navigate(root, true)}>
             <Dialog.Header variant="primary-blue" className="flex flex-col" toggleRightIcon={false}>
                 <div className="flex justify-center mt-3">
                     <Icon
@@ -74,11 +82,11 @@ export function PopupTimeIn() {
                 <PopupButton
                     leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
                     variant="white"
-                    onClick={() => navigate(ROUTES.dashboard.root, true)}
+                    onClick={() => navigate(root, true)}
                 >
                     Cancel Time In
                 </PopupButton>
-                <PopupButton variant="blue" onClick={() => navigate(ROUTES.dashboard.root, true)}>
+                <PopupButton variant="blue" onClick={() => navigate(root, true)}>
                     Time In Now
                 </PopupButton>
             </Dialog.Footer>
@@ -86,11 +94,11 @@ export function PopupTimeIn() {
     );
 }
 
-export function PopupLogout() {
+export function PopupLogout({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     return (
-        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root, true)}>
-            <Dialog.Header>
+        <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
+            <Dialog.Header onRightAction={() => navigate(root, true)}>
                 <Text size="medium" weight="bold">
                     Confirm Logout
                 </Text>
@@ -108,15 +116,10 @@ export function PopupLogout() {
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <PopupButton variant="white" onClick={() => navigate(ROUTES.dashboard.root, true)}>
+                <PopupButton variant="white" onClick={() => navigate(root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton
-                    variant="red"
-                    type="submit"
-                    form="timeInForm"
-                    onClick={() => navigate(ROUTES.dashboard.root, false)}
-                >
+                <PopupButton variant="red" type="submit" form="timeInForm" onClick={() => navigate(root, false)}>
                     Logout
                 </PopupButton>
             </Dialog.Footer>
@@ -124,11 +127,11 @@ export function PopupLogout() {
     );
 }
 
-export function PopupEndshiftSummary() {
+export function PopupEndshiftSummary({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     return (
-        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.history.root, true)}>
-            <Dialog.Header>
+        <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
+            <Dialog.Header onRightAction={() => navigate(root, true)}>
                 <Text size="medium" weight="bold">
                     End of Shift Summary
                 </Text>
@@ -169,18 +172,38 @@ export function PopupEndshiftSummary() {
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
-                <PopupButton variant="white" onClick={() => navigate(ROUTES.dashboard.root, true)}>
+                <PopupButton variant="white" onClick={() => navigate(root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton
-                    variant="blue"
-                    type="submit"
-                    form="timeInForm"
-                    onClick={() => navigate(ROUTES.dashboard.root, true)}
-                >
+                <PopupButton variant="blue" type="submit" form="timeInForm" onClick={() => navigate(root, true)}>
                     Submit & End Shift
                 </PopupButton>
             </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupSessionEnd({ root }: { root: string }) {
+    const navigate = useNavigateDefault();
+
+    return (
+        <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
+            <Dialog.Body className="px-6! py-8!">
+                <section className="flex flex-col justify-center max-w-md">
+                    <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
+                    <PopupHeader>Your session will end soon due to inactivity.</PopupHeader>
+                    <PopupDescription>
+                        To protect government data, you will be logged out automatically
+                    </PopupDescription>
+                    <Button variant="blue" size="normal" onClick={() => navigate(root, true)}>
+                        Stay Logged In
+                    </Button>
+                    <br className="block mb-3" />
+                    <Button variant="white" size="normal" onClick={() => navigate(root, true)}>
+                        Logout Now
+                    </Button>
+                </section>
+            </Dialog.Body>
         </Dialog>
     );
 }

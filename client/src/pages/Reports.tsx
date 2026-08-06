@@ -1,3 +1,4 @@
+import { Outlet } from "react-router";
 import Button from "../components/Button";
 import PageHeader from "../components/PageHeader";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
@@ -130,9 +131,12 @@ function Reports() {
                     <Text weight="bold">Transaction Summary Preview</Text>
                 </Card.Header>
                 <Card.Body>
-                    <BarChart options={sampleBarptions} data={smapleBarData} height="50px"></BarChart>
+                    <BarChart options={sampleBarptions} data={smapleBarData}></BarChart>
                 </Card.Body>
             </Card>
+
+            {/* Popup Uses */}
+            <Outlet />
         </div>
     );
 }
