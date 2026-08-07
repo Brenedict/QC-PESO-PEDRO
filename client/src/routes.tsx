@@ -255,6 +255,11 @@ const routes: RouteObject[] = [
                 element: <ContextAnalysis />,
                 children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
+            {
+                path: "context-analysis",
+                element: <ContextAnalysis />,
+                children: [...shiftPopups(ROUTES.contextAnalysis.root)],
+            },
         ],
     },
 ];
