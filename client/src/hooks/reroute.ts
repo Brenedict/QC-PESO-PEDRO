@@ -21,6 +21,7 @@ export const ROUTES = {
     */
     dashboard: {
         root: BASE_ROUTES.dashboard,
+        preview: (type: string) => `${BASE_ROUTES.dashboard}/${type}`,
     },
     profile: {
         root: BASE_ROUTES.profile,

@@ -34,6 +34,51 @@ export const sampleBarContextOptions = {
     },
 } as const;
 
+export const samplePopupBarOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+            position: "bottom",
+            align: "center",
+            labels: {
+                usePointStyle: true,
+                pointStyle: "circle",
+                boxWidth: 10,
+            },
+        },
+        title: {
+            display: false,
+            text: "Chart Example",
+            position: "top",
+            align: "center",
+        },
+    },
+    scales: {
+        y: {
+            ticks: {
+                stepSize: 10,
+            },
+        },
+        x: {
+            grid: {
+                display: false,
+            },
+        },
+    },
+} as const;
+
+export const samplePopupBarData = {
+    labels: ["8AM", "9AM", "10AM", "11AM", "12PM", "1PM", "2PM", "3PM", "4PM"],
+    datasets: [
+        {
+            label: "Total Transactions",
+            data: [10, 20, 40, 35, 9, 45, 20, 34, 5],
+            backgroundColor: ChartColorClasses["primary-blue"],
+        },
+    ],
+};
+
 // This is the most basic format for the `data` argument of the chart
 export const sampleLineData = {
     labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],

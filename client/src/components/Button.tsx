@@ -17,7 +17,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 // Tailwind CSS classes per color variant
-const variantStyles: Record<ButtonVariant, string> = {
+export const variantStyles: Record<ButtonVariant, string> = {
     blue: "bg-[#004B87] text-white border-none hover:bg-[#003865] hover:scale-105",
     "opaque-blue": "bg-grayish-blue-opaque text-primary-blue border-none hover:bg-[#e0e7fe] hover:scale-105",
     red: "bg-[#EF4444] text-white border-none hover:bg-[#dc2626] hover:scale-105",

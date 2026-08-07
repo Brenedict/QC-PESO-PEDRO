@@ -40,6 +40,7 @@ import {
     PopupResetUser,
     PopupUserPriveleges,
 } from "./components/popups/UserPopups";
+import { PopupTransactionDetails } from "./components/popups/DashboardPopups";
 import { PopupReportPreview } from "./components/popups/ReportPopups";
 import { PopupViewHistory } from "./components/popups/MonitoringPopups";
 import { ContextAnalysis } from "./pages/ContextAnalysis";
@@ -146,7 +147,93 @@ const routes: RouteObject[] = [
             {
                 path: "",
                 element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
-                children: [...shiftPopups(ROUTES.dashboard.root)],
+                children: [
+                    {
+                        path: "total",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Total Transactions"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "walk-in",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Walk-in Transactions"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "online",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Online Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "in-house",
+                        element: (
+                            <PopupTransactionDetails
+                                label="In-house Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "work-immersion",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Work Immersion"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "internship",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Internship Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "inquiries",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Other Inquiries"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    ...shiftPopups(ROUTES.dashboard.root),
+                ],
             },
             {
                 path: "profile",
@@ -247,7 +334,7 @@ const routes: RouteObject[] = [
                     { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
                     { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
                     { path: "overall", element: <PopupReportPreview type={"overall"} /> },
-                     ...shiftPopups(ROUTES.reports.root)
+                    ...shiftPopups(ROUTES.reports.root),
                 ],
             },
             {
