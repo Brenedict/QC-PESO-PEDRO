@@ -149,6 +149,9 @@ const routes: RouteObject[] = [
                     {
                         path: ":shiftId/review",
                         element: <PopupEndShiftReview />,
+                        action: async () => {
+                            return redirect(ROUTES.endshift.root);
+                        },
                     },
                 ],
             },
