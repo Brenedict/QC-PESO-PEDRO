@@ -41,6 +41,7 @@ export const ColorClasses = {
     "green-opaque": { bg: "bg-green-opaque", text: "text-green-opaque" },
     "light-blue": { bg: "bg-light-blue", text: "text-light-blue" },
     pink: { bg: "bg-pink", text: "text-pink" },
+    gray: { bg: "bg-gray", text: "text-gray" },
 } as const;
 
 // Extracts: "black" | "white" | "primary-blue" | "dark-blue"

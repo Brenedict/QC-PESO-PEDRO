@@ -11,6 +11,7 @@ const BASE_ROUTES = {
     reports: "/reports",
     auditLogs: "/audit-logs",
     userManagement: "/user-management",
+    contextAnalysis: "/context-analysis",
 };
 
 export const ROUTES = {
@@ -48,6 +49,7 @@ export const ROUTES = {
     reports: {
         root: BASE_ROUTES.reports,
         view: (to: string, from: string) => `${BASE_ROUTES.reports}/transaction-summary/${from}-${to}`,
+        preview: (type: string) => `${BASE_ROUTES.reports}/${type}`,
     },
     auditLogs: {
         root: BASE_ROUTES.auditLogs,
@@ -60,6 +62,9 @@ export const ROUTES = {
         disable: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/disable`,
         promote: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/promote`,
         demote: (userId: string | number) => `${BASE_ROUTES.userManagement}/${encode(userId)}/demote`,
+    },
+    contextAnalysis: {
+        root: BASE_ROUTES.contextAnalysis,
     },
 } as const;
 

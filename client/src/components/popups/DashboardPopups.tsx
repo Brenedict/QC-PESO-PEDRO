@@ -8,6 +8,9 @@ import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import { Link } from "react-router";
 import Table from "../Table";
 import { shiftRecords } from "../../data/shiftRecords";
+import { BarChart } from "../BarChart";
+import { samplePieData, samplePieOptions, samplePopupBarData, samplePopupBarOptions } from "../../data/overviewCharts";
+import { DoughnutChart } from "../DoughnutChart";
 
 function TransactionMiniCard({ label, value }: { label: string; value: number }) {
     return (
@@ -48,10 +51,10 @@ function LabelText({ label, leftIcon }: ChartLabelProps) {
 
 function ChartContainer({ children, ...props }: { children: ReactNode } & ChartLabelProps) {
     return (
-        <div className="grow">
+        <div className="grow min-h-0">
             <LabelText {...props} />
             <br className="block mb-4" />
-            {children}
+            <div>{children}</div>
         </div>
     );
 }
@@ -67,13 +70,13 @@ interface PopupTransactionDetailsProps {
 export function PopupTransactionDetails({ label, today, thisWeek, thisMonth, history }: PopupTransactionDetailsProps) {
     const navigate = useNavigateDefault();
     return (
-        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.dashboard.root, true)}>
+        <Dialog className="w-3xl" dropShadow={true} onClose={() => navigate(ROUTES.dashboard.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.dashboard.root, true)}>
                 <Text size="medium" weight="bold">
                     {label} Details
                 </Text>
             </Dialog.Header>
-            <Dialog.Body className="p-6!">
+            <Dialog.Body className="p-6! overflow-y-auto! max-h-[80vh]!">
                 <div className="flex gap-4 mb-8">
                     <TransactionMiniCard label="Today" value={today} />
                     <TransactionMiniCard label="This Week" value={thisWeek} />
@@ -82,10 +85,10 @@ export function PopupTransactionDetails({ label, today, thisWeek, thisMonth, his
 
                 <div className="flex gap-8 mb-8">
                     <ChartContainer label="Hourly Distribution" leftIcon={BarChartOutlinedIcon}>
-                        example bar charrtttt
+                        <BarChart options={samplePopupBarOptions} data={samplePopupBarData} />
                     </ChartContainer>
                     <ChartContainer label="Demographics" leftIcon={PeopleAltOutlinedIcon}>
-                        example donut charrtttt
+                        <DoughnutChart options={samplePieOptions} data={samplePieData}></DoughnutChart>
                     </ChartContainer>
                 </div>
                 <div className="flex justify-between mb-4">
