@@ -53,7 +53,7 @@ function Header({
         <div className={`${defaultClass} w-full px-[24px] py-[16px] flex justify-between ${className}`} {...props}>
             {children}
             {toggleRightIcon && (
-                <Button onClick={onRightAction} size="small" variant="red" className="min-w-0! w-8">
+                <Button onClick={onRightAction} size="small" variant="red" className="min-w-0! w-8 h-8 p-0!">
                     <Icon icon={CloseRoundedIcon} variant="white" size="bigMedium"></Icon>
                 </Button>
             )}
