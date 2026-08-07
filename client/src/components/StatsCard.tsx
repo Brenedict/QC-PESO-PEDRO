@@ -12,12 +12,13 @@ interface StatsCardProps {
     previous: number;
     className?: string;
     specialIcon?: MaterialIcon;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
-export function StatsCard({ title, total, male, female, previous, className, specialIcon }: StatsCardProps) {
+export function StatsCard({ title, total, male, female, previous, className, specialIcon, onClick }: StatsCardProps) {
     return (
-        <Card className={`w-full ${className ?? ""}`}>
-            <Card.Body variant="white" className="p-5!">
+        <Card className={`w-full ${className ?? ""}`} onClick={onClick}>
+            <Card.Body className="bg-transparent! p-5!">
                 <CardHeader icon={specialIcon || PeopleOutlineOutlinedIcon}>{title}</CardHeader>
                 <Divider />
 

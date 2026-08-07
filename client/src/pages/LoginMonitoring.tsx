@@ -13,6 +13,8 @@ import Table from "../components/Table";
 import { type EmployeeSession } from "../data/employeeSessions";
 import Status from "../components/Status";
 import { ActionButton, ColumnText, DateTime, Identifier, RoleBadge } from "../components/TableCells";
+import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import { Outlet } from "react-router";
 
 const iconClasses = {
     green: { variant: "green", bgVariant: "green-opaque" },
@@ -79,9 +81,9 @@ function LoginMonitoring({
     handleFilterSubmit,
     employeeSessions,
 }: LoginMonitoringProps) {
-    const handleHistory = (id: string) => () => {
-        console.log(id);
-    };
+    const navigate = useNavigateDefault();
+
+    const handleHistory = (id: string) => () => navigate(ROUTES.monitoring.view(id), true);
 
     return (
         <>
@@ -122,7 +124,7 @@ function LoginMonitoring({
 
                 {/*  Sessions Data */}
                 {employeeSessions.map((employee) => (
-                    <Table.Row>
+                    <Table.Row key={employee.id}>
                         <Table.Data>
                             <ColumnText>{employee.name}</ColumnText>
                         </Table.Data>
@@ -140,12 +142,15 @@ function LoginMonitoring({
                         </Table.Data>
 
                         <Table.Data>
-                            <ActionButton id={employee.name} handleClick={handleHistory} text="View History" />
+                            <ActionButton id={employee.id} handleClick={handleHistory} text="View History" />
                             {/* Yung employee.name di pa final yan dapat id */}
                         </Table.Data>
                     </Table.Row>
                 ))}
             </Table>
+
+            {/* Popup Uses */}
+            <Outlet />
         </>
     );
 }

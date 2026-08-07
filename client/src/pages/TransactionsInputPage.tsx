@@ -112,8 +112,8 @@ function FormRow3() {
                 <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker">
                     Young Worker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="student">
-                    Student
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="workImmersionInternship">
+                    Work Immersion/Internship
                 </ChoiceItem>
             </div>
         </section>
@@ -262,7 +262,7 @@ function TransactionsInputPagePage({ onSubmit }: FormProps) {
                 <TransactionsLedger />
             </div>
 
-            {/* For edit and delete pop up */}
+            {/* Popup Uses */}
             <Outlet />
         </>
     );

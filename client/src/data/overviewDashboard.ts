@@ -9,6 +9,7 @@ export const dailyTransactionCards = [
         male: 82,
         female: 60,
         previous: 127,
+        type: "total",
     },
     {
         title: "Walk-in Transactions",
@@ -16,6 +17,7 @@ export const dailyTransactionCards = [
         male: 26,
         female: 22,
         previous: 46,
+        type: "walk-in",
     },
     {
         title: "Online Referrals",
@@ -23,6 +25,7 @@ export const dailyTransactionCards = [
         male: 18,
         female: 13,
         previous: 31,
+        type: "online",
     },
     {
         title: "In-house Referral",
@@ -30,6 +33,7 @@ export const dailyTransactionCards = [
         male: 8,
         female: 9,
         previous: 17,
+        type: "in-house",
     },
     {
         title: "Work Immersion",
@@ -38,6 +42,7 @@ export const dailyTransactionCards = [
         female: 10,
         previous: 20,
         specialIcon: BusinessCenterOutlinedIcon,
+        type: "work-immersion",
     },
     {
         title: "Internship Referral",
@@ -46,6 +51,7 @@ export const dailyTransactionCards = [
         female: 6,
         previous: 13,
         specialIcon: BusinessCenterOutlinedIcon,
+        type: "internship",
     },
 
     {
@@ -54,6 +60,7 @@ export const dailyTransactionCards = [
         male: 6,
         female: 6,
         previous: 12,
+        type: "inquiries",
     },
 ];
 

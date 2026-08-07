@@ -12,6 +12,8 @@ export interface JobFairParticipantsProps {
     hired: number;
     hiredMale: number;
     hiredFemale: number;
+
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export function JobFairParticipants({
@@ -22,10 +24,11 @@ export function JobFairParticipants({
     hired,
     hiredMale,
     hiredFemale,
+    onClick,
 }: JobFairParticipantsProps) {
     return (
-        <Card className="w-full">
-            <Card.Body variant="white" className="p-5!">
+        <Card className="w-full" onClick={onClick}>
+            <Card.Body className="bg-transparent! p-5!">
                 <CardHeader icon={BusinessCenterOutlinedIcon}>{title}</CardHeader>
 
                 <Divider />

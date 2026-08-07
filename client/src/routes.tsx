@@ -18,22 +18,15 @@ import TransactionsInputPage from "./pages/TransactionsInputPage";
 import TransactionHistory from "./pages/TransactionHistory";
 import EndShiftVerification from "./pages/EndShiftVerification";
 import LoginMonitoring from "./pages/LoginMonitoring";
+import { ContextAnalysis } from "./pages/ContextAnalysis";
+import SystemAuditLogs from "./pages/SystemAuditLogs";
+import UserManagement from "./pages/UserManagement";
+import Reports from "./pages/Reports";
 
 // Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
-import { PopupTimeIn, PopupLogout, PopupEndshiftSummary } from "./components/popups/ShiftPopups";
 import { PopupEndShiftReview } from "./components/popups/EndShiftPopups";
-
-// Test Data
-import { transactions } from "./data/transactions";
-import { shiftRecords } from "./data/shiftRecords";
-import { employeeSessions } from "./data/employeeSessions";
-import SystemAuditLogs from "./pages/SystemAuditLogs";
-import { auditLogData } from "./data/auditLogs";
-import UserManagement from "./pages/UserManagement";
-import { usersData } from "./data/users";
-import type { TopBarContextValue } from "./context/TopbarContext";
-import Reports from "./pages/Reports";
+import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "./components/popups/ShiftPopups";
 import {
     PopupAddUser,
     PopupDisableUser,
@@ -41,6 +34,17 @@ import {
     PopupResetUser,
     PopupUserPriveleges,
 } from "./components/popups/UserPopups";
+import { PopupTransactionDetails } from "./components/popups/DashboardPopups";
+import { PopupReportPreview } from "./components/popups/ReportPopups";
+import { PopupViewHistory } from "./components/popups/MonitoringPopups";
+
+// Test Data
+import { transactions } from "./data/transactions";
+import { shiftRecords } from "./data/shiftRecords";
+import { employeeSessions } from "./data/employeeSessions";
+import { auditLogData } from "./data/auditLogs";
+import { usersData } from "./data/users";
+import type { TopBarContextValue } from "./context/TopbarContext";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -103,6 +107,34 @@ const transactionsEditAndDelete = (root: transactionRootPage) => [
     },
 ];
 
+const shiftPopups = (root: string) => [
+    {
+        path: "time-in",
+        element: <PopupTimeIn root={root} />,
+        action: async () => {
+            return redirect(root);
+        },
+    },
+    {
+        path: "end-shift-confirmation",
+        element: <PopupEndshiftSummary root={root} />,
+        action: async () => {
+            return redirect("/auth");
+        },
+    },
+    {
+        path: "session-end",
+        element: <PopupSessionEnd root={root} />,
+    },
+    {
+        path: "log-out",
+        element: <PopupLogout root={root} />,
+        action: async () => {
+            return redirect("/auth");
+        },
+    },
+];
+
 const routes: RouteObject[] = [
     {
         path: "/auth",
@@ -114,33 +146,100 @@ const routes: RouteObject[] = [
         element: <DashboardLayout {...userContext} />,
         children: [
             {
-                index: true,
+                path: "",
                 element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
+                children: [
+                    {
+                        path: "total",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Total Transactions"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "walk-in",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Walk-in Transactions"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "online",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Online Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "in-house",
+                        element: (
+                            <PopupTransactionDetails
+                                label="In-house Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "work-immersion",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Work Immersion"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "internship",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Internship Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "inquiries",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Other Inquiries"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    ...shiftPopups(ROUTES.dashboard.root),
+                ],
             },
             {
-                path: "time-in",
-                element: <PopupTimeIn />,
-                action: async () => {
-                    return redirect(ROUTES.dashboard.root);
-                },
-            },
-            {
-                path: "end-shift-confirmation",
-                element: <PopupEndshiftSummary />,
-                action: async () => {
-                    return redirect("/auth");
-                },
-            },
-            {
-                path: "log-out",
-                element: <PopupLogout />,
-                action: async () => {
-                    return redirect("/auth");
-                },
-            },
-            {
-                path: "settings",
+                path: "profile",
                 element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
+                children: [...shiftPopups(ROUTES.profile.root)],
             },
             {
                 path: "end-shift",
@@ -153,6 +252,7 @@ const routes: RouteObject[] = [
                             return redirect(ROUTES.endshift.root);
                         },
                     },
+                    ...shiftPopups(ROUTES.endshift.root),
                 ],
             },
             {
@@ -165,7 +265,7 @@ const routes: RouteObject[] = [
                         transactions={transactions}
                     />
                 ),
-                children: transactionsEditAndDelete("history"),
+                children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
             },
             {
                 path: "monitoring",
@@ -181,15 +281,23 @@ const routes: RouteObject[] = [
                         employeeSessions={employeeSessions}
                     />
                 ),
+                children: [
+                    {
+                        path: ":shiftId/view-history",
+                        element: <PopupViewHistory />,
+                    },
+                    ...shiftPopups(ROUTES.monitoring.root),
+                ],
             },
             {
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
-                children: transactionsEditAndDelete("entry"),
+                children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
             },
             {
                 path: "audit-logs",
                 element: <SystemAuditLogs logsData={auditLogData} />,
+                children: [...shiftPopups(ROUTES.auditLogs.root)],
             },
             {
                 path: "user-management",
@@ -225,16 +333,24 @@ const routes: RouteObject[] = [
                         element: <PopupResetUser />,
                         action: testActionFn(UserSchema),
                     },
+                    ...shiftPopups(ROUTES.userManagement.root),
                 ],
             },
             {
                 path: "reports",
                 element: <Reports />,
+                children: [
+                    { path: "daily", element: <PopupReportPreview type={"daily"} /> },
+                    { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
+                    { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
+                    { path: "overall", element: <PopupReportPreview type={"overall"} /> },
+                    ...shiftPopups(ROUTES.reports.root),
+                ],
             },
-
             {
-                path: "settings",
-                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
+                path: "context-analysis",
+                element: <ContextAnalysis />,
+                children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
         ],
     },

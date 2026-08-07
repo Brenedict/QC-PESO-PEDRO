@@ -24,6 +24,11 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
+import { Outlet } from "react-router";
+import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import { LineChart } from "../components/LineChart";
+import { PieChart } from "../components/PieChart";
+import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/overviewCharts";
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
@@ -44,10 +49,16 @@ function CardGroup({ children }: { children: ReactNode }) {
 }
 
 function DailyTransactions() {
+    const navigate = useNavigateDefault();
     return (
         <CardGroup>
             {dailyTransactionCards.map((card) => (
-                <StatsCard key={card.title} className="w-full" {...card} />
+                <StatsCard
+                    key={card.title}
+                    className="w-full"
+                    onClick={() => navigate(ROUTES.dashboard.preview(card.type))}
+                    {...card}
+                />
             ))}
         </CardGroup>
     );
@@ -86,7 +97,9 @@ function EmploymentEvents() {
 function EndShiftValue({ title, children }: { title: string; children: ReactNode }) {
     return (
         <div>
-            <NumberText className="text-big text-center!">{children}</NumberText>
+            <NumberText className="text-big text-center!" align="center">
+                {children}
+            </NumberText>
             <NumberTitle className="text-center!">{title}</NumberTitle>
         </div>
     );
@@ -181,17 +194,41 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
                 <EmploymentOutcomes />
             </OverviewSection>
 
-            <OverviewSection>
+            {/* <OverviewSection>
                 <Text size="medium" weight="bold" variant="primary-blue">
                     Employment Events
-                </Text>
+                </Text> 
 
                 <EmploymentEvents />
+            </OverviewSection> */}
+
+            <OverviewSection>
+                <section className="grid grid-cols-3 gap-6">
+                    <Card className="col-span-2">
+                        <Card.Header bordered={false} variant="white">
+                            <Text weight="bold">Weekly Transaction Volume</Text>
+                        </Card.Header>
+                        <Card.Body>
+                            <LineChart options={sampleLineOptions} data={sampleLineData} height={"100px"}></LineChart>
+                        </Card.Body>
+                    </Card>
+                    <Card className="col-span-1">
+                        <Card.Header bordered={false} variant="white">
+                            <Text weight="bold">Gender Split</Text>
+                        </Card.Header>
+                        <Card.Body>
+                            <PieChart options={samplePieOptions} data={samplePieData} height={"250px"}></PieChart>
+                        </Card.Body>
+                    </Card>
+                </section>
             </OverviewSection>
 
             <br className="block mb-14" />
 
             <RecentActivity items={recentActivity} onViewAll={() => alert("View all clicked")} />
+
+            {/* Popup Uses */}
+            <Outlet />
         </>
     );
 }

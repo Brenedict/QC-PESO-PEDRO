@@ -38,7 +38,6 @@ export function PopupEndShiftReview() {
     );
 }
 
-
 function ReviewHeaderSection({ handleClose }: { handleClose: () => void }) {
     return (
         <Dialog.Header toggleRightIcon={true} onRightAction={handleClose}>
@@ -60,7 +59,7 @@ function ReviewHeaderSection({ handleClose }: { handleClose: () => void }) {
 function DailySummarySection() {
     return (
         <Card dropShadow={false} className="w-full">
-            <Card.Header variant="white" className="py-4!">
+            <Card.Header variant="off-white" className="py-4!">
                 <Text weight="bold" size="small" variant="dark-blue">
                     DAILY SUMMARY
                 </Text>
@@ -195,7 +194,11 @@ function ReviewFooterSection() {
                 Reject Submission
             </PopupButton>
             <PopupButton
-                variant="white-black" type="submit" form="endShiftReviewForm" name="reviewAction" value="revision"
+                variant="white-black"
+                type="submit"
+                form="endShiftReviewForm"
+                name="reviewAction"
+                value="revision"
             >
                 Needs Revision
             </PopupButton>
