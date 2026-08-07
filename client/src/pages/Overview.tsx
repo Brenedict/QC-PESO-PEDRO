@@ -25,6 +25,7 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { RecentActivity } from "../components/RecentActivity";
 import { recentActivity } from "../data/recentActivity";
+import { Outlet } from "react-router";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import { LineChart } from "../components/LineChart";
 import { PieChart } from "../components/PieChart";

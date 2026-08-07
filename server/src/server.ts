@@ -3,8 +3,8 @@ const app = express();
 const port = 3000;
 
 // List of routes
-import indexRoutes from "./routes/Index.js";
-import userRoutes from "./routes/User.js"; // Temporary route
+import indexRoutes from "./routes/Index";
+import userRoutes from "./routes/User"; // Temporary route
 
 // Form submission request config
 app.use(express.urlencoded({ extended: true }));
