@@ -70,7 +70,7 @@ function NavBodyFrontline() {
             <NavButton linkType="dashboard" to="/" />
             <NavButton linkType="transaction_entry" to="/applicant-form" />
             <NavButton linkType="transaction_history" to="/history" />
-            <NavButton linkType="settings" to="/settings" />
+            <NavButton linkType="settings" to="/profile" />
         </>
     );
 }
@@ -87,7 +87,7 @@ function NavBodyAdmin() {
             <NavButton linkType="reports" to="/reports" />
             <NavButton linkType="audit_logs" to="/audit-logs" />
             <NavButton linkType="user_management" to="/user-management" />
-            <NavButton linkType="settings" to="/settings" />
+            <NavButton linkType="settings" to="/profile" />
         </>
     );
 }

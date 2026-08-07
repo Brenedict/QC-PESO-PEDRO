@@ -98,7 +98,7 @@ export function PopupLogout({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     return (
         <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
-            <Dialog.Header>
+            <Dialog.Header onRightAction={() => navigate(root, true)}>
                 <Text size="medium" weight="bold">
                     Confirm Logout
                 </Text>
@@ -131,7 +131,7 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     return (
         <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
-            <Dialog.Header>
+            <Dialog.Header onRightAction={() => navigate(root, true)}>
                 <Text size="medium" weight="bold">
                     End of Shift Summary
                 </Text>

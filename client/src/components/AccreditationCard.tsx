@@ -7,11 +7,12 @@ interface AccreditationCardProps {
     total: number;
     newCount: number;
     renewalCount: number;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
-export function AccreditationCard({ title, total, newCount, renewalCount }: AccreditationCardProps) {
+export function AccreditationCard({ title, total, newCount, renewalCount, onClick }: AccreditationCardProps) {
     return (
-        <Card className="w-full">
-            <Card.Body variant="white" className="p-5!">
+        <Card className="w-full" onClick={onClick}>
+            <Card.Body className="bg-transparent! p-5!">
                 <CardHeader icon={PeopleOutlineOutlinedIcon}>{title}</CardHeader>
                 <Divider />
 

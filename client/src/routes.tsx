@@ -40,7 +40,10 @@ import {
     PopupResetUser,
     PopupUserPriveleges,
 } from "./components/popups/UserPopups";
+import { PopupTransactionDetails } from "./components/popups/DashboardPopups";
+import { PopupReportPreview } from "./components/popups/ReportPopups";
 import { PopupViewHistory } from "./components/popups/MonitoringPopups";
+import { ContextAnalysis } from "./pages/ContextAnalysis";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -148,6 +151,96 @@ const routes: RouteObject[] = [
             },
             {
                 path: "settings",
+                children: [
+                    {
+                        path: "total",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Total Transactions"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "walk-in",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Walk-in Transactions"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "online",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Online Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "in-house",
+                        element: (
+                            <PopupTransactionDetails
+                                label="In-house Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "work-immersion",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Work Immersion"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "internship",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Internship Referrals"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    {
+                        path: "inquiries",
+                        element: (
+                            <PopupTransactionDetails
+                                label="Other Inquiries"
+                                today={48}
+                                thisWeek={215}
+                                thisMonth={840}
+                                history={shiftRecords}
+                            />
+                        ),
+                    },
+                    ...shiftPopups(ROUTES.dashboard.root),
+                ],
+            },
+            {
+                path: "profile",
                 element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
                 children: [...shiftPopups(ROUTES.profile.root)],
             },
@@ -198,7 +291,7 @@ const routes: RouteObject[] = [
             {
                 path: "audit-logs",
                 element: <SystemAuditLogs logsData={auditLogData} />,
-                children: [...shiftPopups(ROUTES.applicantForm.root)],
+                children: [...shiftPopups(ROUTES.auditLogs.root)],
             },
             {
                 path: "user-management",
@@ -240,13 +333,18 @@ const routes: RouteObject[] = [
             {
                 path: "reports",
                 element: <Reports />,
-                children: [...shiftPopups(ROUTES.reports.root)],
+                children: [
+                    { path: "daily", element: <PopupReportPreview type={"daily"} /> },
+                    { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
+                    { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
+                    { path: "overall", element: <PopupReportPreview type={"overall"} /> },
+                    ...shiftPopups(ROUTES.reports.root),
+                ],
             },
-
             {
-                path: "settings",
-                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
-                children: [...shiftPopups(ROUTES.reports.root)],
+                path: "context-analysis",
+                element: <ContextAnalysis />,
+                children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
         ],
     },

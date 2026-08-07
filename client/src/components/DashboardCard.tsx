@@ -4,11 +4,12 @@ import FemaleOutlinedIcon from "@mui/icons-material/FemaleOutlined";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import TrendingDownOutlinedIcon from "@mui/icons-material/TrendingDownOutlined";
 import type { ReactNode } from "react";
-import type { MaterialIcon } from "../types/common";
+import type { AlignVariant, MaterialIcon } from "../types/common";
 
 interface ExtendedTextProps extends React.HTMLAttributes<HTMLParagraphElement> {
     children: ReactNode;
     className?: string;
+    align?: AlignVariant;
 }
 
 export function CardHeader({ icon, children }: { icon: MaterialIcon; children: ReactNode }) {
@@ -106,9 +107,9 @@ export function NumberTitle({ children, className }: ExtendedTextProps) {
     );
 }
 
-export function NumberText({ children, className }: ExtendedTextProps) {
+export function NumberText({ children, className, align = "left" }: ExtendedTextProps) {
     return (
-        <Text size="bigger" weight="black" variant="dark-blue" className={className}>
+        <Text size="bigger" weight="black" variant="dark-blue" className={className} align={align}>
             {children}
         </Text>
     );

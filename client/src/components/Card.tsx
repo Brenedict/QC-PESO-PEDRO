@@ -2,11 +2,11 @@ import React, { type ReactNode } from "react";
 import Icon from "./Icon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { ColorClasses } from "../types/common";
-import Button from "./Button";
+import Button, { variantStyles } from "./Button";
 
 export type ReducedColorVariant = Extract<
     keyof typeof ColorClasses,
-    "white" | "off-white" | "grayish-blue-opaque" | "red-opaque" | "primary-blue"
+    "white" | "off-white" | "grayish-blue-opaque" | "red-opaque" | "primary-blue" | "gray"
 >;
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -20,15 +20,18 @@ function CardContainer({
     children,
     className,
     dropShadow = true,
+    onClick,
     ...props
 }: {
     children?: ReactNode;
     className?: string;
     dropShadow?: boolean;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
 }) {
     return (
         <div
-            className={`bg-white border-1 border-off-white-border rounded-2xl overflow-clip ${dropShadow ? "drop-shadow-sm" : ""} ${className}`}
+            onClick={onClick}
+            className={`rounded-2xl overflow-clip ${onClick ? `${variantStyles.white} transition-transform cursor-pointer` : "border bg-white  border-off-white-border"}  ${dropShadow ? "drop-shadow-sm" : ""}  ${className} `}
             {...props}
         >
             {children}

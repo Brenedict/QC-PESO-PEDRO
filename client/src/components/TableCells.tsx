@@ -3,6 +3,7 @@ import { Text } from "../components/Text";
 import Button from "../components/Button";
 
 import type { ColorVariant, MaterialIcon, Role } from "../types/common";
+import { formatShortMonthYear, formatTime } from "../utils/time";
 
 export function ColumnText({ children }: { children: ReactNode }) {
     return (
@@ -34,7 +35,7 @@ export function DateTime({ dateTime }: { dateTime: Date }) {
         yesterday.setDate(now.getDate() - 1);
         const isYesterday = target.toDateString() === yesterday.toDateString();
 
-        const timeString = target.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const timeString = formatTime(target);
 
         if (isToday) {
             return `Today, ${timeString}`;
@@ -50,7 +51,7 @@ export function DateTime({ dateTime }: { dateTime: Date }) {
         <>
             <div>
                 <Text size="description" variant="black" align="center" weight="medium">
-                    {dateTime.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    {formatShortMonthYear(dateTime)}
                 </Text>
                 <Text size="small" variant="grayish-blue" align="center" weight="normal">
                     {getRelativeDateTime()}

@@ -41,6 +41,7 @@ Ensure you have the following installed locally on your machine before setup:
 - **[Node.js](https://nodejs.org/)** (v24.x or higher)
 - **[npm](https://www.npmjs.com/)** (comes bundled with Node.js)
 - **[Git](https://git-scm.com/)**
+- **[PostgreSQL](https://www.postgresql.org/download/)**
 
 ---
 
@@ -106,7 +107,7 @@ cd QC-PESO-PEDRO
 3. **Copy the .env.example into .env**  
    ```.env
     # Modify this to your PostgreSQL url
-    DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=pthisublic" 
+    DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public" 
    ```
 
 4. **Generate Prisma client**  
