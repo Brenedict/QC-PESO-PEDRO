@@ -17,6 +17,16 @@ export function getDateTimeNow() {
     return `${datePart} • ${timePart}`;
 }
 
+export function formatShortMonthYear(date: Date): string {
+    // Jan 15, 2024
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+export function formatLongMonthYear(date: Date): string {
+    // January 15, 2024
+    return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
 export function formatMonthDay(date: Date): string {
     return date.toLocaleDateString("en-US", {
         month: "long", // “July”
@@ -32,6 +42,13 @@ export function formatTime(date: Date): string {
         hour12: true,
     });
 }
+
+export const formatDDMMYYYY = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // month is 0‑based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
 
 export function formatDuration(start: Date, end: Date): string {
     // Get the absolute difference in milliseconds

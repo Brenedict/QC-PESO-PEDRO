@@ -201,15 +201,15 @@ export function Overview({ role = "frontline", pending, approved, revision }: { 
                             <Text weight="bold">Weekly Transaction Volume</Text>
                         </Card.Header>
                         <Card.Body>
-                            <LineChart options={sampleLineOptions} data={sampleLineData}></LineChart>
+                            <LineChart options={sampleLineOptions} data={sampleLineData} height={"100px"}></LineChart>
                         </Card.Body>
                     </Card>
                     <Card className="col-span-1">
                         <Card.Header bordered={false} variant="white">
                             <Text weight="bold">Gender Split</Text>
                         </Card.Header>
-                        <Card.Body className="pb-10! h-full flex! items-center!">
-                            <PieChart options={samplePieOptions} data={samplePieData}></PieChart>
+                        <Card.Body>
+                            <PieChart options={samplePieOptions} data={samplePieData} height={"250px"}></PieChart>
                         </Card.Body>
                     </Card>
                 </section>

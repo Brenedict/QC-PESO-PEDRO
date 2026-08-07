@@ -40,6 +40,7 @@ import {
     PopupResetUser,
     PopupUserPriveleges,
 } from "./components/popups/UserPopups";
+import { PopupReportPreview } from "./components/popups/ReportPopups";
 import { PopupViewHistory } from "./components/popups/MonitoringPopups";
 import { ContextAnalysis } from "./pages/ContextAnalysis";
 
@@ -241,7 +242,18 @@ const routes: RouteObject[] = [
             {
                 path: "reports",
                 element: <Reports />,
-                children: [...shiftPopups(ROUTES.reports.root)],
+                children: [
+                    { path: "daily", element: <PopupReportPreview type={"daily"} /> },
+                    { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
+                    { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
+                    { path: "overall", element: <PopupReportPreview type={"overall"} /> },
+                     ...shiftPopups(ROUTES.reports.root)
+                ],
+            },
+            {
+                path: "context-analysis",
+                element: <ContextAnalysis />,
+                children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
             {
                 path: "context-analysis",

@@ -48,6 +48,7 @@ export const ROUTES = {
     reports: {
         root: BASE_ROUTES.reports,
         view: (to: string, from: string) => `${BASE_ROUTES.reports}/transaction-summary/${from}-${to}`,
+        preview: (type: string) => `${BASE_ROUTES.reports}/${type}`,
     },
     auditLogs: {
         root: BASE_ROUTES.auditLogs,
