@@ -51,7 +51,7 @@ function LabelText({ label, leftIcon }: ChartLabelProps) {
 
 function ChartContainer({ children, ...props }: { children: ReactNode } & ChartLabelProps) {
     return (
-        <div className="grow min-h-0">
+        <div className="grow min-h-0 transition-all duration-300 ease-in">
             <LabelText {...props} />
             <br className="block mb-4" />
             <div>{children}</div>

@@ -147,10 +147,6 @@ const routes: RouteObject[] = [
             {
                 path: "",
                 element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
-                children: [...shiftPopups(ROUTES.dashboard.root)],
-            },
-            {
-                path: "settings",
                 children: [
                     {
                         path: "total",
@@ -280,7 +276,7 @@ const routes: RouteObject[] = [
                         path: ":shiftId/view-history",
                         element: <PopupViewHistory />,
                     },
-                    ...shiftPopups(ROUTES.monitoring.root)
+                    ...shiftPopups(ROUTES.monitoring.root),
                 ],
             },
             {
