@@ -4,10 +4,169 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+    provider = "prisma-client"
+    output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+    provider = "postgresql"
+}
+
+// ------------------------ Enums ---------------------------
+
+enum LogAction {
+    TRANSACTION_CREATE
+    TRANSACTION_EDIT
+    TRANSACTION_DELETE
+    SUBMIT_ESS
+    TAG_ESS_REJECT
+    TAG_ESS_REVISION
+    TAG_ESS_APPROVE
+    USER_ADD
+    USER_RESET_PASSWORD
+    USER_EDIT
+    USER_PROMOTE
+    REPORTS_DOWNLOAD_DAILY
+    REPORTS_DOWNLOAD_WEEKLY
+    REPORTS_DOWNLOAD_MONTHLY
+    REPORTS_DOWNLOAD_OVERALL
+}
+
+enum Status {
+    ONLINE
+    OFFLINE
+    LOGGED_OUT
+}
+
+enum Sex {
+    MALE
+    FEMALE
+}
+
+enum Role {
+    SUPERADMIN
+    ADMIN
+    FRONTLINE
+}
+
+enum Shift {
+    MORNING
+    AFTERNOON
+}
+
+enum TransactionType {
+    WALK_IN_REFERRAL
+    ONLINE_REFERRAL
+    IN_HOUSE_RECRUITMENT
+}
+
+enum Outcome {
+    PENDING
+    MISMATCH
+    SUCCESS
+}
+
+enum ESSStatus {
+    PENDING
+    REJECTED
+    REVISION
+    APPROVED
+}
+
+enum Demographic {
+    FIRST_TIME_JOB_SEEKER
+    PERSONS_WITH_DISABILITY
+    SENIOR_CITIZEN
+    YOUNG_WORKER
+    WORK_IMMERSION_INTERNSHIP
+}
+
+enum EnvironmentTag {
+    SLOW_INTERNET
+    HEAVY_RAIN
+    BROKEN_EQUIPMENT
+    APPLICANT_ISSUES
+    FEELING_UNWELL
+    BROKEN_SOFTWARE_SYSTEM
+}
+
+// ------------------------ Models ---------------------------
+
+model Transaction {
+    id         Int      @id @default(autoincrement())
+    user       User     @relation(fields: [userId], references: [id])
+    userId     Int
+    shiftLog   ShiftLog @relation(fields: [shiftLogId], references: [id])
+    shiftLogId Int
+
+    applicantFirstName String          @db.VarChar(256)
+    applicantLastName  String          @db.VarChar(256)
+    applicantSex       Sex
+    transactionOutcome Outcome         @default(PENDING)
+    createdAt          DateTime        @default(now()) @db.Timestamptz(0)
+    transactionType    TransactionType @default(WALK_IN_REFERRAL)
+    remarks            String?
+
+    demographics Demographic[]
+}
+
+model ShiftLog {
+    id     Int  @id @default(autoincrement())
+    user   User @relation(fields: [userId], references: [id])
+    userId Int
+
+    // Sa unang insert timeIn palang yung pwede mailagay
+    timeIn         DateTime  @default(now()) @db.Timestamptz(0)
+    timeOut        DateTime? @db.Timestamptz(0)
+    status         ESSStatus // Meron pa ring status
+    generalRemarks String?
+    adminRemarks   String?
+    lastVerifiedBy String?
+    lastVerifiedAt DateTime? @db.Timestamptz(0)
+
+    transactions    Transaction[]
+    environmentTags EnvironmentTag[]
+}
+
+model User {
+    id Int @id @default(autoincrement())
+
+    username  String   @unique @db.VarChar(256)
+    password  String   @db.VarChar(256)
+    email     String   @unique @db.VarChar(256)
+    role      Role
+    status    Status
+    shift     Shift
+    firstName String   @db.VarChar(256)
+    lastName  String   @db.VarChar(256)
+    createdAt DateTime @default(now()) @db.Timestamptz(0)
+    updatedAt DateTime @default(now()) @db.Timestamptz(0)
+
+    auditLogs    AuditLog[]
+    accountLogs  AccountLog[]
+    shiftLogs    ShiftLog[]
+    transactions Transaction[]
+}
+
+model AuditLog {
+    id     Int  @id @default(autoincrement())
+    user   User @relation(fields: [userId], references: [id])
+    userId Int
+
+    createdAt        DateTime  @default(now()) @db.Timestamptz(0)
+    actionPerformed  LogAction
+    affectedRecordId Int
+    changesDetails   String
+}
+
+model AccountLog {
+    id     Int  @id @default(autoincrement())
+    user   User @relation(fields: [userId], references: [id])
+    userId Int
+
+    // Sa unang insert logIn palang yung pwede mailagay
+    logIn   DateTime  @default(now()) @db.Timestamptz(0)
+    logOut  DateTime? @db.Timestamptz(0)
+    reason  String?
+    remarks String?
 }
