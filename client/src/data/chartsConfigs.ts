@@ -2,14 +2,15 @@ import { ChartColorClasses } from "../types/charts";
 
 // === SAMPLE BAR ARGS ===
 
-export const sampleBarContextOptions = {
+export const sampleContextBarOptions = {
     responsive: true,
     plugins: {
         legend: {
-            display: false,
+            display: true,
             position: "bottom",
             align: "center",
             labels: {
+                padding: 15,
                 usePointStyle: true,
                 pointStyle: "circle",
                 boxWidth: 10,
@@ -23,11 +24,6 @@ export const sampleBarContextOptions = {
         },
     },
     scales: {
-        y: {
-            ticks: {
-                stepSize: 45,
-            },
-        },
         x: {
             grid: {
                 display: false,
@@ -35,6 +31,27 @@ export const sampleBarContextOptions = {
         },
     },
 } as const;
+
+export const sampleContextBarData = {
+    labels: ["Walk-In Referral", "Online Referral", "Inhouse Recruitment"],
+    datasets: [
+        {
+            label: "Successful",
+            data: [10, 60, 40],
+            backgroundColor: ChartColorClasses["green"],
+        },
+        {
+            label: "Pending",
+            data: [16, 25, 9],
+            backgroundColor: ChartColorClasses["light-blue"],
+        },
+        {
+            label: "Mismatched",
+            data: [78, 25, 50],
+            backgroundColor: ChartColorClasses["red"],
+        },
+    ],
+};
 
 export const samplePopupBarOptions = {
     responsive: true,
@@ -190,6 +207,53 @@ export const sampleLineOptions = {
     },
 } as const;
 
+// This is the most basic format for the `options` argument of the chart
+export const sampleContextLineOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+            position: "bottom",
+            align: "center",
+            labels: {
+                usePointStyle: true, // Changes box to a circle/point style
+                boxWidth: 10,
+                padding: 30,
+            },
+        },
+        title: {
+            display: false,
+            text: "Applicant Sources Over Time",
+            position: "top",
+            align: "center",
+        },
+    },
+    scales: {
+        y: {
+            ticks: {
+                stepSize: 20,
+            },
+        },
+    },
+} as const;
+
+export const sampleContextLineData = {
+    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    datasets: [
+        {
+            label: "Walk-ins",
+            data: [15, 0, 100, 0, 15],
+            borderColor: ChartColorClasses["primary-blue"],
+            backgroundColor: ChartColorClasses["primary-blue"],
+            tension: 0.4,
+            fill: {
+                target: "origin" as const,
+                above: ChartColorClasses["primary-blue"],
+            },
+        },
+    ],
+};
+
 // === SAMPLE PIE ARGS ===
 
 export const samplePieData = {
@@ -227,6 +291,75 @@ export const samplePieOptions = {
     },
 } as const;
 
+// === SAMPLE DOUGHNUT ARGS ===
+
+export const sampleContextDoughnut1Data = {
+    labels: ["Walk-In Referral", "Online Referral", "Inhouse Recruitment"],
+    datasets: [
+        {
+            label: "# Applicant from Source",
+            data: [29, 56, 15],
+            spacing: 5,
+            backgroundColor: [
+                ChartColorClasses["primary-blue"],
+                ChartColorClasses["light-blue"],
+                ChartColorClasses["purple"],
+            ],
+            borderColor: [
+                ChartColorClasses["primary-blue"],
+                ChartColorClasses["light-blue"],
+                ChartColorClasses["purple"],
+            ],
+        },
+    ],
+};
+
+export const sampleContextDoughnut2Data = {
+    labels: ["Normal", "Slow Internet", "Heavy Rain", "Power Outage"],
+    datasets: [
+        {
+            label: "# of Source Reports",
+            data: [12, 60, 23, 5],
+            spacing: 5,
+            backgroundColor: [
+                ChartColorClasses["primary-blue"],
+                ChartColorClasses["light-blue"],
+                ChartColorClasses["purple"],
+                ChartColorClasses["yellow"],
+            ],
+            borderColor: [
+                ChartColorClasses["primary-blue"],
+                ChartColorClasses["light-blue"],
+                ChartColorClasses["purple"],
+                ChartColorClasses["yellow"],
+            ],
+        },
+    ],
+};
+
+// This is the most basic format for the `options` argument of the chart
+export const sampleContextDoughnutOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+        legend: {
+            position: "bottom",
+            align: "center",
+            labels: {
+                usePointStyle: true, // Changes box to a circle/point style
+                boxWidth: 10,
+                padding: 30,
+            },
+        },
+        title: {
+            display: false,
+            text: "Gender Split",
+            position: "top",
+            align: "center",
+        },
+    },
+} as const;
+
 // === SAMPLE SCATTER ARGS ===
 
 export const sampleScatterOptions = {
@@ -237,14 +370,17 @@ export const sampleScatterOptions = {
             labels: ["Normal", "Slow Internet", "Heavy Rain", "System Downtime"], // <-- 4. Define acceptable string options
             position: "bottom" as const,
             title: {
-                display: true,
-                text: "X Axis Value",
+                display: false,
+                text: "Operational Issues",
+            },
+            grid: {
+                display: false,
             },
         },
         y: {
             title: {
-                display: true,
-                text: "Y Axis Value",
+                display: false,
+                text: "Transactions Processed",
             },
         },
     },
