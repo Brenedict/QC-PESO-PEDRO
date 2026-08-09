@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 
 // General Imports
-import React, { type SubmitEvent } from "react";
+import { type SubmitEvent } from "react";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -31,6 +31,7 @@ import type { UserRecord } from "../data/users";
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+
 interface UserManagementProps {
     users: UserRecord[];
 }

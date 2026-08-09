@@ -2,9 +2,6 @@
 import type { ComponentProps } from "react";
 import { Bar } from "react-chartjs-2";
 
-// Types
-import type { ChartConfigs, ChartData } from "../types/charts";
-
 // Chart JS specific import
 import {
     Chart as ChartJS,
@@ -21,11 +18,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement, Title, To
 
 type BarChartProps = ComponentProps<typeof Bar>;
 
-interface CustomBarChartProps extends BarChartProps {
-    options: ChartConfigs;
-    data: ChartData;
-}
-
-export function BarChart({ options, data, ...props }: CustomBarChartProps) {
+export function BarChart({ options, data, ...props }: BarChartProps) {
     return <Bar options={options} data={data} {...props} />;
 }

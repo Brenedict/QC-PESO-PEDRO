@@ -1,9 +1,30 @@
+// General Imports
+import { Outlet } from "react-router";
+import { Children, type ReactNode } from "react";
+
+// Components
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
 import { StatsCard } from "../components/StatsCard";
 import { JobFairParticipants } from "../components/JobFairParticipants";
 import { AccreditationCard } from "../components/AccreditationCard";
 import { WHIPCard } from "../components/WHIPCard";
+import { RecentActivity } from "../components/RecentActivity";
+import { LineChart } from "../components/LineChart";
+import { PieChart } from "../components/PieChart";
+import Button from "../components/Button";
+import { NumberText, NumberTitle } from "../components/DashboardCard";
+import { Card } from "../components/Card";
+import Icon from "../components/Icon";
+
+// Icons
+import SsidChartOutlinedIcon from "@mui/icons-material/SsidChartOutlined";
+import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+
+// Test Data
+import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/chartsConfigs";
+import { recentActivity } from "../data/recentActivity";
 import {
     accreditationData,
     applicantCards,
@@ -12,23 +33,12 @@ import {
     jobFairData,
     WHIPData,
 } from "../data/overviewDashboard";
-import { Children, type ReactNode } from "react";
-import Button from "../components/Button";
-import SsidChartOutlinedIcon from "@mui/icons-material/SsidChartOutlined";
-import { Card } from "../components/Card";
-import Icon from "../components/Icon";
-import type { Role } from "../types/common";
-import { NumberText, NumberTitle } from "../components/DashboardCard";
 
-import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
-import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { RecentActivity } from "../components/RecentActivity";
-import { recentActivity } from "../data/recentActivity";
-import { Outlet } from "react-router";
+// Types
+import type { Role } from "../types/common";
+
+// Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { LineChart } from "../components/LineChart";
-import { PieChart } from "../components/PieChart";
-import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/overviewCharts";
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;

@@ -18,7 +18,7 @@ import TransactionsInputPage from "./pages/TransactionsInputPage";
 import TransactionHistory from "./pages/TransactionHistory";
 import EndShiftVerification from "./pages/EndShiftVerification";
 import LoginMonitoring from "./pages/LoginMonitoring";
-import { ContextAnalysis } from "./pages/ContextAnalysis";
+import { ContextAnalytics } from "./pages/ContextAnalytics";
 import SystemAuditLogs from "./pages/SystemAuditLogs";
 import UserManagement from "./pages/UserManagement";
 import Reports from "./pages/Reports";
@@ -348,8 +348,8 @@ const routes: RouteObject[] = [
                 ],
             },
             {
-                path: "context-analysis",
-                element: <ContextAnalysis />,
+                path: "context-analytics",
+                element: <ContextAnalytics />,
                 children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
         ],

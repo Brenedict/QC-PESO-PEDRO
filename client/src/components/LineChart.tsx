@@ -2,9 +2,6 @@
 import type { ComponentProps } from "react";
 import { Line } from "react-chartjs-2";
 
-// Types
-import type { ChartConfigs, ChartData } from "../types/charts";
-
 // Chart JS specific import
 import {
     Chart as ChartJS,
@@ -22,11 +19,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 type LineChartProps = ComponentProps<typeof Line>;
 
-interface CustomLineChartProps extends LineChartProps {
-    options: ChartConfigs;
-    data: ChartData;
-}
-
-export function LineChart({ options, data, ...props }: CustomLineChartProps) {
+export function LineChart({ options, data, ...props }: LineChartProps) {
     return <Line options={options} data={data} {...props} />;
 }

@@ -83,7 +83,7 @@ function NavBodyAdmin() {
             <NavButton linkType="transaction_history" to="/history" />
             <NavButton linkType="end_shift_verification" to="/end-shift" />
             <NavButton linkType="login_monitoring" to="/monitoring" />
-            {/* <NavButton linkType="context_analytics" to="/context-analytics" /> */}
+            <NavButton linkType="context_analytics" to="/context-analytics" />
             <NavButton linkType="reports" to="/reports" />
             <NavButton linkType="audit_logs" to="/audit-logs" />
             <NavButton linkType="user_management" to="/user-management" />

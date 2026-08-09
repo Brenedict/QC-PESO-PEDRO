@@ -1,4 +1,9 @@
+// General Imports
+import { Outlet } from "react-router";
+
+// Componentss
 import { Text } from "../components/Text";
+import PageHeader from "../components/PageHeader";
 import Profile from "../components/Profile";
 import Button from "../components/Button";
 import { GeneralInput } from "../components/Input";
@@ -13,10 +18,9 @@ import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
 import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+
+// Types
 import type { MaterialIcon, Role } from "../types/common";
-import PageHeader from "../components/PageHeader";
-import type { StatusVariant } from "../components/Status";
-import { Outlet } from "react-router";
 
 interface UserProps {
     roleType: Role;
