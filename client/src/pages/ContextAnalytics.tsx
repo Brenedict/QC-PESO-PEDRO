@@ -1,6 +1,3 @@
-// General Imports
-import type { ReactNode } from "react";
-
 // Components
 import { Card } from "../components/Card";
 import { Text } from "../components/Text";
@@ -11,6 +8,7 @@ import { ScatterChart } from "../components/ScatterChart";
 import PageHeader from "../components/PageHeader";
 import type { IconProps } from "../components/Icon";
 import { LineChart } from "../components/LineChart";
+import Icon from "../components/Icon";
 
 // Icons
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
@@ -26,8 +24,9 @@ import {
     sampleContextDoughnutOptions,
     sampleContextDoughnut2Data,
 } from "../data/chartsConfigs";
-import { samplePieData, samplePieOptions, sampleScatterData, sampleScatterOptions } from "../data/chartsConfigs";
-import Icon from "../components/Icon";
+import { sampleScatterData, sampleScatterOptions } from "../data/chartsConfigs";
+
+// Types
 import type { MaterialIcon } from "../types/common";
 
 function StatCard({
@@ -57,9 +56,12 @@ function StatCard({
         <Card className="w-full flex-1" dropShadow={dropShadow}>
             <Card.Body className={`p-6! flex ${alignClasses[align]} ${invertOrder ? "flex-col-reverse" : "flex-col"}`}>
                 <div className="flex justify-center items-center gap-1">
+                    {/* Main Text */}
                     <Text size="big" variant={valueVariant} weight="bold">
                         {value}
                     </Text>
+
+                    {/* Percentage */}
                     {subValue && (
                         <Text size="description" weight="normal" variant="grayish-blue">
                             ({subValue})
@@ -120,13 +122,11 @@ function SectionHeader({
     secondaryText,
     icon,
     divider = true,
-    children,
 }: {
     primaryText: string;
     secondaryText?: string;
     icon?: IconProps;
     divider?: boolean;
-    children?: ReactNode;
 }) {
     return (
         <div>
@@ -157,6 +157,8 @@ function InsightSection() {
                     icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
                     divider={false}
                 ></SectionHeader>
+
+                {/* Should probably use map function */}
                 <div className="grid grid-cols-5 gap-3 mb-6">
                     <StatCard
                         value={427}
@@ -197,6 +199,7 @@ function InsightSection() {
                         dropShadow={false}
                     ></StatCard>
                 </div>
+
                 <Card dropShadow={false}>
                     <Card.Body variant="off-white">
                         <Text size="description" variant="dark-blue" weight="bold">
@@ -222,6 +225,7 @@ function Level1Section() {
                 secondaryText="Where did applicants come from?"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
             ></SectionHeader>
+
             <div className="grid grid-cols-6 gap-3 mb-6">
                 <StatCard value={38} description="Walk-in Referral"></StatCard>
                 <StatCard value={197} description="Online Referral"></StatCard>
@@ -230,6 +234,7 @@ function Level1Section() {
                 <StatCard value={44} description="Immersion"></StatCard>
                 <StatCard value={216} description="PESO Referral"></StatCard>
             </div>
+
             <div className="grid grid-cols-6 gap-6">
                 {/* Doughnut Chart */}
                 <Card className="col-span-2">
@@ -349,6 +354,7 @@ function Level3Section() {
                         <Text size="description" weight="bold">
                             Event Timeline
                         </Text>
+
                         {/* Use Map function here */}
                         <div className="flex flex-col gap-3 overflow-y-auto  h-40">
                             <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
