@@ -1,12 +1,19 @@
+// General Imports
 import React from "react";
+import { Outlet } from "react-router";
+
+// Components
 import PageHeader from "../components/PageHeader";
 import Table from "../components/Table";
 import { Text } from "../components/Text";
 import { ColumnDesc, ColumnDescItalic, DateTime, Identifier } from "../components/TableCells";
 import { GeneralInput, SelectInput } from "../components/Input";
+
+// Test Data
 import type { AuditLogRecord } from "../data/auditLogs";
+
+// Hooks
 import { useSearchParamsTable } from "../hooks/table";
-import { Outlet } from "react-router";
 
 // Define the props
 interface SystemAuditLogsProps {

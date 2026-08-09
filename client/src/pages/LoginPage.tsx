@@ -1,13 +1,18 @@
-import Icon from "../components/Icon";
-import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import CasesOutlinedIcon from "@mui/icons-material/CasesOutlined";
-import { Text } from "../components/Text";
+// General Imports
 import { Form, Link } from "react-router";
+import PesoLogo from "../assets/peso.jpg";
+
+// Components
+import Icon from "../components/Icon";
+import { Text } from "../components/Text";
 import { GeneralInput, PasswordInput, SelectInput } from "../components/Input";
 import ChoiceItem from "../components/ChoiceItem";
 import Button from "../components/Button";
-import PesoLogo from "../assets/peso.jpg";
+
+// Icons
+import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import CasesOutlinedIcon from "@mui/icons-material/CasesOutlined";
 
 interface FormProps {
     onSubmit: React.SubmitEventHandler<HTMLFormElement>;

@@ -9,7 +9,7 @@ import { Link } from "react-router";
 import Table from "../Table";
 import { shiftRecords } from "../../data/shiftRecords";
 import { BarChart } from "../BarChart";
-import { samplePieData, samplePieOptions, samplePopupBarData, samplePopupBarOptions } from "../../data/overviewCharts";
+import { samplePieData, samplePieOptions, samplePopupBarData, samplePopupBarOptions } from "../../data/chartsConfigs";
 import { DoughnutChart } from "../DoughnutChart";
 
 function TransactionMiniCard({ label, value }: { label: string; value: number }) {

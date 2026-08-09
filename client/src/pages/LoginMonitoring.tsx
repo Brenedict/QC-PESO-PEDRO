@@ -1,20 +1,31 @@
+// General Imports
+import type { ReactNode } from "react";
+import { Outlet } from "react-router";
+
+// Components
+import { Card } from "../components/Card";
+import Icon from "../components/Icon";
+import { Text } from "../components/Text";
+import Table from "../components/Table";
+import Status from "../components/Status";
+import { ActionButton, ColumnText, DateTime, RoleBadge } from "../components/TableCells";
 import PageHeader from "../components/PageHeader";
+
+// Icons
 import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import LaptopOutlinedIcon from "@mui/icons-material/LaptopOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+
+// Types
 import { type MaterialIcon } from "../types/common";
-import type { ReactNode } from "react";
-import { Card } from "../components/Card";
-import Icon from "../components/Icon";
-import { Text } from "../components/Text";
-import Table from "../components/Table";
+
+// Test Data
 import { type EmployeeSession } from "../data/employeeSessions";
-import Status from "../components/Status";
-import { ActionButton, ColumnText, DateTime, Identifier, RoleBadge } from "../components/TableCells";
+
+// Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { Outlet } from "react-router";
 
 const iconClasses = {
     green: { variant: "green", bgVariant: "green-opaque" },

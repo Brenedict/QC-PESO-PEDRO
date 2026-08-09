@@ -42,10 +42,10 @@ export interface ChartConfigs {
             position?: positionTypes;
             align?: alignTypes;
             labels?: {
-                usePointStyle: boolean; // Makes legend circular
-                pointStyle?: "circle"; // Additional config to ensure circular legend
+                usePointStyle: boolean;
+                pointStyle?: "circle";
                 boxWidth: number;
-                padding?: number; // Space of legend from graph
+                padding?: number;
             };
         };
         title?: {
@@ -56,15 +56,28 @@ export interface ChartConfigs {
         };
     };
     scales?: {
-        // y axis configurations
         y?: {
-            ticks: {
-                stepSize: number; // Interval of y-axis
+            beginAtZero?: boolean; // Added to fix scatter options
+            title?: {
+                // Added to fix scatter options
+                display: boolean;
+                text: string;
+            };
+            ticks?: {
+                stepSize: number;
             };
         };
         x?: {
-            grid: {
-                display: false; // Removes vertical grid lines
+            type?: string; // Added to fix scatter options
+            labels?: string[]; // Added to fix scatter options
+            position?: string; // Added to fix scatter options
+            title?: {
+                // Added to fix scatter options
+                display: boolean;
+                text: string;
+            };
+            grid?: {
+                display: boolean;
             };
         };
     };
