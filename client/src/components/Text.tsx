@@ -77,7 +77,7 @@ export function Text({
 }: HeadingProp) {
     return (
         <div
-            className={`w-full flex items-center ${alignFlexClasses[align]} ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""} ${className}`}
+            className={`flex items-center ${alignFlexClasses[align]} ${svg?.position === "right" ? "flex-row-reverse" : "flex-row"} ${svg ? gapClasses[svg.gap] : ""} ${className}`}
         >
             {svg && <Icon icon={svg.icon} size={svg.size} variant={svg.variant || variant} bg={svg.bg} />}
             <p

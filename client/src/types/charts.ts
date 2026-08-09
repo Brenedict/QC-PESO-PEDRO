@@ -2,7 +2,7 @@ type alignTypes = "start" | "center" | "end";
 type positionTypes = "top" | "bottom" | "left" | "right";
 
 export const ChartColorClasses = {
-    black: "#000",
+    black: "#000000",
     "primary-blue": "#004b87",
     "primary-blue-opaque": "#004b877a",
     red: "#ef4444",
@@ -13,6 +13,10 @@ export const ChartColorClasses = {
     "light-blue-opaque": "#38bdf87a",
     pink: "#f472b6",
     "pink-opaque": "#f472b67a",
+    purple: "#818cf8",
+    "purple-opaque": "#818cf87a",
+    yellow: "#f59e0b",
+    "yellow-opaque": "#f59e0b7a",
 } as const;
 
 export type ChartColorVariant = (typeof ChartColorClasses)[keyof typeof ChartColorClasses];
