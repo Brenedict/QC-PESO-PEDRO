@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
+import controller from "../controllers/transaction-controller";
 
-import controller from "../controllers/TransactionController";
 router.get("/", controller.get);
 router.post("/", controller.post);
 router.patch("/", controller.patch);

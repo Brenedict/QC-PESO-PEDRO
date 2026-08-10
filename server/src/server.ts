@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import env from "./config/env";
-import indexRoutes from "./routes/indexRoute";
+import indexRoutes from "./routes/index-route";
 import handleShutdown from "./middlewares/shutdown";
 import cookieParser from "cookie-parser";
 import "./config/passport";
