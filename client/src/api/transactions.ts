@@ -29,7 +29,7 @@ export async function editTransaction(data: Transaction) {
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to create transaction: ${response.status}`);
+        throw new Error(`Failed to edit transaction: ${response.status}`);
     }
 
     console.log(response.status);
@@ -47,7 +47,7 @@ export async function deleteTransaction(data: Transaction) {
     });
 
     if (!response.ok) {
-        throw new Error(`Failed to create transaction: ${response.status}`);
+        throw new Error(`Failed to delete transaction: ${response.status}`);
     }
 
     console.log(response.status);
