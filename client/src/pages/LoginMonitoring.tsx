@@ -47,20 +47,18 @@ function MonitorCard({ icon, color, description, children }: MonitorCardProps) {
     return (
         <Card className="flex-1">
             <Card.Body>
-                <Icon
-                    variant={iconClasses[color].variant}
-                    size="big"
-                    icon={icon}
-                    align="left"
-                    bg={{ variant: iconClasses[color].bgVariant, padding: "big", type: "normal" }}
-                />
-                <br className="block mb-2" />
-
+                <div className="mb-3">
+                    <Icon
+                        variant={iconClasses[color].variant}
+                        size="big"
+                        icon={icon}
+                        align="left"
+                        bg={{ variant: iconClasses[color].bgVariant, padding: "big", type: "normal" }}
+                    />
+                </div>
                 <Text size="description" weight="normal" align="left" variant="grayish-blue">
                     {description}
                 </Text>
-
-                <br className="block mb-1" />
 
                 <Text size="bigger" weight="bold" align="left" variant="dark-blue">
                     {children}

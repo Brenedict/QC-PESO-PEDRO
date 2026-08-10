@@ -31,7 +31,7 @@ import type { MaterialIcon } from "../types/common";
 
 function StatCard({
     value,
-    subValue = null,
+    subValue,
     description,
     valueVariant = "dark-blue",
     invertOrder = false,
@@ -39,8 +39,8 @@ function StatCard({
     dropShadow = true,
 }: {
     description: string;
-    value: any;
-    subValue?: any;
+    value: string | number;
+    subValue?: string | number;
     valueVariant?: "dark-blue" | "red" | "green";
     invertOrder?: boolean;
     align?: "left" | "center" | "right";
