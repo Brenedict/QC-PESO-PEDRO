@@ -5,7 +5,7 @@
     "main": "server.ts",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "tsx --inspect --watch server.ts"
+        "start": "tsx --inspect --watch ./src/server.ts"
     },
     "keywords": [],
     "author": "",
