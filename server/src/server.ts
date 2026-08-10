@@ -1,18 +1,33 @@
 import express from "express";
-const app = express();
-const port = 3000;
+import { jwtStrategy, passport } from "./config/passport";
+import env from "./config/env";
+import indexRoutes from "./routes/indexRoute";
+import handleShutdown from "./middlewares/shutdown";
 
-// List of routes
-import indexRoutes from "./routes/Index";
-import userRoutes from "./routes/User"; // Temporary route
+// Initializers
+const app = express();
+const port = env.PORT;
+
+// ----------------- SERVER MIDDLEWARES ------------------------------
+
+// Automatically parses body string to a json
+app.use(express.json());
 
 // Form submission request config
 app.use(express.urlencoded({ extended: true }));
 
-// Application Routes
-app.use("/user", userRoutes); // Temporary route (MVC testing)
-app.use("/", indexRoutes);
+// Jwt validator (Passport)
+passport.use(jwtStrategy);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
 });
+
+// --------------------- SERVER ROUTES --------------------------------
+
+app.use("/", indexRoutes);
+
+// --------------------- SERVER EXIT ----------------------------------
+
+process.on("SIGINT", () => handleShutdown(server, "SIGINT"));
+process.on("SIGTERM", () => handleShutdown(server, "SIGTERM"));

@@ -5,7 +5,7 @@
     "main": "server.ts",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "tsx --inspect --watch server.ts"
+        "start": "tsx --inspect --watch --env-file=.env ./src/server.ts"
     },
     "keywords": [],
     "author": "",
@@ -15,6 +15,7 @@
         "@eslint/js": "^10.0.1",
         "@types/express": "^5.0.6",
         "@types/node": "^26.1.2",
+        "@types/passport-jwt": "^4.0.1",
         "@types/pg": "^8.20.4",
         "eslint": "^10.7.0",
         "eslint-plugin-perfectionist": "^5.10.0",
@@ -30,6 +31,9 @@
         "dotenv": "^17.4.2",
         "express": "^5.2.1",
         "jiti": "^2.7.0",
+        "jsonwebtoken": "^9.0.3",
+        "passport": "^0.7.0",
+        "passport-jwt": "^4.0.1",
         "pg": "^8.22.0"
     },
     "allowScripts": {
