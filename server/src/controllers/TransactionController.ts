@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 
 export default {
     get(_req: Request, res: Response) {
@@ -9,5 +9,13 @@ export default {
     post(req: Request, res: Response) {
         console.log(req.body); // For testing: returns sent request body
         res.status(201).json(req.body);
+    },
+
+    patch(req: Request, res: Response) {
+        console.log(req.body); // For testing: returns sent request body
+        res.status(201).json(req.body);
+    },
+    delete(_req: Request, res: Response) {
+        res.status(204).end();
     },
 };

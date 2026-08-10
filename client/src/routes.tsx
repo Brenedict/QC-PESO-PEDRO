@@ -48,7 +48,9 @@ import { employeeSessions } from "./data/employeeSessions";
 import { auditLogData } from "./data/auditLogs";
 import { usersData } from "./data/users";
 import type { TopBarContextValue } from "./context/TopbarContext";
-import { createTransaction } from "./api/transactions";
+
+// API
+import { createTransaction, deleteTransaction, editTransaction } from "./api/transactions";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -86,12 +88,39 @@ const transactionsEditAndDelete = (root: transactionRootPage) => [
     {
         path: ":transactionId/edit",
         element: <PopupViewEditTransaction root={root} />,
-        action: testActionFn(TransactionSchema),
+        action: async ({ request }: ActionFunctionArgs) => {
+            try {
+                const formData = await request.formData();
+
+                const data = TransactionSchema.parse(formData);
+
+                await editTransaction(data);
+
+                return redirect("..");
+            } catch (err) {
+                console.error(err);
+
+                return redirect("..");
+            }
+        },
     },
     {
         path: ":transactionId/delete",
         element: <PopupDeleteTransaction root={root} />,
-        action: testActionFn(TransactionSchema),
+        action: async ({ request }: ActionFunctionArgs) => {
+            try {
+                const formData = await request.formData();
+
+                const data = TransactionSchema.parse(formData);
+                await deleteTransaction(data);
+
+                return redirect("..");
+            } catch (err) {
+                console.error(err);
+
+                return redirect("..");
+            }
+        },
     },
 ];
 
