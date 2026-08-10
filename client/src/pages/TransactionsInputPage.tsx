@@ -30,7 +30,7 @@ interface FormProps {
     onSubmit: React.SubmitEventHandler<HTMLFormElement>;
 }
 
-function FormRow1() {
+export function FormRow1() {
     return (
         <section className="grid grid-cols-5 gap-6">
             <div className="col-span-3 flex gap-6">
@@ -46,7 +46,7 @@ function FormRow1() {
     );
 }
 
-function FormRow2() {
+export function FormRow2() {
     return (
         <section className="flex gap-6">
             <div className="w-1/3">
@@ -89,7 +89,7 @@ function FormRow2() {
     );
 }
 
-function FormRow3() {
+export function FormRow3() {
     return (
         <section className="flex flex-col gap-1">
             <Text size="description" variant="dark-blue" weight="medium">
@@ -116,7 +116,7 @@ function FormRow3() {
     );
 }
 
-function FormRow4() {
+export function FormRow4() {
     return (
         <section>
             <TextAreaInput
