@@ -26,31 +26,23 @@ import { transactions } from "../data/transactions";
 import { useSearchParamsTable } from "../hooks/table";
 import { useNavigateDefault, ROUTES } from "../hooks/reroute";
 
-interface FormProps {
-    onSubmit: React.SubmitEventHandler<HTMLFormElement>;
-}
-
-function FormRow1() {
+export function FormRow1() {
     return (
-        <section className="flex gap-6">
-            <div className="w-2/4">
-                <GeneralInput
-                    name="name"
-                    type="text"
-                    placeholder="Last Name, First Name"
-                    label="Applicant Name"
-                ></GeneralInput>
+        <section className="grid grid-cols-5 gap-6">
+            <div className="col-span-3 flex gap-6">
+                <GeneralInput name="applicantFirstName" type="text" placeholder="First Name" label="First Name" />
+                <GeneralInput name="applicantLastName" type="text" placeholder="Last Name" label="Last Name" />
             </div>
-            <div className="w-2/4 flex gap-6">
-                <GeneralInput name="date" type="date" placeholder="" label="Date"></GeneralInput>
+            <div className="col-span-2 flex gap-6">
+                <GeneralInput name="date" type="date" placeholder="" label="Date" />
 
-                <GeneralInput name="time" type="time" placeholder="" label="Time"></GeneralInput>
+                <GeneralInput name="time" type="time" placeholder="" label="Time" />
             </div>
         </section>
     );
 }
 
-function FormRow2() {
+export function FormRow2() {
     return (
         <section className="flex gap-6">
             <div className="w-1/3">
@@ -68,13 +60,13 @@ function FormRow2() {
             <div className="w-1/3 flex flex-wrap content-start gap-x-6 gap-y-3">
                 <div className="w-full bg">
                     <Text size="description" variant="dark-blue" weight="medium">
-                        Gender
+                        Sex
                     </Text>
                 </div>
-                <ChoiceItem inputVariant="radio" name="gender" value="male" defaultChecked>
+                <ChoiceItem inputVariant="radio" name="applicantSex" value="male" defaultChecked>
                     Male
                 </ChoiceItem>
-                <ChoiceItem inputVariant="radio" name="gender" value="female">
+                <ChoiceItem inputVariant="radio" name="applicantSex" value="female">
                     Female
                 </ChoiceItem>
             </div>
@@ -93,7 +85,7 @@ function FormRow2() {
     );
 }
 
-function FormRow3() {
+export function FormRow3() {
     return (
         <section className="flex flex-col gap-1">
             <Text size="description" variant="dark-blue" weight="medium">
@@ -103,7 +95,7 @@ function FormRow3() {
                 <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker">
                     First Time Job Seeker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="personsWithDisability">
                     Person With Disability (PWD)
                 </ChoiceItem>
                 <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen">
@@ -120,11 +112,11 @@ function FormRow3() {
     );
 }
 
-function FormRow4() {
+export function FormRow4() {
     return (
         <section>
             <TextAreaInput
-                id="remarls"
+                id="remarks"
                 label="Remarks"
                 name="remarks"
                 placeholder="Optional notes regarding the transaction..."
@@ -134,10 +126,10 @@ function FormRow4() {
 }
 
 //  Profile picture, name, role, and change password button
-function TransactionsInputForm({ onSubmit }: FormProps) {
+function TransactionsInputForm() {
     return (
         <Card className="w-full flex flex-col h-fit">
-            <Form onSubmit={onSubmit}>
+            <Form method="post">
                 <Card.Body className="flex flex-col gap-6">
                     <FormRow1 />
                     <FormRow2 />
@@ -250,7 +242,7 @@ function TransactionsLedger() {
     );
 }
 
-function TransactionsInputPagePage({ onSubmit }: FormProps) {
+function TransactionsInputPagePage() {
     return (
         <>
             <PageHeader
@@ -258,7 +250,7 @@ function TransactionsInputPagePage({ onSubmit }: FormProps) {
                 secondaryText="Record new daily transactions and activities."
             ></PageHeader>
             <div className="flex flex-col gap-6">
-                <TransactionsInputForm onSubmit={onSubmit} />
+                <TransactionsInputForm />
                 <TransactionsLedger />
             </div>
 

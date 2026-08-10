@@ -17,6 +17,9 @@ const server = app.listen(port, () => {
 
 // ----------------- SERVER MIDDLEWARES ------------------------------
 
+// Form and Json submission request config
+app.use(express.urlencoded({ extended: true }));
+
 // Enable CORS for all routes and origins
 app.use(
     cors({
@@ -29,9 +32,6 @@ app.use(
 
 // Automatically parses body string to a json
 app.use(express.json());
-
-// Form submission request config
-app.use(express.urlencoded({ extended: true }));
 
 // Middleware logger
 app.use(morgan("combined"));
