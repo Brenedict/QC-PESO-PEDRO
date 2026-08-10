@@ -5,11 +5,13 @@ import env from "./config/env";
 import indexRoutes from "./routes/index-route";
 import handleShutdown from "./middlewares/shutdown";
 import cookieParser from "cookie-parser";
+import apicache from "apicache";
 import "./config/passport";
 
 // Initializers
 const app = express();
 const port = env.PORT;
+const cache = apicache.middleware;
 
 const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
@@ -38,6 +40,9 @@ app.use(morgan("combined"));
 
 // Middleware for cookies
 app.use(cookieParser());
+
+// Cache all routes
+app.use(cache("5 minutes"));
 
 // --------------------- SERVER ROUTES --------------------------------
 
