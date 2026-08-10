@@ -1,11 +1,14 @@
+// Components
 import { Card } from "../components/Card";
 import { Text } from "../components/Text";
 import { ProgressChart } from "../components/ProgressChart";
 import { DoughnutChart } from "../components/DoughnutChart";
-import { samplePieData, samplePieOptions } from "../data/overviewCharts";
+import { samplePieData, samplePieOptions, sampleScatterData, sampleScatterOptions } from "../data/chartsConfigs";
 import { BarChart } from "../components/BarChart";
-import { smapleBarData } from "./Reports";
-import { sampleBarContextOptions } from "../data/overviewCharts";
+import { ScatterChart } from "../components/ScatterChart";
+
+// Test Data
+import { sampleBarContextOptions, sampleReportsBarData } from "../data/chartsConfigs";
 export function ProgressChartGraph() {
     return (
         <Card className="col-span-2">
@@ -46,18 +49,32 @@ export function BarChartGraph() {
                 <Text weight="bold">Transaction Summary Preview</Text>
             </Card.Header>
             <Card.Body>
-                <BarChart options={sampleBarContextOptions} data={smapleBarData} height={"60px"}></BarChart>
+                <BarChart options={sampleBarContextOptions} data={sampleReportsBarData} height={"60px"}></BarChart>
             </Card.Body>
         </Card>
     );
 }
 
-export function ContextAnalysis() {
+export function ScatterChartGraph() {
+    return (
+        <Card className="col-span-2">
+            <Card.Header bordered={false}>
+                <Text weight="bold">Transaction Summary Preview</Text>
+            </Card.Header>
+            <Card.Body>
+                <ScatterChart options={sampleScatterOptions} data={sampleScatterData}></ScatterChart>
+            </Card.Body>
+        </Card>
+    );
+}
+
+export function ContextAnalytics() {
     return (
         <section className="grid grid-cols-3">
             <ProgressChartGraph />
             <DoughnutChartGraph />
             <BarChartGraph />
+            <ScatterChartGraph />
         </section>
     );
 }

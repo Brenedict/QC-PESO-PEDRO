@@ -1,4 +1,8 @@
+// General Imports
 import React from "react";
+import { Outlet } from "react-router";
+
+// Components
 import PageHeader from "../components/PageHeader";
 import { Card } from "../components/Card";
 import { Text } from "../components/Text";
@@ -6,13 +10,17 @@ import Table from "../components/Table";
 import Profile from "../components/Profile";
 import Status from "../components/Status";
 import Button from "../components/Button";
+import { ActionButton, DateTime } from "../components/TableCells";
+
+// Sample Data
 import type { ShiftRecord } from "../data/shiftRecords";
+
+// Hooks
+import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import { useSearchParamsTable } from "../hooks/table";
 
 // Icon
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import { ActionButton, DateTime } from "../components/TableCells";
-import { useSearchParamsTable } from "../hooks/table";
-import { Outlet } from "react-router";
 
 // Define the props
 interface EndShiftVerificationProps {
@@ -53,6 +61,7 @@ function EmployeeCell({ name }: { name: string }) {
 // Main Page
 function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
     const { page, handleSetPage } = useSearchParamsTable();
+    const navigate = useNavigateDefault();
 
     const handleFilterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -60,11 +69,11 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
     };
 
     const handleReview = (id: string) => () => {
-        console.log("Reviewing shift record:", id);
+        navigate(ROUTES.endshift.review(id));
     };
 
     return (
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full relative">
             <PageHeader
                 primaryText="End Shift Verification"
                 secondaryText="Review, verify, and approve daily shift summaries."

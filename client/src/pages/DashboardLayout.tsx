@@ -1,9 +1,13 @@
+// General Imports
 import { Outlet, Route, Routes } from "react-router";
+import "../index.css";
+
+// Components
 import { NavBar } from "../components/Navbar";
 import TopBar from "../components/Topbar";
-import type { TopBarContextValue } from "../context/TopbarContext";
 
-import "../index.css";
+// Context
+import type { TopBarContextValue } from "../context/TopbarContext";
 
 function DashboardLayout(props: TopBarContextValue) {
     return (

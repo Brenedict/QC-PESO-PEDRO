@@ -1,60 +1,24 @@
+// General Imports
 import { Outlet } from "react-router";
+import type { MouseEventHandler, ReactNode } from "react";
+
+// Components
 import Button from "../components/Button";
 import PageHeader from "../components/PageHeader";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { Card } from "../components/Card";
 import { BarChart } from "../components/BarChart";
 import Icon from "../components/Icon";
-import type { MouseEventHandler, ReactNode } from "react";
 import { Text } from "../components/Text";
+
+// Icons
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+
+// Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { ChartColorClasses } from "../types/charts";
 
-export const smapleBarData = {
-    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    datasets: [
-        {
-            label: "Total Transactions",
-            data: [90, 130, 110, 70, 40],
-            backgroundColor: ChartColorClasses["primary-blue"],
-        },
-    ],
-};
-
-export const sampleBarptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            display: false,
-            position: "bottom",
-            align: "center",
-            labels: {
-                usePointStyle: true,
-                pointStyle: "circle",
-                boxWidth: 10,
-            },
-        },
-        title: {
-            display: false,
-            text: "Chart Example",
-            position: "top",
-            align: "center",
-        },
-    },
-    scales: {
-        y: {
-            ticks: {
-                stepSize: 45,
-            },
-        },
-        x: {
-            grid: {
-                display: false,
-            },
-        },
-    },
-} as const;
+// Data
+import { sampleReportsBarData, sampleReportsBarOptions } from "../data/chartsConfigs";
 
 function ReportCard({ children, onClick }: { children: ReactNode; onClick?: MouseEventHandler<HTMLButtonElement> }) {
     return (
@@ -136,7 +100,11 @@ function Reports() {
                         <Text weight="bold">Transaction Summary Preview</Text>
                     </Card.Header>
                     <Card.Body>
-                        <BarChart options={sampleBarptions} data={smapleBarData} height={"80px"}></BarChart>
+                        <BarChart
+                            options={sampleReportsBarOptions}
+                            data={sampleReportsBarData}
+                            height={"80px"}
+                        ></BarChart>
                     </Card.Body>
                 </Card>
 

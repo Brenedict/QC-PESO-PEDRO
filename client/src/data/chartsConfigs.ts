@@ -1,5 +1,7 @@
 import { ChartColorClasses } from "../types/charts";
 
+// === SAMPLE BAR ARGS ===
+
 export const sampleBarContextOptions = {
     responsive: true,
     plugins: {
@@ -79,6 +81,53 @@ export const samplePopupBarData = {
     ],
 };
 
+export const sampleReportsBarData = {
+    labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    datasets: [
+        {
+            label: "Total Transactions",
+            data: [90, 130, 110, 70, 40],
+            backgroundColor: ChartColorClasses["primary-blue"],
+        },
+    ],
+};
+
+export const sampleReportsBarOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+            position: "bottom",
+            align: "center",
+            labels: {
+                usePointStyle: true,
+                pointStyle: "circle",
+                boxWidth: 10,
+            },
+        },
+        title: {
+            display: false,
+            text: "Chart Example",
+            position: "top",
+            align: "center",
+        },
+    },
+    scales: {
+        y: {
+            ticks: {
+                stepSize: 45,
+            },
+        },
+        x: {
+            grid: {
+                display: false,
+            },
+        },
+    },
+} as const;
+
+// === SAMPLE LINE ARGS ===
+
 // This is the most basic format for the `data` argument of the chart
 export const sampleLineData = {
     labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
@@ -141,6 +190,8 @@ export const sampleLineOptions = {
     },
 } as const;
 
+// === SAMPLE PIE ARGS ===
+
 export const samplePieData = {
     labels: ["Female", "Male"],
     datasets: [
@@ -175,3 +226,51 @@ export const samplePieOptions = {
         },
     },
 } as const;
+
+// === SAMPLE SCATTER ARGS ===
+
+export const sampleScatterOptions = {
+    responsive: true,
+    scales: {
+        x: {
+            type: "category" as const,
+            labels: ["Normal", "Slow Internet", "Heavy Rain", "System Downtime"], // <-- 4. Define acceptable string options
+            position: "bottom" as const,
+            title: {
+                display: true,
+                text: "X Axis Value",
+            },
+        },
+        y: {
+            title: {
+                display: true,
+                text: "Y Axis Value",
+            },
+        },
+    },
+    plugins: {
+        legend: {
+            position: "top" as const,
+            display: false,
+        },
+    },
+};
+
+export const sampleScatterData = {
+    datasets: [
+        {
+            label: "Dataset A",
+            data: [
+                { x: "Normal", y: 120 },
+                { x: "Slow Internet", y: 48 },
+                { x: "Heavy Rain", y: 94 },
+                { x: "System Downtime", y: 12 },
+                { x: "Troublesome Applicants", y: 67 },
+                { x: "Unresponsive Staff", y: 37 },
+                { x: "Sickness", y: 2 },
+                { x: "Other", y: 100 },
+            ],
+            backgroundColor: ChartColorClasses["pink"],
+        },
+    ],
+};

@@ -1,13 +1,22 @@
+// General Imports
+import { Outlet } from "react-router";
+
+// Components
 import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import type { Transaction } from "../data/transactions";
 import Table from "../components/Table";
 import Status from "../components/Status";
 import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
-import { Outlet } from "react-router";
+
+// Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
+
+// Test Data
+import type { Transaction } from "../data/transactions";
+
+// Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import { useSearchParamsTable } from "../hooks/table";
 

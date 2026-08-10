@@ -18,21 +18,15 @@ import TransactionsInputPage from "./pages/TransactionsInputPage";
 import TransactionHistory from "./pages/TransactionHistory";
 import EndShiftVerification from "./pages/EndShiftVerification";
 import LoginMonitoring from "./pages/LoginMonitoring";
+import { ContextAnalytics } from "./pages/ContextAnalytics";
+import SystemAuditLogs from "./pages/SystemAuditLogs";
+import UserManagement from "./pages/UserManagement";
+import Reports from "./pages/Reports";
 
 // Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
+import { PopupEndShiftReview } from "./components/popups/EndShiftPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "./components/popups/ShiftPopups";
-
-// Test Data
-import { transactions } from "./data/transactions";
-import { shiftRecords } from "./data/shiftRecords";
-import { employeeSessions } from "./data/employeeSessions";
-import SystemAuditLogs from "./pages/SystemAuditLogs";
-import { auditLogData } from "./data/auditLogs";
-import UserManagement from "./pages/UserManagement";
-import { usersData } from "./data/users";
-import type { TopBarContextValue } from "./context/TopbarContext";
-import Reports from "./pages/Reports";
 import {
     PopupAddUser,
     PopupDisableUser,
@@ -43,7 +37,14 @@ import {
 import { PopupTransactionDetails } from "./components/popups/DashboardPopups";
 import { PopupReportPreview } from "./components/popups/ReportPopups";
 import { PopupViewHistory } from "./components/popups/MonitoringPopups";
-import { ContextAnalysis } from "./pages/ContextAnalysis";
+
+// Test Data
+import { transactions } from "./data/transactions";
+import { shiftRecords } from "./data/shiftRecords";
+import { employeeSessions } from "./data/employeeSessions";
+import { auditLogData } from "./data/auditLogs";
+import { usersData } from "./data/users";
+import type { TopBarContextValue } from "./context/TopbarContext";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -243,7 +244,16 @@ const routes: RouteObject[] = [
             {
                 path: "end-shift",
                 element: <EndShiftVerification shiftData={shiftRecords} />,
-                children: [...shiftPopups(ROUTES.endshift.root)],
+                children: [
+                    {
+                        path: ":shiftId/review",
+                        element: <PopupEndShiftReview />,
+                        action: async () => {
+                            return redirect(ROUTES.endshift.root);
+                        },
+                    },
+                    ...shiftPopups(ROUTES.endshift.root),
+                ],
             },
             {
                 path: "history",
@@ -338,8 +348,8 @@ const routes: RouteObject[] = [
                 ],
             },
             {
-                path: "context-analysis",
-                element: <ContextAnalysis />,
+                path: "context-analytics",
+                element: <ContextAnalytics />,
                 children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
         ],
