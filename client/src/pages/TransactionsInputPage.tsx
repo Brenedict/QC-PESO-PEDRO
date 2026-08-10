@@ -26,10 +26,6 @@ import { transactions } from "../data/transactions";
 import { useSearchParamsTable } from "../hooks/table";
 import { useNavigateDefault, ROUTES } from "../hooks/reroute";
 
-interface FormProps {
-    onSubmit: React.SubmitEventHandler<HTMLFormElement>;
-}
-
 export function FormRow1() {
     return (
         <section className="grid grid-cols-5 gap-6">
@@ -99,7 +95,7 @@ export function FormRow3() {
                 <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker">
                     First Time Job Seeker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="personWithDisability">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name="personsWithDisability">
                     Person With Disability (PWD)
                 </ChoiceItem>
                 <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen">
@@ -120,7 +116,7 @@ export function FormRow4() {
     return (
         <section>
             <TextAreaInput
-                id="remarls"
+                id="remarks"
                 label="Remarks"
                 name="remarks"
                 placeholder="Optional notes regarding the transaction..."
@@ -130,7 +126,7 @@ export function FormRow4() {
 }
 
 //  Profile picture, name, role, and change password button
-function TransactionsInputForm({ onSubmit }: FormProps) {
+function TransactionsInputForm() {
     return (
         <Card className="w-full flex flex-col h-fit">
             <Form method="post">
@@ -246,7 +242,7 @@ function TransactionsLedger() {
     );
 }
 
-function TransactionsInputPagePage({ onSubmit }: FormProps) {
+function TransactionsInputPagePage() {
     return (
         <>
             <PageHeader
@@ -254,7 +250,7 @@ function TransactionsInputPagePage({ onSubmit }: FormProps) {
                 secondaryText="Record new daily transactions and activities."
             ></PageHeader>
             <div className="flex flex-col gap-6">
-                <TransactionsInputForm onSubmit={onSubmit} />
+                <TransactionsInputForm />
                 <TransactionsLedger />
             </div>
 

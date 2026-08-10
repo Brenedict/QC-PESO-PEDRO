@@ -308,7 +308,7 @@ const routes: RouteObject[] = [
             },
             {
                 path: "applicant-form",
-                element: <TransactionsInputPage onSubmit={() => {}} />,
+                element: <TransactionsInputPage />,
                 children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
                 action: async ({ request }: ActionFunctionArgs) => {
                     try {
