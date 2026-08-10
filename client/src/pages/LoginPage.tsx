@@ -14,10 +14,6 @@ import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import CasesOutlinedIcon from "@mui/icons-material/CasesOutlined";
 
-interface FormProps {
-    onSubmit: React.SubmitEventHandler<HTMLFormElement>;
-}
-
 function HeroIcons({ className }: React.HTMLAttributes<HTMLDivElement>) {
     return (
         <div className={`flex gap-6 justify-center items-center ${className}`}>
@@ -83,9 +79,9 @@ function MainHeader({ className }: React.HTMLAttributes<HTMLDivElement>) {
     );
 }
 
-function LoginForm({ onSubmit, className }: FormProps & React.HTMLAttributes<HTMLFormElement>) {
+function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
     return (
-        <Form method="POST" onSubmit={onSubmit} className={className}>
+        <Form method="POST" className={className}>
             <GeneralInput
                 type="email"
                 name="email"
@@ -130,11 +126,11 @@ function LoginForm({ onSubmit, className }: FormProps & React.HTMLAttributes<HTM
     );
 }
 
-function RightSection({ onSubmit }: FormProps) {
+function RightSection() {
     return (
         <section className="flex flex-col px-20 pt-6.5 pb-20 order-1 md:order-2 md:pb-6.5  md:px-14 lg:px-20 xl:px-38  2xl:px-60 2xl:pt-20 w-full md:w-1/2 relative min-h-125 md:min-h-0">
             <MainHeader className="mb-8" />
-            <LoginForm onSubmit={onSubmit} className="mb-6" />
+            <LoginForm className="mb-6" />
             <span className="mt-auto">
                 <Text size="small" variant="grayish-blue" weight="normal" align="center">
                     v2.0.1 • QC PESO Public Employment Division
@@ -144,11 +140,11 @@ function RightSection({ onSubmit }: FormProps) {
     );
 }
 
-function LoginPage({ onSubmit }: FormProps) {
+function LoginPage() {
     return (
         <main className="flex flex-col md:flex-row min-h-screen ">
             <LeftSection className="order-2 md:order-1" />
-            <RightSection onSubmit={onSubmit} />
+            <RightSection />
         </main>
     );
 }

@@ -51,6 +51,9 @@ import type { TopBarContextValue } from "./context/TopbarContext";
 
 // API
 import { createTransaction, deleteTransaction, editTransaction } from "./api/transactions";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./pages/ProtectedRoute";
+import { checkAuthService, getApiUrl, setAccessToken } from "./api/authService";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -155,234 +158,275 @@ const shiftPopups = (root: string) => [
 const routes: RouteObject[] = [
     {
         path: "/auth",
-        element: <LoginPage onSubmit={() => {}} />,
-    },
+        element: <LoginPage />,
+        action: async ({ request }) => {
+            const formData = await request.formData();
+            const user = Object.fromEntries(formData);
 
+            const res = await fetch(getApiUrl("/auth/login"), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({ email: user.email, password: user.password }),
+            });
+
+            if (res.status === 200) {
+                const data = await res.json();
+
+                setAccessToken(data.accessToken);
+                await checkAuthService(); // Update state and context
+                return redirect("/");
+            }
+            alert("Invalid credentials");
+        },
+        loader: async () => {
+            const email = await checkAuthService();
+
+            if (email) {
+                return redirect("/");
+            }
+        },
+    },
     {
         path: "/",
-        element: <DashboardLayout {...userContext} />,
+        element: (
+            <AuthProvider>
+                <ProtectedRoute />
+            </AuthProvider>
+        ),
         children: [
             {
                 path: "",
-                element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
+                element: <DashboardLayout {...userContext} />,
                 children: [
                     {
-                        path: "total",
-                        element: (
-                            <PopupTransactionDetails
-                                label="Total Transactions"
-                                today={48}
-                                thisWeek={215}
-                                thisMonth={840}
-                                history={shiftRecords}
-                            />
-                        ),
+                        path: "",
+                        element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
+                        children: [
+                            {
+                                path: "total",
+                                element: (
+                                    <PopupTransactionDetails
+                                        label="Total Transactions"
+                                        today={48}
+                                        thisWeek={215}
+                                        thisMonth={840}
+                                        history={shiftRecords}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "walk-in",
+                                element: (
+                                    <PopupTransactionDetails
+                                        label="Walk-in Transactions"
+                                        today={48}
+                                        thisWeek={215}
+                                        thisMonth={840}
+                                        history={shiftRecords}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "online",
+                                element: (
+                                    <PopupTransactionDetails
+                                        label="Online Referrals"
+                                        today={48}
+                                        thisWeek={215}
+                                        thisMonth={840}
+                                        history={shiftRecords}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "in-house",
+                                element: (
+                                    <PopupTransactionDetails
+                                        label="In-house Referrals"
+                                        today={48}
+                                        thisWeek={215}
+                                        thisMonth={840}
+                                        history={shiftRecords}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "work-immersion",
+                                element: (
+                                    <PopupTransactionDetails
+                                        label="Work Immersion"
+                                        today={48}
+                                        thisWeek={215}
+                                        thisMonth={840}
+                                        history={shiftRecords}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "internship",
+                                element: (
+                                    <PopupTransactionDetails
+                                        label="Internship Referrals"
+                                        today={48}
+                                        thisWeek={215}
+                                        thisMonth={840}
+                                        history={shiftRecords}
+                                    />
+                                ),
+                            },
+                            {
+                                path: "inquiries",
+                                element: (
+                                    <PopupTransactionDetails
+                                        label="Other Inquiries"
+                                        today={48}
+                                        thisWeek={215}
+                                        thisMonth={840}
+                                        history={shiftRecords}
+                                    />
+                                ),
+                            },
+                            ...shiftPopups(ROUTES.dashboard.root),
+                        ],
                     },
                     {
-                        path: "walk-in",
+                        path: "profile",
                         element: (
-                            <PopupTransactionDetails
-                                label="Walk-in Transactions"
-                                today={48}
-                                thisWeek={215}
-                                thisMonth={840}
-                                history={shiftRecords}
-                            />
+                            <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />
                         ),
+                        children: [...shiftPopups(ROUTES.profile.root)],
                     },
                     {
-                        path: "online",
-                        element: (
-                            <PopupTransactionDetails
-                                label="Online Referrals"
-                                today={48}
-                                thisWeek={215}
-                                thisMonth={840}
-                                history={shiftRecords}
-                            />
-                        ),
+                        path: "end-shift",
+                        element: <EndShiftVerification shiftData={shiftRecords} />,
+                        children: [
+                            {
+                                path: ":shiftId/review",
+                                element: <PopupEndShiftReview />,
+                                action: async () => {
+                                    return redirect(ROUTES.endshift.root);
+                                },
+                            },
+                            ...shiftPopups(ROUTES.endshift.root),
+                        ],
                     },
                     {
-                        path: "in-house",
+                        path: "history",
                         element: (
-                            <PopupTransactionDetails
-                                label="In-house Referrals"
-                                today={48}
-                                thisWeek={215}
-                                thisMonth={840}
-                                history={shiftRecords}
+                            <TransactionHistory
+                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                                    e.preventDefault();
+                                }}
+                                transactions={transactions}
                             />
                         ),
+                        children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
                     },
                     {
-                        path: "work-immersion",
+                        path: "monitoring",
                         element: (
-                            <PopupTransactionDetails
-                                label="Work Immersion"
-                                today={48}
-                                thisWeek={215}
-                                thisMonth={840}
-                                history={shiftRecords}
+                            <LoginMonitoring
+                                currentlyLogged={12}
+                                totalLogins={18}
+                                totalLogouts={6}
+                                sessionDuration={"8h 12m"}
+                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
+                                    e.preventDefault();
+                                }}
+                                employeeSessions={employeeSessions}
                             />
                         ),
+                        children: [
+                            {
+                                path: ":shiftId/view-history",
+                                element: <PopupViewHistory />,
+                            },
+                            ...shiftPopups(ROUTES.monitoring.root),
+                        ],
                     },
                     {
-                        path: "internship",
-                        element: (
-                            <PopupTransactionDetails
-                                label="Internship Referrals"
-                                today={48}
-                                thisWeek={215}
-                                thisMonth={840}
-                                history={shiftRecords}
-                            />
-                        ),
-                    },
-                    {
-                        path: "inquiries",
-                        element: (
-                            <PopupTransactionDetails
-                                label="Other Inquiries"
-                                today={48}
-                                thisWeek={215}
-                                thisMonth={840}
-                                history={shiftRecords}
-                            />
-                        ),
-                    },
-                    ...shiftPopups(ROUTES.dashboard.root),
-                ],
-            },
-            {
-                path: "profile",
-                element: <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />,
-                children: [...shiftPopups(ROUTES.profile.root)],
-            },
-            {
-                path: "end-shift",
-                element: <EndShiftVerification shiftData={shiftRecords} />,
-                children: [
-                    {
-                        path: ":shiftId/review",
-                        element: <PopupEndShiftReview />,
-                        action: async () => {
-                            return redirect(ROUTES.endshift.root);
+                        path: "applicant-form",
+                        element: <TransactionsInputPage />,
+                        children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
+                        action: async ({ request }: ActionFunctionArgs) => {
+                            try {
+                                const formData = await request.formData();
+
+                                const data = TransactionSchema.parse(formData);
+
+                                await createTransaction(data);
+
+                                return redirect(ROUTES.applicantForm.root);
+                            } catch (err) {
+                                console.error(err);
+
+                                return redirect("..");
+                            }
                         },
                     },
-                    ...shiftPopups(ROUTES.endshift.root),
+                    {
+                        path: "audit-logs",
+                        element: <SystemAuditLogs logsData={auditLogData} />,
+                        children: [...shiftPopups(ROUTES.auditLogs.root)],
+                    },
+                    {
+                        path: "user-management",
+                        element: <UserManagement users={usersData} />,
+                        children: [
+                            {
+                                path: "create",
+                                element: <PopupAddUser />,
+                                action: testActionFn(UserSchema),
+                            },
+                            {
+                                path: ":userId/edit",
+                                element: <PopupEditUser />,
+                                action: testActionFn(UserSchema),
+                            },
+                            {
+                                path: ":userId/disable",
+                                element: <PopupDisableUser />,
+                                action: testActionFn(UserSchema),
+                            },
+                            {
+                                path: ":userId/promote",
+                                element: <PopupUserPriveleges privilegeType="promote" />,
+                                action: testActionFn(UserSchema),
+                            },
+                            {
+                                path: ":userId/demote",
+                                element: <PopupUserPriveleges privilegeType="demote" />,
+                                action: testActionFn(UserSchema),
+                            },
+                            {
+                                path: ":userId/reset",
+                                element: <PopupResetUser />,
+                                action: testActionFn(UserSchema),
+                            },
+                            ...shiftPopups(ROUTES.userManagement.root),
+                        ],
+                    },
+                    {
+                        path: "reports",
+                        element: <Reports />,
+                        children: [
+                            { path: "daily", element: <PopupReportPreview type={"daily"} /> },
+                            { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
+                            { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
+                            { path: "overall", element: <PopupReportPreview type={"overall"} /> },
+                            ...shiftPopups(ROUTES.reports.root),
+                        ],
+                    },
+                    {
+                        path: "context-analytics",
+                        element: <ContextAnalytics />,
+                        children: [...shiftPopups(ROUTES.contextAnalysis.root)],
+                    },
                 ],
-            },
-            {
-                path: "history",
-                element: (
-                    <TransactionHistory
-                        handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                            e.preventDefault();
-                        }}
-                        transactions={transactions}
-                    />
-                ),
-                children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
-            },
-            {
-                path: "monitoring",
-                element: (
-                    <LoginMonitoring
-                        currentlyLogged={12}
-                        totalLogins={18}
-                        totalLogouts={6}
-                        sessionDuration={"8h 12m"}
-                        handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                            e.preventDefault();
-                        }}
-                        employeeSessions={employeeSessions}
-                    />
-                ),
-                children: [
-                    {
-                        path: ":shiftId/view-history",
-                        element: <PopupViewHistory />,
-                    },
-                    ...shiftPopups(ROUTES.monitoring.root),
-                ],
-            },
-            {
-                path: "applicant-form",
-                element: <TransactionsInputPage />,
-                children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
-                action: async ({ request }: ActionFunctionArgs) => {
-                    try {
-                        const formData = await request.formData();
-
-                        const data = TransactionSchema.parse(formData);
-
-                        await createTransaction(data);
-
-                        return redirect(ROUTES.applicantForm.root);
-                    } catch (err) {
-                        console.error(err);
-
-                        return redirect("..");
-                    }
-                },
-            },
-            {
-                path: "audit-logs",
-                element: <SystemAuditLogs logsData={auditLogData} />,
-                children: [...shiftPopups(ROUTES.auditLogs.root)],
-            },
-            {
-                path: "user-management",
-                element: <UserManagement users={usersData} />,
-                children: [
-                    {
-                        path: "create",
-                        element: <PopupAddUser />,
-                        action: testActionFn(UserSchema),
-                    },
-                    {
-                        path: ":userId/edit",
-                        element: <PopupEditUser />,
-                        action: testActionFn(UserSchema),
-                    },
-                    {
-                        path: ":userId/disable",
-                        element: <PopupDisableUser />,
-                        action: testActionFn(UserSchema),
-                    },
-                    {
-                        path: ":userId/promote",
-                        element: <PopupUserPriveleges privilegeType="promote" />,
-                        action: testActionFn(UserSchema),
-                    },
-                    {
-                        path: ":userId/demote",
-                        element: <PopupUserPriveleges privilegeType="demote" />,
-                        action: testActionFn(UserSchema),
-                    },
-                    {
-                        path: ":userId/reset",
-                        element: <PopupResetUser />,
-                        action: testActionFn(UserSchema),
-                    },
-                    ...shiftPopups(ROUTES.userManagement.root),
-                ],
-            },
-            {
-                path: "reports",
-                element: <Reports />,
-                children: [
-                    { path: "daily", element: <PopupReportPreview type={"daily"} /> },
-                    { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
-                    { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
-                    { path: "overall", element: <PopupReportPreview type={"overall"} /> },
-                    ...shiftPopups(ROUTES.reports.root),
-                ],
-            },
-            {
-                path: "context-analytics",
-                element: <ContextAnalytics />,
-                children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
         ],
     },

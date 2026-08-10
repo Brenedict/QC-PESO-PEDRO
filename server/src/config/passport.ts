@@ -39,7 +39,7 @@ const ExtractJwt = passportJwt.ExtractJwt;
 // Verify function for JWT
 const verifyCallback: passportJwt.VerifyCallback = async (jwtPayload, done) => {
     try {
-        const user = await UserModel.getById(jwtPayload.id);
+        const user = await UserModel.getById(jwtPayload.sub);
 
         if (!user) {
             return done(null, false);

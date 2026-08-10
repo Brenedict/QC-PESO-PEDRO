@@ -62,8 +62,9 @@ export default {
 
     protectedGet: [
         jwtAccessAuth,
-        (_req: Request, res: Response) => {
-            return res.json({ message: "Authentication passed" });
+        (req: Request, res: Response) => {
+            const user = req.user as User;
+            return res.json({ message: "Authentication passed", email: user.email });
         },
     ],
 };
