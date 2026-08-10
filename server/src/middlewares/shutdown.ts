@@ -16,11 +16,11 @@ function handleShutdown(server: Server<typeof IncomingMessage, typeof ServerResp
         process.exit(0);
     });
 
-    // Forced exit fallback if cleanup hangs longer than 30 seconds
+    // Forced exit fallback if cleanup hangs longer than 10 seconds
     setTimeout(() => {
         console.error("Forced shutdown due to timeout.");
         process.exit(1);
-    }, 30000);
+    }, 10000);
 }
 
 export default handleShutdown;

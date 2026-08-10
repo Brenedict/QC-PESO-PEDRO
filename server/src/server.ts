@@ -1,19 +1,31 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import { jwtStrategy, passport } from "./config/passport";
 import env from "./config/env";
 import indexRoutes from "./routes/indexRoute";
 import handleShutdown from "./middlewares/shutdown";
+import cookieParser from "cookie-parser";
+import "./config/passport";
 
 // Initializers
 const app = express();
 const port = env.PORT;
 
+const server = app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
+});
+
 // ----------------- SERVER MIDDLEWARES ------------------------------
 
 // Enable CORS for all routes and origins
-app.use(cors());
+app.use(
+    cors({
+        origin: env.FRONTEND_URL,
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
 
 // Automatically parses body string to a json
 app.use(express.json());
@@ -21,19 +33,15 @@ app.use(express.json());
 // Form submission request config
 app.use(express.urlencoded({ extended: true }));
 
-// Jwt validator (Passport)
-passport.use(jwtStrategy);
-
 // Middleware logger
 app.use(morgan("combined"));
 
-const server = app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
-});
+// Middleware for cookies
+app.use(cookieParser());
 
 // --------------------- SERVER ROUTES --------------------------------
 
-app.use("/", indexRoutes);
+app.use("/api/v1", indexRoutes);
 
 // --------------------- SERVER EXIT ----------------------------------
 
