@@ -8,18 +8,20 @@ const port = 3000;
 import indexRoutes from "./routes/Index";
 import userRoutes from "./routes/User"; // Temporary route
 
+// Form and Json submission request config
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 // Enable CORS for all routes and origins
 app.use(cors());
-
-// Form submission request config
-app.use(express.urlencoded({ extended: true }));
 
 // Middleware logger
 app.use(morgan("combined"));
 
 // Application Routes
-app.use("/user", userRoutes); // Temporary route (MVC testing)
-app.use("/", indexRoutes);
+app.use("/api/user", userRoutes); // Temporary route (MVC testing)
+app.use("/api/transaction", transactionRoutes);
+app.use("/api", indexRoutes);
 
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
