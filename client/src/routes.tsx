@@ -9,6 +9,9 @@ import { decode } from "./utils/hashids";
 // Hooks
 import { ROUTES, useNavigateDefault, type transactionRootPage } from "./hooks/reroute";
 
+// Validators
+import { TransactionSchema } from "./validators/transactions";
+
 // Pages
 import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./pages/DashboardLayout";
@@ -45,6 +48,7 @@ import { employeeSessions } from "./data/employeeSessions";
 import { auditLogData } from "./data/auditLogs";
 import { usersData } from "./data/users";
 import type { TopBarContextValue } from "./context/TopbarContext";
+import { createTransaction } from "./api/transactions";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 const userContext: TopBarContextValue = {
@@ -55,22 +59,6 @@ const userContext: TopBarContextValue = {
     onSearchChange: () => {},
     onNotifClick: () => {},
 };
-
-const TransactionSchema = zfd.formData({
-    id: zfd.text(z.string().optional().transform(decode)),
-    name: zfd.text(z.string().optional()),
-    date: zfd.text(z.string().optional()),
-    time: zfd.text(z.string().optional()),
-    transactionType: zfd.text(z.string().optional()),
-    gender: zfd.text(z.string().optional()),
-    transactionOutcome: zfd.text(z.string().optional()),
-    firstTimeJobSeeker: zfd.checkbox().default(false),
-    personsWithDisability: zfd.checkbox().default(false),
-    seniorCitizen: zfd.checkbox().default(false),
-    youngWorker: zfd.checkbox().default(false),
-    student: zfd.checkbox().default(false),
-    remarks: zfd.text(z.string().optional()),
-});
 
 const UserSchema = zfd.formData({
     id: zfd.text(z.string().optional().transform(decode)),
@@ -293,6 +281,21 @@ const routes: RouteObject[] = [
                 path: "applicant-form",
                 element: <TransactionsInputPage onSubmit={() => {}} />,
                 children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
+                action: async ({ request }: ActionFunctionArgs) => {
+                    try {
+                        const formData = await request.formData();
+
+                        const data = TransactionSchema.parse(formData);
+
+                        await createTransaction(data);
+
+                        return redirect(ROUTES.applicantForm.root);
+                    } catch (err) {
+                        console.error(err);
+
+                        return redirect("..");
+                    }
+                },
             },
             {
                 path: "audit-logs",

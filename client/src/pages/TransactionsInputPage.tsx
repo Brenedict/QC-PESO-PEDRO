@@ -32,19 +32,15 @@ interface FormProps {
 
 function FormRow1() {
     return (
-        <section className="flex gap-6">
-            <div className="w-2/4">
-                <GeneralInput
-                    name="name"
-                    type="text"
-                    placeholder="Last Name, First Name"
-                    label="Applicant Name"
-                ></GeneralInput>
+        <section className="grid grid-cols-5 gap-6">
+            <div className="col-span-3 flex gap-6">
+                <GeneralInput name="applicantFirstName" type="text" placeholder="First Name" label="First Name" />
+                <GeneralInput name="applicantLastName" type="text" placeholder="Last Name" label="Last Name" />
             </div>
-            <div className="w-2/4 flex gap-6">
-                <GeneralInput name="date" type="date" placeholder="" label="Date"></GeneralInput>
+            <div className="col-span-2 flex gap-6">
+                <GeneralInput name="date" type="date" placeholder="" label="Date" />
 
-                <GeneralInput name="time" type="time" placeholder="" label="Time"></GeneralInput>
+                <GeneralInput name="time" type="time" placeholder="" label="Time" />
             </div>
         </section>
     );
@@ -68,13 +64,13 @@ function FormRow2() {
             <div className="w-1/3 flex flex-wrap content-start gap-x-6 gap-y-3">
                 <div className="w-full bg">
                     <Text size="description" variant="dark-blue" weight="medium">
-                        Gender
+                        Sex
                     </Text>
                 </div>
-                <ChoiceItem inputVariant="radio" name="gender" value="male" defaultChecked>
+                <ChoiceItem inputVariant="radio" name="applicantSex" value="male" defaultChecked>
                     Male
                 </ChoiceItem>
-                <ChoiceItem inputVariant="radio" name="gender" value="female">
+                <ChoiceItem inputVariant="radio" name="applicantSex" value="female">
                     Female
                 </ChoiceItem>
             </div>
@@ -137,7 +133,7 @@ function FormRow4() {
 function TransactionsInputForm({ onSubmit }: FormProps) {
     return (
         <Card className="w-full flex flex-col h-fit">
-            <Form onSubmit={onSubmit}>
+            <Form method="post">
                 <Card.Body className="flex flex-col gap-6">
                     <FormRow1 />
                     <FormRow2 />
