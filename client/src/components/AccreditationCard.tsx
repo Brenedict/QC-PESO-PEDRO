@@ -9,6 +9,7 @@ interface AccreditationCardProps {
     renewalCount: number;
     onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
+
 export function AccreditationCard({ title, total, newCount, renewalCount, onClick }: AccreditationCardProps) {
     return (
         <Card className="w-full" onClick={onClick}>
