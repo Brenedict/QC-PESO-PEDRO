@@ -7,7 +7,6 @@ const port = 3000;
 // List of routes
 import indexRoutes from "./routes/Index";
 import userRoutes from "./routes/User"; // Temporary route
-import transactionRoutes from "./routes/Transaction";
 
 // Enable CORS for all routes and origins
 app.use(cors());
