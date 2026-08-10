@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "LogAction" AS ENUM ('TRANSACTION_CREATE', 'TRANSACTION_EDIT', 'TRANSACTION_DELETE', 'SUBMIT_ESS', 'TAG_ESS_REJECT', 'TAG_ESS_REVISION', 'TAG_ESS_APPROVE', 'USER_ADD', 'USER_RESET_PASSWORD', 'USER_EDIT', 'USER_PROMOTE', 'REPORTS_DOWNLOAD_DAILY', 'REPORTS_DOWNLOAD_WEEKLY', 'REPORTS_DOWNLOAD_MONTHLY', 'REPORTS_DOWNLOAD_OVERALL');
+CREATE TYPE "LogAction" AS ENUM ('TRANSACTION_CREATE', 'TRANSACTION_EDIT', 'TRANSACTION_DELETE', 'SUBMIT_ESS', 'TAG_ESS_REJECT', 'TAG_ESS_REVISION', 'TAG_ESS_APPROVE', 'USER_ADD', 'USER_RESET_PASSWORD', 'USER_EDIT', 'USER_PROMOTE', 'USER_DEMOTE', 'REPORTS_DOWNLOAD_DAILY', 'REPORTS_DOWNLOAD_WEEKLY', 'REPORTS_DOWNLOAD_MONTHLY', 'REPORTS_DOWNLOAD_OVERALL');
 
 -- CreateEnum
 CREATE TYPE "Status" AS ENUM ('ONLINE', 'OFFLINE', 'LOGGED_OUT');
@@ -17,7 +17,7 @@ CREATE TYPE "Shift" AS ENUM ('MORNING', 'AFTERNOON');
 CREATE TYPE "TransactionType" AS ENUM ('WALK_IN_REFERRAL', 'ONLINE_REFERRAL', 'IN_HOUSE_RECRUITMENT');
 
 -- CreateEnum
-CREATE TYPE "Outcome" AS ENUM ('PENDING', 'MISMATCH', 'SUCCESS');
+CREATE TYPE "Outcome" AS ENUM ('PENDING', 'MISMATCH', 'SUCCESS', 'NONE');
 
 -- CreateEnum
 CREATE TYPE "ESSStatus" AS ENUM ('PENDING', 'REJECTED', 'REVISION', 'APPROVED');
@@ -36,10 +36,10 @@ CREATE TABLE "Transaction" (
     "applicantFirstName" VARCHAR(256) NOT NULL,
     "applicantLastName" VARCHAR(256) NOT NULL,
     "applicantSex" "Sex" NOT NULL,
-    "transactionOutcome" "Outcome" NOT NULL DEFAULT 'PENDING',
+    "transactionOutcome" "Outcome" NOT NULL DEFAULT 'NONE',
     "createdAt" TIMESTAMPTZ(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "transactionType" "TransactionType" NOT NULL DEFAULT 'WALK_IN_REFERRAL',
-    "remarks" TEXT NOT NULL,
+    "remarks" TEXT,
     "demographics" "Demographic"[],
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
@@ -51,7 +51,7 @@ CREATE TABLE "ShiftLog" (
     "userId" INTEGER NOT NULL,
     "timeIn" TIMESTAMPTZ(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "timeOut" TIMESTAMPTZ(0),
-    "status" "ESSStatus" NOT NULL,
+    "status" "ESSStatus" NOT NULL DEFAULT 'PENDING',
     "generalRemarks" TEXT,
     "adminRemarks" TEXT,
     "lastVerifiedBy" TEXT,
@@ -67,7 +67,7 @@ CREATE TABLE "User" (
     "username" VARCHAR(256) NOT NULL,
     "password" VARCHAR(256) NOT NULL,
     "email" VARCHAR(256) NOT NULL,
-    "role" "Role" NOT NULL,
+    "role" "Role" NOT NULL DEFAULT 'FRONTLINE',
     "status" "Status" NOT NULL,
     "shift" "Shift" NOT NULL,
     "firstName" VARCHAR(256) NOT NULL,
@@ -103,7 +103,10 @@ CREATE TABLE "AccountLog" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_username_email_key" ON "User"("username", "email");
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- AddForeignKey
 ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

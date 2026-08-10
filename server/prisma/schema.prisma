@@ -26,6 +26,7 @@ enum LogAction {
     USER_RESET_PASSWORD
     USER_EDIT
     USER_PROMOTE
+    USER_DEMOTE
     REPORTS_DOWNLOAD_DAILY
     REPORTS_DOWNLOAD_WEEKLY
     REPORTS_DOWNLOAD_MONTHLY
@@ -64,6 +65,7 @@ enum Outcome {
     PENDING
     MISMATCH
     SUCCESS
+    NONE
 }
 
 enum ESSStatus {
@@ -102,7 +104,7 @@ model Transaction {
     applicantFirstName String          @db.VarChar(256)
     applicantLastName  String          @db.VarChar(256)
     applicantSex       Sex
-    transactionOutcome Outcome         @default(PENDING)
+    transactionOutcome Outcome         @default(NONE)
     createdAt          DateTime        @default(now()) @db.Timestamptz(0)
     transactionType    TransactionType @default(WALK_IN_REFERRAL)
     remarks            String?
@@ -118,7 +120,7 @@ model ShiftLog {
     // Sa unang insert timeIn palang yung pwede mailagay
     timeIn         DateTime  @default(now()) @db.Timestamptz(0)
     timeOut        DateTime? @db.Timestamptz(0)
-    status         ESSStatus // Meron pa ring status
+    status         ESSStatus @default(PENDING) // Meron pa ring status
     generalRemarks String?
     adminRemarks   String?
     lastVerifiedBy String?
@@ -134,7 +136,7 @@ model User {
     username  String   @unique @db.VarChar(256)
     password  String   @db.VarChar(256)
     email     String   @unique @db.VarChar(256)
-    role      Role
+    role      Role     @default(FRONTLINE)
     status    Status
     shift     Shift
     firstName String   @db.VarChar(256)
