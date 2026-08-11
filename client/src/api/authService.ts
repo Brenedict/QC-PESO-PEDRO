@@ -1,78 +1,21 @@
-let memoryAccessToken: string | null = null;
+import { apiFetch } from "./httpClient";
+import TokenStore from "./tokenStore";
 
-export const setAccessToken = (token: string | null) => {
-    memoryAccessToken = token;
-};
-
-export const getApiUrl = (route: string) => {
-    const api = import.meta.env.API_URL || "http://localhost:3000/api/v1";
-
-    route = route.trim();
-
-    if (!route.startsWith("/")) route = "/" + route;
-
-    return `${api}${route}`;
-};
-
-export const checkAuthService = async () => {
+// Auth helpers
+export const checkAuthService = async (): Promise<boolean> => {
     try {
-        const headers: Record<string, string> = {
-            "Content-Type": "application/json",
-        };
-        if (memoryAccessToken) {
-            headers["Authorization"] = `Bearer ${memoryAccessToken}`;
-        }
-
-        const res = await fetch(getApiUrl("/protected"), {
-            headers,
-            credentials: "include",
-        });
-
-        if (res.status === 200) {
-            const data = await res.json();
-            return data.email;
-        }
-
-        if (res.status === 401) {
-            // Access token expired, attempt refresh
-            const refreshRes = await fetch(getApiUrl("/auth/refresh"), {
-                method: "POST",
-                credentials: "include", // Automatically sends the refreshToken cookie
-            });
-
-            // Check if the new accessToken works
-            if (refreshRes.ok) {
-                const refreshData = await refreshRes.json();
-                setAccessToken(refreshData.accessToken);
-
-                const retryHeaders: Record<string, string> = {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${refreshData.accessToken}`,
-                };
-
-                const retry = await fetch(getApiUrl("/protected"), {
-                    headers: retryHeaders,
-                    credentials: "include",
-                });
-                if (retry.ok) {
-                    const data = await retry.json();
-                    return data.email;
-                }
-            }
-        }
-        return null;
+        const res = await apiFetch("/protected");
+        return res.ok;
     } catch (err) {
         console.error("Auth network error:", err);
-        return null;
+        return false;
     }
 };
 
-export const logoutService = async () => {
+export const logoutService = async (): Promise<boolean> => {
     try {
-        const res = await fetch(getApiUrl("/auth/logout"), {
-            method: "POST",
-            credentials: "include",
-        });
+        const res = await apiFetch("/auth/logout", { method: "POST" });
+        TokenStore.setAccessToken(null);
         return res.ok;
     } catch (err) {
         console.error("Logout network error:", err);

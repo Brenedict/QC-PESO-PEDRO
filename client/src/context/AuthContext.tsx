@@ -22,16 +22,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const init = async () => {
             setLoading(true);
-            const email = await checkAuthService();
-            setIsAuthenticated(!!email);
+            setIsAuthenticated(await checkAuthService());
             setLoading(false);
         };
         init();
     }, []);
 
     const checkAuth = async () => {
-        const email = await checkAuthService();
-        setIsAuthenticated(!!email);
+        setIsAuthenticated(await checkAuthService());
     };
 
     return <AuthContext value={{ isAuthenticated, loading, checkAuth, logout }}>{children}</AuthContext>;
