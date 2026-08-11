@@ -7,7 +7,7 @@ import env from "./config/env.config";
 import "./config/passport.config";
 
 // Routes
-import indexRoutes from "./routes/index.route";
+import authRoutes from "./routes/auth.route";
 import transactionRoutes from "./routes/transaction.route";
 
 // Initializers
@@ -44,7 +44,7 @@ app.use(cookieParser());
 
 // --------------------- SERVER ROUTES --------------------------------
 
-app.use("/api/v1", indexRoutes);
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 
 // --------------------- SERVER EXIT ----------------------------------

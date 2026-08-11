@@ -127,6 +127,11 @@ cd QC-PESO-PEDRO
    npx prisma migrate dev 
    ```
 
+6. **If running test, you must also run migration in test database**  
+   ```bash
+   NODE_ENV=test npx prisma migrate dev 
+   ```
+
 ---
 
 ## Running the Application
