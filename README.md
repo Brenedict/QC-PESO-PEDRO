@@ -25,6 +25,13 @@ QC-PESO-PEDRO/
 │   │   ├── routes/          # Directory for specified routes
 │   │   ├── models/          # Directory for entity models
 │   │   └── server.ts        # Entry point for Express app
+│   │
+│   ├── tests/                       # Test suite root (mirrors src/)
+│   │   ├── integration/             # Multi-component/API endpoint tests
+│   │   └── unit/                    # Isolated component tests
+│   │       ├── controllers/
+│   │       └── models/
+│   │
 │   ├── .env.example         # Example environment variables for server
 │   └── package.json         # Server dependencies and scripts
 │

@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { jwtAccessAuth } from "../middlewares/passport";
+import { jwtAccessAuth } from "../middlewares/passport.middleware";
 
 export default {
     get: [

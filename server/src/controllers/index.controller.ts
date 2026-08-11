@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import env from "../config/env";
+import env from "../config/env.config";
 import jwt from "jsonwebtoken";
-import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport";
+import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport.middleware";
 import type { User } from "../../generated/prisma/client";
 import ms from "ms";
 
