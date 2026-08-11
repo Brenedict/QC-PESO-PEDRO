@@ -2,11 +2,14 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import env from "./config/env";
-import indexRoutes from "./routes/index-route";
 import handleShutdown from "./middlewares/shutdown";
 import cookieParser from "cookie-parser";
 import apicache from "apicache";
 import "./config/passport";
+
+// Routes
+import indexRoutes from "./routes/index-route";
+import transactionRoutes from "./routes/transaction-route";
 
 // Initializers
 const app = express();
@@ -47,6 +50,7 @@ app.use(cache("5 minutes"));
 // --------------------- SERVER ROUTES --------------------------------
 
 app.use("/api/v1", indexRoutes);
+app.use("/api/v1/transaction", transactionRoutes);
 
 // --------------------- SERVER EXIT ----------------------------------
 

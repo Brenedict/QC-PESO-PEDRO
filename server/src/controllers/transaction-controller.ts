@@ -1,21 +1,35 @@
 import type { Request, Response } from "express";
+import { jwtAccessAuth } from "../middlewares/passport";
 
 export default {
-    get(_req: Request, res: Response) {
-        console.log("Trigger");
-        res.json("This is the transaction route");
-    },
+    get: [
+        jwtAccessAuth,
+        (_req: Request, res: Response) => {
+            console.log("Trigger");
+            res.json("This is the transaction route");
+        },
+    ],
 
-    post(req: Request, res: Response) {
-        console.log(req.body); // For testing: returns sent request body
-        res.status(201).json(req.body);
-    },
+    post: [
+        jwtAccessAuth,
+        (req: Request, res: Response) => {
+            console.log(req.body); // For testing: returns sent request body
+            res.status(201).json(req.body);
+        },
+    ],
 
-    patch(req: Request, res: Response) {
-        console.log(req.body); // For testing: returns sent request body
-        res.status(201).json(req.body);
-    },
-    delete(_req: Request, res: Response) {
-        res.status(204).end();
-    },
+    patch: [
+        jwtAccessAuth,
+        (req: Request, res: Response) => {
+            console.log(req.body); // For testing: returns sent request body
+            res.status(201).json(req.body);
+        },
+    ],
+
+    delete: [
+        jwtAccessAuth,
+        (_req: Request, res: Response) => {
+            res.status(204).end();
+        },
+    ],
 };
