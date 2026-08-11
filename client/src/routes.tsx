@@ -25,6 +25,8 @@ import { ContextAnalytics } from "./pages/ContextAnalytics";
 import SystemAuditLogs from "./pages/SystemAuditLogs";
 import UserManagement from "./pages/UserManagement";
 import Reports from "./pages/Reports";
+import NotFoundPage from "./pages/NotFoundPage";
+import SystemErrorPage from "./pages/SystemErrorPage";
 
 // Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "./components/popups/TransactionsPopups";
@@ -79,8 +81,13 @@ const testActionFn =
     (schema: SchemaType) =>
     async ({ request }: ActionFunctionArgs) => {
         const formData = await request.formData();
-        const data = schema.parse(formData);
-        console.log(data);
+        const validationResult = schema.safeParse(formData);
+
+        if (!validationResult.success) {
+            return { errors: validationResult.error.flatten() };
+        }
+
+        console.log(validationResult.data);
         return redirect("..");
     };
 
@@ -89,37 +96,30 @@ const transactionsEditAndDelete = (root: transactionRootPage) => [
         path: ":transactionId/edit",
         element: <PopupViewEditTransaction root={root} />,
         action: async ({ request }: ActionFunctionArgs) => {
-            try {
-                const formData = await request.formData();
+            const formData = await request.formData();
+            const validationResult = TransactionSchema.safeParse(formData);
 
-                const data = TransactionSchema.parse(formData);
-
-                await editTransaction(data);
-
-                return redirect("..");
-            } catch (err) {
-                console.error(err);
-
-                return redirect("..");
+            if (!validationResult.success) {
+                return { errors: validationResult.error.flatten() };
             }
+
+            await editTransaction(validationResult.data);
+            return redirect("..");
         },
     },
     {
         path: ":transactionId/delete",
         element: <PopupDeleteTransaction root={root} />,
         action: async ({ request }: ActionFunctionArgs) => {
-            try {
-                const formData = await request.formData();
+            const formData = await request.formData();
+            const validationResult = TransactionSchema.safeParse(formData);
 
-                const data = TransactionSchema.parse(formData);
-                await deleteTransaction(data);
-
-                return redirect("..");
-            } catch (err) {
-                console.error(err);
-
-                return redirect("..");
+            if (!validationResult.success) {
+                return { errors: validationResult.error.flatten() };
             }
+
+            await deleteTransaction(validationResult.data);
+            return redirect("..");
         },
     },
 ];
@@ -156,11 +156,12 @@ const routes: RouteObject[] = [
     {
         path: "/auth",
         element: <LoginPage onSubmit={() => {}} />,
+        errorElement: <SystemErrorPage />,
     },
-
     {
         path: "/",
         element: <DashboardLayout {...userContext} />,
+        errorElement: <SystemErrorPage />,
         children: [
             {
                 path: "",
@@ -311,19 +312,15 @@ const routes: RouteObject[] = [
                 element: <TransactionsInputPage />,
                 children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
                 action: async ({ request }: ActionFunctionArgs) => {
-                    try {
-                        const formData = await request.formData();
+                    const formData = await request.formData();
+                    const validationResult = TransactionSchema.safeParse(formData);
 
-                        const data = TransactionSchema.parse(formData);
-
-                        await createTransaction(data);
-
-                        return redirect(ROUTES.applicantForm.root);
-                    } catch (err) {
-                        console.error(err);
-
-                        return redirect("..");
+                    if (!validationResult.success) {
+                        return { errors: validationResult.error.flatten() };
                     }
+
+                    await createTransaction(validationResult.data);
+                    return redirect(ROUTES.applicantForm.root);
                 },
             },
             {
@@ -385,6 +382,10 @@ const routes: RouteObject[] = [
                 children: [...shiftPopups(ROUTES.contextAnalysis.root)],
             },
         ],
+    },
+    {
+        path: "*",
+        element: <NotFoundPage />,
     },
 ];
 
