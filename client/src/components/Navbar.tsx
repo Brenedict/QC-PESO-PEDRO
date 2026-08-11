@@ -49,7 +49,15 @@ function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to:
         <NavLink
             to={to}
             className={({ isActive }) =>
-                `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${isActive ? `bg-primary-blue hover:bg-blue-800` : !isLogout ? `hover:bg-blue-900` : "hover:bg-red-900"}`
+                `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${
+                    isActive
+                        ? isLogout
+                            ? `bg-red-900 hover:bg-red-800`
+                            : `bg-primary-blue hover:bg-blue-800`
+                        : !isLogout
+                          ? `hover:bg-blue-900`
+                          : `hover:bg-red-900`
+                }`
             }
         >
             <Text
@@ -116,7 +124,7 @@ export function NavBar({
     headerText?: string;
 } & ProfileBaseProps) {
     return (
-        <aside className="bg-dark-blue h-screen flex flex-col justify-between sticky top-0 min-w-64">
+        <aside className="bg-dark-blue h-screen flex flex-col justify-between sticky top-0 min-w-64 overscrolll-none">
             <div>
                 <NavHeader userFullName={userFullName} profilePicUrl={profilePicUrl}>
                     {headerText}
