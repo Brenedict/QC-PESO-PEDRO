@@ -5,6 +5,6 @@ import routes from "./routes";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <RouterProvider router={createBrowserRouter(routes)}></RouterProvider>;
+        <RouterProvider router={createBrowserRouter(routes)}></RouterProvider>
     </StrictMode>
 );
