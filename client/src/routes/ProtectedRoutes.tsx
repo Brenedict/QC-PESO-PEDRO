@@ -47,6 +47,7 @@ import { testActionFn, transactionsEditAndDelete, shiftPopups } from "./RouteHel
 import { userContext } from "../utils/userContext";
 import { ROUTES } from "../hooks/reroute";
 import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
+import SystemErrorPage from "../pages/SystemErrorPage";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -56,6 +57,7 @@ export const protectedRoutes: RouteObject[] = [
                 <ProtectedRoute />
             </AuthProvider>
         ),
+        errorElement: <SystemErrorPage />,
         children: [
             {
                 path: "",

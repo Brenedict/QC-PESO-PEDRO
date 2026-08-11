@@ -11,8 +11,11 @@ export const testActionFn =
     (schema: typeof TransactionSchema | typeof UserSchema) =>
     async ({ request }: ActionFunctionArgs) => {
         const formData = await request.formData();
-        const data = schema.parse(formData);
-        console.log(data);
+        const validationResult = schema.safeParse(formData);
+
+        if (!validationResult.success) {
+            return { errors: validationResult.error.flatten() };
+        }
         return redirect("..");
     };
 
@@ -24,8 +27,13 @@ export const transactionsEditAndDelete = (root: transactionRootPage) => [
         action: async ({ request }: ActionFunctionArgs) => {
             try {
                 const formData = await request.formData();
-                const data = TransactionSchema.parse(formData);
-                await editTransaction(data);
+                const validationResult = TransactionSchema.safeParse(formData);
+
+                if (!validationResult.success) {
+                    return { errors: validationResult.error.flatten() };
+                }
+
+                await editTransaction(validationResult.data);
                 return redirect("..");
             } catch (err) {
                 console.error(err);
@@ -39,8 +47,13 @@ export const transactionsEditAndDelete = (root: transactionRootPage) => [
         action: async ({ request }: ActionFunctionArgs) => {
             try {
                 const formData = await request.formData();
-                const data = TransactionSchema.parse(formData);
-                await deleteTransaction(data);
+                const validationResult = TransactionSchema.safeParse(formData);
+
+                if (!validationResult.success) {
+                    return { errors: validationResult.error.flatten() };
+                }
+
+                await deleteTransaction(validationResult.data);
                 return redirect("..");
             } catch (err) {
                 console.error(err);

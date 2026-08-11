@@ -4,11 +4,13 @@ import { checkAuthService } from "../api/authService";
 import TokenStore from "../api/tokenStore";
 import { apiFetch, getApiUrl } from "../api/httpClient";
 import { ROUTES } from "../hooks/reroute";
+import SystemErrorPage from "../pages/SystemErrorPage";
 
 export const authRoutes: RouteObject[] = [
     {
         path: "/auth",
         element: <LoginPage />,
+        errorElement: <SystemErrorPage />,
         action: async ({ request }) => {
             const formData = await request.formData();
             const user = Object.fromEntries(formData);
