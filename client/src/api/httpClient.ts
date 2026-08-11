@@ -2,7 +2,7 @@ import TokenStore from "./tokenStore";
 
 type FetchOptions = RequestInit & { retry?: boolean };
 
-const getApiUrl = (route: string): string => {
+export const getApiUrl = (route: string): string => {
     const api = import.meta.env.API_URL ?? "http://localhost:3000/api/v1";
     const cleanRoute = route.trim().startsWith("/") ? route.trim() : `/${route.trim()}`;
     return `${api}${cleanRoute}`;
@@ -39,7 +39,7 @@ export const apiFetch = async (route: string, options: FetchOptions = {}): Promi
             const { accessToken } = await refreshRes.json();
             TokenStore.setAccessToken(accessToken);
             // retry original request with new token
-            return apiFetch(route, { ...rest, retry: false });
+            return await apiFetch(route, { ...rest, retry: false });
         }
     }
 

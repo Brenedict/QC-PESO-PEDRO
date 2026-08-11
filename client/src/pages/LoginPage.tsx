@@ -88,11 +88,18 @@ function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
                 id="email"
                 label="QC Government Email"
                 placeholder="Enter your email here"
+                required
             />
 
             <br className="block mb-4" />
 
-            <PasswordInput name="password" id="password" label="Password" placeholder="Enter your password here" />
+            <PasswordInput
+                name="password"
+                id="password"
+                label="Password"
+                placeholder="Enter your password here"
+                required
+            />
 
             <br className="block mb-4" />
 

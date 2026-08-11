@@ -4,7 +4,8 @@ import { editTransaction, deleteTransaction } from "../api/transactions";
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
 import { UserSchema } from "../validators/users";
-import type { transactionRootPage } from "../hooks/reroute";
+import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+import { logoutService } from "../api/authService";
 
 export const testActionFn =
     (schema: typeof TransactionSchema | typeof UserSchema) =>
@@ -68,6 +69,11 @@ export const shiftPopups = (root: string) => [
     {
         path: "log-out",
         element: <PopupLogout root={root} />,
-        action: async () => redirect("/auth"),
+        action: async () => {
+            const success = await logoutService();
+            if (success) {
+                return redirect(ROUTES.auth.root);
+            }
+        },
     },
 ];

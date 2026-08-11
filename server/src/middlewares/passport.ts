@@ -18,7 +18,7 @@ export const localAuth = (req: Request, res: Response, next: NextFunction) => {
         }
 
         req.user = user;
-        next();
+        return next();
     })(req, res, next);
 };
 
@@ -33,7 +33,7 @@ const jwtAuth = (type: "access" | "refresh") => (req: Request, res: Response, ne
         }
 
         req.user = user;
-        next();
+        return next();
     })(req, res, next);
 };
 

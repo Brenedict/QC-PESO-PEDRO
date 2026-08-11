@@ -14,8 +14,16 @@ export const checkAuthService = async (): Promise<boolean> => {
 
 export const logoutService = async (): Promise<boolean> => {
     try {
-        const res = await apiFetch("/auth/logout", { method: "POST" });
-        TokenStore.setAccessToken(null);
+        const res = await apiFetch("/auth/logout", {
+            retry: false,
+            method: "POST",
+            credentials: "include",
+        });
+
+        if (res.ok) {
+            TokenStore.setAccessToken(null);
+        }
+
         return res.ok;
     } catch (err) {
         console.error("Logout network error:", err);

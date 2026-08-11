@@ -4,7 +4,6 @@ import morgan from "morgan";
 import env from "./config/env";
 import handleShutdown from "./middlewares/shutdown";
 import cookieParser from "cookie-parser";
-import apicache from "apicache";
 import "./config/passport";
 
 // Routes
@@ -14,7 +13,6 @@ import transactionRoutes from "./routes/transaction-route";
 // Initializers
 const app = express();
 const port = env.PORT;
-const cache = apicache.middleware;
 
 const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
@@ -23,6 +21,7 @@ const server = app.listen(port, () => {
 // ----------------- SERVER MIDDLEWARES ------------------------------
 
 // Form and Json submission request config
+
 app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS for all routes and origins
@@ -43,9 +42,6 @@ app.use(morgan("combined"));
 
 // Middleware for cookies
 app.use(cookieParser());
-
-// Cache all routes
-app.use(cache("5 minutes"));
 
 // --------------------- SERVER ROUTES --------------------------------
 

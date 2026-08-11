@@ -22,7 +22,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const init = async () => {
             setLoading(true);
-            setIsAuthenticated(await checkAuthService());
+            const isAuthenticated = await checkAuthService();
+            setIsAuthenticated(isAuthenticated);
             setLoading(false);
         };
         init();
