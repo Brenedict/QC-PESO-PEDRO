@@ -1,28 +1,54 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-const app = express();
-const port = 3000;
+import env from "./config/env";
+import handleShutdown from "./middlewares/shutdown";
+import cookieParser from "cookie-parser";
+import "./config/passport";
 
-// List of routes
-import indexRoutes from "./routes/Index";
-import userRoutes from "./routes/User"; // Temporary route
+// Routes
+import indexRoutes from "./routes/index-route";
+import transactionRoutes from "./routes/transaction-route";
+
+// Initializers
+const app = express();
+const port = env.PORT;
+
+const server = app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
+});
+
+// ----------------- SERVER MIDDLEWARES ------------------------------
 
 // Form and Json submission request config
+
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 // Enable CORS for all routes and origins
-app.use(cors());
+app.use(
+    cors({
+        origin: env.FRONTEND_URL,
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
+
+// Automatically parses body string to a json
+app.use(express.json());
 
 // Middleware logger
 app.use(morgan("combined"));
 
-// Application Routes
-app.use("/api/user", userRoutes); // Temporary route (MVC testing)
-app.use("/api/transaction", transactionRoutes);
-app.use("/api", indexRoutes);
+// Middleware for cookies
+app.use(cookieParser());
 
-app.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
-});
+// --------------------- SERVER ROUTES --------------------------------
+
+app.use("/api/v1", indexRoutes);
+app.use("/api/v1/transaction", transactionRoutes);
+
+// --------------------- SERVER EXIT ----------------------------------
+
+process.on("SIGINT", () => handleShutdown(server, "SIGINT"));
+process.on("SIGTERM", () => handleShutdown(server, "SIGTERM"));

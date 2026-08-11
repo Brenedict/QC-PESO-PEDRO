@@ -5,8 +5,6 @@ import Button from "../components/Button";
 
 // Icons
 import FolderOffOutlinedIcon from "@mui/icons-material/FolderOffOutlined";
-import SearchOffIcon from "@mui/icons-material/SearchOff";
-import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 
 // COMPONENTS

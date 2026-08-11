@@ -87,9 +87,9 @@ export function ActionButtons({
 }) {
     return (
         <>
-            {actions.map((action) => (
+            {actions.map((action, index) => (
                 <Button
-                    key={action.text}
+                    key={index}
                     variant={buttonMap[action.color].variant}
                     size="tiny"
                     leftIcon={{

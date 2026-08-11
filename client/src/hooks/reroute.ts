@@ -1,7 +1,8 @@
-import { useLocation, useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { encode } from "../utils/hashids";
 
 const BASE_ROUTES = {
+    auth: "/auth",
     dashboard: "/",
     profile: "/profile",
     history: "/history",
@@ -19,6 +20,9 @@ export const ROUTES = {
     Di pa kasama here ang mga filter/search, i think if kaunti lang naman ang filter di na worth na query sya. 
     At the time I'm writing this, if may hindi tama here pa-edit nalang.
     */
+    auth: {
+        root: BASE_ROUTES.auth,
+    },
     dashboard: {
         root: BASE_ROUTES.dashboard,
         preview: (type: string) => `${BASE_ROUTES.dashboard}/${type}`,

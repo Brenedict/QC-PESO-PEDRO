@@ -137,7 +137,9 @@ export function SelectInput({
                 {...props}
             >
                 {optionList.map((option) => (
-                    <option value={option.value}>{option.content}</option>
+                    <option key={option.value} value={option.value}>
+                        {option.content}
+                    </option>
                 ))}
             </select>
             <span

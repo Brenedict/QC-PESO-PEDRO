@@ -16,7 +16,7 @@ export function ProgressChart({ dataset }: ProgressChartProp) {
         <aside className="w-full flex flex-col gap-4">
             {dataset.map(({ item, percentage, barColor }, index) => {
                 return (
-                    <section id={`${index}`} className="flex flex-col gap-2">
+                    <section key={index} id={`${index}`} className="flex flex-col gap-2">
                         <section className="w-full flex justify-between">
                             <Text size="description">{item ? item : "-"}</Text>
                             <Text size="description" variant="grayish-blue" align="right">{`${percentage}%`}</Text>
