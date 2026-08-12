@@ -4,28 +4,39 @@
     "description": "",
     "main": "server.ts",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "tsx --inspect --watch --env-file=.env ./src/server.ts"
+        "start": "tsx --inspect --watch --env-file=.env ./src/server.ts",
+        "test": "jest --watch"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "type": "module",
     "devDependencies": {
+        "@babel/core": "^7.29.7",
+        "@babel/preset-env": "^7.29.7",
+        "@babel/preset-typescript": "^7.29.7",
         "@eslint/js": "^10.0.1",
         "@types/apicache": "^1.6.8",
         "@types/cookie-parser": "^1.4.10",
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
+        "@types/jest": "^30.0.0",
         "@types/morgan": "^1.9.10",
         "@types/node": "^26.1.2",
         "@types/passport-jwt": "^4.0.1",
         "@types/passport-local": "^1.0.38",
         "@types/pg": "^8.20.4",
+        "@types/supertest": "^7.2.1",
+        "babel-jest": "^30.4.1",
+        "babel-plugin-transform-import-meta": "^2.3.3",
+        "cross-env": "^10.1.0",
+        "dotenv": "^17.4.2",
         "eslint": "^10.7.0",
-        "eslint-plugin-perfectionist": "^5.10.0",
         "globals": "^17.7.0",
+        "jest": "^30.4.2",
+        "jest-mock-extended": "^4.0.1",
         "prisma": "^7.9.1",
+        "supertest": "^7.2.2",
         "tsx": "^4.23.9",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.65.0"
@@ -36,7 +47,6 @@
         "apicache": "^1.6.3",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.6",
-        "dotenv": "^17.4.2",
         "express": "^5.2.1",
         "jiti": "^2.7.0",
         "jsonwebtoken": "^9.0.3",
@@ -48,6 +58,9 @@
         "pg": "^8.22.0"
     },
     "allowScripts": {
-        "esbuild@0.28.1": true
+        "@prisma/engines@7.9.1": true,
+        "prisma@7.9.1": true,
+        "unrs-resolver@1.12.2": true,
+        "esbuild@0.28.2": true
     }
 }

@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import env from "../config/env";
+import env from "../config/env.config";
 import jwt from "jsonwebtoken";
-import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport";
+import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport.middleware";
 import type { User } from "../../generated/prisma/client";
 import ms from "ms";
 
@@ -31,7 +31,7 @@ const sendRefreshCookie = (res: Response, refreshToken: string) => {
 };
 
 export default {
-    authLoginPost: [
+    loginPost: [
         localAuth,
         async (req: Request, res: Response) => {
             const user = req.user as User;
@@ -41,7 +41,7 @@ export default {
         },
     ],
 
-    authRefreshPost: [
+    refreshPost: [
         jwtRefreshAuth,
         async (req: Request, res: Response) => {
             const user = req.user as User;
@@ -51,7 +51,7 @@ export default {
         },
     ],
 
-    authLogoutPost(_req: Request, res: Response) {
+    logoutPost(_req: Request, res: Response) {
         res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",

@@ -8,7 +8,7 @@
         // See also https://aka.ms/tsconfig/module
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "target": "ES2023",
+        "target": "ESNext",
         "esModuleInterop": true,
         "ignoreDeprecations": "6.0",
         // For nodejs:
@@ -16,7 +16,8 @@
             "esnext"
         ],
         "types": [
-            "node"
+            "node",
+            "jest"
         ],
         // and npm install -D @types/node
         // Other Outputs

@@ -4,7 +4,7 @@ import TokenStore from "./tokenStore";
 // Auth helpers
 export const checkAuthService = async (): Promise<boolean> => {
     try {
-        const res = await apiFetch("/protected");
+        const res = await apiFetch("/auth/protected");
         return res.ok;
     } catch (err) {
         console.error("Auth network error:", err);

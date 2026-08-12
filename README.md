@@ -25,6 +25,13 @@ QC-PESO-PEDRO/
 │   │   ├── routes/          # Directory for specified routes
 │   │   ├── models/          # Directory for entity models
 │   │   └── server.ts        # Entry point for Express app
+│   │
+│   ├── tests/                       # Test suite root (mirrors src/)
+│   │   ├── integration/             # Multi-component/API endpoint tests
+│   │   └── unit/                    # Isolated component tests
+│   │       ├── controllers/
+│   │       └── models/
+│   │
 │   ├── .env.example         # Example environment variables for server
 │   └── package.json         # Server dependencies and scripts
 │
@@ -118,6 +125,11 @@ cd QC-PESO-PEDRO
 5. **Run database migrations**  
    ```bash
    npx prisma migrate dev 
+   ```
+
+6. **If running test, you must also run migration in test database**  
+   ```bash
+   NODE_ENV=test npx prisma migrate dev 
    ```
 
 ---

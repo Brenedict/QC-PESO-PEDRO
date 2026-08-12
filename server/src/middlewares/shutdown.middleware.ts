@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse, type Server } from "http";
-import prisma from "../config/prisma";
+import prisma from "../config/prisma.config";
 
 // Disconnect prisma on server shutdown
 function handleShutdown(server: Server<typeof IncomingMessage, typeof ServerResponse>, signal: string) {

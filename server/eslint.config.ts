@@ -8,11 +8,11 @@ export default defineConfig([
         files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
         plugins: { js },
         extends: ["js/recommended"],
-        languageOptions: { globals: globals.node },
-    },
-    tseslint.configs.recommended,
-    {
+        languageOptions: { globals: { ...globals.node, ...globals.jest } },
+
         rules: {
+            "no-unused-vars": "warn",
+            "no-undef": "warn",
             "@typescript-eslint/no-unused-vars": [
                 "error",
                 {
@@ -27,4 +27,5 @@ export default defineConfig([
             ],
         },
     },
+    tseslint.configs.recommended,
 ]);

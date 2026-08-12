@@ -1,14 +1,14 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import env from "./config/env";
-import handleShutdown from "./middlewares/shutdown";
 import cookieParser from "cookie-parser";
-import "./config/passport";
+import handleShutdown from "./middlewares/shutdown.middleware";
+import env from "./config/env.config";
+import "./config/passport.config";
 
 // Routes
-import indexRoutes from "./routes/index-route";
-import transactionRoutes from "./routes/transaction-route";
+import authRoutes from "./routes/auth.route";
+import transactionRoutes from "./routes/transaction.route";
 
 // Initializers
 const app = express();
@@ -21,7 +21,6 @@ const server = app.listen(port, () => {
 // ----------------- SERVER MIDDLEWARES ------------------------------
 
 // Form and Json submission request config
-
 app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS for all routes and origins
@@ -45,7 +44,7 @@ app.use(cookieParser());
 
 // --------------------- SERVER ROUTES --------------------------------
 
-app.use("/api/v1", indexRoutes);
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 
 // --------------------- SERVER EXIT ----------------------------------

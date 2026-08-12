@@ -1,5 +1,5 @@
 import { type User } from "../../generated/prisma/client";
-import prisma from "../config/prisma";
+import prisma from "../config/prisma.config";
 
 export default {
     async getById(id: number): Promise<User | null> {
