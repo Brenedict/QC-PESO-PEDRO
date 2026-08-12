@@ -136,7 +136,7 @@ describe("auth routes", () => {
         });
 
         it("returns status 401 when we dont have access token", (done) => {
-            request(app).post("/auth/protected").set("Authorization", `Bearer safadsf`).expect(401, done);
+            request(app).get("/auth/protected").expect(401, done);
         });
     });
 });
