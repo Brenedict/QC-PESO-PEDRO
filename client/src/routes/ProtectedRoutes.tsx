@@ -1,9 +1,9 @@
 // General Imports
 import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
 
-// Validators
-import { TransactionSchema } from "../validators/transactions";
-import { UserSchema } from "../validators/users";
+// Schema
+import { TransactionSchema } from "../../../shared/schema/transactions";
+import { UserSchema } from "../../../shared/schema/users";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";

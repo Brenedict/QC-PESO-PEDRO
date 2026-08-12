@@ -1,9 +1,9 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
-import { TransactionSchema } from "../validators/transactions";
+import { TransactionSchema } from "../../../shared/schema/transactions";
 import { editTransaction, deleteTransaction } from "../api/transactions";
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
-import { UserSchema } from "../validators/users";
+import { UserSchema } from "../../../shared/schema/users";
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 import { logoutService } from "../api/authService";
 
