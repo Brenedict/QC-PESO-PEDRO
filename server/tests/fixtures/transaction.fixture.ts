@@ -1,0 +1,43 @@
+import { Demographic, Outcome, Sex, TransactionType, type Transaction } from "../../generated/prisma/browser";
+
+export const buildMockTransactions = (userId: number, shiftLogId: number): Transaction[] => [
+    {
+        id: 1,
+        userId,
+        shiftLogId,
+        applicantFirstName: "John",
+        applicantLastName: "Doe",
+        applicantSex: Sex.MALE,
+        transactionOutcome: Outcome.SUCCESS,
+        transactionType: TransactionType.WALK_IN_REFERRAL,
+        remarks: null,
+        demographics: [Demographic.FIRST_TIME_JOB_SEEKER],
+        createdAt: new Date(2026, 7, 13),
+    },
+    {
+        id: 2,
+        userId,
+        shiftLogId,
+        applicantFirstName: "Jane",
+        applicantLastName: "Smith",
+        applicantSex: Sex.FEMALE,
+        transactionOutcome: Outcome.PENDING,
+        transactionType: TransactionType.ONLINE_REFERRAL,
+        remarks: "Awaiting approval",
+        demographics: [Demographic.PERSONS_WITH_DISABILITY, Demographic.SENIOR_CITIZEN],
+        createdAt: new Date(2026, 7, 13),
+    },
+    {
+        id: 3,
+        userId,
+        shiftLogId,
+        applicantFirstName: "Bob",
+        applicantLastName: "Johnson",
+        applicantSex: Sex.MALE,
+        transactionOutcome: Outcome.MISMATCH,
+        createdAt: new Date(2026, 7, 13),
+        transactionType: TransactionType.IN_HOUSE_RECRUITMENT,
+        remarks: "Mismatch in credentials",
+        demographics: [Demographic.YOUNG_WORKER],
+    },
+];
