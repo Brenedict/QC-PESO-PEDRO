@@ -74,9 +74,22 @@ Navigate into the root directory:
 cd QC-PESO-PEDRO
 ```
 
+
 ---
 
-### 2. Client Setup
+### 2. Monorepo Setup
+
+Directly install from root directory (monorepo scripts):
+
+```bash
+npm install
+```
+
+Or you can also cd to `client` and `server`, then do `npm install` there (shown below).
+
+---
+
+### 3. Client Setup
 
 1. Navigate to the `client` directory:
 
@@ -97,7 +110,7 @@ cd QC-PESO-PEDRO
 
 ---
 
-### 3. Server Setup
+### 4. Server Setup
 
 1.  Navigate to the `server` directory:
 
@@ -136,20 +149,38 @@ cd QC-PESO-PEDRO
 
 ## Running the Application
 
-### 1. Start the Express Backend
+### 1. Start using monorepo scripts
+
+From the root directory, you can start both frontend and backend:
+
+```bash
+npm run dev
+
+# Frontend only
+npm run dev:client
+
+# Backend only
+npm run dev:server
+```
+
+Or you can do a separate run like shown below
+
+---
+
+### 2. Start the Express Backend
 
 From the `server` directory, start the server:
 
 ```bash
-# Run in development mode with live reload (nodemon)
-npm run start
+# Run in development mode with live reload 
+npm run dev
 ```
 
 By default, the server will start on `http://localhost:3000`.
 
 ---
 
-### 2. Start the React Frontend
+### 3. Start the React Frontend
 
 From the `client` directory, start the React dev server:
 
@@ -165,12 +196,13 @@ The application will automatically open in your web browser at `http://localhost
 
 ### In `server/`
 
-- `npm run start`: Runs the development server with live reloads..
+- `npm run start`: Runs the development server..
+- `npm run dev`: Runs the development server with live reloads..
+- `npm test`: Launches the test runner (jest).
 
 ### In `client/`
 
 - `npm run dev`: Runs the React app in development mode at `http://localhost:5173`.
 - `npm run build`: Bundles the app into static files for production inside the `build` directory.
-- `npm test`: Launches the test runner in interactive watch mode.
 
 ---

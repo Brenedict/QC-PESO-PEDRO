@@ -1,6 +1,28 @@
 {
-  "dependencies": {
-    "zod": "^4.4.3",
-    "zod-form-data": "^3.0.3"
-  }
+    "name": "qc-pedro-peso",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "client/",
+        "server/"
+    ],
+    "scripts": {
+        "dev:client": "npm run dev --workspace=client/",
+        "dev:server": "npm run dev --workspace=server/",
+        "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
+    },
+    "dependencies": {
+        "zod": "^4.4.3",
+        "zod-form-data": "^3.0.3"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "allowScripts": {
+        "@prisma/engines@7.9.1": true,
+        "core-js@3.50.0": true,
+        "esbuild@0.28.2": true,
+        "prisma@7.9.1": true,
+        "unrs-resolver@1.12.2": true
+    }
 }
