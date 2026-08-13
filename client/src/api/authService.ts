@@ -30,3 +30,26 @@ export const logoutService = async (): Promise<boolean> => {
         return false;
     }
 };
+
+export const getUserContextLoader = async () => {
+    try {
+        const res = await apiFetch("/me", {
+            retry: true,
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to get user data ${res.status}`);
+        }
+
+        return res.json();
+    } catch (err) {
+        console.error(err);
+        await logoutService();
+        return null;
+    }
+};

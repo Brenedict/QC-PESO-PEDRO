@@ -1,5 +1,10 @@
-import { Prisma, type User } from "../../generated/prisma/client";
+// General Imports
 import prisma from "../config/prisma.config";
+
+// Prisma Types
+import { Prisma, type User } from "../../generated/prisma/client";
+
+// Service
 import { type UserManagementFilter } from "../service/user.service";
 
 export default {

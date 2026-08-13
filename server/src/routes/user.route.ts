@@ -1,9 +1,13 @@
+// General Import
 import express from "express";
 
-const router = express.Router();
+// Controller
 import controller from "../controllers/user.controller";
 
+const router = express.Router();
+
 router.get("/", controller.getUsers);
+router.get("/me", controller.getCurrentUser);
 router.get("/:userId", controller.getUserById);
 router.post("/", controller.post);
 router.patch("/:userId", controller.patch);

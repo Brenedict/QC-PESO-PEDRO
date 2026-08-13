@@ -1,13 +1,44 @@
-import type { Request, Response } from "express";
-import { jwtAccessAuth } from "../middlewares/passport.middleware";
-import type { User } from "../../generated/prisma/browser";
-import UserModel from "../models/user.model";
-import { validateUserSchema } from "../middlewares/user.middleware";
+// General Imports
 import { UpdateUserSchema, UserSchema } from "@qcpesopedro/shared/schema/users";
-import UserService from "../service/user.service";
+import type { Request, Response } from "express";
+
+// Middleware
+import { jwtAccessAuth } from "../middlewares/passport.middleware";
+import { validateUserSchema } from "../middlewares/user.middleware";
+
+// Prisma Types
 import type { Role, Status } from "../../generated/prisma/client";
+import type { User } from "../../generated/prisma/browser";
+
+// Models
+import UserModel from "../models/user.model";
+
+// Service
+import UserService from "../service/user.service";
 
 export default {
+    getCurrentUser: [
+        jwtAccessAuth,
+        (req: Request, res: Response) => {
+            const user = req.user as User;
+            console.log(user);
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            const userContextPayload = {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                status: user.status,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            };
+            return res.json(userContextPayload);
+        },
+    ],
+
     getUserById: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
@@ -49,7 +80,7 @@ export default {
             if (await UserService.usernameExist(username))
                 return res.status(409).json({ message: "Username already exists" });
 
-            const result = UserModel.createUser(user);
+            const result = UserService.createUser(user);
 
             res.json(result);
         },

@@ -13,7 +13,7 @@ const generateTokens = (user: User) => {
     } as jwt.SignOptions);
 
     // Client token (in-memory)
-    const accessToken = jwt.sign({ sub: user.id, email: user.email }, env.JWT_ACCESS_SECRET, {
+    const accessToken = jwt.sign({ sub: user.id, email: user.email, role: user.role }, env.JWT_ACCESS_SECRET, {
         expiresIn: env.JWT_ACCESS_EXPIRES_IN,
     } as jwt.SignOptions);
 

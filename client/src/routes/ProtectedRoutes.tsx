@@ -38,7 +38,7 @@ import { auditLogData } from "../data/auditLogs";
 
 // API
 import { createTransaction } from "../api/transactions";
-import { getUsers } from "../api/userService";
+import { createUserAction, getUserById, getUsers } from "../api/userService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 
@@ -48,6 +48,7 @@ import { userContext } from "../utils/userContext";
 import { ROUTES } from "../hooks/reroute";
 import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
 import SystemErrorPage from "../pages/SystemErrorPage";
+import { getUserContextLoader } from "../api/authService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -62,6 +63,13 @@ export const protectedRoutes: RouteObject[] = [
             {
                 path: "",
                 element: <DashboardLayout {...userContext} />,
+                // Supposedly, this should provide the user context before loading the dashboard layout
+                // Issue (?): I think nauuna magload ito before /protected
+                loader: async () => {
+                    const userContext = await getUserContextLoader();
+                    console.log(userContext);
+                    return userContext;
+                },
                 children: [
                     {
                         path: "",
@@ -246,12 +254,19 @@ export const protectedRoutes: RouteObject[] = [
                             {
                                 path: "create",
                                 element: <PopupAddUser />,
-                                action: testActionFn(UserSchema),
+                                action: createUserAction,
                             },
                             {
                                 path: ":userId/edit",
                                 element: <PopupEditUser />,
                                 action: testActionFn(UserSchema),
+                                loader: async ({ params }) => {
+                                    const userId = Number(params.userId);
+                                    console.log(userId);
+                                    const users = (await getUserById(userId)) as typeof UserSchema;
+
+                                    return users;
+                                },
                             },
                             {
                                 path: ":userId/disable",

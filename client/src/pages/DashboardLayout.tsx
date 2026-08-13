@@ -1,6 +1,7 @@
 // General Imports
 import { Outlet } from "react-router";
 import "../index.css";
+import TokenStore from "../api/tokenStore";
 
 // Components
 import { NavBar } from "../components/Navbar";

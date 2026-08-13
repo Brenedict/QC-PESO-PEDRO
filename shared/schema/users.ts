@@ -6,12 +6,11 @@ export const UserSchema = zfd.formData({
     username: zfd.text(
         z.string({ error: "Username cannot be empty" }).trim().min(1, { message: "Username cannot be empty" })
     ),
-    password: zfd.text(
-        z.string({ error: "Password cannot be empty" }).trim().min(1, { message: "Password cannot be empty" })
-    ),
+    password: zfd.text(z.string().trim().min(1, { message: "Password cannot be empty" })).optional(),
     email: zfd.text(z.string({ error: "Email cannot be empty" }).trim().min(1, { message: "Email cannot be empty" })),
     role: zfd.text(z.enum(["SUPERADMIN", "ADMIN", "FRONTLINE"]).default("FRONTLINE")),
     status: zfd.text(z.enum(["ONLINE", "OFFLINE", "LOGGED_OUT"]).default("LOGGED_OUT")),
+    shift: zfd.text(z.enum(["NONE", "MORNING", "AFTERNOON"]).default("NONE")),
     firstName: zfd.text(
         z.string({ error: "First Name cannot be empty" }).trim().min(1, { message: "First Name cannot be empty" })
     ),
@@ -30,6 +29,7 @@ export const UpdateUserSchema = zfd.formData({
     email: zfd.text(z.string().trim().min(1, { message: "Email cannot be empty" })).optional(),
     role: zfd.text(z.enum(["SUPERADMIN", "ADMIN", "FRONTLINE"]).default("FRONTLINE")).optional(),
     status: zfd.text(z.enum(["ONLINE", "OFFLINE", "LOGGED_OUT"]).default("LOGGED_OUT")).optional(),
+    shift: zfd.text(z.enum(["NONE", "MORNING", "AFTERNOON"]).default("NONE")).optional(),
     firstName: zfd.text(z.string().trim().min(1, { message: "First Name cannot be empty" })).optional(),
     lastName: zfd.text(z.string().trim().min(1, { message: "Last Name cannot be empty" })).optional(),
 });

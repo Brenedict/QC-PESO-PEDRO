@@ -1,4 +1,7 @@
+// Prisma Type
 import type { Role, Status, User } from "../../generated/prisma/client";
+
+// Models
 import UserModel from "../models/user.model";
 
 export interface UserManagementFilter {
@@ -26,10 +29,17 @@ const updateUser = async (userId: number, user: User): Promise<User | null> => {
     return await UserModel.updateUser(userId, user);
 };
 
+const createUser = async (user: User): Promise<User | null> => {
+    const isoDate = new Date().toISOString().split("T")[0];
+    user.password = `${user.firstName.toUpperCase}-${user.lastName.toUpperCase}-${isoDate}`;
+    return await UserModel.createUser(user);
+};
+
 export default {
     getUsers,
     ensureUserExist,
     usernameExist,
     emailExist,
     updateUser,
+    createUser,
 };
