@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 
 // General Imports
 import { type SubmitEvent } from "react";
@@ -31,6 +31,7 @@ import type { UserRecord } from "../data/users";
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import type { UserSchemaType } from "../../../shared/schema/users";
 
 interface UserManagementProps {
     users: UserRecord[];
@@ -81,9 +82,11 @@ type RoleButton = {
     handleClick: (id: string) => () => void;
 };
 
-function UserManagement({ users }: UserManagementProps) {
+function UserManagement() {
     const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
+
+    const users = useLoaderData() as UserSchemaType[];
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -190,33 +193,33 @@ function UserManagement({ users }: UserManagementProps) {
                     <Table.Header text="ACTIONS" />
                 </Table.Row>
 
-                {users.map((row) => (
-                    <Table.Row key={row.id}>
+                {users.map((user) => (
+                    <Table.Row key={user.id}>
                         <Table.Data>
-                            <UserCell name={row.name} email={row.email} />
+                            <UserCell name={`${user.firstName} ${user.lastName}`} email={user.email} />
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="grayish-blue" align="center">
-                                {row.username}
+                                {user.username}
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <RoleBadge role={row.role} />
+                            <RoleBadge role={"admin"} />
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center">
-                                <Status type="status" variant={row.status} />
+                                <Status type="status" variant={"active"} />
                             </div>
                         </Table.Data>
-                        <Table.Data>
+                        {/* <Table.Data>
                             <div className="flex justify-center gap-2">
                                 <ActionButtons
-                                    id={row.id}
-                                    extraParams={{ name: row.name }}
-                                    actions={getRowActions(row.role)}
+                                    id={user.id}
+                                    extraParams={{ name: `${user.firstName} ${user.lastName}` }}
+                                    actions={getRowActions(user.role)}
                                 />
                             </div>
-                        </Table.Data>
+                        </Table.Data> */}
                     </Table.Row>
                 ))}
             </Table>
