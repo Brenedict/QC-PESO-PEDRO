@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import type { User } from "../../generated/prisma/client";
-import { UserSchema, UpdateUserSchema } from "@qcpesopedro/shared/schema//users";
+import type { User } from "@qcpesopedro/shared/prisma/client";
+import { UserSchema, UpdateUserSchema } from "@qcpesopedro/shared/schema/users";
 
 export const validateUserSchema =
     (schema: typeof UserSchema | typeof UpdateUserSchema) => (req: Request, res: Response, next: NextFunction) => {
