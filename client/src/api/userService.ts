@@ -1,4 +1,3 @@
-import type { UserSchemaType } from "../../../shared/schema/users";
 import { apiFetch } from "./httpClient";
 
 /*

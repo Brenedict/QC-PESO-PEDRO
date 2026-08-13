@@ -3,7 +3,7 @@ import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import type { User } from "../../generated/prisma/browser";
 import UserModel from "../models/user.model";
 import { validateUserSchema } from "../middlewares/user.middleware";
-import { UpdateUserSchema, UserSchema } from "../../schema/users";
+import { UpdateUserSchema, UserSchema } from "@qcpesopedro/shared/schema/users";
 import UserService from "../service/user.service";
 import type { Role, Status } from "../../generated/prisma/client";
 
