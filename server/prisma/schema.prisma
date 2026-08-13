@@ -5,7 +5,13 @@
 
 generator client {
     provider = "prisma-client"
-    output   = "../generated/prisma"
+    output   = "../../shared/prisma"
+}
+
+generator zod {
+    provider         = "prisma-zod-generator"
+    output           = "../../shared/zod"
+    prismaClientPath = "../../shared/prisma"
 }
 
 datasource db {

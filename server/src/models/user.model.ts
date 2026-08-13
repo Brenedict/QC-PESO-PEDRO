@@ -1,8 +1,6 @@
 // General Imports
+import { Prisma, type User } from "@qcpesopedro/shared/prisma/client";
 import prisma from "../config/prisma.config";
-
-// Prisma Types
-import { Prisma, type User } from "../../generated/prisma/client";
 
 // Service
 import { type UserManagementFilter } from "../service/user.service";

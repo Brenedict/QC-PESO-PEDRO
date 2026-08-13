@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import env from "../config/env.config";
 import jwt from "jsonwebtoken";
 import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport.middleware";
-import type { User } from "../../generated/prisma/client";
+import type { User } from "@qcpesopedro/shared/prisma/client";
 import ms from "ms";
 
 // Helper to generate tokens

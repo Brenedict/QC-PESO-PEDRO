@@ -7,8 +7,7 @@ import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { validateUserSchema } from "../middlewares/user.middleware";
 
 // Prisma Types
-import type { Role, Status } from "../../generated/prisma/client";
-import type { User } from "../../generated/prisma/browser";
+import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
 
 // Models
 import UserModel from "../models/user.model";
