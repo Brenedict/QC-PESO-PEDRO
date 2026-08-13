@@ -86,14 +86,21 @@ function UserManagement() {
     const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
+<<<<<<< Updated upstream
     const users = useLoaderData() as UserSchemaType[];
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+=======
+    const userRole: Role = "admin";
+
+    const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) =>  {
+>>>>>>> Stashed changes
         e.preventDefault();
         console.log("Filter applied in User Management");
     };
 
-    const RoleButtonMap: Record<Role, RoleButton> = {
+    const RoleButtonMap: Record<Role, RoleButton | null> = {
+        superadmin: null,
         admin: {
             icon: RemoveModeratorOutlinedIcon,
             text: "Demote",
@@ -108,37 +115,46 @@ function UserManagement() {
         },
     };
 
-    // Actions depende sa current role ng user
-    const getRowActions = (role: Role): ActionTypes => [
-        {
-            ...RoleButtonMap[role],
-        },
-        {
-            icon: EditOutlinedIcon,
-            text: "Edit",
-            color: "black",
-            handleClick: (id) => () => navigate(ROUTES.userManagement.edit(id), true),
-        },
-        {
-            icon: VpnKeyOutlinedIcon,
-            text: "Reset",
-            color: "black",
-            handleClick: (id) => () => navigate(ROUTES.userManagement.reset(id), true),
-        },
-        {
-            icon: PersonOffOutlinedIcon,
-            text: "Disable",
-            color: "red",
-            handleClick: (id) => () => navigate(ROUTES.userManagement.disable(id), true),
-        },
-    ];
+    const getRowActions = (rowRole: Role): ActionTypes => {
+        const actions: ActionTypes = [];
 
-    // Added extraFilters for User Management
+        if (RoleButtonMap[rowRole]) {
+            actions.push(RoleButtonMap[rowRole]!);
+        }
+
+        if (userRole === "admin" && rowRole === "superadmin") {
+            return actions;
+        }
+
+        actions.push(
+            {
+                icon: EditOutlinedIcon,
+                text: "Edit",
+                color: "black",
+                handleClick: (id) => () => navigate(ROUTES.userManagement.edit(id), true),
+            },
+            {
+                icon: VpnKeyOutlinedIcon,
+                text: "Reset",
+                color: "black",
+                handleClick: (id) => () => navigate(ROUTES.userManagement.reset(id), true),
+            },
+            {
+                icon: PersonOffOutlinedIcon,
+                text: "Disable",
+                color: "red",
+                handleClick: (id) => () => navigate(ROUTES.userManagement.disable(id), true),
+            }
+        );
+
+        return actions;
+    };
     const extraFilters = (
         <div className="flex gap-4 items-center">
             <SelectInput
                 optionList={[
                     { content: "All Roles", value: "" },
+                    { content: "Super Administrator", value: "superadmin" },
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "frontline" },
                 ]}
@@ -177,7 +193,7 @@ function UserManagement() {
                 <StatCard title="Total Users" value={24} />
                 <StatCard title="Active Users" value={20} />
                 <StatCard title="Inactive Users" value={4} />
-                <StatCard title="Roles" value={2} />
+                <StatCard title="Roles" value={3} />
             </div>
 
             <Table
@@ -196,7 +212,11 @@ function UserManagement() {
                 {users.map((user) => (
                     <Table.Row key={user.id}>
                         <Table.Data>
+<<<<<<< Updated upstream
                             <UserCell name={`${user.firstName} ${user.lastName}`} email={user.email} />
+=======
+                            <UserCell name={`${row.firstName} ${row.lastName}`} email={row.email} />
+>>>>>>> Stashed changes
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="grayish-blue" align="center">
@@ -214,9 +234,15 @@ function UserManagement() {
                         {/* <Table.Data>
                             <div className="flex justify-center gap-2">
                                 <ActionButtons
+<<<<<<< Updated upstream
                                     id={user.id}
                                     extraParams={{ name: `${user.firstName} ${user.lastName}` }}
                                     actions={getRowActions(user.role)}
+=======
+                                    id={row.id}
+                                    extraParams={{ name: `${row.firstName} ${row.lastName}` }}
+                                    actions={getRowActions(row.role)}
+>>>>>>> Stashed changes
                                 />
                             </div>
                         </Table.Data> */}
@@ -224,7 +250,6 @@ function UserManagement() {
                 ))}
             </Table>
 
-            {/* Popup Uses */}
             <Outlet />
         </div>
     );

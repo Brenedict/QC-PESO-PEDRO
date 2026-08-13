@@ -123,6 +123,7 @@ export function ActionButton({
 }
 
 const badgeMap = {
+    superadmin: { text: "white", bg: "border-dark-blue bg-dark-blue" },
     admin: { text: "primary-blue", bg: "border-primary-blue bg-grayish-blue-opaque" },
     frontline: { text: "grayish-blue", bg: "border-off-white-border bg-off-white" },
 } as const;
@@ -131,13 +132,12 @@ const badgeMap = {
 export function RoleBadge({ role }: { role: Role }) {
     return (
         <div className={`px-3 py-1 rounded-md border  w-fit mx-auto ${badgeMap[role].bg}`}>
-            <Text size="small" weight="bold" variant={badgeMap[role].text} align="center" className="uppercase">
-                {role === "admin" ? "Administrator" : "Frontline Encoder"}
+            <Text size="small" weight="bold" variant={badgeMap[role].text as any} align="center" className="uppercase">
+                {role === "superadmin" ? "Super Admin" : role === "admin" ? "Administrator" : "Frontline Encoder"}
             </Text>
         </div>
     );
 }
-
 export function ColumnDesc({ children }: { children: ReactNode }) {
     return (
         <Text size="description" variant="grayish-blue" align="center">

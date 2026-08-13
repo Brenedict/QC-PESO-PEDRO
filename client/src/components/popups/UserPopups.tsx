@@ -20,7 +20,14 @@ function PopupUserForms({ formId, user }: { formId: string; user?: UserRecord })
             {user && <GeneralInput hidden={true} name="id" type="text" value={user.id} />}
 
             <div className="col-span-2">
-                <GeneralInput type="text" label="Full Name" id="fullName" name="fullName" value={user?.name ?? ""} />
+                <GeneralInput
+                    type="text"
+                    label="Full Name"
+                    id="fullName"
+                    name="fullName"
+                    defaultValue={user ? `${user.firstName} ${user.lastName}` : ""}
+                    required
+                />
             </div>
             <GeneralInput
                 type="email"
@@ -28,25 +35,28 @@ function PopupUserForms({ formId, user }: { formId: string; user?: UserRecord })
                 placeholder="name@quezoncity.gov.ph"
                 id="email"
                 name="email"
-                value={user?.email ?? ""}
+                defaultValue={user?.email ?? ""}
             />
-            <GeneralInput type="text" label="Username" id="userName" name="userName" value={user?.username ?? ""} />
-
-            {/* Under ng Role sa types/common.ts */}
+            <GeneralInput
+                type="text"
+                label="Username"
+                id="userName"
+                name="userName"
+                defaultValue={user?.username ?? ""}
+            />
             <SelectInput
-                value={user?.role ?? "frontline"}
+                defaultValue={user?.role ?? "frontline"}
                 label="Role"
                 id="role"
                 name="role"
                 optionList={[
+                    { content: "Super Administrator", value: "superadmin" },
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "frontline" },
                 ]}
             />
-
-            {/* Under ng StatusVariant<"status"> */}
             <SelectInput
-                value={user?.status ?? "active"}
+                defaultValue={user?.status ?? "active"}
                 label="Status"
                 id="status"
                 name="status"
@@ -115,7 +125,10 @@ export function PopupEditUser() {
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
-                <Text weight="bold">Edit User: {user.name}</Text>
+                <Text weight="bold">
+                    {" "}
+                    Edit User: {user.firstName} {user.lastName}{" "}
+                </Text>
             </Dialog.Header>
             <Dialog.Body className="p-6!">
                 <PopupUserForms formId="userFormViewEdit" user={user} />
@@ -153,7 +166,12 @@ export function PopupDisableUser() {
                     <PopupIcon icon={PersonOffOutlinedIcon} />
                     <PopupHeader>Deactivate Account?</PopupHeader>
                     <PopupDescription>
-                        Are you sure you want to deactivate <span className="font-bold text-black">{user.name}</span>?
+                        Are you sure you want to deactivate{" "}
+                        <span className="font-bold text-black">
+                            {" "}
+                            {user.firstName} {user.lastName}{" "}
+                        </span>
+                        ?
                     </PopupDescription>
                     <PopupNotice>This user will no longer be able to log into the system.</PopupNotice>
                 </section>
@@ -219,7 +237,10 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
                     <PopupHeader>{userPrivilegeMap[privilegeType].header}</PopupHeader>
                     <PopupDescription>{userPrivilegeMap[privilegeType].description}</PopupDescription>
                     <PopupNotice variant="off-white">
-                        <div className="text-black font-bold">{user.name}</div>
+                        <div className="text-black font-bold">
+                            {" "}
+                            {user.firstName} {user.lastName}{" "}
+                        </div>
                         {userPrivilegeMap[privilegeType].notice}
                     </PopupNotice>
                 </section>
@@ -276,7 +297,7 @@ export function PopupResetUser() {
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <Text variant="dark-blue" weight="bold" size="normal">
-                        {user.name}
+                        {user.firstName} {user.lastName}
                     </Text>
                     <Text variant="dark-blue" weight="normal" size="description">
                         {user.email}

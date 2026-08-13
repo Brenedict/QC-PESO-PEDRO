@@ -108,11 +108,12 @@ function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
                 name="role"
                 id="role"
                 optionList={[
-                    { content: "Frontline Encoder", value: "frontline" },
+                    { content: "Super Administrator", value: "superadmin" }, 
                     { content: "Administrator", value: "admin" },
+                    { content: "Frontline Encoder", value: "frontline" },
                 ]}
             />
-
+            
             <br className="block mb-30" />
 
             <div className="flex justify-between mb-6">

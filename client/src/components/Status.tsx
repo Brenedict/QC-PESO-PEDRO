@@ -14,7 +14,7 @@ type StatusVariantMap = {
     type: "walkin" | "online" | "inhouse";
     outcome: "pending" | "mismatched" | "success";
     verification: "pending" | "approved" | "needsrevision" | "rejected";
-    status: "active" | "inactive";
+    status: "active" | "inactive" | "disabled";
 };
 
 // Types of status that can be displayed
@@ -70,6 +70,7 @@ const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
     status: {
         active: { text: "Active", variant: "green", theme: colorClasses.green },
         inactive: { text: "Inactive", variant: "red", theme: colorClasses.red },
+        disabled: { text: "Disabled", variant: "grayish-blue", theme: colorClasses.offWhite, icon: CancelOutlinedIcon },
     },
 };
 
