@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import type { User } from "@qcpesopedro/shared/prisma/client";
 import UserModel from "../models/user.model";
-import { validateUserSchema } from "../middlewares/user.middleware";
+import { validateSchema } from "../middlewares/zod.middleware";
 import { UpdateUserSchema, UserSchema } from "@qcpesopedro/shared/schema/users";
 import UserService from "../service/user.service";
 import type { Role, Status } from "@qcpesopedro/shared/prisma/client";
@@ -38,7 +38,7 @@ export default {
 
     post: [
         jwtAccessAuth,
-        validateUserSchema(UserSchema),
+        validateSchema(UserSchema),
         async (req: Request, res: Response) => {
             const user = req.body as User;
             const { email, username } = user;
@@ -57,7 +57,7 @@ export default {
 
     patch: [
         jwtAccessAuth,
-        validateUserSchema(UpdateUserSchema),
+        validateSchema(UpdateUserSchema),
         async (req: Request, res: Response) => {
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);

@@ -1,9 +1,14 @@
 import type { Request, Response } from "express";
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import TransactionModel from "../models/transaction.model";
-import type { Transaction } from "../../generated/prisma/browser";
-
-type CodedTransaction = Transaction & { code: string | null };
+import type { Outcome, Transaction, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import {
+    TransactionUncheckedCreateInputObjectSchema,
+    TransactionUncheckedUpdateInputObjectSchema,
+} from "@qcpesopedro/shared/zod/schemas";
+import { validateSchema } from "../middlewares/zod.middleware";
+import type { TransactionCreateInput, TransactionUncheckedCreateInput } from "@qcpesopedro/shared/prisma/models";
+export type CodedTransaction = Transaction & { code: string | null };
 
 // Append a `code` field to a transaction object
 async function setTransactionCode(transaction: Transaction) {
@@ -17,25 +22,21 @@ async function setTransactionCode(transaction: Transaction) {
 
     // Number of that transaction in that day
     const count = await TransactionModel.countByDate(date);
-    const code = `TX-${formattedDate}-${String(count + 1).padStart(3, "0")}`;
+    const code = `TXN-${formattedDate}-${String(count + 1).padStart(3, "0")}`;
     const codedTransaction: CodedTransaction = { ...transaction, code };
 
     return codedTransaction;
 }
 
 export default {
-    get: [
+    getTransactions: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
-            if (req.params.transactionId) {
-                const transaction = await TransactionModel.getById(parseInt(req.params.transactionId as string));
+            const transactions = await TransactionModel.getTransactions(
+                req.query.type as TransactionType,
+                req.query.outcome as Outcome
+            );
 
-                return transaction
-                    ? res.json(await setTransactionCode(transaction))
-                    : res.status(404).json({ error: "Transaction not found" });
-            }
-
-            const transactions = await TransactionModel.getAll();
             const codedTransactions = await Promise.all(
                 transactions.map((transaction) => setTransactionCode(transaction))
             );
@@ -43,25 +44,51 @@ export default {
             res.json(codedTransactions);
         },
     ],
-    post: [
+
+    getTransactionById: [
         jwtAccessAuth,
-        (req: Request, res: Response) => {
-            console.log(req.body); // For testing: returns sent request body
+        async (req: Request, res: Response) => {
+            const transaction = await TransactionModel.getById(parseInt(req.params.transactionId as string));
+
+            return transaction
+                ? res.json(await setTransactionCode(transaction))
+                : res.status(404).json({ error: "Transaction not found" });
+        },
+    ],
+
+    postTransaction: [
+        jwtAccessAuth,
+        validateSchema(TransactionUncheckedCreateInputObjectSchema),
+        async (req: Request, res: Response) => {
+            const transaction = req.body as TransactionUncheckedCreateInput;
+            await TransactionModel.createTransaction(transaction);
             res.status(201).json(req.body);
         },
     ],
 
     patch: [
         jwtAccessAuth,
-        (req: Request, res: Response) => {
-            console.log(req.body); // For testing: returns sent request body
+        validateSchema(TransactionUncheckedUpdateInputObjectSchema),
+        async (req: Request, res: Response) => {
+            const id = parseInt(req.params.transactionId as string);
+            const exists = await TransactionModel.transactionWithIdExists(id);
+
+            if (!exists) res.status(404).json({ error: "Transaction not found" });
+
+            await TransactionModel.updateTransaction(id, req.body as TransactionUncheckedCreateInput);
             res.status(201).json(req.body);
         },
     ],
 
     delete: [
         jwtAccessAuth,
-        (_req: Request, res: Response) => {
+        async (req: Request, res: Response) => {
+            const id = parseInt(req.params.transactionId as string);
+            const exists = await TransactionModel.transactionWithIdExists(id);
+
+            if (!exists) res.status(404).json({ error: "Transaction not found" });
+
+            await TransactionModel.deleteTransaction(id);
             res.status(204).end();
         },
     ],

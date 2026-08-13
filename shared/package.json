@@ -4,6 +4,7 @@
     "private": true,
     "dependencies": {
         "zod": "^4.4.3",
-        "zod-form-data": "^3.0.3"
+        "zod-form-data": "^3.0.3",
+        "@qcpesopedro/server": "*"
     }
 }

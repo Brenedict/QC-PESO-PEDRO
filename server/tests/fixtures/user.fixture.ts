@@ -1,4 +1,4 @@
-import type { User } from "../../generated/prisma/browser";
+import type { User } from "@qcpesopedro/shared/prisma/client";
 
 export const mockUser: User = {
     id: 1,

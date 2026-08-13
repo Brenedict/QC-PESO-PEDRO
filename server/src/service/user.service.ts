@@ -1,4 +1,4 @@
-import type { Role, Status, User } from "../../generated/prisma/client";
+import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
 import UserModel from "../models/user.model";
 
 export interface UserManagementFilter {

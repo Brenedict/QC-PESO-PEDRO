@@ -3,13 +3,11 @@ import { zfd } from "zod-form-data";
 
 export const TransactionSchema = zfd.formData({
     id: zfd.text(z.string().optional()),
-    applicantFirstName: zfd.text(z.string().optional()),
-    applicantLastName: zfd.text(z.string().optional()),
-    date: zfd.text(z.string().optional()),
-    time: zfd.text(z.string().optional()),
-    transactionType: zfd.text(z.string().optional()),
-    applicantSex: zfd.text(z.string().optional()),
-    transactionOutcome: zfd.text(z.string().optional()),
+    applicantFirstName: zfd.text(z.string().trim().nonempty({ message: "Applicant first name cannot be empty" })),
+    applicantLastName: zfd.text(z.string().trim().nonempty({ message: "Applicant last name cannot be empty" })),
+    transactionType: zfd.text(z.string()),
+    applicantSex: zfd.text(z.string()),
+    transactionOutcome: zfd.text(z.string()),
     firstTimeJobSeeker: zfd.checkbox().default(false),
     personsWithDisability: zfd.checkbox().default(false),
     seniorCitizen: zfd.checkbox().default(false),

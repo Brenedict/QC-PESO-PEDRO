@@ -1,0 +1,14 @@
+import type { Prisma } from '../../../shared/prisma/browser';
+import * as z from 'zod';
+import { AccountLogOrderByWithRelationInputObjectSchema as AccountLogOrderByWithRelationInputObjectSchema } from './objects/AccountLogOrderByWithRelationInput.schema';
+import { AccountLogWhereInputObjectSchema as AccountLogWhereInputObjectSchema } from './objects/AccountLogWhereInput.schema';
+import { AccountLogWhereUniqueInputObjectSchema as AccountLogWhereUniqueInputObjectSchema } from './objects/AccountLogWhereUniqueInput.schema';
+import { AccountLogCountAggregateInputObjectSchema as AccountLogCountAggregateInputObjectSchema } from './objects/AccountLogCountAggregateInput.schema';
+import { AccountLogMinAggregateInputObjectSchema as AccountLogMinAggregateInputObjectSchema } from './objects/AccountLogMinAggregateInput.schema';
+import { AccountLogMaxAggregateInputObjectSchema as AccountLogMaxAggregateInputObjectSchema } from './objects/AccountLogMaxAggregateInput.schema';
+import { AccountLogAvgAggregateInputObjectSchema as AccountLogAvgAggregateInputObjectSchema } from './objects/AccountLogAvgAggregateInput.schema';
+import { AccountLogSumAggregateInputObjectSchema as AccountLogSumAggregateInputObjectSchema } from './objects/AccountLogSumAggregateInput.schema';
+
+export const AccountLogAggregateSchema: z.ZodType<Prisma.AccountLogAggregateArgs> = z.object({ orderBy: z.union([AccountLogOrderByWithRelationInputObjectSchema, AccountLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: AccountLogWhereInputObjectSchema.optional(), cursor: AccountLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), AccountLogCountAggregateInputObjectSchema ]).optional(), _min: AccountLogMinAggregateInputObjectSchema.optional(), _max: AccountLogMaxAggregateInputObjectSchema.optional(), _avg: AccountLogAvgAggregateInputObjectSchema.optional(), _sum: AccountLogSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.AccountLogAggregateArgs>;
+
+export const AccountLogAggregateZodSchema = z.object({ orderBy: z.union([AccountLogOrderByWithRelationInputObjectSchema, AccountLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: AccountLogWhereInputObjectSchema.optional(), cursor: AccountLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), AccountLogCountAggregateInputObjectSchema ]).optional(), _min: AccountLogMinAggregateInputObjectSchema.optional(), _max: AccountLogMaxAggregateInputObjectSchema.optional(), _avg: AccountLogAvgAggregateInputObjectSchema.optional(), _sum: AccountLogSumAggregateInputObjectSchema.optional() }).strict();

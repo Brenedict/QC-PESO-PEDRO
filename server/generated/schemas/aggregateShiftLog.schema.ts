@@ -1,0 +1,14 @@
+import type { Prisma } from '../../../shared/prisma/browser';
+import * as z from 'zod';
+import { ShiftLogOrderByWithRelationInputObjectSchema as ShiftLogOrderByWithRelationInputObjectSchema } from './objects/ShiftLogOrderByWithRelationInput.schema';
+import { ShiftLogWhereInputObjectSchema as ShiftLogWhereInputObjectSchema } from './objects/ShiftLogWhereInput.schema';
+import { ShiftLogWhereUniqueInputObjectSchema as ShiftLogWhereUniqueInputObjectSchema } from './objects/ShiftLogWhereUniqueInput.schema';
+import { ShiftLogCountAggregateInputObjectSchema as ShiftLogCountAggregateInputObjectSchema } from './objects/ShiftLogCountAggregateInput.schema';
+import { ShiftLogMinAggregateInputObjectSchema as ShiftLogMinAggregateInputObjectSchema } from './objects/ShiftLogMinAggregateInput.schema';
+import { ShiftLogMaxAggregateInputObjectSchema as ShiftLogMaxAggregateInputObjectSchema } from './objects/ShiftLogMaxAggregateInput.schema';
+import { ShiftLogAvgAggregateInputObjectSchema as ShiftLogAvgAggregateInputObjectSchema } from './objects/ShiftLogAvgAggregateInput.schema';
+import { ShiftLogSumAggregateInputObjectSchema as ShiftLogSumAggregateInputObjectSchema } from './objects/ShiftLogSumAggregateInput.schema';
+
+export const ShiftLogAggregateSchema: z.ZodType<Prisma.ShiftLogAggregateArgs> = z.object({ orderBy: z.union([ShiftLogOrderByWithRelationInputObjectSchema, ShiftLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: ShiftLogWhereInputObjectSchema.optional(), cursor: ShiftLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), ShiftLogCountAggregateInputObjectSchema ]).optional(), _min: ShiftLogMinAggregateInputObjectSchema.optional(), _max: ShiftLogMaxAggregateInputObjectSchema.optional(), _avg: ShiftLogAvgAggregateInputObjectSchema.optional(), _sum: ShiftLogSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.ShiftLogAggregateArgs>;
+
+export const ShiftLogAggregateZodSchema = z.object({ orderBy: z.union([ShiftLogOrderByWithRelationInputObjectSchema, ShiftLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: ShiftLogWhereInputObjectSchema.optional(), cursor: ShiftLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), ShiftLogCountAggregateInputObjectSchema ]).optional(), _min: ShiftLogMinAggregateInputObjectSchema.optional(), _max: ShiftLogMaxAggregateInputObjectSchema.optional(), _avg: ShiftLogAvgAggregateInputObjectSchema.optional(), _sum: ShiftLogSumAggregateInputObjectSchema.optional() }).strict();

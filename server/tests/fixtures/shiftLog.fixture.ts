@@ -1,4 +1,4 @@
-import type { ShiftLog } from "../../generated/prisma/browser";
+import type { ShiftLog } from "@qcpesopedro/shared/prisma/client";
 
 export const buildMockShiftLog = (userId: number): ShiftLog => ({
     id: 1,

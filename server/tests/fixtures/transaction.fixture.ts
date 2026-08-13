@@ -1,4 +1,4 @@
-import { Demographic, Outcome, Sex, TransactionType, type Transaction } from "../../generated/prisma/browser";
+import { Demographic, Outcome, Sex, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/client";
 
 export const buildMockTransactions = (userId: number, shiftLogId: number): Transaction[] => [
     {

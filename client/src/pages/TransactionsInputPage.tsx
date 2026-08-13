@@ -25,6 +25,7 @@ import { transactions } from "../data/transactions";
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
 import { useNavigateDefault, ROUTES } from "../hooks/reroute";
+import { Demographic } from "@qcpesopedro/shared/prisma/client";
 
 export function FormRow1() {
     return (
@@ -92,19 +93,19 @@ export function FormRow3() {
                 Applicant Classification
             </Text>
             <div className="flex flex-wrap gap-3">
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name={Demographic.FIRST_TIME_JOB_SEEKER}>
                     First Time Job Seeker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="personsWithDisability">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name={Demographic.PERSONS_WITH_DISABILITY}>
                     Person With Disability (PWD)
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name={Demographic.SENIOR_CITIZEN}>
                     Senior Citizen
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name={Demographic.YOUNG_WORKER}>
                     Young Worker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="workImmersionInternship">
+                <ChoiceItem inputVariant="checkbox" stylized={true} name={Demographic.WORK_IMMERSION_INTERNSHIP}>
                     Work Immersion/Internship
                 </ChoiceItem>
             </div>
