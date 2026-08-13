@@ -39,6 +39,7 @@ import { usersData } from "../data/users";
 
 // API
 import { createTransaction } from "../api/transactions";
+import { getUsers } from "../api/userService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 
@@ -236,7 +237,12 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "user-management",
-                        element: <UserManagement users={usersData} />,
+                        element: <UserManagement />,
+                        loader: async () => {
+                            const users = (await getUsers()) as (typeof UserSchema)[];
+
+                            return users;
+                        },
                         children: [
                             {
                                 path: "create",

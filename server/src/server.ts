@@ -9,6 +9,7 @@ import "./config/passport.config";
 // Routes
 import authRoutes from "./routes/auth.route";
 import transactionRoutes from "./routes/transaction.route";
+import userRoutes from "./routes/user.route";
 
 // Initializers
 const app = express();
@@ -46,6 +47,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
+app.use("/api/v1/user", userRoutes);
 
 // --------------------- SERVER EXIT ----------------------------------
 
