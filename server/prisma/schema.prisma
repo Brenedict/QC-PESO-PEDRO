@@ -34,6 +34,7 @@ enum LogAction {
 }
 
 enum Status {
+    DISABLED
     ONLINE
     OFFLINE
     LOGGED_OUT
@@ -51,6 +52,7 @@ enum Role {
 }
 
 enum Shift {
+    NONE
     MORNING
     AFTERNOON
 }
@@ -137,8 +139,8 @@ model User {
     password  String   @db.VarChar(256)
     email     String   @unique @db.VarChar(256)
     role      Role     @default(FRONTLINE)
-    status    Status
-    shift     Shift
+    status    Status   @default(LOGGED_OUT)
+    shift     Shift    @default(NONE)
     firstName String   @db.VarChar(256)
     lastName  String   @db.VarChar(256)
     createdAt DateTime @default(now()) @db.Timestamptz(0)
