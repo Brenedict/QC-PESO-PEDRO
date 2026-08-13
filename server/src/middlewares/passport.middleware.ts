@@ -1,6 +1,6 @@
 import passport from "passport";
 import type { Request, Response, NextFunction } from "express";
-import type { User } from "../../generated/prisma/client";
+import type { User } from "@qcpesopedro/shared/prisma/client";
 
 type PPError = Error | null;
 type PPUser = User | false;

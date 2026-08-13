@@ -1,4 +1,4 @@
-import { Prisma, type User } from "../../generated/prisma/client";
+import { Prisma, type User } from "@qcpesopedro/shared/prisma/client";
 import prisma from "../config/prisma.config";
 import { type UserManagementFilter } from "../service/user.service";
 

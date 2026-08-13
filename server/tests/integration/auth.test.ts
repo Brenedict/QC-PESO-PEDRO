@@ -3,7 +3,7 @@ import express from "express";
 import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import authRouter from "../../src/routes/auth.route";
-import type { User } from "../../generated/prisma/browser";
+import type { User } from "@qcpesopedro/shared/prisma/client";
 import prisma from "../../src/config/prisma.config";
 
 export const mockUser: User = {

@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
-import type { User } from "../../generated/prisma/browser";
+import type { User } from "@qcpesopedro/shared/prisma/client";
 import UserModel from "../models/user.model";
 import { validateUserSchema } from "../middlewares/user.middleware";
 import { UpdateUserSchema, UserSchema } from "@qcpesopedro/shared/schema/users";
 import UserService from "../service/user.service";
-import type { Role, Status } from "../../generated/prisma/client";
+import type { Role, Status } from "@qcpesopedro/shared/prisma/client";
 
 export default {
     getUserById: [
