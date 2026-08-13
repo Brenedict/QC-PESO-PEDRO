@@ -65,11 +65,11 @@ export const protectedRoutes: RouteObject[] = [
                 element: <DashboardLayout {...userContext} />,
                 // Supposedly, this should provide the user context before loading the dashboard layout
                 // Issue (?): I think nauuna magload ito before /protected
-                loader: async () => {
-                    const userContext = await getUserContextLoader();
-                    console.log(userContext);
-                    return userContext;
-                },
+                // loader: async () => {
+                //     const userContext = await getUserContextLoader();
+                //     console.log(userContext);
+                //     return userContext;
+                // },
                 children: [
                     {
                         path: "",
