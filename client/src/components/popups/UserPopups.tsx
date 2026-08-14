@@ -6,17 +6,25 @@ import { Text } from "../Text";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
 import { GeneralInput, PasswordInput, SelectInput } from "../Input";
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 import { usersData } from "../../data/users";
 import ChoiceItem from "../ChoiceItem";
 import type { UserSchemaType } from "@qcpesopedro/shared/schema/users";
 
-function PopupUserForms({ formId, user }: { formId: string; user?: UserSchemaType }) {
+function PopupUserForms({
+    formId,
+    user,
+    onChange,
+}: {
+    formId: string;
+    user?: UserSchemaType;
+    onChange?: React.FormEventHandler<HTMLFormElement>;
+}) {
     // Temporary lang yung logic neto (binase ko sa dummy data ni richard)
     return (
-        <Form method="post" id={formId} className="grid grid-cols-2 h-fit gap-4">
+        <Form method="post" id={formId} className="grid grid-cols-2 h-fit gap-4" onChange={onChange}>
             {/* ID holder */}
             {user && <GeneralInput hidden={true} name="id" type="text" value={user.id} />}
 
@@ -44,7 +52,9 @@ function PopupUserForms({ formId, user }: { formId: string; user?: UserSchemaTyp
                 placeholder="name@quezoncity.gov.ph"
                 id="email"
                 name="email"
-                value={user?.email}
+                defaultValue={user?.email}
+                required
+                isRequired={true}
             />
             <GeneralInput
                 type="text"
@@ -53,14 +63,17 @@ function PopupUserForms({ formId, user }: { formId: string; user?: UserSchemaTyp
                 name="username"
                 placeholder="John"
                 value={user?.username}
+                required
+                isRequired={true}
             />
 
-            {/* Under ng Role sa types/common.ts */}
             <SelectInput
-                value={user?.role ?? "FRONTLINE"}
+                defaultValue={user?.role ?? "FRONTLINE"}
                 label="Role"
                 id="role"
                 name="role"
+                required
+                isRequired={true}
                 optionList={[
                     { content: "Administrator", value: "ADMIN" },
                     { content: "Frontline Encoder", value: "FRONTLINE" },
@@ -81,17 +94,23 @@ function PopupUserForms({ formId, user }: { formId: string; user?: UserSchemaTyp
         </Form>
     );
 }
-
 export function PopupAddUser() {
     const navigate = useNavigateDefault();
     const isoDate = new Date().toISOString().split("T")[0];
+
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
+
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
                 <Text weight="bold">Add New User</Text>
             </Dialog.Header>
             <Dialog.Body className="p-6! flex flex-col gap-4">
-                <PopupUserForms formId="userFormCreateUser" />
+                <PopupUserForms formId="userFormCreateUser" onChange={handleFormChange} />
                 <PopupNotice>Temporary Password: QCPESO-FIRSTNAME-LASTNAME-CURRENTDATE</PopupNotice>
                 <PopupNotice variant="off-white">{`QCPESO-JOHN-DOE-${isoDate}`}</PopupNotice>
             </Dialog.Body>
@@ -99,7 +118,7 @@ export function PopupAddUser() {
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" type="submit" form="userFormCreateUser">
+                <PopupButton variant="blue" type="submit" form="userFormCreateUser" disabled={!isFormValid}>
                     Create User
                 </PopupButton>
             </Dialog.Footer>
@@ -115,22 +134,29 @@ export function PopupEditUser() {
 
     const decodedId = decode(userId);
 
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
-                <Text weight="bold">Edit User: {user.name}</Text>
+                <Text weight="bold">
+                    {" "}
+                    {"John"} {"Doe"}{" "}
+                </Text>
             </Dialog.Header>
             <Dialog.Body className="p-6!">
-                <PopupUserForms formId="userFormViewEdit" />
+                <PopupUserForms formId="userFormViewEdit" onChange={handleFormChange} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" type="submit" form="userFormViewEdit">
+                {/* Disable the button if they delete a required field */}
+                <PopupButton variant="blue" type="submit" form="userFormViewEdit" disabled={!isFormValid}>
                     Save Changes
                 </PopupButton>
             </Dialog.Footer>
@@ -145,8 +171,6 @@ export function PopupDisableUser() {
     if (!userId) return null;
 
     const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -159,7 +183,12 @@ export function PopupDisableUser() {
                     <PopupIcon icon={PersonOffOutlinedIcon} />
                     <PopupHeader>Deactivate Account?</PopupHeader>
                     <PopupDescription>
-                        Are you sure you want to deactivate <span className="font-bold text-black">{user.name}</span>?
+                        Are you sure you want to deactivate{" "}
+                        <span className="font-bold text-black">
+                            {" "}
+                            {"John"} {"Doe"}{" "}
+                        </span>
+                        ?
                     </PopupDescription>
                     <PopupNotice>This user will no longer be able to log into the system.</PopupNotice>
                 </section>
@@ -211,7 +240,6 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
 
     const decodedId = decode(userId);
     const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -225,7 +253,10 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
                     <PopupHeader>{userPrivilegeMap[privilegeType].header}</PopupHeader>
                     <PopupDescription>{userPrivilegeMap[privilegeType].description}</PopupDescription>
                     <PopupNotice variant="off-white">
-                        <div className="text-black font-bold">{user.name}</div>
+                        <div className="text-black font-bold">
+                            {" "}
+                            {"John"} {"Doe"}{" "}
+                        </div>
                         {userPrivilegeMap[privilegeType].notice}
                     </PopupNotice>
                 </section>
@@ -267,8 +298,6 @@ export function PopupResetUser() {
     if (!userId) return null;
 
     const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -282,10 +311,10 @@ export function PopupResetUser() {
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <Text variant="dark-blue" weight="bold" size="normal">
-                        {user.name}
+                        {"John"} {"Doe"}{" "}
                     </Text>
                     <Text variant="dark-blue" weight="normal" size="description">
-                        {user.email}
+                        {"johndoe@gmail.com"}
                     </Text>
                     <br className="block mb-4" />
                     <PopupRadio value="generate" defaultChecked={true}>

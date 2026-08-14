@@ -75,7 +75,7 @@ function ProfileSection() {
                     {userFullName}
                 </Text>
                 <Text size="small" variant="primary-blue" weight="medium" align="right">
-                    {roleType === "admin" ? "Administrator" : "Frontline Encoder"}
+                    {roleType === "superadmin" ? "Super Administrator" : roleType === "admin" ? "Administrator" : "Frontline Encoder"}
                 </Text>
             </div>
             <Profile userFullName={userFullName} size="small" />

@@ -113,9 +113,6 @@ export const FormUsage: Story = {
                 e.preventDefault();
                 const formData = new FormData(e.currentTarget);
                 const data = Object.fromEntries(formData.entries());
-
-                // Currently this only displays ticked checkboxes
-                console.log(data);
             }}
         >
             <div className="flex gap-2">

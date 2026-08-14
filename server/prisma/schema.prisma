@@ -44,6 +44,7 @@ enum Status {
     ONLINE
     OFFLINE
     LOGGED_OUT
+    DISABLED
 }
 
 enum Sex {

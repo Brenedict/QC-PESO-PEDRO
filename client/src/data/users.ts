@@ -3,7 +3,8 @@ import type { Role } from "../types/common";
 
 export interface UserRecord {
     id: string;
-    name: string;
+    firstName: string; 
+    lastName: string; 
     email: string;
     username: string;
     role: Role;
@@ -13,7 +14,8 @@ export interface UserRecord {
 export const usersData: UserRecord[] = [
     {
         id: "USR-001",
-        name: "Maria Santos",
+        firstName: "Maria",
+        lastName: "Santos",
         email: "m.santos@qc.gov.ph",
         username: "@maria.santos",
         role: "admin",
@@ -21,7 +23,8 @@ export const usersData: UserRecord[] = [
     },
     {
         id: "USR-002",
-        name: "Juan Cruz",
+        firstName: "Juan",
+        lastName: "Cruz",
         email: "j.cruz@qc.gov.ph",
         username: "@juan.cruz",
         role: "frontline",
@@ -29,15 +32,17 @@ export const usersData: UserRecord[] = [
     },
     {
         id: "USR-003",
-        name: "Ana Lim",
+        firstName: "Ana",
+        lastName: "Lim",
         email: "a.lim@qc.gov.ph",
         username: "@ana.lim",
         role: "frontline",
-        status: "active",
+        status: "disabled",
     },
     {
         id: "USR-004",
-        name: "Mark Reyes",
+        firstName: "Mark",
+        lastName: "Reyes",
         email: "m.reyes@qc.gov.ph",
         username: "@mark.reyes",
         role: "frontline",
@@ -45,10 +50,11 @@ export const usersData: UserRecord[] = [
     },
     {
         id: "USR-005",
-        name: "System Admin",
+        firstName: "System",
+        lastName: "Admin",
         email: "admin@qc.gov.ph",
         username: "@admin",
-        role: "admin",
+        role: "superadmin", 
         status: "active",
     },
 ];

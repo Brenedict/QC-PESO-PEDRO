@@ -3,6 +3,7 @@ import { Form, redirect, useParams } from "react-router";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import { useState } from "react"; 
 
 // Components
 import { Card } from "../Card";
@@ -93,9 +94,13 @@ export function PopupTimeIn({ root }: { root: string }) {
         </Dialog>
     );
 }
-
 export function PopupLogout({ root }: { root: string }) {
     const navigate = useNavigateDefault();
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
+
     return (
         <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
             <Dialog.Header onRightAction={() => navigate(root, true)}>
@@ -104,9 +109,16 @@ export function PopupLogout({ root }: { root: string }) {
                 </Text>
             </Dialog.Header>
             <Dialog.Body>
-                <Form method="post" id="timeInForm" className="flex flex-col gap-6">
+                <Form method="post" id="timeInForm" className="flex flex-col gap-6" onChange={handleFormChange}>
                     {/* Time-In Data Input Holders */}
-                    <GeneralInput label="Reason for Logout" name="date" type="text" defaultValue={""}></GeneralInput>
+                    <GeneralInput
+                        label="Reason for Logout"
+                        name="date"
+                        type="text"
+                        defaultValue={""}
+                        required
+                        isRequired={true}
+                    ></GeneralInput>
                     <TextAreaInput
                         label="Optional Remarks"
                         name="time"
@@ -119,7 +131,14 @@ export function PopupLogout({ root }: { root: string }) {
                 <PopupButton variant="white" onClick={() => navigate(root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="red" type="submit" form="timeInForm" onClick={() => navigate(root, false)}>
+                {/* Disabled the button based on the form validity */}
+                <PopupButton
+                    variant="red"
+                    type="submit"
+                    form="timeInForm"
+                    onClick={() => navigate(root, false)}
+                    disabled={!isFormValid}
+                >
                     Logout
                 </PopupButton>
             </Dialog.Footer>

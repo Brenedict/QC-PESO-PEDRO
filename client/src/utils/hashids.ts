@@ -9,7 +9,6 @@ export const encode = (id: string | number) => {
     const hexValue = Array.from(bytes)
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
-
     return hashids.encodeHex(hexValue);
 };
 
