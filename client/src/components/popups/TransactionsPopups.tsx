@@ -21,10 +21,12 @@ import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } fr
 export function PopupViewEditTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
     const { transactionId } = useParams();
-    const [isFormValid, setIsFormValid] = useState(true);
     if (!transactionId) return null;
     const decodedId = decode(transactionId);
     const returnPageOnClose = root == "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
+
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };

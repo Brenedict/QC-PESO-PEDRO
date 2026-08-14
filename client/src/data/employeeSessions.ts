@@ -21,7 +21,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0001",
         name: "Maria Santos",
-        role: "admin",
+        role: "ADMIN",
         totalLoginSessions: 24,
         lastLogin: new Date("2026-07-29T08:15:00"),
         status: "online",
@@ -46,7 +46,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0002",
         name: "Juan Dela Cruz",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 18,
         lastLogin: new Date("2026-07-27T07:45:00"),
         status: "online",
@@ -71,7 +71,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0003",
         name: "Ana Reyes",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 31,
         lastLogin: new Date("2026-07-28T17:30:00"),
         status: "offline",
@@ -96,7 +96,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0004",
         name: "Carlos Garcia",
-        role: "admin",
+        role: "SUPERADMIN",
         totalLoginSessions: 42,
         lastLogin: new Date("2026-07-29T06:00:00"),
         status: "loggedout",
@@ -121,7 +121,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0005",
         name: "Lisa Morales",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 15,
         lastLogin: new Date("2026-07-29T08:30:00"),
         status: "online",
@@ -146,7 +146,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0006",
         name: "Rafael Torres",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 27,
         lastLogin: new Date("2026-07-28T16:20:00"),
         status: "offline",
@@ -171,7 +171,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0007",
         name: "Elena Vargas",
-        role: "admin",
+        role: "ADMIN",
         totalLoginSessions: 38,
         lastLogin: new Date("2026-07-29T07:55:00"),
         status: "online",
@@ -196,7 +196,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0008",
         name: "Miguel Ramos",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 9,
         lastLogin: new Date("2026-07-28T15:15:00"),
         status: "loggedout",
@@ -221,7 +221,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0009",
         name: "Sofia Castro",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 22,
         lastLogin: new Date("2026-07-29T08:20:00"),
         status: "online",
@@ -246,7 +246,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0010",
         name: "Andres Flores",
-        role: "admin",
+        role: "ADMIN",
         totalLoginSessions: 45,
         lastLogin: new Date("2026-07-28T18:00:00"),
         status: "offline",
@@ -271,7 +271,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0011",
         name: "Patricia Lopez",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 19,
         lastLogin: new Date("2026-07-29T08:05:00"),
         status: "online",
@@ -296,7 +296,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0012",
         name: "Roberto Mendoza",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 12,
         lastLogin: new Date("2026-07-29T05:45:00"),
         status: "loggedout",
@@ -321,7 +321,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0013",
         name: "Carmen Herrera",
-        role: "admin",
+        role: "ADMIN",
         totalLoginSessions: 35,
         lastLogin: new Date("2026-07-29T07:30:00"),
         status: "online",
@@ -346,7 +346,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0014",
         name: "Fernando Jimenez",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 28,
         lastLogin: new Date("2026-07-28T14:45:00"),
         status: "offline",
@@ -371,7 +371,7 @@ export const employeeSessions: EmployeeSession[] = [
     {
         id: "SHFT-0015",
         name: "Isabel Ruiz",
-        role: "frontline",
+        role: "FRONTLINE",
         totalLoginSessions: 16,
         lastLogin: new Date("2026-07-29T08:40:00"),
         status: "online",

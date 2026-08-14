@@ -13,10 +13,14 @@ import { usersData, type UserRecord } from "../../data/users";
 import ChoiceItem from "../ChoiceItem";
 import { useState } from "react";
 
-function PopupUserForms({formId,user,onChange,}: {
+function PopupUserForms({
+    formId,
+    user,
+    onChange,
+}: {
     formId: string;
     user?: UserRecord;
-    onChange?: React.FormEventHandler<HTMLFormElement>; 
+    onChange?: React.FormEventHandler<HTMLFormElement>;
 }) {
     // Temporary lang yung logic neto (binase ko sa dummy data ni richard)
     return (
@@ -30,7 +34,7 @@ function PopupUserForms({formId,user,onChange,}: {
                     label="Full Name"
                     id="fullName"
                     name="fullName"
-                    defaultValue={user?.name ?? ""}
+                    defaultValue={user ? `${user.firstName} ${user.lastName}` : ""}
                     required
                     isRequired={true}
                 />
@@ -63,12 +67,13 @@ function PopupUserForms({formId,user,onChange,}: {
                 required
                 isRequired={true}
                 optionList={[
+                    { content: "Super Administrator", value: "superadmin" },
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "frontline" },
                 ]}
             />
             <SelectInput
-                defaultValue={user?.status ?? ""}
+                defaultValue={user?.status ?? "active"}
                 label="Status"
                 id="status"
                 name="status"
@@ -115,9 +120,11 @@ function PopupUserForms({formId,user,onChange,}: {
 }
 export function PopupAddUser() {
     const navigate = useNavigateDefault();
+
+    // Form Validation
     const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
-        setIsFormValid(e.currentTarget.checkValidity()); 
+        setIsFormValid(e.currentTarget.checkValidity());
     };
 
     return (
@@ -145,14 +152,13 @@ export function PopupAddUser() {
 export function PopupEditUser() {
     const navigate = useNavigateDefault();
     const { userId } = useParams();
-    const [isFormValid, setIsFormValid] = useState(true);
 
     if (!userId) return null;
 
     const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
@@ -160,11 +166,14 @@ export function PopupEditUser() {
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
-                <Text weight="bold">Edit User: {user.name}</Text>
+                <Text weight="bold">
+                    {" "}
+                    {"John"} {"Doe"}{" "}
+                </Text>
             </Dialog.Header>
             <Dialog.Body className="p-6!">
                 {/* Pass the onChange handler down to the form blueprint */}
-                <PopupUserForms formId="userFormViewEdit" user={user} onChange={handleFormChange} />
+                <PopupUserForms formId="userFormViewEdit" onChange={handleFormChange} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
@@ -186,8 +195,6 @@ export function PopupDisableUser() {
     if (!userId) return null;
 
     const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -200,7 +207,12 @@ export function PopupDisableUser() {
                     <PopupIcon icon={PersonOffOutlinedIcon} />
                     <PopupHeader>Deactivate Account?</PopupHeader>
                     <PopupDescription>
-                        Are you sure you want to deactivate <span className="font-bold text-black">{user.name}</span>?
+                        Are you sure you want to deactivate{" "}
+                        <span className="font-bold text-black">
+                            {" "}
+                            {"John"} {"Doe"}{" "}
+                        </span>
+                        ?
                     </PopupDescription>
                     <PopupNotice>This user will no longer be able to log into the system.</PopupNotice>
                 </section>
@@ -252,7 +264,6 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
 
     const decodedId = decode(userId);
     const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -266,7 +277,10 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
                     <PopupHeader>{userPrivilegeMap[privilegeType].header}</PopupHeader>
                     <PopupDescription>{userPrivilegeMap[privilegeType].description}</PopupDescription>
                     <PopupNotice variant="off-white">
-                        <div className="text-black font-bold">{user.name}</div>
+                        <div className="text-black font-bold">
+                            {" "}
+                            {"John"} {"Doe"}{" "}
+                        </div>
                         {userPrivilegeMap[privilegeType].notice}
                     </PopupNotice>
                 </section>
@@ -308,8 +322,6 @@ export function PopupResetUser() {
     if (!userId) return null;
 
     const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -323,10 +335,10 @@ export function PopupResetUser() {
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <Text variant="dark-blue" weight="bold" size="normal">
-                        {user.name}
+                        {"John"} {"Doe"}{" "}
                     </Text>
                     <Text variant="dark-blue" weight="normal" size="description">
-                        {user.email}
+                        {"johndoe@gmail.com"}
                     </Text>
                     <br className="block mb-4" />
                     <PopupRadio value="generate" defaultChecked={true}>
