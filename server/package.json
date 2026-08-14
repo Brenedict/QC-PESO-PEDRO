@@ -59,6 +59,7 @@
         "passport-jwt": "^4.0.1",
         "passport-local": "^1.0.0",
         "pg": "^8.22.0",
-        "zod": "^4.4.3"
+        "zod": "^4.4.3",
+        "prisma-zod-generator": "^3.1.0"
     }
 }

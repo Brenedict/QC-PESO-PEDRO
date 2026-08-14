@@ -33,10 +33,6 @@ import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import type { UserSchemaType } from "../../../shared/schema/users";
 
-interface UserManagementProps {
-    users: UserRecord[];
-}
-
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
     return (
@@ -87,20 +83,21 @@ function UserManagement() {
     const navigate = useNavigateDefault();
 
     const users = useLoaderData() as UserSchemaType[];
+    const userRole: Role = "SUPERADMIN";
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Filter applied in User Management");
     };
 
-    const RoleButtonMap: Record<Role, RoleButton> = {
-        admin: {
+    const RoleButtonMap: Record<Role, RoleButton | null> = {
+        SUPERADMIN: null,
+        ADMIN: {
             icon: RemoveModeratorOutlinedIcon,
             text: "Demote",
             color: "black",
             handleClick: (id) => () => navigate(ROUTES.userManagement.demote(id), true),
         },
-        frontline: {
+        FRONTLINE: {
             icon: ShieldOutlinedIcon,
             text: "Promote",
             color: "blue",
@@ -108,37 +105,46 @@ function UserManagement() {
         },
     };
 
-    // Actions depende sa current role ng user
-    const getRowActions = (role: Role): ActionTypes => [
-        {
-            ...RoleButtonMap[role],
-        },
-        {
-            icon: EditOutlinedIcon,
-            text: "Edit",
-            color: "black",
-            handleClick: (id) => () => navigate(ROUTES.userManagement.edit(id), true),
-        },
-        {
-            icon: VpnKeyOutlinedIcon,
-            text: "Reset",
-            color: "black",
-            handleClick: (id) => () => navigate(ROUTES.userManagement.reset(id), true),
-        },
-        {
-            icon: PersonOffOutlinedIcon,
-            text: "Disable",
-            color: "red",
-            handleClick: (id) => () => navigate(ROUTES.userManagement.disable(id), true),
-        },
-    ];
+    const getRowActions = (rowRole: Role): ActionTypes => {
+        const actions: ActionTypes = [];
 
-    // Added extraFilters for User Management
+        if (RoleButtonMap[rowRole] && userRole === "SUPERADMIN") {
+            actions.push(RoleButtonMap[rowRole]!);
+        }
+
+        if (rowRole === "SUPERADMIN") {
+            return actions;
+        }
+
+        actions.push(
+            {
+                icon: EditOutlinedIcon,
+                text: "Edit",
+                color: "black",
+                handleClick: (id) => () => navigate(ROUTES.userManagement.edit(id), true),
+            },
+            {
+                icon: VpnKeyOutlinedIcon,
+                text: "Reset",
+                color: "black",
+                handleClick: (id) => () => navigate(ROUTES.userManagement.reset(id), true),
+            },
+            {
+                icon: PersonOffOutlinedIcon,
+                text: "Disable",
+                color: "red",
+                handleClick: (id) => () => navigate(ROUTES.userManagement.disable(id), true),
+            }
+        );
+
+        return actions;
+    };
     const extraFilters = (
         <div className="flex gap-4 items-center">
             <SelectInput
                 optionList={[
                     { content: "All Roles", value: "" },
+                    { content: "Super Administrator", value: "superadmin" },
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "frontline" },
                 ]}
@@ -177,7 +183,7 @@ function UserManagement() {
                 <StatCard title="Total Users" value={24} />
                 <StatCard title="Active Users" value={20} />
                 <StatCard title="Inactive Users" value={4} />
-                <StatCard title="Roles" value={2} />
+                <StatCard title="Roles" value={3} />
             </div>
 
             <Table
@@ -204,27 +210,26 @@ function UserManagement() {
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <RoleBadge role={"admin"} />
+                            <RoleBadge role={user.role} />
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center">
                                 <Status type="status" variant={"active"} />
                             </div>
                         </Table.Data>
-                        {/* <Table.Data>
+                        <Table.Data>
                             <div className="flex justify-center gap-2">
                                 <ActionButtons
-                                    id={user.id}
+                                    id={String(user.id)}
                                     extraParams={{ name: `${user.firstName} ${user.lastName}` }}
                                     actions={getRowActions(user.role)}
                                 />
                             </div>
-                        </Table.Data> */}
+                        </Table.Data>
                     </Table.Row>
                 ))}
             </Table>
 
-            {/* Popup Uses */}
             <Outlet />
         </div>
     );

@@ -10,18 +10,24 @@ import Icon from "../Icon";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import { mockShiftData } from "../../data/endShiftReview";
+import { useState } from "react";
 
 export function PopupEndShiftReview() {
     const navigate = useNavigateDefault();
     const { shiftId } = useParams();
     const handleClose = () => navigate(ROUTES.endshift.root, true);
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
 
     return (
         <Dialog dropShadow={true} onClose={handleClose} className="w-212.5 max-w-[90vw]">
             <ReviewHeaderSection handleClose={handleClose} />
 
             <Dialog.Body className="p-6! flex flex-col gap-6 max-h-[75vh] overflow-y-auto">
-                <Form method="post" id="endShiftReviewForm" className="flex flex-col gap-5">
+                {/* Added onChange handler here */}
+                <Form method="post" id="endShiftReviewForm" className="flex flex-col gap-5" onChange={handleFormChange}>
                     <GeneralInput hidden={true} name="id" type="text" defaultValue={shiftId || ""} />
 
                     <DailySummarySection />
@@ -33,7 +39,8 @@ export function PopupEndShiftReview() {
                 </Form>
             </Dialog.Body>
 
-            <ReviewFooterSection />
+            {/* Pass the state to the footer */}
+            <ReviewFooterSection isFormValid={isFormValid} />
         </Dialog>
     );
 }
@@ -181,16 +188,25 @@ function AdminRemarksSection() {
                     label="ADMIN REMARKS"
                     placeholder="Enter reason for revision or rejection, or general notes..."
                     className="h-28 text-sm"
+                    required
+                    isRequired={true}
                 />
             </Card.Body>
         </Card>
     );
 }
 
-function ReviewFooterSection() {
+function ReviewFooterSection({ isFormValid }: { isFormValid: boolean }) {
     return (
         <Dialog.Footer className="flex justify-end gap-3">
-            <PopupButton variant="white-red" type="submit" form="endShiftReviewForm" name="reviewAction" value="reject">
+            <PopupButton
+                variant="white-red"
+                type="submit"
+                form="endShiftReviewForm"
+                name="reviewAction"
+                value="reject"
+                disabled={!isFormValid}
+            >
                 Reject Submission
             </PopupButton>
             <PopupButton
@@ -199,10 +215,18 @@ function ReviewFooterSection() {
                 form="endShiftReviewForm"
                 name="reviewAction"
                 value="revision"
+                disabled={!isFormValid}
             >
                 Needs Revision
             </PopupButton>
-            <PopupButton variant="blue" type="submit" form="endShiftReviewForm" name="reviewAction" value="approve">
+            <PopupButton
+                variant="blue"
+                type="submit"
+                form="endShiftReviewForm"
+                name="reviewAction"
+                value="approve"
+                disabled={!isFormValid}
+            >
                 Approve Shift
             </PopupButton>
         </Dialog.Footer>

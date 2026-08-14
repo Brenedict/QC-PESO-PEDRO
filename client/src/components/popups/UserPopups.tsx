@@ -11,16 +11,33 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 import { usersData, type UserRecord } from "../../data/users";
 import ChoiceItem from "../ChoiceItem";
+import { useState } from "react";
 
-function PopupUserForms({ formId, user }: { formId: string; user?: UserRecord }) {
+function PopupUserForms({
+    formId,
+    user,
+    onChange,
+}: {
+    formId: string;
+    user?: UserRecord;
+    onChange?: React.FormEventHandler<HTMLFormElement>;
+}) {
     // Temporary lang yung logic neto (binase ko sa dummy data ni richard)
     return (
-        <Form method="post" id={formId} className="grid grid-cols-2 h-fit gap-4">
+        <Form method="post" id={formId} className="grid grid-cols-2 h-fit gap-4" onChange={onChange}>
             {/* ID holder */}
             {user && <GeneralInput hidden={true} name="id" type="text" value={user.id} />}
 
             <div className="col-span-2">
-                <GeneralInput type="text" label="Full Name" id="fullName" name="fullName" value={user?.name ?? ""} />
+                <GeneralInput
+                    type="text"
+                    label="Full Name"
+                    id="fullName"
+                    name="fullName"
+                    defaultValue={user ? `${user.firstName} ${user.lastName}` : ""}
+                    required
+                    isRequired={true}
+                />
             </div>
             <GeneralInput
                 type="email"
@@ -28,40 +45,62 @@ function PopupUserForms({ formId, user }: { formId: string; user?: UserRecord })
                 placeholder="name@quezoncity.gov.ph"
                 id="email"
                 name="email"
-                value={user?.email ?? ""}
+                defaultValue={user?.email ?? ""}
+                required
+                isRequired={true}
             />
-            <GeneralInput type="text" label="Username" id="userName" name="userName" value={user?.username ?? ""} />
+            <GeneralInput
+                type="text"
+                label="Username"
+                id="userName"
+                name="userName"
+                defaultValue={user?.username ?? ""}
+                required
+                isRequired={true}
+            />
 
-            {/* Under ng Role sa types/common.ts */}
             <SelectInput
-                value={user?.role ?? "frontline"}
+                defaultValue={user?.role ?? ""}
                 label="Role"
                 id="role"
                 name="role"
+                required
+                isRequired={true}
                 optionList={[
+                    { content: "Super Administrator", value: "superadmin" },
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "frontline" },
                 ]}
             />
-
-            {/* Under ng StatusVariant<"status"> */}
             <SelectInput
-                value={user?.status ?? "active"}
+                defaultValue={user?.status ?? "active"}
                 label="Status"
                 id="status"
                 name="status"
+                required
+                isRequired={true}
                 optionList={[
                     { content: "Active", value: "active" },
                     { content: "Inactive", value: "inactive" },
                 ]}
             />
-            <GeneralInput type="text" label="Position" placeholder="e.g. LEO I" id="position" name="position" />
+            <GeneralInput
+                type="text"
+                label="Position"
+                placeholder="e.g. LEO I"
+                id="position"
+                name="position"
+                required
+                isRequired={true}
+            />
             <GeneralInput
                 type="text"
                 label="Assigned Office"
                 placeholder="e.g. PESO"
                 id="assignedOffice"
                 name="assignedOffice"
+                required
+                isRequired={true}
             />
 
             {!user && (
@@ -71,15 +110,22 @@ function PopupUserForms({ formId, user }: { formId: string; user?: UserRecord })
                         placeholder="Will require reset on first login"
                         id="password"
                         name="password"
+                        required
+                        isRequired={true}
                     />
                 </div>
             )}
         </Form>
     );
 }
-
 export function PopupAddUser() {
     const navigate = useNavigateDefault();
+
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -87,13 +133,15 @@ export function PopupAddUser() {
                 <Text weight="bold">Add New User</Text>
             </Dialog.Header>
             <Dialog.Body className="p-6!">
-                <PopupUserForms formId="userFormViewEdit" />
+                {/* Pass the handler down to the form */}
+                <PopupUserForms formId="userFormViewEdit" onChange={handleFormChange} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" type="submit" form="userFormViewEdit">
+                {/* Disable the button based on the state */}
+                <PopupButton variant="blue" type="submit" form="userFormViewEdit" disabled={!isFormValid}>
                     Create User
                 </PopupButton>
             </Dialog.Footer>
@@ -109,22 +157,30 @@ export function PopupEditUser() {
 
     const decodedId = decode(userId);
 
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
-                <Text weight="bold">Edit User: {user.name}</Text>
+                <Text weight="bold">
+                    {" "}
+                    {"John"} {"Doe"}{" "}
+                </Text>
             </Dialog.Header>
             <Dialog.Body className="p-6!">
-                <PopupUserForms formId="userFormViewEdit" user={user} />
+                {/* Pass the onChange handler down to the form blueprint */}
+                <PopupUserForms formId="userFormViewEdit" onChange={handleFormChange} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" type="submit" form="userFormViewEdit">
+                {/* Disable the button if they delete a required field */}
+                <PopupButton variant="blue" type="submit" form="userFormViewEdit" disabled={!isFormValid}>
                     Save Changes
                 </PopupButton>
             </Dialog.Footer>
@@ -139,8 +195,6 @@ export function PopupDisableUser() {
     if (!userId) return null;
 
     const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -153,7 +207,12 @@ export function PopupDisableUser() {
                     <PopupIcon icon={PersonOffOutlinedIcon} />
                     <PopupHeader>Deactivate Account?</PopupHeader>
                     <PopupDescription>
-                        Are you sure you want to deactivate <span className="font-bold text-black">{user.name}</span>?
+                        Are you sure you want to deactivate{" "}
+                        <span className="font-bold text-black">
+                            {" "}
+                            {"John"} {"Doe"}{" "}
+                        </span>
+                        ?
                     </PopupDescription>
                     <PopupNotice>This user will no longer be able to log into the system.</PopupNotice>
                 </section>
@@ -205,7 +264,6 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
 
     const decodedId = decode(userId);
     const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -219,7 +277,10 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
                     <PopupHeader>{userPrivilegeMap[privilegeType].header}</PopupHeader>
                     <PopupDescription>{userPrivilegeMap[privilegeType].description}</PopupDescription>
                     <PopupNotice variant="off-white">
-                        <div className="text-black font-bold">{user.name}</div>
+                        <div className="text-black font-bold">
+                            {" "}
+                            {"John"} {"Doe"}{" "}
+                        </div>
                         {userPrivilegeMap[privilegeType].notice}
                     </PopupNotice>
                 </section>
@@ -261,8 +322,6 @@ export function PopupResetUser() {
     if (!userId) return null;
 
     const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
-    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -276,10 +335,10 @@ export function PopupResetUser() {
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <Text variant="dark-blue" weight="bold" size="normal">
-                        {user.name}
+                        {"John"} {"Doe"}{" "}
                     </Text>
                     <Text variant="dark-blue" weight="normal" size="description">
-                        {user.email}
+                        {"johndoe@gmail.com"}
                     </Text>
                     <br className="block mb-4" />
                     <PopupRadio value="generate" defaultChecked={true}>

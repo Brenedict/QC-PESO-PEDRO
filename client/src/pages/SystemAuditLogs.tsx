@@ -40,7 +40,6 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
 
     const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Audit Logs Filter applied");
     };
 
     // Extra filter inputs for the Table Filter Section
