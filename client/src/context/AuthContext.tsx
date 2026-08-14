@@ -19,21 +19,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(false);
     };
 
-    useEffect(() => {
-        const init = async () => {
-            setLoading(true);
-            const isAuthenticated = await checkAuthService();
-            setIsAuthenticated(isAuthenticated);
-            setLoading(false);
-        };
-        init();
-    }, []);
-
     const checkAuth = async () => {
-        setIsAuthenticated(await checkAuthService());
+        setLoading(true);
+        const authenticated = await checkAuthService();
+        setIsAuthenticated(authenticated);
+        setLoading(false);
     };
 
-    return <AuthContext value={{ isAuthenticated, loading, checkAuth, logout }}>{children}</AuthContext>;
+    useEffect(() => {
+        void checkAuth();
+    }, []);
+
+    return (
+        <AuthContext
+            value={{
+                isAuthenticated,
+                loading,
+                checkAuth,
+                logout,
+            }}
+        >
+            {children}
+        </AuthContext>
+    );
 };
 
 /* eslint-disable react-refresh/only-export-components */

@@ -47,32 +47,31 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { userContext } from "../utils/userContext";
 import { ROUTES } from "../hooks/reroute";
-import { getUserContextLoader } from "../api/authService";
+import { authLoader } from "../api/authService";
 
 export const protectedRoutes: RouteObject[] = [
     {
+        id: "protected",
         path: "/",
         element: (
             <AuthProvider>
                 <ProtectedRoute />
             </AuthProvider>
         ),
+        /* 
+            Initial authentication on '/protected' happens here, and the user data is fetched. 
+            If the user is not authenticated, they will be redirected to '/auth'.
+        */
+        loader: authLoader,
         errorElement: <SystemErrorPage />,
         children: [
             {
                 path: "",
-                element: <DashboardLayout {...userContext} />,
-                // Supposedly, this should provide the user context before loading the dashboard layout
-                // Issue (?): I think nauuna magload ito before /protected
-                // loader: async () => {
-                //     const userContext = await getUserContextLoader();
-                //     console.log(userContext);
-                //     return userContext;
-                // },
+                element: <DashboardLayout />,
                 children: [
                     {
                         path: "",
-                        element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
+                        element: <Overview pending={5} approved={18} revision={2} role={userContext.role} />,
                         children: [
                             {
                                 path: "total",
@@ -164,7 +163,10 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "profile",
                         element: (
-                            <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />
+                            <ProfilePage
+                                roleType={userContext.role ?? "FRONTLINE"}
+                                userFullName={`${userContext.firstName} ${userContext.lastName}`}
+                            />
                         ),
                         children: [...shiftPopups(ROUTES.profile.root)],
                     },

@@ -1,5 +1,5 @@
 import Status from "./Status.tsx";
-import TopBarContext, { type TopBarContextValue } from "../context/TopbarContext.ts";
+import type { TopBarContextValue } from "../context/TopbarContext.ts";
 import { Text } from "./Text";
 import { SearchInput } from "./Input.tsx";
 import { useContext, useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import Button from "./Button.tsx";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import TopBarContext from "../context/TopbarContext.ts";
 
 function LeftSection() {
     const { onSearchChange } = useContext(TopBarContext);
@@ -67,18 +68,22 @@ function NotifButton() {
 }
 
 function ProfileSection() {
-    const { userFullName, roleType } = useContext(TopBarContext);
+    const { firstName, lastName, role } = useContext(TopBarContext);
     return (
         <div className="flex">
             <div className="mr-3 flex flex-col text-right">
                 <Text size="description" variant="dark-blue" weight="semiBold" align="right">
-                    {userFullName}
+                    {`${firstName} ${lastName}`}
                 </Text>
                 <Text size="small" variant="primary-blue" weight="medium" align="right">
-                    {roleType === "superadmin" ? "Super Administrator" : roleType === "admin" ? "Administrator" : "Frontline Encoder"}
+                    {role === "SUPERADMIN"
+                        ? "Super Administrator"
+                        : role === "ADMIN"
+                          ? "Administrator"
+                          : "Frontline Encoder"}
                 </Text>
             </div>
-            <Profile userFullName={userFullName} size="small" />
+            <Profile userFullName={`${firstName} ${lastName}`} size="small" />
         </div>
     );
 }
@@ -89,7 +94,7 @@ function RightSection() {
     return (
         <section className="flex items-center">
             <div className="mr-4">
-                <Status type="connection" variant={status} />
+                <Status type="status" variant={status} />
             </div>
             <div className="mr-2">
                 <DateTime />

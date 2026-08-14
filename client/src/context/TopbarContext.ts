@@ -3,21 +3,24 @@ import type { StatusVariant } from "../components/Status";
 import type { Role } from "../types/common";
 
 export interface TopBarContextValue {
-    status: StatusVariant<"connection">;
+    status: StatusVariant<"status">;
     hasNotif: boolean;
-    userFullName: string;
+    firstName: string;
+    lastName: string;
     profilePicUrl?: string;
-    roleType: Role;
+    role: Role;
     onSearchChange: React.ChangeEventHandler<HTMLInputElement>;
     onNotifClick: React.MouseEventHandler<HTMLButtonElement>;
 }
 
+// This shouldn't be here anymore
 const TopBarContext = createContext<TopBarContextValue>({
-    status: "online",
+    status: "ONLINE",
     hasNotif: false,
-    userFullName: "",
+    firstName: "",
+    lastName: "",
     profilePicUrl: "",
-    roleType: "frontline",
+    role: "FRONTLINE",
     onSearchChange: () => {},
     onNotifClick: () => {},
 });
