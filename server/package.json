@@ -1,10 +1,11 @@
 {
-    "name": "server",
+    "name": "@qcpesopedro/server",
     "version": "1.0.0",
     "description": "",
     "main": "server.ts",
     "scripts": {
-        "start": "tsx --inspect --watch --env-file=.env ./src/server.ts",
+        "start": "tsx --env-file=.env ./src/server.ts",
+        "dev": "tsx --inspect --watch --env-file=.env ./src/server.ts",
         "test": "jest --watch"
     },
     "keywords": [],
@@ -42,6 +43,7 @@
         "typescript-eslint": "^8.65.0"
     },
     "dependencies": {
+        "@qcpesopedro/shared": "*",
         "@prisma/adapter-pg": "^7.9.1",
         "@prisma/client": "^7.9.1",
         "apicache": "^1.6.3",
@@ -56,11 +58,5 @@
         "passport-jwt": "^4.0.1",
         "passport-local": "^1.0.0",
         "pg": "^8.22.0"
-    },
-    "allowScripts": {
-        "@prisma/engines@7.9.1": true,
-        "prisma@7.9.1": true,
-        "unrs-resolver@1.12.2": true,
-        "esbuild@0.28.2": true
     }
 }

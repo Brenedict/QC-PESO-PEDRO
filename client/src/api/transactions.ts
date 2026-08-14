@@ -1,4 +1,4 @@
-import type { Transaction } from "../validators/transactions";
+import type { Transaction } from "@qcpesopedro/shared/schema/transactions";
 
 /*
     CURRENTLY THESE FETCH LOGIC ARE NOT FINAL, THEY ARE PROOF OF FUNCTION

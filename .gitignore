@@ -29,7 +29,8 @@ storybook-static
 
 # Keep environment variables out of version control
 .env
-/server/generated/prisma
+/shared/prisma
+/shared/zod
 .agents
 .claude
 .windsurf

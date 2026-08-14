@@ -1,11 +1,8 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-// Utils
-import { decode } from "../utils/hashids";
-
 export const TransactionSchema = zfd.formData({
-    id: zfd.text(z.string().optional().transform(decode)),
+    id: zfd.text(z.string().optional()),
     applicantFirstName: zfd.text(z.string().optional()),
     applicantLastName: zfd.text(z.string().optional()),
     date: zfd.text(z.string().optional()),
