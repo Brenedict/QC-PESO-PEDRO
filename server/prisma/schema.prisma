@@ -107,10 +107,10 @@ model Transaction {
     shiftLog   ShiftLog @relation(fields: [shiftLogId], references: [id])
     shiftLogId Int
 
-    /// @zod.trim().min(1, {message: "Application last name cannot be empty"})
+    /// @zod.trim().min(1, "Application last name cannot be empty")
     applicantFirstName String @db.VarChar(256)
 
-    /// @zod.trim().min(1, {message: "Application last name cannot be empty"})
+    /// @zod.trim().min(1, "Application last name cannot be empty")
     applicantLastName String @db.VarChar(256)
 
     applicantSex       Sex

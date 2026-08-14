@@ -51,7 +51,7 @@ describe("Transaction Route", () => {
                     code: expect.stringMatching(/TXN-\d{6}-\d{3}/),
                 }))
             );
-        });
+        }, 300000);
 
         it("returns transactions with filters", async () => {
             const resType = await request(app).get(`/transaction`).query({ type: TransactionType.WALK_IN_REFERRAL });

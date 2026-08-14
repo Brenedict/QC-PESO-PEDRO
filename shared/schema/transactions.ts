@@ -1,19 +1,22 @@
-import { z } from "zod";
 import { zfd } from "zod-form-data";
+import "../zod/schemas/";
+import {
+    TransactionUncheckedCreateInputObjectZodSchema,
+    TransactionUncheckedUpdateInputObjectZodSchema,
+} from "../zod/schemas/";
+import z from "zod";
 
-export const TransactionSchema = zfd.formData({
-    id: zfd.text(z.string().optional()),
-    applicantFirstName: zfd.text(z.string().trim().nonempty({ message: "Applicant first name cannot be empty" })),
-    applicantLastName: zfd.text(z.string().trim().nonempty({ message: "Applicant last name cannot be empty" })),
-    transactionType: zfd.text(z.string()),
-    applicantSex: zfd.text(z.string()),
-    transactionOutcome: zfd.text(z.string()),
-    firstTimeJobSeeker: zfd.checkbox().default(false),
-    personsWithDisability: zfd.checkbox().default(false),
-    seniorCitizen: zfd.checkbox().default(false),
-    youngWorker: zfd.checkbox().default(false),
-    workImmersionInternship: zfd.checkbox().default(false),
-    remarks: zfd.text(z.string().optional()),
-});
+export const TransactionFormCreateSchema = zfd.formData(
+    TransactionUncheckedCreateInputObjectZodSchema.omit({
+        createdAt: true,
+    })
+);
+export type TransactionCreateType = z.infer<typeof TransactionFormCreateSchema>;
 
-export type Transaction = z.infer<typeof TransactionSchema>;
+export const TransactionFormUpdateSchema = zfd.formData(
+    TransactionUncheckedUpdateInputObjectZodSchema.omit({
+        id: true,
+        createdAt: true,
+    })
+);
+export type TransactionUpdateType = z.infer<typeof TransactionFormUpdateSchema>;

@@ -1,13 +1,15 @@
-import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import prisma from "../config/prisma.config";
+import type { TransactionCreateType, TransactionUpdateType } from "@qcpedropeso/shared/schema/transactions";
 import type {
     TransactionUncheckedCreateInput,
     TransactionUncheckedUpdateInput,
-} from "@qcpesopedro/shared/prisma/models";
+    TransactionWhereInput,
+} from "@qcpedropeso/shared/prisma/models";
+import type { TransactionFilters } from "../service/transaction.service";
 
 export default {
-    async getTransactions(transactionType?: TransactionType, transactionOutcome?: Outcome) {
-        const filter: { transactionType?: TransactionType; transactionOutcome?: Outcome } = {};
+    async getTransactions({ transactionType, transactionOutcome }: TransactionFilters) {
+        const filter: TransactionWhereInput = {};
 
         if (transactionType !== undefined) filter.transactionType = transactionType;
         if (transactionOutcome !== undefined) filter.transactionOutcome = transactionOutcome;
@@ -19,37 +21,19 @@ export default {
         return prisma.transaction.findUnique({ where: { id } });
     },
 
-    async countByDate(date: Date) {
-        const start = new Date(date);
-        start.setHours(0, 0, 0, 0);
-
-        const end = new Date(date);
-        end.setHours(23, 59, 59, 999);
-
-        return prisma.transaction.count({
-            where: {
-                createdAt: {
-                    gte: start,
-                    lte: end,
-                },
-            },
-        });
+    async createTransaction(transaction: TransactionCreateType) {
+        return prisma.transaction.create({ data: transaction as TransactionUncheckedCreateInput });
     },
 
-    async transactionWithIdExists(id: number) {
-        const transaction = await prisma.transaction.findUnique({ where: { id } });
-        return !!transaction;
-    },
-
-    async createTransaction(transaction: TransactionUncheckedCreateInput) {
-        return prisma.transaction.create({ data: transaction });
-    },
-
-    async updateTransaction(id: number, transaction: TransactionUncheckedUpdateInput) {
-        return prisma.transaction.update({ where: { id }, data: transaction });
+    async updateTransaction(id: number, transaction: TransactionUpdateType) {
+        return prisma.transaction.update({ where: { id }, data: transaction as TransactionUncheckedUpdateInput });
     },
 
     async deleteTransaction(id: number) {
         return prisma.transaction.delete({ where: { id } });
+    },
+
+    async count(where: TransactionWhereInput) {
+        return prisma.transaction.count({ where });
     },
 };

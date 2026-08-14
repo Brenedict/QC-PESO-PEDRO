@@ -1,7 +1,24 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+    "compilerOptions": {
+        "paths": {
+            "@qcpedropeso/shared/*": [
+                "../shared/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "files": [],
+    "references": [
+        {
+            "path": "../shared"
+        },
+        {
+            "path": "./tsconfig.app.json"
+        },
+        {
+            "path": "./tsconfig.node.json"
+        }
+    ]
 }
