@@ -65,7 +65,6 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
 
     const handleFilterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Filter applied");
     };
 
     const handleReview = (id: string) => () => {

@@ -5,7 +5,6 @@ export default {
     get: [
         jwtAccessAuth,
         (_req: Request, res: Response) => {
-            console.log("Trigger");
             res.json("This is the transaction route");
         },
     ],

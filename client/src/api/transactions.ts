@@ -32,8 +32,6 @@ export async function editTransaction(data: Transaction) {
         throw new Error(`Failed to edit transaction: ${response.status}`);
     }
 
-    console.log(response.status);
-
     return response.json();
 }
 
@@ -49,8 +47,6 @@ export async function deleteTransaction(data: Transaction) {
     if (!response.ok) {
         throw new Error(`Failed to delete transaction: ${response.status}`);
     }
-
-    console.log(response.status);
 
     return response.status;
 }

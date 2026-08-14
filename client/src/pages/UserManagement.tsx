@@ -87,7 +87,6 @@ function UserManagement() {
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Filter applied in User Management");
     };
 
     const RoleButtonMap: Record<Role, RoleButton | null> = {

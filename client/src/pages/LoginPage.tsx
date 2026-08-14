@@ -1,11 +1,12 @@
 // General Imports
+import { useState } from "react";
 import { Form, Link } from "react-router";
 import PesoLogo from "../assets/peso.jpg";
 
 // Components
 import Icon from "../components/Icon";
 import { Text } from "../components/Text";
-import { GeneralInput, PasswordInput, SelectInput } from "../components/Input";
+import { GeneralInput, PasswordInput } from "../components/Input";
 import ChoiceItem from "../components/ChoiceItem";
 import Button from "../components/Button";
 
@@ -80,8 +81,13 @@ function MainHeader({ className }: React.HTMLAttributes<HTMLDivElement>) {
 }
 
 function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
+
     return (
-        <Form method="POST" className={className}>
+        <Form method="post" className={className} onChange={handleFormChange}>
             <GeneralInput
                 type="email"
                 name="email"
@@ -89,6 +95,7 @@ function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
                 label="QC Government Email"
                 placeholder="Enter your email here"
                 required
+                isRequired={true}
             />
 
             <br className="block mb-4" />
@@ -99,25 +106,15 @@ function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
                 label="Password"
                 placeholder="Enter your password here"
                 required
+                isRequired={true}
             />
 
             <br className="block mb-4" />
 
-            <SelectInput
-                label="Account"
-                name="role"
-                id="role"
-                optionList={[
-                    { content: "Super Administrator", value: "superadmin" }, 
-                    { content: "Administrator", value: "admin" },
-                    { content: "Frontline Encoder", value: "frontline" },
-                ]}
-            />
-            
             <br className="block mb-30" />
 
             <div className="flex justify-between mb-6">
-                <ChoiceItem inputVariant="checkbox" stylized={false}>
+                <ChoiceItem inputVariant="checkbox" stylized={false} disabled>
                     Remember me
                 </ChoiceItem>
                 <Link to="/forgot" className="hover:underline ">
@@ -127,7 +124,7 @@ function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
                 </Link>
             </div>
 
-            <Button variant="blue" size="normal" className="w-full!">
+            <Button variant="blue" size="normal" className="w-full!" disabled={!isFormValid}>
                 Sign in
             </Button>
         </Form>
