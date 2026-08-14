@@ -1,7 +1,6 @@
 import request from "supertest";
 import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 import authRouter from "../../src/routes/auth.route";
-import type { User } from "@qcpesopedro/shared/prisma/client";
 import prisma from "../../src/config/prisma.config";
 import { app } from "../../jest.integration";
 import { mockUser } from "../fixtures/user.fixture";

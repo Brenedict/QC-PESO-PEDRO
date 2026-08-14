@@ -12,11 +12,11 @@ import {
     type ShiftLog,
     type User,
 } from "@qcpesopedro/shared/prisma/client";
-import type { CodedTransaction } from "../../src/controllers/transaction.controller";
 import type {
     TransactionUncheckedCreateInput,
     TransactionUncheckedUpdateInput,
 } from "@qcpesopedro/shared/prisma/models";
+import { CodedTransaction } from "../../src/service/transaction.service";
 
 const stringifyDates = <T extends Record<string, unknown>>(obj: T) => {
     const { createdAt, ...rest } = obj ?? {};

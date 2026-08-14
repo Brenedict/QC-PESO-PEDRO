@@ -1,20 +1,20 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
-import { TransactionSchema } from "../../../shared/schema/transactions";
+import { TransactionFormCreateSchema } from "@qcpesopedro/shared/schema/transactions";
 import { editTransaction, deleteTransaction } from "../api/transactions";
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
-import { UserSchema } from "../../../shared/schema/users";
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 import { logoutService } from "../api/authService";
+import z from "zod";
 
 export const testActionFn =
-    (schema: typeof TransactionSchema | typeof UserSchema) =>
+    (schema: z.ZodType) =>
     async ({ request }: ActionFunctionArgs) => {
         const formData = await request.formData();
         const validationResult = schema.safeParse(formData);
 
         if (!validationResult.success) {
-            return { errors: validationResult.error.flatten() };
+            return { errors: z.treeifyError(validationResult.error) };
         }
         return redirect("..");
     };
@@ -27,10 +27,10 @@ export const transactionsEditAndDelete = (root: transactionRootPage) => [
         action: async ({ request }: ActionFunctionArgs) => {
             try {
                 const formData = await request.formData();
-                const validationResult = TransactionSchema.safeParse(formData);
+                const validationResult = TransactionFormCreateSchema.safeParse(formData);
 
                 if (!validationResult.success) {
-                    return { errors: validationResult.error.flatten() };
+                    return { errors: z.treeifyError(validationResult.error) };
                 }
 
                 await editTransaction(validationResult.data);
@@ -47,10 +47,10 @@ export const transactionsEditAndDelete = (root: transactionRootPage) => [
         action: async ({ request }: ActionFunctionArgs) => {
             try {
                 const formData = await request.formData();
-                const validationResult = TransactionSchema.safeParse(formData);
+                const validationResult = TransactionFormCreateSchema.safeParse(formData);
 
                 if (!validationResult.success) {
-                    return { errors: validationResult.error.flatten() };
+                    return { errors: z.treeifyError(validationResult.error) };
                 }
 
                 await deleteTransaction(validationResult.data);

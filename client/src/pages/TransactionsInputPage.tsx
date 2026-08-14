@@ -25,7 +25,7 @@ import { transactions } from "../data/transactions";
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
 import { useNavigateDefault, ROUTES } from "../hooks/reroute";
-import { Demographic } from "@qcpesopedro/shared/prisma/client";
+import { Demographic } from "@qcpesopedro/shared/prisma/browser";
 
 export function FormRow1() {
     return (

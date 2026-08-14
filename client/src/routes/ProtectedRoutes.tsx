@@ -2,8 +2,8 @@
 import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
 
 // Schema
-import { TransactionSchema } from "@qcpesopedro/shared/schema//transactions";
-import { UserSchema } from "@qcpesopedro/shared/schema//users";
+import { TransactionFormCreateSchema } from "@qcpesopedro/shared/schema/transactions";
+import { UserSchema } from "@qcpesopedro/shared/schema/users";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -217,7 +217,7 @@ export const protectedRoutes: RouteObject[] = [
                             try {
                                 const formData = await request.formData();
 
-                                const data = TransactionSchema.parse(formData);
+                                const data = TransactionFormCreateSchema.parse(formData);
 
                                 await createTransaction(data);
 
