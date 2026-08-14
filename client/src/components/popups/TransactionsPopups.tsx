@@ -1,5 +1,6 @@
 // General Imports
 import { Form, useParams } from "react-router";
+import { useState } from "react";
 
 // Hooks
 import { ROUTES, useNavigateDefault, type transactionRootPage } from "../../hooks/reroute";
@@ -20,13 +21,13 @@ import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } fr
 export function PopupViewEditTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
     const { transactionId } = useParams();
-
+    const [isFormValid, setIsFormValid] = useState(true);
     if (!transactionId) return null;
-
     const decodedId = decode(transactionId);
-
-    // Determines reroute on cancel between transactionEntry & transactionHistory page
     const returnPageOnClose = root == "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(returnPageOnClose, true)}>
@@ -34,8 +35,13 @@ export function PopupViewEditTransaction({ root = "history" }: { root: transacti
                 <Text weight="bold">Edit Transaction: {decodedId}</Text>
             </Dialog.Header>
             <Dialog.Body>
-                <Form method="patch" id="transactionsFormViewEdit" className="flex flex-col h-fit gap-6">
-                    {/* ID holder */}
+                {/* Added onChange handler here */}
+                <Form
+                    method="patch"
+                    id="transactionsFormViewEdit"
+                    className="flex flex-col h-fit gap-6"
+                    onChange={handleFormChange}
+                >
                     <GeneralInput hidden={true} name="id" type="text" defaultValue={transactionId}></GeneralInput>
                     <FormRow1 />
                     <FormRow2 />
@@ -47,7 +53,7 @@ export function PopupViewEditTransaction({ root = "history" }: { root: transacti
                 <PopupButton variant="white-black" onClick={() => navigate(returnPageOnClose, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton type="submit" form="transactionsFormViewEdit">
+                <PopupButton type="submit" form="transactionsFormViewEdit" disabled={!isFormValid}>
                     Save Changes
                 </PopupButton>
             </Dialog.Footer>

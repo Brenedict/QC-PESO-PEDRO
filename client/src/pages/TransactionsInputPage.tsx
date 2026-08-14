@@ -1,5 +1,6 @@
 // General Imports
 import { Form, Outlet } from "react-router";
+import { useState } from "react";
 
 // Components
 import { Text } from "../components/Text";
@@ -30,13 +31,26 @@ export function FormRow1() {
     return (
         <section className="grid grid-cols-5 gap-6">
             <div className="col-span-3 flex gap-6">
-                <GeneralInput name="applicantFirstName" type="text" placeholder="First Name" label="First Name" />
-                <GeneralInput name="applicantLastName" type="text" placeholder="Last Name" label="Last Name" />
+                <GeneralInput
+                    name="applicantFirstName"
+                    type="text"
+                    placeholder="First Name"
+                    label="First Name"
+                    required
+                    isRequired={true}
+                />
+                <GeneralInput
+                    name="applicantLastName"
+                    type="text"
+                    placeholder="Last Name"
+                    label="Last Name"
+                    required
+                    isRequired={true}
+                />
             </div>
             <div className="col-span-2 flex gap-6">
-                <GeneralInput name="date" type="date" placeholder="" label="Date" />
-
-                <GeneralInput name="time" type="time" placeholder="" label="Time" />
+                <GeneralInput name="date" type="date" placeholder="" label="Date" required isRequired={true} />
+                <GeneralInput name="time" type="time" placeholder="" label="Time" required isRequired={true} />
             </div>
         </section>
     );
@@ -49,6 +63,8 @@ export function FormRow2() {
                 <SelectInput
                     name="transactionType"
                     label="Transaction Type"
+                    required
+                    isRequired={true}
                     optionList={[
                         { content: "Walk-In Referral", value: "walkinReferral" },
                         { content: "Online Referral", value: "onlineReferral" },
@@ -74,6 +90,8 @@ export function FormRow2() {
                 <SelectInput
                     name="transactionOutcome"
                     label="Transaction Outcome"
+                    required
+                    isRequired={true}
                     optionList={[
                         { content: "Pending", value: "pending" },
                         { content: "Mismatched", value: "mismatched" },
@@ -127,9 +145,15 @@ export function FormRow4() {
 
 //  Profile picture, name, role, and change password button
 function TransactionsInputForm() {
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
+
     return (
         <Card className="w-full flex flex-col h-fit">
-            <Form method="post">
+            {/* Added onChange handler here */}
+            <Form method="post" onChange={handleFormChange}>
                 <Card.Body className="flex flex-col gap-6">
                     <FormRow1 />
                     <FormRow2 />
@@ -151,6 +175,7 @@ function TransactionsInputForm() {
                         size="normal"
                         className="text-sm font-light"
                         leftIcon={{ icon: AddCircleOutlineRoundedIcon, size: "normal", variant: "white" }}
+                        disabled={!isFormValid}
                     >
                         Save & Add Another
                     </Button>
@@ -159,6 +184,7 @@ function TransactionsInputForm() {
                         size="normal"
                         className="text-sm font-semibold"
                         leftIcon={{ icon: SaveOutlinedIcon, size: "normal", variant: "white" }}
+                        disabled={!isFormValid}
                     >
                         Save Record
                     </Button>
