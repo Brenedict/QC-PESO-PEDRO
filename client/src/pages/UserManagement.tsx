@@ -25,13 +25,10 @@ import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 // Types
 import type { Role } from "../types/common";
 
-// Test Data
-import type { UserRecord } from "../data/users";
-
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import type { UserSchemaType } from "../../../shared/schema/users";
+import type { UserFormCreateType } from "../../../shared/schema/users";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -82,7 +79,7 @@ function UserManagement() {
     const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
-    const users = useLoaderData() as UserSchemaType[];
+    const users = useLoaderData() as UserFormCreateType[];
     const userRole: Role = "SUPERADMIN";
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
@@ -210,11 +207,11 @@ function UserManagement() {
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <RoleBadge role={user.role} />
+                            <RoleBadge role={user?.role ?? "ADMIN"} />
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center">
-                                <Status type="status" variant={"active"} />
+                                <Status type="status" variant={user?.status ?? "LOGGED_OUT"} />
                             </div>
                         </Table.Data>
                         <Table.Data>
@@ -222,7 +219,7 @@ function UserManagement() {
                                 <ActionButtons
                                     id={String(user.id)}
                                     extraParams={{ name: `${user.firstName} ${user.lastName}` }}
-                                    actions={getRowActions(user.role)}
+                                    actions={getRowActions(user?.role ?? "ADMIN")}
                                 />
                             </div>
                         </Table.Data>

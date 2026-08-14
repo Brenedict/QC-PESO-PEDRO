@@ -44,7 +44,6 @@ enum Status {
     ONLINE
     OFFLINE
     LOGGED_OUT
-    DISABLED
 }
 
 enum Sex {
@@ -142,16 +141,27 @@ model ShiftLog {
 model User {
     id Int @id @default(autoincrement())
 
-    username  String   @unique @db.VarChar(256)
-    password  String   @db.VarChar(256)
-    email     String   @unique @db.VarChar(256)
-    role      Role     @default(FRONTLINE)
-    status    Status   @default(LOGGED_OUT)
-    shift     Shift    @default(NONE)
-    firstName String   @db.VarChar(256)
-    lastName  String   @db.VarChar(256)
+    /// @zod.string.min(1, { message: "Username cannot be empty" }).max(256)
+    username String @unique @db.VarChar(256)
+
+    /// @zod.string.min(1, { message: "Password cannot be empty" }).max(256)
+    password String @db.VarChar(256)
+
+    /// @zod.string.min(1, { message: "Email cannot be empty" }).max(256)
+    email String @unique @db.VarChar(256)
+
+    role Role @default(FRONTLINE)
+    status Status @default(LOGGED_OUT)
+    shift Shift @default(NONE)
+
+    /// @zod.string.min(1, { message: "First Name cannot be empty" }).max(256)
+    firstName String @db.VarChar(256)
+
+    /// @zod.string.min(1, { message: "Last Name cannot be empty" }).max(256)
+    lastName String @db.VarChar(256)
+
     createdAt DateTime @default(now()) @db.Timestamptz(0)
-    updatedAt DateTime @default(now()) @db.Timestamptz(0)
+    updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(0)
 
     auditLogs    AuditLog[]
     accountLogs  AccountLog[]

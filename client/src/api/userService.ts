@@ -1,16 +1,21 @@
-import { UserSchema } from "@qcpesopedro/shared/schema/users";
 import { apiFetch } from "./httpClient";
 import { redirect, type ActionFunctionArgs } from "react-router";
+import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
+import { decode } from "../utils/hashids";
+import type { User } from "@qcpesopedro/shared/prisma/browser";
+import { ROUTES } from "../hooks/reroute";
 
-/*
-    CURRENTLY THESE FETCH LOGIC ARE NOT FINAL, THEY ARE PROOF OF FUNCTION
-*/
+// POST: User Creation Method
+export const createUser = async ({ request }: ActionFunctionArgs) => {
+    // URL Mapper
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
 
-export const createUserAction = async ({ request }: ActionFunctionArgs) => {
     try {
         const formData = await request.formData();
 
-        const result = UserSchema.safeParse(formData);
+        // ZOD Schema Checking
+        const result = UserFormCreateSchema.safeParse(formData);
         if (!result.success) {
             console.error(result.error.flatten().fieldErrors);
 
@@ -19,6 +24,7 @@ export const createUserAction = async ({ request }: ActionFunctionArgs) => {
 
         const user = result.data;
 
+        // Main Fetch Request
         const res = await apiFetch("/user", {
             retry: true,
             method: "POST",
@@ -33,42 +39,159 @@ export const createUserAction = async ({ request }: ActionFunctionArgs) => {
             throw new Error(`Failed to create user ${res.status}`);
         }
 
-        return redirect("..");
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
     } catch (err) {
         console.error(err);
-        return redirect("..");
+
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
     }
 };
-export async function getUsers() {
-    const res = await apiFetch("/user", {
-        retry: true,
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-        },
-    });
 
-    if (!res.ok) {
-        throw new Error(`Failed to retrieve users: ${res.status}`);
+// PATCH: Applies to all user updates (included na here actions: disable, edit, demote/promote)
+export const updateUser = async ({ params, request }: ActionFunctionArgs) => {
+    // URL Mapper
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
+
+    try {
+        const { userId } = params;
+
+        const formData = await request.formData();
+
+        // ZOD Schema Checking
+        const result = UserFormUpdateSchema.safeParse(formData);
+        if (!result.success) {
+            console.error(result.error.flatten().fieldErrors);
+
+            throw new Error("Invalid user data");
+        }
+
+        const decodedId = Number(decode(userId));
+        const user = result.data;
+
+        // Main Fetch Request
+        const res = await apiFetch(`/user/${decodedId}`, {
+            retry: true,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(user),
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to update user ${res.status}`);
+        }
+
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
     }
+};
 
-    return res.json();
-}
+// PATCH: Special patch method for resetting password to default
+export const resetPassword = async ({ params, request }: ActionFunctionArgs) => {
+    // URL Mapper
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
 
-export async function getUserById(userId: number) {
-    const res = await apiFetch(`/user/${userId}`, {
-        retry: true,
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-        },
-    });
+    try {
+        const { userId } = params;
 
-    if (!res.ok) {
-        throw new Error(`Failed to retrieve user: ${res.status}`);
+        const decodedId = Number(decode(userId));
+
+        // Main Fetch Request
+        const res = await apiFetch(`/user/${decodedId}/reset-password`, {
+            retry: true,
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to reset password ${res.status}`);
+        }
+
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
     }
+};
 
-    return res.json();
-}
+// GET: Fetches all users
+export const getUsers = async ({ request }: ActionFunctionArgs) => {
+    // URL Mapper
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
+
+    try {
+        // Main Fetch Request
+        const res = await apiFetch("/user", {
+            retry: true,
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to retrieve users: ${res.status}`);
+        }
+
+        return res.json();
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
+    }
+};
+
+// GET: User id specific fetch
+export const getUserById = async ({ params, request }: ActionFunctionArgs) => {
+    // URL Mapper
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
+
+    try {
+        const decodedId = decode(params.userId);
+        const userId = Number(decodedId);
+
+        // Main Fetch Request
+        const res = await apiFetch(`/user/${userId}`, {
+            retry: true,
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to fetch user ${res.status}`);
+        }
+
+        const user: User = await res.json();
+
+        return user;
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
+    }
+};

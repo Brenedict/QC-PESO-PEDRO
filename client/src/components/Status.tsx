@@ -1,24 +1,27 @@
+// Components
+import { Text } from "./Text";
+
+// Icons
 import WifiIcon from "@mui/icons-material/Wifi";
 import WifiOffIcon from "@mui/icons-material/WifiOff";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CheckIcon from "@mui/icons-material/Check";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-import { Text } from "./Text";
+
+// Types
 import type { MaterialIcon, ColorVariant, AlignVariant } from "../types/common.ts";
-import { alignClasses } from "../types/common.ts";
 
 // Available variants for each status type
 type StatusVariantMap = {
-    connection: "online" | "offline" | "loggedout";
     type: "walkin" | "online" | "inhouse";
     outcome: "pending" | "mismatched" | "success";
     verification: "pending" | "approved" | "needsrevision" | "rejected";
-    status: "active" | "inactive" | "disabled";
+    status: "ONLINE" | "OFFLINE" | "DISABLED" | "LOGGED_OUT";
 };
 
 // Types of status that can be displayed
-export type StatusType = "connection" | "type" | "outcome" | "verification" | "status";
+export type StatusType = "type" | "outcome" | "verification" | "status";
 
 // Dynamic variant type based on status type
 export type StatusVariant<T extends StatusType> = StatusVariantMap[T];
@@ -41,11 +44,6 @@ interface StatusConfig {
 
 // Main configuration map
 const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
-    connection: {
-        online: { text: "Online", variant: "green", theme: colorClasses.green, icon: WifiIcon },
-        loggedout: { text: "Logged Out", variant: "grayish-blue", theme: colorClasses.offWhite, icon: LogoutIcon },
-        offline: { text: "Offline", variant: "red", theme: colorClasses.red, icon: WifiOffIcon },
-    },
     type: {
         walkin: { text: "Walk-In Referral", variant: "primary-blue", theme: colorClasses.blue },
         online: { text: "Online Referral", variant: "primary-blue", theme: colorClasses.blue },
@@ -68,9 +66,15 @@ const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
         rejected: { text: "Rejected", variant: "red", theme: colorClasses.red, icon: CancelOutlinedIcon },
     },
     status: {
-        active: { text: "Active", variant: "green", theme: colorClasses.green },
-        inactive: { text: "Inactive", variant: "red", theme: colorClasses.red },
-        disabled: { text: "Disabled", variant: "grayish-blue", theme: colorClasses.offWhite, icon: CancelOutlinedIcon },
+        ONLINE: { text: "Online", variant: "green", theme: colorClasses.green, icon: WifiIcon },
+        OFFLINE: { text: "Offline", variant: "red", theme: colorClasses.red, icon: WifiOffIcon },
+        DISABLED: { text: "Disabled", variant: "red", theme: colorClasses.red, icon: CancelOutlinedIcon },
+        LOGGED_OUT: {
+            text: "Logged Out",
+            variant: "grayish-blue",
+            theme: colorClasses.offWhite,
+            icon: LogoutIcon,
+        },
     },
 };
 

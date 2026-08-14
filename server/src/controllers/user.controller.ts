@@ -1,10 +1,10 @@
 // General Imports
-import { UpdateUserSchema, UserSchema } from "@qcpesopedro/shared/schema/users";
+import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
 import type { Request, Response } from "express";
 
 // Middleware
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
-import { validateUserSchema } from "../middlewares/user.middleware";
+import { validateSchema } from "../middlewares/zod.middleware";
 
 // Prisma Types
 import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
@@ -20,7 +20,7 @@ export default {
         jwtAccessAuth,
         (req: Request, res: Response) => {
             const user = req.user as User;
-            console.log(user);
+
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
@@ -34,6 +34,7 @@ export default {
                 firstName: user.firstName,
                 lastName: user.lastName,
             };
+
             return res.json(userContextPayload);
         },
     ],
@@ -41,6 +42,7 @@ export default {
     getUserById: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
+            // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
 
@@ -48,7 +50,7 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            res.status(200).json(user);
+            return res.status(200).json(user);
         },
     ],
 
@@ -62,13 +64,13 @@ export default {
             // Retrieves users with optional filters
             const users = await UserService.getUsers({ role, status });
 
-            res.status(200).json(users);
+            return res.status(200).json(users);
         },
     ],
 
-    post: [
+    createUser: [
         jwtAccessAuth,
-        validateUserSchema(UserSchema),
+        validateSchema(UserFormCreateSchema),
         async (req: Request, res: Response) => {
             const user = req.body as User;
             const { email, username } = user;
@@ -79,16 +81,17 @@ export default {
             if (await UserService.usernameExist(username))
                 return res.status(409).json({ message: "Username already exists" });
 
-            const result = UserService.createUser(user);
+            const result = await UserService.createUser(user);
 
-            res.json(result);
+            return res.json(result);
         },
     ],
 
     patch: [
         jwtAccessAuth,
-        validateUserSchema(UpdateUserSchema),
+        validateSchema(UserFormUpdateSchema),
         async (req: Request, res: Response) => {
+            // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
 
@@ -98,15 +101,16 @@ export default {
 
             const userUpdate = req.body as User;
 
-            UserService.updateUser(userId, userUpdate);
+            const result = await UserService.updateUser(userId, userUpdate);
 
-            res.status(201).end();
+            return res.status(201).send();
         },
     ],
 
     delete: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
+            // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
 
@@ -114,9 +118,26 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            UserModel.deleteById(userId);
+            const result = await UserModel.deleteById(userId);
 
-            res.status(204).end();
+            return res.status(204).send();
+        },
+    ],
+
+    resetPassword: [
+        jwtAccessAuth,
+        async (req: Request, res: Response) => {
+            // Default user check
+            const userId = Number(req.params.userId);
+            const user = await UserService.ensureUserExist(userId);
+
+            if (!user) {
+                return res.status(404).json({ message: "User doesn't exist" });
+            }
+            const result = await UserService.resetPassword(userId, user);
+            console.log("REACHED");
+
+            return res.status(204).send();
         },
     ],
 };

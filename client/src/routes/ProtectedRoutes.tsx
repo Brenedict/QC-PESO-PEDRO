@@ -3,7 +3,6 @@ import { redirect, type ActionFunctionArgs, type RouteObject } from "react-route
 
 // Schema
 import { TransactionSchema } from "@qcpesopedro/shared/schema//transactions";
-import { UserSchema } from "@qcpesopedro/shared/schema//users";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -17,6 +16,7 @@ import { ContextAnalytics } from "../pages/ContextAnalytics";
 import SystemAuditLogs from "../pages/SystemAuditLogs";
 import UserManagement from "../pages/UserManagement";
 import Reports from "../pages/Reports";
+import SystemErrorPage from "../pages/SystemErrorPage";
 
 // Components
 import {
@@ -29,6 +29,7 @@ import {
 import { PopupTransactionDetails } from "../components/popups/DashboardPopups";
 import { PopupReportPreview } from "../components/popups/ReportPopups";
 import { PopupViewHistory } from "../components/popups/MonitoringPopups";
+import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
 
 // Test Data
 import { transactions } from "../data/transactions";
@@ -38,16 +39,14 @@ import { auditLogData } from "../data/auditLogs";
 
 // API
 import { createTransaction } from "../api/transactions";
-import { createUserAction, getUserById, getUsers } from "../api/userService";
+import { createUser, getUserById, getUsers, resetPassword, updateUser } from "../api/userService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 
 // Helper function
-import { testActionFn, transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
+import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { userContext } from "../utils/userContext";
 import { ROUTES } from "../hooks/reroute";
-import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
-import SystemErrorPage from "../pages/SystemErrorPage";
 import { getUserContextLoader } from "../api/authService";
 
 export const protectedRoutes: RouteObject[] = [
@@ -245,48 +244,42 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "user-management",
                         element: <UserManagement />,
-                        loader: async () => {
-                            const users = (await getUsers()) as (typeof UserSchema)[];
-
-                            return users;
-                        },
+                        loader: getUsers,
                         children: [
                             {
                                 path: "create",
                                 element: <PopupAddUser />,
-                                action: createUserAction,
+                                action: createUser,
                             },
                             {
                                 path: ":userId/edit",
                                 element: <PopupEditUser />,
-                                action: testActionFn(UserSchema),
-                                loader: async ({ params }) => {
-                                    const userId = Number(params.userId);
-                                    console.log(userId);
-                                    const users = (await getUserById(userId)) as typeof UserSchema;
-
-                                    return users;
-                                },
+                                action: updateUser,
+                                loader: getUserById,
                             },
                             {
                                 path: ":userId/disable",
                                 element: <PopupDisableUser />,
-                                action: testActionFn(UserSchema),
+                                action: updateUser,
+                                loader: getUserById,
                             },
                             {
                                 path: ":userId/promote",
                                 element: <PopupUserPriveleges privilegeType="promote" />,
-                                action: testActionFn(UserSchema),
+                                action: updateUser,
+                                loader: getUserById,
                             },
                             {
                                 path: ":userId/demote",
                                 element: <PopupUserPriveleges privilegeType="demote" />,
-                                action: testActionFn(UserSchema),
+                                action: updateUser,
+                                loader: getUserById,
                             },
                             {
                                 path: ":userId/reset",
                                 element: <PopupResetUser />,
-                                action: testActionFn(UserSchema),
+                                action: resetPassword,
+                                loader: getUserById,
                             },
                             ...shiftPopups(ROUTES.userManagement.root),
                         ],
