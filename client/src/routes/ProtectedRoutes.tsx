@@ -71,7 +71,7 @@ export const protectedRoutes: RouteObject[] = [
                 children: [
                     {
                         path: "",
-                        element: <Overview pending={5} approved={18} revision={2} role={userContext.role} />,
+                        element: <Overview pending={5} approved={18} revision={2} />,
                         children: [
                             {
                                 path: "total",
@@ -162,12 +162,7 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "profile",
-                        element: (
-                            <ProfilePage
-                                roleType={userContext.role ?? "FRONTLINE"}
-                                userFullName={`${userContext.firstName} ${userContext.lastName}`}
-                            />
-                        ),
+                        element: <ProfilePage />,
                         children: [...shiftPopups(ROUTES.profile.root)],
                     },
                     {

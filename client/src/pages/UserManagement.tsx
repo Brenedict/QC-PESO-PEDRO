@@ -1,7 +1,7 @@
 import { Outlet, useLoaderData } from "react-router";
 
 // General Imports
-import { type SubmitEvent } from "react";
+import { useContext, type SubmitEvent } from "react";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -29,6 +29,7 @@ import type { Role } from "../types/common";
 import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import type { UserFormCreateType } from "../../../shared/schema/users";
+import { useTopBar } from "../context/TopbarContext.tsx";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -80,7 +81,10 @@ function UserManagement() {
     const navigate = useNavigateDefault();
 
     const users = useLoaderData() as UserFormCreateType[];
-    const userRole: Role = "SUPERADMIN";
+
+    const { role } = useTopBar();
+    const userRole = role;
+    console.log("User Role:", userRole); // Debugging line to check the role value
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
