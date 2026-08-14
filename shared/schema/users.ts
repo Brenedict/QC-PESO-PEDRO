@@ -12,6 +12,7 @@ export const UserSchema = zfd.formData({
     email: zfd.text(z.string({ error: "Email cannot be empty" }).trim().min(1, { message: "Email cannot be empty" })),
     role: zfd.text(z.enum(["SUPERADMIN", "ADMIN", "FRONTLINE"]).default("FRONTLINE")),
     status: zfd.text(z.enum(["ONLINE", "OFFLINE", "LOGGED_OUT"]).default("LOGGED_OUT")),
+    shift: zfd.text(z.enum(["MORNING", "AFTERNOON"]).default("MORNING")),
     firstName: zfd.text(
         z.string({ error: "First Name cannot be empty" }).trim().min(1, { message: "First Name cannot be empty" })
     ),

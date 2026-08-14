@@ -83,11 +83,11 @@ export function ActionButtons({
 }: {
     id: string;
     extraParams?: unknown;
-    actions: ActionTypes;
+    actions?: ActionTypes;
 }) {
     return (
         <>
-            {actions.map((action, index) => (
+            {actions?.map((action, index) => (
                 <Button
                     key={index}
                     variant={buttonMap[action.color].variant}
@@ -123,9 +123,9 @@ export function ActionButton({
 }
 
 const badgeMap = {
-    superadmin: { text: "white", bg: "border-dark-blue bg-dark-blue" },
-    admin: { text: "primary-blue", bg: "border-primary-blue bg-grayish-blue-opaque" },
-    frontline: { text: "grayish-blue", bg: "border-off-white-border bg-off-white" },
+    SUPERADMIN: { text: "white", bg: "border-dark-blue bg-dark-blue" },
+    ADMIN: { text: "primary-blue", bg: "border-primary-blue bg-grayish-blue-opaque" },
+    FRONTLINE: { text: "grayish-blue", bg: "border-off-white-border bg-off-white" },
 } as const;
 
 // Badge for the Role
@@ -133,7 +133,7 @@ export function RoleBadge({ role }: { role: Role }) {
     return (
         <div className={`px-3 py-1 rounded-md border  w-fit mx-auto ${badgeMap[role].bg}`}>
             <Text size="small" weight="bold" variant={badgeMap[role].text as any} align="center" className="uppercase">
-                {role === "superadmin" ? "Super Admin" : role === "admin" ? "Administrator" : "Frontline Encoder"}
+                {role === "SUPERADMIN" ? "SUPER ADMIN" : role === "ADMIN" ? "Administrator" : "Frontline Encoder"}
             </Text>
         </div>
     );

@@ -33,10 +33,6 @@ import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import type { UserSchemaType } from "../../../shared/schema/users";
 
-interface UserManagementProps {
-    users: UserRecord[];
-}
-
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
     return (
@@ -86,28 +82,23 @@ function UserManagement() {
     const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
-<<<<<<< Updated upstream
     const users = useLoaderData() as UserSchemaType[];
+    const userRole: Role = "SUPERADMIN";
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-=======
-    const userRole: Role = "admin";
-
-    const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) =>  {
->>>>>>> Stashed changes
         e.preventDefault();
         console.log("Filter applied in User Management");
     };
 
     const RoleButtonMap: Record<Role, RoleButton | null> = {
-        superadmin: null,
-        admin: {
+        SUPERADMIN: null,
+        ADMIN: {
             icon: RemoveModeratorOutlinedIcon,
             text: "Demote",
             color: "black",
             handleClick: (id) => () => navigate(ROUTES.userManagement.demote(id), true),
         },
-        frontline: {
+        FRONTLINE: {
             icon: ShieldOutlinedIcon,
             text: "Promote",
             color: "blue",
@@ -118,11 +109,11 @@ function UserManagement() {
     const getRowActions = (rowRole: Role): ActionTypes => {
         const actions: ActionTypes = [];
 
-        if (RoleButtonMap[rowRole]) {
+        if (RoleButtonMap[rowRole] && userRole === "SUPERADMIN") {
             actions.push(RoleButtonMap[rowRole]!);
         }
 
-        if (userRole === "admin" && rowRole === "superadmin") {
+        if (rowRole === "SUPERADMIN") {
             return actions;
         }
 
@@ -212,11 +203,7 @@ function UserManagement() {
                 {users.map((user) => (
                     <Table.Row key={user.id}>
                         <Table.Data>
-<<<<<<< Updated upstream
                             <UserCell name={`${user.firstName} ${user.lastName}`} email={user.email} />
-=======
-                            <UserCell name={`${row.firstName} ${row.lastName}`} email={row.email} />
->>>>>>> Stashed changes
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="grayish-blue" align="center">
@@ -224,28 +211,22 @@ function UserManagement() {
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <RoleBadge role={"admin"} />
+                            <RoleBadge role={user.role} />
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center">
                                 <Status type="status" variant={"active"} />
                             </div>
                         </Table.Data>
-                        {/* <Table.Data>
+                        <Table.Data>
                             <div className="flex justify-center gap-2">
                                 <ActionButtons
-<<<<<<< Updated upstream
-                                    id={user.id}
+                                    id={String(user.id)}
                                     extraParams={{ name: `${user.firstName} ${user.lastName}` }}
                                     actions={getRowActions(user.role)}
-=======
-                                    id={row.id}
-                                    extraParams={{ name: `${row.firstName} ${row.lastName}` }}
-                                    actions={getRowActions(row.role)}
->>>>>>> Stashed changes
                                 />
                             </div>
-                        </Table.Data> */}
+                        </Table.Data>
                     </Table.Row>
                 ))}
             </Table>
