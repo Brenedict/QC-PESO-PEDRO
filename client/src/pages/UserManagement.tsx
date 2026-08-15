@@ -108,13 +108,12 @@ function UserManagement() {
 
     const getRowActions = (rowRole: Role): ActionTypes => {
         const actions: ActionTypes = [];
-
         if (RoleButtonMap[rowRole] && userRole === "SUPERADMIN") {
             actions.push(RoleButtonMap[rowRole]!);
         }
 
         if (userRole === "ADMIN" && rowRole !== "FRONTLINE") {
-            return actions; 
+            return actions;
         }
 
         if (rowRole === "SUPERADMIN" && userRole !== "SUPERADMIN") {
@@ -225,11 +224,13 @@ function UserManagement() {
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center gap-2">
-                                <ActionButtons
-                                    id={String(user.id)}
-                                    extraParams={{ name: `${user.firstName} ${user.lastName}` }}
-                                    actions={getRowActions(user?.role ?? "ADMIN")}
-                                />
+                                {user.role !== "SUPERADMIN" && (
+                                    <ActionButtons
+                                        id={String(user.id)}
+                                        extraParams={{ name: `${user.firstName} ${user.lastName}` }}
+                                        actions={getRowActions(user?.role ?? "ADMIN")}
+                                    />
+                                )}
                             </div>
                         </Table.Data>
                     </Table.Row>
