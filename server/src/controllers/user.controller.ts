@@ -1,16 +1,48 @@
+// General Imports
+import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
 import type { Request, Response } from "express";
+
+// Middleware
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
-import type { User } from "@qcpesopedro/shared/prisma/client";
-import UserModel from "../models/user.model";
 import { validateSchema } from "../middlewares/zod.middleware";
-import { UpdateUserSchema, UserSchema } from "@qcpesopedro/shared/schema/users";
+
+// Prisma Types
+import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+
+// Models
+import UserModel from "../models/user.model";
+
+// Service
 import UserService from "../service/user.service";
-import type { Role, Status } from "@qcpesopedro/shared/prisma/client";
 
 export default {
+    getCurrentUser: [
+        jwtAccessAuth,
+        (req: Request, res: Response) => {
+            const user = req.user as User;
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            const userContextPayload = {
+                id: user.id,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                status: user.status,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            };
+
+            return res.json(userContextPayload);
+        },
+    ],
+
     getUserById: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
+            // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
 
@@ -18,7 +50,7 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            res.status(200).json(user);
+            return res.status(200).json(user);
         },
     ],
 
@@ -32,13 +64,13 @@ export default {
             // Retrieves users with optional filters
             const users = await UserService.getUsers({ role, status });
 
-            res.status(200).json(users);
+            return res.status(200).json(users);
         },
     ],
 
-    post: [
+    createUser: [
         jwtAccessAuth,
-        validateSchema(UserSchema),
+        validateSchema(UserFormCreateSchema),
         async (req: Request, res: Response) => {
             const user = req.body as User;
             const { email, username } = user;
@@ -49,16 +81,17 @@ export default {
             if (await UserService.usernameExist(username))
                 return res.status(409).json({ message: "Username already exists" });
 
-            const result = UserModel.createUser(user);
+            const result = await UserService.createUser(user);
 
-            res.json(result);
+            return res.json(result);
         },
     ],
 
     patch: [
         jwtAccessAuth,
-        validateSchema(UpdateUserSchema),
+        validateSchema(UserFormUpdateSchema),
         async (req: Request, res: Response) => {
+            // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
 
@@ -66,17 +99,30 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
+            const requestor = req.user as User;
+
+            if (requestor.role === "ADMIN" && user.role !== "FRONTLINE") {
+                return res
+                    .status(403)
+                    .json({ message: "Forbidden: Administrators can only modify Frontline Encoders." });
+            }
+
             const userUpdate = req.body as User;
 
-            UserService.updateUser(userId, userUpdate);
+            if (requestor.role === "ADMIN" && userUpdate.role === "SUPERADMIN") {
+                return res.status(403).json({ message: "Forbidden: Cannot grant Super Administrator privileges." });
+            }
 
-            res.status(201).end();
+            const result = await UserService.updateUser(userId, userUpdate);
+
+            return res.status(201).send();
         },
     ],
 
     delete: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
+            // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
 
@@ -84,9 +130,35 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            UserModel.deleteById(userId);
+            const result = await UserModel.deleteById(userId);
 
-            res.status(204).end();
+            return res.status(204).send();
+        },
+    ],
+
+    resetPassword: [
+        jwtAccessAuth,
+        async (req: Request, res: Response) => {
+            // Default user check
+            const userId = Number(req.params.userId);
+            const user = await UserService.ensureUserExist(userId);
+
+            if (!user) {
+                return res.status(404).json({ message: "User doesn't exist" });
+            }
+
+            const requestor = req.user as User;
+
+            if (requestor.role === "ADMIN" && user.role !== "FRONTLINE") {
+                return res
+                    .status(403)
+                    .json({ message: "Forbidden: Administrators can only reset passwords for Frontline Encoders." });
+            }
+
+            const result = await UserService.resetPassword(userId, user);
+            console.log("REACHED");
+
+            return res.status(204).send();
         },
     ],
 };
