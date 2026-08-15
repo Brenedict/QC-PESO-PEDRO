@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import TransactionModel from "../models/transaction.model";
 import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
@@ -20,11 +20,7 @@ export default {
                 transactionOutcome: req.query.outcome as Outcome,
             });
 
-            const codedTransactions = await Promise.all(
-                transactions.map((transaction) => TransactionService.setTransactionCode(transaction))
-            );
-
-            res.json(codedTransactions);
+            res.json(transactions);
         },
     ],
 
@@ -32,10 +28,7 @@ export default {
         jwtAccessAuth,
         async (req: Request, res: Response) => {
             const transaction = await TransactionModel.getById(parseInt(req.params.transactionId as string));
-
-            return transaction
-                ? res.json(await TransactionService.setTransactionCode(transaction))
-                : res.status(404).json({ error: "Transaction not found" });
+            return transaction ? res.json(transaction) : res.status(404).json({ error: "Transaction not found" });
         },
     ],
 
@@ -44,8 +37,8 @@ export default {
         validateSchema(TransactionFormCreateSchema),
         async (req: Request, res: Response) => {
             const transaction = req.body as TransactionCreateType;
-            await TransactionModel.createTransaction(transaction);
-            res.status(201).json(req.body);
+            const result = await TransactionService.createTransactionWithCode(transaction);
+            res.status(201).json(result);
         },
     ],
 

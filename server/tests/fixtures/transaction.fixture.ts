@@ -1,6 +1,7 @@
-import { Demographic, Outcome, Sex, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/client";
+import { Demographic, Outcome, Sex, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
 
-export const buildMockTransactions = (userId: number, shiftLogId: number): Transaction[] => [
+export const buildMockTransactions = (userId: number, shiftLogId: number): TransactionCreateType[] => [
     {
         id: 1,
         userId,
@@ -12,7 +13,6 @@ export const buildMockTransactions = (userId: number, shiftLogId: number): Trans
         transactionType: TransactionType.WALK_IN_REFERRAL,
         remarks: null,
         demographics: [Demographic.FIRST_TIME_JOB_SEEKER],
-        createdAt: new Date(2026, 7, 13),
     },
     {
         id: 2,
@@ -25,7 +25,6 @@ export const buildMockTransactions = (userId: number, shiftLogId: number): Trans
         transactionType: TransactionType.ONLINE_REFERRAL,
         remarks: "Awaiting approval",
         demographics: [Demographic.PERSONS_WITH_DISABILITY, Demographic.SENIOR_CITIZEN],
-        createdAt: new Date(2026, 7, 13),
     },
     {
         id: 3,
@@ -35,7 +34,6 @@ export const buildMockTransactions = (userId: number, shiftLogId: number): Trans
         applicantLastName: "Johnson",
         applicantSex: Sex.MALE,
         transactionOutcome: Outcome.MISMATCH,
-        createdAt: new Date(2026, 7, 13),
         transactionType: TransactionType.IN_HOUSE_RECRUITMENT,
         remarks: "Mismatch in credentials",
         demographics: [Demographic.YOUNG_WORKER],

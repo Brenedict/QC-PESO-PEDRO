@@ -16,18 +16,20 @@ import type {
     TransactionUncheckedCreateInput,
     TransactionUncheckedUpdateInput,
 } from "@qcpesopedro/shared/prisma/models";
-import { CodedTransaction } from "../../src/service/transaction.service";
+import TransactionService from "../../src/service/transaction.service";
+import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
 
 const stringifyDates = <T extends Record<string, unknown>>(obj: T) => {
     const { createdAt, ...rest } = obj ?? {};
+    console.log(obj);
     return {
         ...rest,
-        createdAt: createdAt ? new Date(createdAt as Date).toISOString() : createdAt,
+        createdAt: createdAt ? new Date(createdAt as string).toISOString() : createdAt,
     };
 };
 
 describe("Transaction Route", () => {
-    let mockedTransactions: Transaction[];
+    let mockedTransactions: TransactionCreateType[];
     let mockedUser: User;
     let mockedShiftLog: ShiftLog;
 
@@ -36,7 +38,7 @@ describe("Transaction Route", () => {
         mockedShiftLog = await prisma.shiftLog.create({ data: buildMockShiftLog(mockedUser.id) });
 
         mockedTransactions = buildMockTransactions(mockedUser.id, mockedShiftLog.id);
-        await prisma.transaction.createMany({ data: mockedTransactions });
+        await TransactionService.createTransactionsWithCode(mockedTransactions);
     });
 
     app.use("/transaction", transactionRoute);
@@ -45,24 +47,25 @@ describe("Transaction Route", () => {
         it("returns all transactions", async () => {
             const res = await request(app).get("/transaction").expect(200);
 
-            expect(res.body).toEqual(
-                mockedTransactions.map((transaction) => ({
-                    ...stringifyDates(transaction),
-                    code: expect.stringMatching(/TXN-\d{6}-\d{3}/),
-                }))
+            res.body.forEach((transaction: Transaction, i: number) =>
+                expect(transaction).toMatchObject({
+                    ...mockedTransactions[i],
+                    createdAt: expect.any(String),
+                    txCode: expect.stringMatching(/^TX-\d{6}-\d+$/),
+                })
             );
-        }, 300000);
+        });
 
         it("returns transactions with filters", async () => {
             const resType = await request(app).get(`/transaction`).query({ type: TransactionType.WALK_IN_REFERRAL });
 
-            resType.body.forEach((transaction: CodedTransaction) => {
+            resType.body.forEach((transaction: Transaction) => {
                 expect(transaction).toHaveProperty("transactionType", TransactionType.WALK_IN_REFERRAL);
             });
 
             const resOutcome = await request(app).get(`/transaction`).query({ outcome: Outcome.PENDING });
 
-            resOutcome.body.forEach((transaction: CodedTransaction) => {
+            resOutcome.body.forEach((transaction: Transaction) => {
                 expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
             });
 
@@ -70,7 +73,7 @@ describe("Transaction Route", () => {
                 .get(`/transaction`)
                 .query({ outcome: Outcome.PENDING, type: TransactionType.WALK_IN_REFERRAL });
 
-            resBoth.body.forEach((transaction: CodedTransaction) => {
+            resBoth.body.forEach((transaction: Transaction) => {
                 expect(transaction).toHaveProperty("transactionOutcome", TransactionType.WALK_IN_REFERRAL);
                 expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
             });
@@ -79,11 +82,10 @@ describe("Transaction Route", () => {
         it("returns a transaction with id", async () => {
             const res = await request(app).get("/transaction/1").expect(200);
 
-            const expectedTransaction = mockedTransactions?.[0];
-            expect(res.body).toEqual({
-                ...stringifyDates(expectedTransaction as Transaction),
-                code: expect.stringMatching(/TXN-\d{6}-\d{3}/),
-            });
+            const transaction = res.body as Transaction;
+            expect(transaction).toMatchObject(mockedTransactions[0]);
+            expect(transaction).toHaveProperty("createdAt", expect.any(String));
+            expect(transaction.txCode).toMatch(/^TX-\d{6}-\d+$/);
         });
 
         it("returns status 404 when id is not found", (done) => {
@@ -93,7 +95,7 @@ describe("Transaction Route", () => {
 
     describe("POST /transaction", () => {
         it("creates a transaction", async () => {
-            const formData: TransactionUncheckedCreateInput = {
+            const formData: TransactionCreateType = {
                 applicantFirstName: "John",
                 applicantLastName: "Doe",
                 transactionType: "IN_HOUSE_RECRUITMENT",
@@ -104,14 +106,20 @@ describe("Transaction Route", () => {
                 demographics: ["FIRST_TIME_JOB_SEEKER"],
             };
 
-            await request(app).post("/transaction").send(formData).expect(formData);
+            const expected = {
+                ...formData,
+                createdAt: expect.any(String),
+                txCode: expect.stringMatching(/^TX-\d{6}-\d+$/),
+            };
+
+            await request(app).post("/transaction").send(formData).expect(201);
 
             const res = await request(app).get("/transaction").expect(200);
-            expect(res.body).toContainEqual(expect.objectContaining(formData));
+            expect(res.body).toContainEqual(expect.objectContaining(expected));
         });
 
         it("returns status 400 when bad request was made", (done) => {
-            const formData: TransactionUncheckedCreateInput = {
+            const formData: TransactionCreateType = {
                 applicantFirstName: "",
                 applicantLastName: "",
                 transactionType: "IN_HOUSE_RECRUITMENT",
