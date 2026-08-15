@@ -113,7 +113,11 @@ function UserManagement() {
             actions.push(RoleButtonMap[rowRole]!);
         }
 
-        if (rowRole === "SUPERADMIN") {
+        if (userRole === "ADMIN" && rowRole !== "FRONTLINE") {
+            return actions; 
+        }
+
+        if (rowRole === "SUPERADMIN" && userRole !== "SUPERADMIN") {
             return actions;
         }
 
@@ -140,6 +144,7 @@ function UserManagement() {
 
         return actions;
     };
+
     const extraFilters = (
         <div className="flex gap-4 items-center">
             <SelectInput

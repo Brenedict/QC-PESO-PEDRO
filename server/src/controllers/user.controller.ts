@@ -99,7 +99,19 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
+            const requestor = req.user as User;
+
+            if (requestor.role === "ADMIN" && user.role !== "FRONTLINE") {
+                return res
+                    .status(403)
+                    .json({ message: "Forbidden: Administrators can only modify Frontline Encoders." });
+            }
+
             const userUpdate = req.body as User;
+
+            if (requestor.role === "ADMIN" && userUpdate.role === "SUPERADMIN") {
+                return res.status(403).json({ message: "Forbidden: Cannot grant Super Administrator privileges." });
+            }
 
             const result = await UserService.updateUser(userId, userUpdate);
 
@@ -134,6 +146,15 @@ export default {
             if (!user) {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
+
+            const requestor = req.user as User;
+
+            if (requestor.role === "ADMIN" && user.role !== "FRONTLINE") {
+                return res
+                    .status(403)
+                    .json({ message: "Forbidden: Administrators can only reset passwords for Frontline Encoders." });
+            }
+   
             const result = await UserService.resetPassword(userId, user);
             console.log("REACHED");
 
