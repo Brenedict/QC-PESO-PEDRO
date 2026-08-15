@@ -1,42 +1,59 @@
-import { Form, useParams } from "react-router";
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import { decode } from "../../utils/hashids";
+// General Imports
+import { Form, useLoaderData } from "react-router";
+import { useState, type ReactNode } from "react";
+import type { Role, Shift } from "@qcpesopedro/shared/prisma/client";
+import type { User } from "@qcpesopedro/shared/prisma/browser";
+
+// Components
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
+import { GeneralInput, SelectInput } from "../Input";
+import ChoiceItem from "../ChoiceItem";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
-import { GeneralInput, PasswordInput, SelectInput } from "../Input";
+
+// Icons
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
-import type { ReactNode } from "react";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
-import { usersData, type UserRecord } from "../../data/users";
-import ChoiceItem from "../ChoiceItem";
-import { useState } from "react";
 
-function PopupUserForms({
-    formId,
-    user,
-    onChange,
-}: {
+// Helpers
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+type PopupUser = {
+    id?: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    username: string;
+    role: Role;
+    shift: Shift;
+};
+
+type PopupUserFormsProps = {
     formId: string;
-    user?: UserRecord;
+    user?: PopupUser;
     onChange?: React.FormEventHandler<HTMLFormElement>;
-}) {
-    // Temporary lang yung logic neto (binase ko sa dummy data ni richard)
+};
+
+function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
     return (
         <Form method="post" id={formId} className="grid grid-cols-2 h-fit gap-4" onChange={onChange}>
-            {/* ID holder */}
-            {user && <GeneralInput hidden={true} name="id" type="text" value={user.id} />}
-
-            <div className="col-span-2">
+            <div className="col-span-2 flex gap-4">
                 <GeneralInput
                     type="text"
-                    label="Full Name"
-                    id="fullName"
-                    name="fullName"
-                    defaultValue={user ? `${user.firstName} ${user.lastName}` : ""}
-                    required
-                    isRequired={true}
+                    label="First Name"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="John"
+                    defaultValue={user?.firstName}
+                />
+                <GeneralInput
+                    type="text"
+                    label="Last Name"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Doe"
+                    defaultValue={user?.lastName}
                 />
             </div>
             <GeneralInput
@@ -45,81 +62,52 @@ function PopupUserForms({
                 placeholder="name@quezoncity.gov.ph"
                 id="email"
                 name="email"
-                defaultValue={user?.email ?? ""}
+                defaultValue={user?.email}
                 required
                 isRequired={true}
             />
+
             <GeneralInput
                 type="text"
                 label="Username"
-                id="userName"
-                name="userName"
-                defaultValue={user?.username ?? ""}
+                id="username"
+                name="username"
+                placeholder="John"
+                defaultValue={user?.username}
                 required
                 isRequired={true}
             />
 
             <SelectInput
-                defaultValue={user?.role ?? ""}
+                defaultValue={user?.role ?? "FRONTLINE"}
                 label="Role"
                 id="role"
                 name="role"
                 required
                 isRequired={true}
                 optionList={[
-                    { content: "Super Administrator", value: "superadmin" },
-                    { content: "Administrator", value: "admin" },
-                    { content: "Frontline Encoder", value: "frontline" },
+                    { content: "Administrator", value: "ADMIN" },
+                    { content: "Frontline Encoder", value: "FRONTLINE" },
                 ]}
-            />
-            <SelectInput
-                defaultValue={user?.status ?? "active"}
-                label="Status"
-                id="status"
-                name="status"
-                required
-                isRequired={true}
-                optionList={[
-                    { content: "Active", value: "active" },
-                    { content: "Inactive", value: "inactive" },
-                ]}
-            />
-            <GeneralInput
-                type="text"
-                label="Position"
-                placeholder="e.g. LEO I"
-                id="position"
-                name="position"
-                required
-                isRequired={true}
-            />
-            <GeneralInput
-                type="text"
-                label="Assigned Office"
-                placeholder="e.g. PESO"
-                id="assignedOffice"
-                name="assignedOffice"
-                required
-                isRequired={true}
             />
 
-            {!user && (
-                <div className="col-span-2">
-                    <PasswordInput
-                        label="Temporary Password"
-                        placeholder="Will require reset on first login"
-                        id="password"
-                        name="password"
-                        required
-                        isRequired={true}
-                    />
-                </div>
-            )}
+            <SelectInput
+                defaultValue={user?.shift ?? "NONE"}
+                label="Shift"
+                id="shift"
+                name="shift"
+                optionList={[
+                    { content: "None", value: "NONE" },
+                    { content: "Morning", value: "MORNING" },
+                    { content: "Afternoon", value: "AFTERNOON" },
+                ]}
+            />
         </Form>
     );
 }
 export function PopupAddUser() {
     const navigate = useNavigateDefault();
+    const isoDate = new Date().toISOString().split("T")[0];
 
     // Form Validation
     const [isFormValid, setIsFormValid] = useState(false);
@@ -132,16 +120,31 @@ export function PopupAddUser() {
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
                 <Text weight="bold">Add New User</Text>
             </Dialog.Header>
-            <Dialog.Body className="p-6!">
-                {/* Pass the handler down to the form */}
-                <PopupUserForms formId="userFormViewEdit" onChange={handleFormChange} />
+            <Dialog.Body className="p-6! flex flex-col gap-4">
+                <PopupUserForms formId="userFormCreateUser" onChange={handleFormChange} />
+                <PopupNotice
+                    additionalSection={
+                        <Text align="center" size="description" weight="bold" variant="red">
+                            Temporary Password:
+                        </Text>
+                    }
+                >
+                    QCPESO-FIRSTNAME-LASTNAME-CURRENTDATE
+                </PopupNotice>
+                <PopupNotice
+                    variant="off-white"
+                    additionalSection={
+                        <Text align="center" size="description" weight="bold" variant="grayish-blue">
+                            Example:
+                        </Text>
+                    }
+                >{`QCPESO-JOHNBENEDICT-DOE-${isoDate}`}</PopupNotice>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                {/* Disable the button based on the state */}
-                <PopupButton variant="blue" type="submit" form="userFormViewEdit" disabled={!isFormValid}>
+                <PopupButton variant="blue" type="submit" form="userFormCreateUser" disabled={!isFormValid}>
                     Create User
                 </PopupButton>
             </Dialog.Footer>
@@ -151,11 +154,9 @@ export function PopupAddUser() {
 
 export function PopupEditUser() {
     const navigate = useNavigateDefault();
-    const { userId } = useParams();
 
-    if (!userId) return null;
-
-    const decodedId = decode(userId);
+    const user = useLoaderData() as User;
+    if (!user) return null;
 
     // Form Validation
     const [isFormValid, setIsFormValid] = useState(false);
@@ -166,14 +167,10 @@ export function PopupEditUser() {
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
-                <Text weight="bold">
-                    {" "}
-                    {"John"} {"Doe"}{" "}
-                </Text>
+                <Text weight="bold">{`${user.firstName} ${user.lastName}`}</Text>
             </Dialog.Header>
             <Dialog.Body className="p-6!">
-                {/* Pass the onChange handler down to the form blueprint */}
-                <PopupUserForms formId="userFormViewEdit" onChange={handleFormChange} />
+                <PopupUserForms formId="userFormViewEdit" user={user} onChange={handleFormChange} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
@@ -190,29 +187,22 @@ export function PopupEditUser() {
 
 export function PopupDisableUser() {
     const navigate = useNavigateDefault();
-    const { userId } = useParams();
 
-    if (!userId) return null;
-
-    const decodedId = decode(userId);
+    const user = useLoaderData() as User;
+    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Body className="p-6!">
                 <Form method="post" id="userFormViewDisable" className="flex flex-col h-fit gap-6">
-                    {/* ID holder */}
-                    <GeneralInput hidden={true} name="id" type="text" defaultValue={userId}></GeneralInput>
+                    <GeneralInput hidden={true} name="status" type="text" value={"DISABLED"}></GeneralInput>
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <PopupIcon icon={PersonOffOutlinedIcon} />
                     <PopupHeader>Deactivate Account?</PopupHeader>
                     <PopupDescription>
                         Are you sure you want to deactivate{" "}
-                        <span className="font-bold text-black">
-                            {" "}
-                            {"John"} {"Doe"}{" "}
-                        </span>
-                        ?
+                        <span className="font-bold text-black">{`${user.firstName} ${user.lastName}`}</span>?
                     </PopupDescription>
                     <PopupNotice>This user will no longer be able to log into the system.</PopupNotice>
                 </section>
@@ -258,29 +248,33 @@ type UserPrivilegeType = keyof typeof userPrivilegeMap;
 
 export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPrivilegeType }) {
     const navigate = useNavigateDefault();
-    const { userId } = useParams();
 
-    if (!userId) return null;
-
-    const decodedId = decode(userId);
-    const user = usersData.find((user) => user.id === decodedId);
+    const user = useLoaderData() as User;
+    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Body className="p-6!">
-                <Form method="post" id="userFormViewDisable" className="flex flex-col h-fit gap-6">
-                    {/* ID holder */}
-                    <GeneralInput hidden={true} name="id" type="text" defaultValue={userId}></GeneralInput>
+                <Form method="post" id="userFormPrivilege" className="flex flex-col h-fit gap-6">
+                    <GeneralInput
+                        type="text"
+                        id="role"
+                        name="role"
+                        defaultValue={privilegeType == "promote" ? "ADMIN" : "FRONTLINE"}
+                    />
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <PopupIcon icon={userPrivilegeMap[privilegeType].icon} variant="blue" />
                     <PopupHeader>{userPrivilegeMap[privilegeType].header}</PopupHeader>
                     <PopupDescription>{userPrivilegeMap[privilegeType].description}</PopupDescription>
-                    <PopupNotice variant="off-white">
-                        <div className="text-black font-bold">
-                            {" "}
-                            {"John"} {"Doe"}{" "}
-                        </div>
+                    <PopupNotice
+                        variant="off-white"
+                        additionalSection={
+                            <div className="text-black font-bold text-center">
+                                <span className="font-bold text-black">{`${user.firstName} ${user.lastName}`}</span>
+                            </div>
+                        }
+                    >
                         {userPrivilegeMap[privilegeType].notice}
                     </PopupNotice>
                 </section>
@@ -289,7 +283,7 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" form="userFormViewDisable" type="submit">
+                <PopupButton variant="blue" form="userFormPrivilege" type="submit">
                     {userPrivilegeMap[privilegeType].btnText}
                 </PopupButton>
             </Dialog.Footer>
@@ -317,11 +311,9 @@ function PopupRadio({
 
 export function PopupResetUser() {
     const navigate = useNavigateDefault();
-    const { userId } = useParams();
 
-    if (!userId) return null;
-
-    const decodedId = decode(userId);
+    const user = useLoaderData() as User;
+    if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -329,30 +321,25 @@ export function PopupResetUser() {
                 <Text weight="bold">Reset Password</Text>
             </Dialog.Header>
             <Dialog.Body className="p-6!">
-                <Form method="post" id="userFormViewDisable" className="flex flex-col h-fit gap-6">
-                    {/* ID holder */}
-                    <GeneralInput hidden={true} name="id" type="text" defaultValue={userId}></GeneralInput>
-                </Form>
+                <Form method="post" id="userFormResetPassword" className="flex flex-col h-fit gap-6"></Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <Text variant="dark-blue" weight="bold" size="normal">
-                        {"John"} {"Doe"}{" "}
+                        {`${user.firstName} ${user.lastName}`}
                     </Text>
                     <Text variant="dark-blue" weight="normal" size="description">
-                        {"johndoe@gmail.com"}
+                        {user.email}
                     </Text>
                     <br className="block mb-4" />
                     <PopupRadio value="generate" defaultChecked={true}>
                         Generate Temporary Password
                     </PopupRadio>
-                    <br className="block mb-3" />
-                    <PopupRadio value="send">Send Password Reset Email</PopupRadio>
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" form="userFormViewDisable" type="submit">
+                <PopupButton variant="blue" form="userFormResetPassword" type="submit">
                     Reset Password
                 </PopupButton>
             </Dialog.Footer>

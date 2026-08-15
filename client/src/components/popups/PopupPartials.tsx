@@ -115,11 +115,20 @@ export function PopupDescription({ children }: { children: ReactNode }) {
     );
 }
 
-export function PopupNotice({ children, variant = "red" }: { children: ReactNode; variant?: "red" | "off-white" }) {
+export function PopupNotice({
+    additionalSection,
+    children,
+    variant = "red",
+}: {
+    additionalSection?: ReactNode;
+    children: ReactNode;
+    variant?: "red" | "off-white";
+}) {
     return (
         <div className="flex justify-center w-full">
             <Card className="w-full" dropShadow={false}>
                 <Card.Body variant={variant === "red" ? "red-opaque" : "off-white"} className="p-3!">
+                    {additionalSection}
                     <Text variant={variant === "red" ? "red" : "grayish-blue"} weight="medium" align="center">
                         {children}
                     </Text>

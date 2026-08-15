@@ -9,5 +9,4 @@ router.post("/logout", controller.logoutPost);
 
 // Testing route
 router.get("/protected", controller.protectedGet);
-
 export default router;
