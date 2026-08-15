@@ -114,6 +114,39 @@ describe("Transaction Route", () => {
 
                 expect(res.body.transactions).toHaveLength(0);
             });
+
+            it("returns transactions between startDate and endDate", async () => {
+                const today = new Date();
+                const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+                const res = await request(app)
+                    .get("/transaction")
+                    .query({ startDate: yesterday.toISOString(), endDate: tomorrow.toISOString() });
+
+                const expected = mockedTransactions.slice(0, 2);
+
+                expect(res.body.transactions).toEqual(
+                    expect.arrayContaining(expected.map((tx) => expect.objectContaining(tx)))
+                );
+
+                expect(res.body.transactions).not.toEqual(
+                    expect.arrayContaining([expect.objectContaining(mockedTransactions[2])])
+                );
+
+                expect(res.body.transactions).toHaveLength(expected.length);
+            });
+
+            it("returns status 404 when startDate is greater than endDate", (done) => {
+                const today = new Date();
+                const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+                request(app)
+                    .get("/transaction")
+                    .query({ startDate: tomorrow.toISOString(), endDate: yesterday.toISOString() })
+                    .expect(400, done);
+            });
         });
 
         describe("with pagination", () => {
@@ -152,6 +185,14 @@ describe("Transaction Route", () => {
             expect(transaction).toMatchObject(mockedTransactions[0]);
             expect(transaction).toHaveProperty("createdAt", expect.any(String));
             expect(transaction.txCode).toMatch(/^TX-\d{6}-\d+$/);
+        });
+
+        it("returns a transaction with txCode", async () => {
+            const searchRes = await request(app).get("/transaction/2").expect(200);
+            const txCode = searchRes.body.transaction.txCode as string;
+
+            const res = await request(app).get(`/transaction/${txCode}`).expect(200);
+            expect(res.body.transaction).toMatchObject(mockedTransactions[1]);
         });
 
         it("returns status 404 when id is not found", (done) => {

@@ -8,7 +8,6 @@ import z from "zod";
 
 export const TransactionFormCreateSchema = zfd.formData(
     TransactionUncheckedCreateInputObjectZodSchema.omit({
-        createdAt: true,
         txCode: true,
     })
 );

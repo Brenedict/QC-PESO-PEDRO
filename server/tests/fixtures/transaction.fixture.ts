@@ -37,5 +37,6 @@ export const buildMockTransactions = (userId: number, shiftLogId: number): Trans
         transactionType: TransactionType.IN_HOUSE_RECRUITMENT,
         remarks: "Mismatch in credentials",
         demographics: [Demographic.YOUNG_WORKER],
+        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // last-week
     },
 ];

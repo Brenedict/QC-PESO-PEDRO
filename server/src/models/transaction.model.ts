@@ -52,6 +52,10 @@ export default {
         return prisma.transaction.findUnique({ where: { id } });
     },
 
+    async getByTxCode(txCode: string) {
+        return prisma.transaction.findUnique({ where: { txCode } });
+    },
+
     async createTransaction(transaction: TransactionCreateType, txCode: string) {
         const data = { ...transaction, txCode } as TransactionUncheckedCreateInput;
         return prisma.transaction.create({ data });

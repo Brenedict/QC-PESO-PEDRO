@@ -17,15 +17,40 @@ export default {
         async (req: Request, res: Response) => {
             const response: Record<string, Transaction[] | number> = {};
 
+            const startDateStr = req.query.startDate as string | undefined;
+            const endDateStr = req.query.endDate as string | undefined;
+
+            let startDate: Date | undefined;
+            let endDate: Date | undefined;
+
+            if (startDateStr) {
+                startDate = new Date(startDateStr);
+            }
+            if (endDateStr) {
+                endDate = new Date(endDateStr);
+            }
+
+            // Validate date range
+            if (startDate && endDate && startDate > endDate)
+                return res.status(400).json({ error: "Start date cannot be after end date" });
+
+            //Validate page query
             if (req.query.page !== undefined && req.query.limit === undefined)
                 res.status(400).json({ error: "Page query provided without limit" });
 
             response.transactions = (await TransactionModel.getTransactions({
-                transactionType: req.query.type ? (req.query.type as TransactionType) : undefined,
-                transactionOutcome: req.query.outcome ? (req.query.outcome as Outcome) : undefined,
+                transactionType: req.query.type as TransactionType | undefined,
+                transactionOutcome: req.query.outcome as Outcome | undefined,
                 page: req.query.page ? parseInt(req.query.page as string) : undefined,
                 limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
-                search: req.query.search ? (req.query.search as string) : undefined,
+                search: req.query.search as string | undefined,
+                createdAt:
+                    startDate || endDate
+                        ? {
+                              ...(startDate ? { gte: startDate } : {}),
+                              ...(endDate ? { lte: endDate } : {}),
+                          }
+                        : undefined,
             })) as Transaction[];
 
             if (req.query && req.query.limit) {
@@ -43,7 +68,15 @@ export default {
     getTransactionById: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
-            const transaction = await TransactionModel.getById(parseInt(req.params.transactionId as string));
+            const { transactionId } = req.params;
+
+            // Determine if the param represents a numeric ID
+            const isNumeric = /^\d+$/.test(transactionId as string);
+
+            const transaction = isNumeric
+                ? await TransactionModel.getById(parseInt(transactionId as string, 10))
+                : await TransactionModel.getByTxCode(transactionId as string);
+
             return transaction ? res.json({ transaction }) : res.status(404).json({ error: "Transaction not found" });
         },
     ],
