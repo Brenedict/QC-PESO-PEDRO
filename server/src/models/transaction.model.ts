@@ -1,26 +1,33 @@
 import prisma from "../config/prisma.config";
 import type { TransactionCreateType, TransactionUpdateType } from "@qcpedropeso/shared/schema/transactions";
 import type {
+    TransactionFindManyArgs,
     TransactionOrderByWithRelationInput,
     TransactionUncheckedCreateInput,
     TransactionUncheckedUpdateInput,
     TransactionWhereInput,
 } from "@qcpedropeso/shared/prisma/models";
 import type { TransactionFilters } from "../service/transaction.service";
-import type { Demographic } from "@qcpedropeso/shared/prisma/enums";
 
 export default {
     async getTransactions(
-        { transactionType, transactionOutcome, createdAt }: TransactionFilters = {} as TransactionFilters,
+        { transactionType, transactionOutcome, createdAt, page, limit }: TransactionFilters = {} as TransactionFilters,
         orderBy?: TransactionOrderByWithRelationInput
     ) {
-        const filter: TransactionWhereInput = {};
+        const args: TransactionFindManyArgs = { where: {} as TransactionWhereInput };
 
-        if (transactionType !== undefined) filter.transactionType = transactionType;
-        if (transactionOutcome !== undefined) filter.transactionOutcome = transactionOutcome;
-        if (createdAt !== undefined) filter.createdAt = createdAt;
+        if (transactionType) args.where!.transactionType = transactionType;
+        if (transactionOutcome) args.where!.transactionOutcome = transactionOutcome;
+        if (createdAt) args.where!.createdAt = createdAt;
 
-        return prisma.transaction.findMany({ where: filter, orderBy: orderBy ?? {} });
+        if (orderBy) args.orderBy = orderBy;
+        if (limit !== undefined) args.take = limit;
+
+        if (page !== undefined && limit !== undefined) {
+            args.skip = (page - 1) * limit;
+        }
+
+        return prisma.transaction.findMany(args);
     },
 
     async getById(id: number) {
@@ -49,7 +56,7 @@ export default {
         return prisma.transaction.delete({ where: { id } });
     },
 
-    async count(where: TransactionWhereInput) {
-        return prisma.transaction.count({ where });
+    async count(where?: TransactionWhereInput) {
+        return prisma.transaction.count({ where: where ?? {} });
     },
 };

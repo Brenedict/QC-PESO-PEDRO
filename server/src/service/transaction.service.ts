@@ -7,6 +7,8 @@ export interface TransactionFilters {
     transactionType?: TransactionType;
     transactionOutcome?: Outcome;
     createdAt?: string | Date | DateTimeFilter<"Transaction">;
+    page?: number;
+    limit?: number;
 }
 
 export default {

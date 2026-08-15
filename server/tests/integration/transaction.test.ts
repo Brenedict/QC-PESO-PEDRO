@@ -12,21 +12,9 @@ import {
     type ShiftLog,
     type User,
 } from "@qcpesopedro/shared/prisma/client";
-import type {
-    TransactionUncheckedCreateInput,
-    TransactionUncheckedUpdateInput,
-} from "@qcpesopedro/shared/prisma/models";
+import type { TransactionUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
 import TransactionService from "../../src/service/transaction.service";
-import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
-
-const stringifyDates = <T extends Record<string, unknown>>(obj: T) => {
-    const { createdAt, ...rest } = obj ?? {};
-    console.log(obj);
-    return {
-        ...rest,
-        createdAt: createdAt ? new Date(createdAt as string).toISOString() : createdAt,
-    };
-};
+import { TransactionCreateType, TransactionUpdateType } from "@qcpesopedro/shared/schema/transactions";
 
 describe("Transaction Route", () => {
     let mockedTransactions: TransactionCreateType[];
@@ -47,7 +35,11 @@ describe("Transaction Route", () => {
         it("returns all transactions", async () => {
             const res = await request(app).get("/transaction").expect(200);
 
-            res.body.forEach((transaction: Transaction, i: number) =>
+            const transactions = res.body.transactions;
+            expect(res.body).not.toHaveProperty("originalSize");
+            expect(res.body).toHaveProperty("responseSize", transactions.length);
+
+            transactions.forEach((transaction: Transaction, i: number) =>
                 expect(transaction).toMatchObject({
                     ...mockedTransactions[i],
                     createdAt: expect.any(String),
@@ -56,33 +48,72 @@ describe("Transaction Route", () => {
             );
         });
 
-        it("returns transactions with filters", async () => {
-            const resType = await request(app).get(`/transaction`).query({ type: TransactionType.WALK_IN_REFERRAL });
+        describe("with filters", () => {
+            it("returns transactions with type filter", async () => {
+                await request(app).get("/transaction").expect(200);
+                const res = await request(app).get(`/transaction`).query({ type: TransactionType.WALK_IN_REFERRAL });
 
-            resType.body.forEach((transaction: Transaction) => {
-                expect(transaction).toHaveProperty("transactionType", TransactionType.WALK_IN_REFERRAL);
+                expect(res.body).not.toHaveProperty("originalSize");
+                expect(res.body).toHaveProperty("responseSize", res.body.transactions.length);
+
+                res.body.transactions.forEach((transaction: Transaction) => {
+                    expect(transaction).toHaveProperty("transactionType", TransactionType.WALK_IN_REFERRAL);
+                });
             });
 
-            const resOutcome = await request(app).get(`/transaction`).query({ outcome: Outcome.PENDING });
+            it("returns transactions with outcome filter", async () => {
+                const res = await request(app).get(`/transaction`).query({ outcome: Outcome.PENDING });
 
-            resOutcome.body.forEach((transaction: Transaction) => {
-                expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
+                res.body.transactions.forEach((transaction: Transaction) => {
+                    expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
+                });
             });
 
-            const resBoth = await request(app)
-                .get(`/transaction`)
-                .query({ outcome: Outcome.PENDING, type: TransactionType.WALK_IN_REFERRAL });
+            it("returns transactions with both type and outcome filter", async () => {
+                const res = await request(app)
+                    .get(`/transaction`)
+                    .query({ outcome: Outcome.PENDING, type: TransactionType.WALK_IN_REFERRAL });
 
-            resBoth.body.forEach((transaction: Transaction) => {
-                expect(transaction).toHaveProperty("transactionOutcome", TransactionType.WALK_IN_REFERRAL);
-                expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
+                res.body.transactions.forEach((transaction: Transaction) => {
+                    expect(transaction).toHaveProperty("transactionOutcome", TransactionType.WALK_IN_REFERRAL);
+                    expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
+                });
+            });
+        });
+
+        describe("with pagination", () => {
+            it("returns transactions under a certain limit", async () => {
+                const overallRes = await request(app).get("/transaction").expect(200);
+                const limitRes = await request(app).get("/transaction").query({ limit: 2 }).expect(200);
+
+                expect(limitRes.body.transactions).toHaveLength(2);
+                expect(limitRes.body).toHaveProperty("originalSize", overallRes.body.transactions.length);
+                expect(limitRes.body).toHaveProperty("responseSize", limitRes.body.transactions.length);
+            });
+
+            it("returns status 400 invalid input when page is provided but not limit", (done) => {
+                request(app).get("/transaction").query({ page: 1 }).expect(400, done);
+            });
+
+            it("returns transactions under a certain page and limit", async () => {
+                const limit = 2;
+                const page = 2;
+                const res = await request(app).get("/transaction").query({ limit, page }).expect(200);
+
+                expect(res.body.transactions).not.toContainEqual(mockedTransactions[0]);
+
+                const expected = mockedTransactions.slice((page - 1) * limit, page * limit);
+
+                expect(res.body.transactions).toEqual(
+                    expect.arrayContaining(expected.map((transaction) => expect.objectContaining(transaction)))
+                );
             });
         });
 
         it("returns a transaction with id", async () => {
             const res = await request(app).get("/transaction/1").expect(200);
 
-            const transaction = res.body as Transaction;
+            const transaction = res.body.transaction as Transaction;
             expect(transaction).toMatchObject(mockedTransactions[0]);
             expect(transaction).toHaveProperty("createdAt", expect.any(String));
             expect(transaction.txCode).toMatch(/^TX-\d{6}-\d+$/);
@@ -112,10 +143,11 @@ describe("Transaction Route", () => {
                 txCode: expect.stringMatching(/^TX-\d{6}-\d+$/),
             };
 
-            await request(app).post("/transaction").send(formData).expect(201);
+            const postRes = await request(app).post("/transaction").send(formData).expect(201);
+            expect(postRes.body.transaction).toMatchObject(formData);
 
-            const res = await request(app).get("/transaction").expect(200);
-            expect(res.body).toContainEqual(expect.objectContaining(expected));
+            const getRes = await request(app).get("/transaction").expect(200);
+            expect(getRes.body.transactions).toContainEqual(expect.objectContaining(expected));
         });
 
         it("returns status 400 when bad request was made", (done) => {
@@ -136,13 +168,15 @@ describe("Transaction Route", () => {
 
     describe("PATCH /transaction/id", () => {
         it("updates a transaction", async () => {
-            const formData: TransactionUncheckedUpdateInput = {
+            const formData: TransactionUpdateType = {
                 remarks: "Hello this is an edit testing",
             };
 
-            await request(app).patch("/transaction/1").send(formData).expect(201);
-            const res = await request(app).get("/transaction/1");
-            expect(res.body).toHaveProperty("remarks", formData.remarks);
+            const patchRes = await request(app).patch("/transaction/1").send(formData).expect(201);
+            expect(patchRes.body.transaction).toMatchObject(formData);
+
+            const getRes = await request(app).get("/transaction/1");
+            expect(getRes.body.transaction).toHaveProperty("remarks", formData.remarks);
         });
 
         it("returns status 404 when transaction id is not found", async () => {
@@ -157,11 +191,11 @@ describe("Transaction Route", () => {
         it("deletes a transaction", async () => {
             await request(app).delete("/transaction/1").expect(204);
 
-            const res = await request(app).get("/transaction");
             const deletedTransaction = structuredClone(mockedTransactions[0]);
+            const getRes = await request(app).get("/transaction");
 
-            expect(res.body).not.toContainEqual(
-                expect.objectContaining(stringifyDates(deletedTransaction as Transaction))
+            getRes.body.transactions.forEach((transaction: Transaction) =>
+                expect(transaction).not.toMatchObject(deletedTransaction)
             );
         });
 

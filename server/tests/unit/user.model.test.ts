@@ -1,7 +1,6 @@
 import userModel from "../../src/models/user.model";
 import { afterEach, describe, expect, jest, it } from "@jest/globals";
 import { prismaMock } from "../../jest.unit";
-import type { User } from "@qcpesopedro/shared/prisma/client";
 import { mockUser } from "../fixtures/user.fixture";
 
 describe("user model", () => {
