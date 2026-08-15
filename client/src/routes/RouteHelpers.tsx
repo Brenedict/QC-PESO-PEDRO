@@ -3,12 +3,13 @@ import { TransactionSchema } from "../../../shared/schema/transactions";
 import { editTransaction, deleteTransaction } from "../api/transactions";
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
-import { UserSchema } from "../../../shared/schema/users";
+
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 import { logoutService } from "../api/authService";
+import type { UserFormCreateSchema } from "@qcpesopedro/shared/schema/users";
 
 export const testActionFn =
-    (schema: typeof TransactionSchema | typeof UserSchema) =>
+    (schema: typeof TransactionSchema | typeof UserFormCreateSchema) =>
     async ({ request }: ActionFunctionArgs) => {
         const formData = await request.formData();
         const validationResult = schema.safeParse(formData);
