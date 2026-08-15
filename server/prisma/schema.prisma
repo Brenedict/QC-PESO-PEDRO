@@ -118,6 +118,9 @@ model Transaction {
     /// @zod.trim().min(1, "Application last name cannot be empty")
     applicantLastName String @db.VarChar(256)
 
+    // Para mag span yung search sa full name string
+    applicantFullName String? @db.VarChar(256)
+
     applicantSex       Sex
     transactionOutcome Outcome         @default(NONE)
     createdAt          DateTime        @default(now()) @db.Timestamptz(0)

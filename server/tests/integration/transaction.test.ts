@@ -79,6 +79,41 @@ describe("Transaction Route", () => {
                     expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
                 });
             });
+
+            it("returns transactions with search filter for name", async () => {
+                const res = await request(app).get("/transaction").query({ search: "john doe" }).expect(200);
+
+                expect(res.body.transactions).toEqual(
+                    expect.arrayContaining([expect.objectContaining(mockedTransactions[0])])
+                );
+
+                const nonSearched = mockedTransactions.slice(1);
+                expect(res.body.transactions).not.toEqual(
+                    expect.arrayContaining(nonSearched.map((transaction) => expect.objectContaining(transaction)))
+                );
+            });
+
+            it("returns transactions with search filter for id", async () => {
+                const searchRes = await request(app).get("/transaction/3").expect(200);
+                const txCode = searchRes.body.transaction.txCode as string;
+
+                const res = await request(app).get("/transaction").query({ search: txCode.toLowerCase() }).expect(200);
+
+                expect(res.body.transactions).toEqual(
+                    expect.arrayContaining([expect.objectContaining(mockedTransactions[2])])
+                );
+
+                const nonSearched = mockedTransactions.slice(0, 2);
+                expect(res.body.transactions).not.toEqual(
+                    expect.arrayContaining(nonSearched.map((transaction) => expect.objectContaining(transaction)))
+                );
+            });
+
+            it("returns nothing when search filter is not valid", async () => {
+                const res = await request(app).get("/transaction").query({ search: "john doeeeee" }).expect(200);
+
+                expect(res.body.transactions).toHaveLength(0);
+            });
         });
 
         describe("with pagination", () => {

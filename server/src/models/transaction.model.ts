@@ -11,7 +11,14 @@ import type { TransactionFilters } from "../service/transaction.service";
 
 export default {
     async getTransactions(
-        { transactionType, transactionOutcome, createdAt, page, limit }: TransactionFilters = {} as TransactionFilters,
+        {
+            transactionType,
+            transactionOutcome,
+            createdAt,
+            page,
+            limit,
+            search,
+        }: TransactionFilters = {} as TransactionFilters,
         orderBy?: TransactionOrderByWithRelationInput
     ) {
         const args: TransactionFindManyArgs = { where: {} as TransactionWhereInput };
@@ -25,6 +32,17 @@ export default {
 
         if (page !== undefined && limit !== undefined) {
             args.skip = (page - 1) * limit;
+        }
+
+        if (search !== undefined) {
+            args.where!.OR = [
+                {
+                    applicantFullName: { contains: search, mode: "insensitive" },
+                },
+                {
+                    txCode: { contains: search, mode: "insensitive" },
+                },
+            ];
         }
 
         return prisma.transaction.findMany(args);

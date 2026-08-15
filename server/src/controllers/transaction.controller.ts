@@ -25,6 +25,7 @@ export default {
                 transactionOutcome: req.query.outcome ? (req.query.outcome as Outcome) : undefined,
                 page: req.query.page ? parseInt(req.query.page as string) : undefined,
                 limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+                search: req.query.search ? (req.query.search as string) : undefined,
             })) as Transaction[];
 
             if (req.query && req.query.limit) {
