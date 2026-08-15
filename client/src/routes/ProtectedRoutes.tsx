@@ -45,7 +45,6 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 
 // Helper function
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
-import { userContext } from "../utils/userContext";
 import { ROUTES } from "../hooks/reroute";
 import { authLoader } from "../api/authService";
 

@@ -20,7 +20,7 @@ import KeyOutlinedIcon from "@mui/icons-material/KeyOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 
 // Types
-import type { MaterialIcon, Role } from "../types/common";
+import type { MaterialIcon } from "../types/common";
 
 // Context
 import { useTopBar } from "../context/TopbarContext.tsx";

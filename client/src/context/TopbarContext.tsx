@@ -1,6 +1,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 
 export interface TopBarContextValue {
+    id: number;
     status: "DISABLED" | "ONLINE" | "OFFLINE" | "LOGGED_OUT";
     hasNotif: boolean;
     firstName: string;

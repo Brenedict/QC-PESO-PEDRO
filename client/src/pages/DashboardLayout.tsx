@@ -23,6 +23,7 @@ function DashboardLayout() {
     const user = data.user;
 
     const topbarContext: TopBarContextValue = {
+        id: user.id,
         status: user.status ?? "ONLINE",
         hasNotif: false,
         firstName: user.firstName,
