@@ -100,11 +100,9 @@ function NavBodyAdmin() {
     );
 }
 
-function NavBody({ userType }: { userType?: Role }) {
+function NavBody({ userType }: { userType: Role }) {
     return (
-        <div className="py-6 px-4 flex flex-col">
-            {userType === "ADMIN" || userType === "SUPERADMIN" ? <NavBodyAdmin /> : <NavBodyFrontline />}
-        </div>
+        <div className="py-6 px-4 flex flex-col">{userType === "admin" ? <NavBodyAdmin /> : <NavBodyFrontline />}</div>
     );
 }
 
@@ -122,7 +120,7 @@ export function NavBar({
     profilePicUrl,
     headerText = "PED System",
 }: {
-    userType?: Role;
+    userType: Role;
     headerText?: string;
 } & ProfileBaseProps) {
     return (

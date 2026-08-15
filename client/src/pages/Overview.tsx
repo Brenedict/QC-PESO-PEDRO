@@ -40,9 +40,6 @@ import type { Role } from "../types/common";
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
-// Context
-import { useTopBar } from "../context/TopbarContext.tsx";
-
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
 }
@@ -170,9 +167,7 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 }
 
 // Main Overview Component
-export function Overview({ pending, approved, revision }: EndShiftProps) {
-    const { role } = useTopBar();
-
+export function Overview({ role = "frontline", pending, approved, revision }: { role?: Role } & EndShiftProps) {
     return (
         <>
             <PageHeader primaryText="Overview" secondaryText="Welcome back. Here's what's happening today.">
@@ -185,9 +180,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                 </Button>
             </PageHeader>
 
-            {(role === "ADMIN" || role === "SUPERADMIN") && (
-                <EndShiftVerification {...{ pending, approved, revision }} />
-            )}
+            {role === "admin" && <EndShiftVerification {...{ pending, approved, revision }} />}
 
             <OverviewSection>
                 <Text size="medium" weight="bold" variant="primary-blue">

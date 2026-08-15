@@ -22,12 +22,13 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 // Types
 import type { MaterialIcon, Role } from "../types/common";
 
-// Context
-import { useTopBar } from "../context/TopbarContext.tsx";
+interface UserProps {
+    roleType: Role;
+    userFullName: string;
+}
 
 //  Profile picture, name, role, and change password button
-function ProfileSummaryCard() {
-    const { firstName, lastName, role } = useTopBar();
+function ProfileSummaryCard({ roleType, userFullName }: UserProps) {
     return (
         <Card className="w-full md:w-1/3 flex flex-col">
             <Card.Header variant="off-white" bordered={true} className="h-28">
@@ -37,23 +38,19 @@ function ProfileSummaryCard() {
             <Card.Body className="flex-1 flex flex-col items-center text-center relative pt-0">
                 {/*Profile Picture*/}
                 <div className="absolute -top-12">
-                    <Profile size="big" userFullName={`${firstName} ${lastName}`} />
+                    <Profile size="big" userFullName={userFullName} />
                 </div>
 
                 <div className="mt-14 mb-2">
                     <Text size="bigger" weight="bold" variant="dark-blue" align="center">
-                        {`${firstName} ${lastName}`}
+                        {userFullName}
                     </Text>
                 </div>
 
                 {/*Role*/}
                 <div className="bg-grayish-blue-opaque text-primary-blue px-3 py-1 rounded-full flex items-center gap-1.5 text-xs font-bold mb-4 tracking-wide uppercase">
                     <Icon icon={SecurityOutlinedIcon} size="small" variant="primary-blue" />
-                    {role === "SUPERADMIN"
-                        ? "Super Administrator"
-                        : role === "ADMIN"
-                          ? "Administrator"
-                          : "Frontline Encoder"}
+                    {roleType === "admin" ? "Administrator " : "Frontline Encoder"}
                 </div>
 
                 <Text size="description" variant="grayish-blue" align="center">
@@ -165,7 +162,7 @@ function AccountInfoCard() {
 }
 
 // Sidebar, Topbar, and the Profile Content
-function ProfilePage() {
+function ProfilePage(props: UserProps) {
     return (
         <>
             <PageHeader
@@ -173,7 +170,7 @@ function ProfilePage() {
                 secondaryText="Manage your personal information and account security."
             />
             <div className="flex flex-col md:flex-row gap-6">
-                <ProfileSummaryCard />
+                <ProfileSummaryCard {...props} />
                 <AccountInfoCard />
             </div>
 

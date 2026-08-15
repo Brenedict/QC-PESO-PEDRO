@@ -1,7 +1,7 @@
 import { Outlet, useLoaderData } from "react-router";
 
 // General Imports
-import { useContext, type SubmitEvent } from "react";
+import { type SubmitEvent } from "react";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -25,11 +25,13 @@ import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 // Types
 import type { Role } from "../types/common";
 
+// Test Data
+import type { UserRecord } from "../data/users";
+
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import type { UserFormCreateType } from "../../../shared/schema/users";
-import { useTopBar } from "../context/TopbarContext.tsx";
+import type { UserSchemaType } from "../../../shared/schema/users";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -80,11 +82,8 @@ function UserManagement() {
     const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
-    const users = useLoaderData() as UserFormCreateType[];
-
-    const { role } = useTopBar();
-    const userRole = role;
-    console.log("User Role:", userRole); // Debugging line to check the role value
+    const users = useLoaderData() as UserSchemaType[];
+    const userRole: Role = "SUPERADMIN";
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -108,15 +107,12 @@ function UserManagement() {
 
     const getRowActions = (rowRole: Role): ActionTypes => {
         const actions: ActionTypes = [];
+
         if (RoleButtonMap[rowRole] && userRole === "SUPERADMIN") {
             actions.push(RoleButtonMap[rowRole]!);
         }
 
-        if (userRole === "ADMIN" && rowRole !== "FRONTLINE") {
-            return actions;
-        }
-
-        if (rowRole === "SUPERADMIN" && userRole !== "SUPERADMIN") {
+        if (rowRole === "SUPERADMIN") {
             return actions;
         }
 
@@ -143,7 +139,6 @@ function UserManagement() {
 
         return actions;
     };
-
     const extraFilters = (
         <div className="flex gap-4 items-center">
             <SelectInput
@@ -215,22 +210,20 @@ function UserManagement() {
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <RoleBadge role={user?.role ?? "ADMIN"} />
+                            <RoleBadge role={user.role} />
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center">
-                                <Status type="status" variant={user?.status ?? "LOGGED_OUT"} />
+                                <Status type="status" variant={"active"} />
                             </div>
                         </Table.Data>
                         <Table.Data>
                             <div className="flex justify-center gap-2">
-                                {user.role !== "SUPERADMIN" && (
-                                    <ActionButtons
-                                        id={String(user.id)}
-                                        extraParams={{ name: `${user.firstName} ${user.lastName}` }}
-                                        actions={getRowActions(user?.role ?? "ADMIN")}
-                                    />
-                                )}
+                                <ActionButtons
+                                    id={String(user.id)}
+                                    extraParams={{ name: `${user.firstName} ${user.lastName}` }}
+                                    actions={getRowActions(user.role)}
+                                />
                             </div>
                         </Table.Data>
                     </Table.Row>

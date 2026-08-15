@@ -1,9 +1,0 @@
--- AlterEnum
-ALTER TYPE "Shift" ADD VALUE 'NONE';
-
--- AlterEnum
-ALTER TYPE "Status" ADD VALUE 'DISABLED';
-
--- AlterTable
-ALTER TABLE "User" ALTER COLUMN "status" SET DEFAULT 'LOGGED_OUT',
-ALTER COLUMN "shift" SET DEFAULT 'NONE';

@@ -3,6 +3,7 @@ import { redirect, type ActionFunctionArgs, type RouteObject } from "react-route
 
 // Schema
 import { TransactionSchema } from "@qcpesopedro/shared/schema//transactions";
+import { UserSchema } from "@qcpesopedro/shared/schema//users";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -16,7 +17,6 @@ import { ContextAnalytics } from "../pages/ContextAnalytics";
 import SystemAuditLogs from "../pages/SystemAuditLogs";
 import UserManagement from "../pages/UserManagement";
 import Reports from "../pages/Reports";
-import SystemErrorPage from "../pages/SystemErrorPage";
 
 // Components
 import {
@@ -29,7 +29,6 @@ import {
 import { PopupTransactionDetails } from "../components/popups/DashboardPopups";
 import { PopupReportPreview } from "../components/popups/ReportPopups";
 import { PopupViewHistory } from "../components/popups/MonitoringPopups";
-import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
 
 // Test Data
 import { transactions } from "../data/transactions";
@@ -39,39 +38,34 @@ import { auditLogData } from "../data/auditLogs";
 
 // API
 import { createTransaction } from "../api/transactions";
-import { createUser, getUserById, getUsers, resetPassword, updateUser } from "../api/userService";
+import { getUsers } from "../api/userService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 
 // Helper function
-import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
+import { testActionFn, transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { userContext } from "../utils/userContext";
 import { ROUTES } from "../hooks/reroute";
-import { authLoader } from "../api/authService";
+import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
+import SystemErrorPage from "../pages/SystemErrorPage";
 
 export const protectedRoutes: RouteObject[] = [
     {
-        id: "protected",
         path: "/",
         element: (
             <AuthProvider>
                 <ProtectedRoute />
             </AuthProvider>
         ),
-        /* 
-            Initial authentication on '/protected' happens here, and the user data is fetched. 
-            If the user is not authenticated, they will be redirected to '/auth'.
-        */
-        loader: authLoader,
         errorElement: <SystemErrorPage />,
         children: [
             {
                 path: "",
-                element: <DashboardLayout />,
+                element: <DashboardLayout {...userContext} />,
                 children: [
                     {
                         path: "",
-                        element: <Overview pending={5} approved={18} revision={2} />,
+                        element: <Overview pending={5} approved={18} revision={2} role={userContext.roleType} />,
                         children: [
                             {
                                 path: "total",
@@ -162,7 +156,9 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "profile",
-                        element: <ProfilePage />,
+                        element: (
+                            <ProfilePage roleType={userContext.roleType} userFullName={userContext.userFullName} />
+                        ),
                         children: [...shiftPopups(ROUTES.profile.root)],
                     },
                     {
@@ -241,42 +237,41 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "user-management",
                         element: <UserManagement />,
-                        loader: getUsers,
+                        loader: async () => {
+                            const users = (await getUsers()) as (typeof UserSchema)[];
+
+                            return users;
+                        },
                         children: [
                             {
                                 path: "create",
                                 element: <PopupAddUser />,
-                                action: createUser,
+                                action: testActionFn(UserSchema),
                             },
                             {
                                 path: ":userId/edit",
                                 element: <PopupEditUser />,
-                                action: updateUser,
-                                loader: getUserById,
+                                action: testActionFn(UserSchema),
                             },
                             {
                                 path: ":userId/disable",
                                 element: <PopupDisableUser />,
-                                action: updateUser,
-                                loader: getUserById,
+                                action: testActionFn(UserSchema),
                             },
                             {
                                 path: ":userId/promote",
                                 element: <PopupUserPriveleges privilegeType="promote" />,
-                                action: updateUser,
-                                loader: getUserById,
+                                action: testActionFn(UserSchema),
                             },
                             {
                                 path: ":userId/demote",
                                 element: <PopupUserPriveleges privilegeType="demote" />,
-                                action: updateUser,
-                                loader: getUserById,
+                                action: testActionFn(UserSchema),
                             },
                             {
                                 path: ":userId/reset",
                                 element: <PopupResetUser />,
-                                action: resetPassword,
-                                loader: getUserById,
+                                action: testActionFn(UserSchema),
                             },
                             ...shiftPopups(ROUTES.userManagement.root),
                         ],
