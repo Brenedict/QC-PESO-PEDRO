@@ -1,5 +1,4 @@
-import { redirect, type ActionFunctionArgs } from "react-router";
-import { apiFetch } from "./httpClient";
+import { type ActionFunctionArgs } from "react-router";
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 import {
     TransactionFormCreateSchema,
@@ -8,60 +7,34 @@ import {
 } from "@qcpesopedro/shared/schema/transactions";
 import { decode } from "../utils/hashids";
 import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
-import { z } from "zod";
+import { apiJson, ensureOk, redirectWithQuery, validateForm } from "./actionService";
 
 // GET: Fetches all transactions
 export const getTransactions = async ({ request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         // Main Fetch Request
-        const res = await apiFetch("/transaction", {
-            retry: true,
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-        });
+        const res = await apiJson("/transaction", { method: "GET" });
 
-        if (!res.ok) {
-            throw new Error(`Failed to retrieve transactions: ${res.status}`);
-        }
+        await ensureOk(res, "Failed to retrive transactions");
 
         return res.json();
     } catch (err) {
         console.error(err);
 
         // Returns to root directory + queries
-        return redirect(`${ROUTES.applicantForm.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.applicantForm.root);
     }
 };
 
 // GET: Transaction id specific fetch
 export const getTransactionById = async ({ params, request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const transactionId = decode(params.transactionId);
 
         // Main Fetch Request
-        const res = await apiFetch(`/transaction/${transactionId}`, {
-            retry: true,
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-        });
+        const res = await apiJson(`/transaction/${transactionId}`, { method: "GET" });
 
-        if (!res.ok) {
-            throw new Error(`Failed to fetch transaction ${res.status}`);
-        }
+        await ensureOk(res, "Failed to fetch transaction");
 
         const transaction: Transaction = await res.json();
 
@@ -70,16 +43,12 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
         console.error(err);
 
         // Returns to root directory + queries
-        return redirect(`${ROUTES.applicantForm.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.applicantForm.root);
     }
 };
 
 // POST: Transaction Creation Method
 export const createTransaction = async ({ request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const formData = await request.formData();
 
@@ -90,29 +59,12 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         formData.delete("action");
 
         // ZOD Schema Checking
-        const result = TransactionFormCreateSchema.safeParse(formData);
-        if (!result.success) {
-            console.error(result.error.flatten().fieldErrors);
-
-            throw new Error("Invalid user data");
-        }
-
-        const transaction = result.data;
+        const transaction = validateForm(formData, TransactionFormCreateSchema, "Invalid transaction data");
 
         // Main Fetch Request
-        const res = await apiFetch("/transaction", {
-            retry: true,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify(transaction),
-        });
+        const res = await apiJson("/transaction", { method: "POST", body: JSON.stringify(transaction) });
 
-        if (!res.ok) {
-            throw new Error(`Failed to create transaction ${res.status} ${res.json()}`);
-        }
+        await ensureOk(res, "Failed to create transaction");
 
         if (submitAction === "save-and-add") {
             return {
@@ -122,12 +74,12 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         }
 
         // Returns to root directory + queries
-        return redirect(`${ROUTES.applicantForm.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.applicantForm.root);
     } catch (err) {
         console.error(err);
 
         // Returns to root directory + queries
-        return redirect(`${ROUTES.applicantForm.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.applicantForm.root);
     }
 };
 
@@ -135,45 +87,30 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
 export const deleteTransaction =
     (root: transactionRootPage) =>
     async ({ request }: ActionFunctionArgs) => {
-        // URL Mapper
-        const url = new URL(request.url);
-        const query = url.searchParams.toString();
         const nextPage = root === "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
 
         try {
             const formData = await request.formData();
 
             // ZOD Schema Checking
-            const result = TransactionFormDeleteSchema.safeParse(formData);
-            if (!result.success) {
-                console.error(result.error.flatten().fieldErrors);
+            const transaction = validateForm(formData, TransactionFormDeleteSchema, "Invalid transaction data");
 
-                throw new Error("Invalid user data");
-            }
-
-            const txCode = result.data.txCode;
+            const txCode = transaction.txCode;
 
             // Main Fetch Request
-            const res = await apiFetch(`/transaction/${txCode}`, {
-                retry: true,
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-            });
+            const res = await apiJson(`/transaction/${txCode}`, { method: "DELETE" });
 
             if (!res.ok) {
                 throw new Error(`Failed to delete transaction ${res.status} ${res.json()}`);
             }
 
             // Returns to root directory + queries
-            return redirect(`${nextPage}?${query}`);
+            return redirectWithQuery(request, nextPage);
         } catch (err) {
             console.error(err);
 
             // Returns to root directory + queries
-            return redirect(`${nextPage}?${query}`);
+            return redirectWithQuery(request, nextPage);
         }
     };
 
@@ -182,44 +119,30 @@ export const updateTransaction =
     (root: transactionRootPage) =>
     async ({ params, request }: ActionFunctionArgs) => {
         // URL Mapper
-        const url = new URL(request.url);
-        const query = url.searchParams.toString();
         const nextPage = root === "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
 
         try {
             const transactionId = decode(params.transactionId);
+
             const formData = await request.formData();
 
             // ZOD Schema Checking
-            const result = TransactionFormUpdateSchema.safeParse(formData);
-            if (!result.success) {
-                console.error(z.treeifyError(result.error));
-
-                throw new Error("Invalid user data");
-            }
+            const transaction = validateForm(formData, TransactionFormUpdateSchema, "Invalid transaction update data");
 
             // Main Fetch Request
-            const res = await apiFetch(`/transaction/${transactionId}`, {
-                retry: true,
+            const res = await apiJson(`/transaction/${transactionId}`, {
                 method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(result.data),
+                body: JSON.stringify(transaction),
             });
 
-            if (!res.ok) {
-                const error = (await res.json()).error;
-                throw new Error(`Failed to update transaction ${res.status} => ${error}`);
-            }
+            await ensureOk(res, "Failed to update transaction");
 
             // Returns to root directory + queries
-            return redirect(`${nextPage}?${query}`);
+            return redirectWithQuery(request, nextPage);
         } catch (err) {
             console.error(err);
 
             // Returns to root directory + queries
-            return redirect(`${nextPage}?${query}`);
+            return redirectWithQuery(request, nextPage);
         }
     };

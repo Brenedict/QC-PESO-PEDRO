@@ -2,7 +2,7 @@ import { redirect, type RouteObject } from "react-router";
 import LoginPage from "../pages/LoginPage";
 import { checkAuthService } from "../api/authService";
 import TokenStore from "../api/tokenStore";
-import { apiFetch, getApiUrl } from "../api/httpClient";
+import { apiFetch } from "../api/httpClient";
 import { ROUTES } from "../hooks/reroute";
 import SystemErrorPage from "../pages/SystemErrorPage";
 import { LoginSchema } from "@qcpesopedro/shared/schema/login";

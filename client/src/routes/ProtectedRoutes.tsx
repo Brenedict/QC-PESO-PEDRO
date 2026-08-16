@@ -29,7 +29,6 @@ import { PopupViewHistory } from "../components/popups/MonitoringPopups";
 import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
 
 // Test Data
-import { transactions } from "../data/transactions";
 import { shiftRecords } from "../data/shiftRecords";
 import { employeeSessions } from "../data/employeeSessions";
 import { auditLogData } from "../data/auditLogs";

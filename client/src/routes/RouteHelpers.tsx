@@ -1,5 +1,4 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
-import { TransactionFormCreateSchema } from "@qcpesopedro/shared/schema/transactions";
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
