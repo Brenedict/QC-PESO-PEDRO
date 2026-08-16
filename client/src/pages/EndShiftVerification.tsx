@@ -1,5 +1,4 @@
 // General Imports
-import React from "react";
 import { Outlet } from "react-router";
 
 // Components
@@ -17,7 +16,6 @@ import type { ShiftRecord } from "../data/shiftRecords";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { useSearchParamsTable } from "../hooks/table";
 
 // Icon
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
@@ -60,12 +58,7 @@ function EmployeeCell({ name }: { name: string }) {
 
 // Main Page
 function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
-    const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
-
-    const handleFilterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
 
     const handleReview = (id: string) => () => {
         navigate(ROUTES.endshift.review(id));
@@ -94,7 +87,7 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
                 <StatCard title="Avg Approval Time" value="12m" valueVariant="primary-blue" />
             </div>
 
-            <Table pagination={{ currentPage: page, handleSetPage, items: 5 }} handleFilterSubmit={handleFilterSubmit}>
+            <Table pagination={true} filterView={true}>
                 <Table.Row>
                     <Table.Header text="EMPLOYEE" />
                     <Table.Header text="SHIFT" />

@@ -12,6 +12,8 @@ import {
     buildDayRangeParam,
     buildParamString,
     ensureOk,
+    extractQuery,
+    extractQueryToObject,
     redirectWithQuery,
     validateForm,
 } from "./actionService";
@@ -21,7 +23,8 @@ export const getTransactions =
     (daily: boolean) =>
     async ({ request }: ActionFunctionArgs) => {
         const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
-        const apiParams = buildParamString({ ...dayRangeParam });
+        const otherParams = extractQueryToObject(request, ["page"]);
+        const apiParams = buildParamString({ ...dayRangeParam, ...otherParams });
 
         try {
             // Main Fetch Request

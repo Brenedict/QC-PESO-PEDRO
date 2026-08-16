@@ -21,7 +21,6 @@ import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
 // Hooks
-import { useSearchParamsTable } from "../hooks/table";
 import { useNavigateDefault, ROUTES } from "../hooks/reroute";
 import { Demographic, TransactionType, Sex, type Transaction, Outcome } from "@qcpesopedro/shared/prisma/browser";
 import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
@@ -288,7 +287,6 @@ function TransactionsInputForm() {
 function TransactionsLedger() {
     const navigate = useNavigateDefault();
     const data = useLoaderData();
-    const { page, handleSetPage } = useSearchParamsTable();
 
     const transactions = data.transactions as Transaction[];
 
@@ -307,11 +305,7 @@ function TransactionsLedger() {
                     Today's Ledger
                 </Text>
             </Card.Header>
-            <Table
-                noCardStyle={true}
-                pagination={{ handleSetPage, currentPage: page, items: 6 }}
-                handleFilterSubmit={() => {}}
-            >
+            <Table noCardStyle={true} pagination={true} filterView={true}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="Date/Time" />

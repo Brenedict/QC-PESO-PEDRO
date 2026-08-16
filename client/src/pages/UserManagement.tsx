@@ -1,8 +1,5 @@
 import { Outlet, useLoaderData } from "react-router";
 
-// General Imports
-import { useContext, type SubmitEvent } from "react";
-
 // Components
 import PageHeader from "../components/PageHeader";
 import { Card } from "../components/Card";
@@ -26,7 +23,6 @@ import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
 import type { Role } from "../types/common";
 
 // Hooks
-import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import type { UserFormCreateType } from "../../../shared/schema/users";
 import { useTopBar } from "../context/TopbarContext.tsx";
@@ -77,7 +73,6 @@ type RoleButton = {
 };
 
 function UserManagement() {
-    const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
     const users = useLoaderData() as UserFormCreateType[];
@@ -85,10 +80,6 @@ function UserManagement() {
     const { role } = useTopBar();
     const userRole = role;
     console.log("User Role:", userRole); // Debugging line to check the role value
-
-    const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
 
     const RoleButtonMap: Record<Role, RoleButton | null> = {
         SUPERADMIN: null,
@@ -153,7 +144,6 @@ function UserManagement() {
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "frontline" },
                 ]}
-                iconClassName="top-2! right-2!"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
             <SelectInput
@@ -162,7 +152,6 @@ function UserManagement() {
                     { content: "Active", value: "active" },
                     { content: "Inactive", value: "inactive" },
                 ]}
-                iconClassName="top-2! right-2!"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
         </div>
@@ -191,11 +180,7 @@ function UserManagement() {
                 <StatCard title="Roles" value={3} />
             </div>
 
-            <Table
-                pagination={{ currentPage: page, handleSetPage, items: 5 }}
-                handleFilterSubmit={handleFilterSubmit}
-                extraFilters={extraFilters}
-            >
+            <Table pagination={true} filterView={true} extraFilters={extraFilters}>
                 <Table.Row>
                     <Table.Header text="USER" />
                     <Table.Header text="USERNAME" />

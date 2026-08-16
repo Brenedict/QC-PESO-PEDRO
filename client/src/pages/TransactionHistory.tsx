@@ -20,16 +20,10 @@ import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { useSearchParamsTable } from "../hooks/table";
 
-function TransactionHistory({
-    handleFilterSubmit,
-}: {
-    handleFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
-}) {
+function TransactionHistory() {
     const data = useLoaderData();
     const navigate = useNavigateDefault();
-    const { page, handleSetPage } = useSearchParamsTable();
 
     const transactions = data.transactions as Transaction[];
 
@@ -53,7 +47,7 @@ function TransactionHistory({
                 </Button>
             </PageHeader>
 
-            <Table pagination={{ handleSetPage, currentPage: page, items: 6 }} handleFilterSubmit={handleFilterSubmit}>
+            <Table pagination={true} filterView={true}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="ID" />

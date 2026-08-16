@@ -78,7 +78,6 @@ interface LoginMonitoringProps {
     totalLogins: ReactNode;
     totalLogouts: ReactNode;
     sessionDuration: ReactNode;
-    handleFilterSubmit: React.SubmitEventHandler<HTMLFormElement>;
     employeeSessions: EmployeeSession[];
 }
 
@@ -87,7 +86,6 @@ function LoginMonitoring({
     totalLogins,
     totalLogouts,
     sessionDuration,
-    handleFilterSubmit,
     employeeSessions,
 }: LoginMonitoringProps) {
     const navigate = useNavigateDefault();
@@ -121,7 +119,7 @@ function LoginMonitoring({
             <br className="block mb-6" />
 
             {/* Table Data */}
-            <Table handleFilterSubmit={handleFilterSubmit}>
+            <Table filterView={true}>
                 <Table.Row>
                     <Table.Header text="Employee Name" />
                     <Table.Header text="Role" />

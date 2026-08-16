@@ -1,7 +1,8 @@
 import type { MouseEventHandler } from "react";
 import { useSearchParams, type SetURLSearchParams } from "react-router";
 
-type SearchParamsType = Record<string, string>;
+export type SearchParamsType = Record<string, string>;
+export type SetSearchParamsType = (key: string, value: string) => void;
 
 interface TableHookReturn {
     page: number;
@@ -9,7 +10,7 @@ interface TableHookReturn {
     handleFilterSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
     handleFilterChange: (e: React.ChangeEvent<HTMLFormElement>) => void;
     searchParams: SearchParamsType;
-    setSearchParams: (key: string, value: string) => void;
+    setSearchParams: SetSearchParamsType;
 }
 
 // Setter for a single param that preserves other params

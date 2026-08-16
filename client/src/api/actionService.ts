@@ -7,8 +7,19 @@ const JSON_HEADERS = {
     Accept: "application/json",
 } satisfies HeadersInit;
 
+export const extractQuery = (request: Request, omit?: string[]) => {
+    const query = new URL(request.url).searchParams;
+    omit?.forEach((param) => query.delete(param));
+
+    return query;
+};
+
+export const extractQueryToObject = (request: Request, omit?: string[]) => {
+    return Object.fromEntries(extractQuery(request, omit));
+};
+
 export const redirectWithQuery = (request: Request, path: string) => {
-    const query = new URL(request.url).searchParams.toString();
+    const query = extractQuery(request).toString();
     return redirect(`${path}?${query}`);
 };
 
