@@ -1,11 +1,7 @@
 import { createContext, useContext, type MouseEventHandler, type ReactNode } from "react";
 
 export interface TableContextValue {
-    pagination?: {
-        items: number;
-        currentPage: number;
-        handleSetPage: (page: number) => MouseEventHandler<HTMLButtonElement>;
-    };
+    pagination?: boolean;
     filterView?: boolean;
     extraFilters?: ReactNode;
     noCardStyle?: boolean;

@@ -16,10 +16,45 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
 // Data
-import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
+import { Outcome, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import { useSearchParamsTable } from "../hooks/table";
+import { SelectInput } from "../components/Input";
+
+export function TransactionExtraFilters() {
+    const { searchParams } = useSearchParamsTable();
+
+    return (
+        <div className="flex gap-4 items-center">
+            {/* Action Filter */}
+            <SelectInput
+                optionList={[
+                    { content: "All Types", value: "" },
+                    { content: "Walk-in Referral", value: TransactionType.WALK_IN_REFERRAL },
+                    { content: "Online Referral", value: TransactionType.ONLINE_REFERRAL },
+                    { content: "In-house Recruitment", value: TransactionType.IN_HOUSE_RECRUITMENT },
+                ]}
+                name="type"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.type}
+            />
+            <SelectInput
+                optionList={[
+                    { content: "All Outcome", value: "" },
+                    { content: "None", value: Outcome.NONE },
+                    { content: "Pending", value: Outcome.PENDING },
+                    { content: "Mismatch", value: Outcome.MISMATCH },
+                    { content: "Success", value: Outcome.SUCCESS },
+                ]}
+                name="outcome"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.outcome}
+            />
+        </div>
+    );
+}
 
 function TransactionHistory() {
     const data = useLoaderData();
@@ -47,7 +82,7 @@ function TransactionHistory() {
                 </Button>
             </PageHeader>
 
-            <Table pagination={true} filterView={true}>
+            <Table pagination={true} filterView={true} extraFilters={<TransactionExtraFilters />}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="ID" />

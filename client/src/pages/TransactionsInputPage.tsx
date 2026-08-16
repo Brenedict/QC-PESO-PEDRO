@@ -26,6 +26,7 @@ import { Demographic, TransactionType, Sex, type Transaction, Outcome } from "@q
 import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
 import { useAuth } from "../context/AuthContext";
 import { createTransaction } from "../api/transactionService";
+import { TransactionExtraFilters } from "./TransactionHistory";
 
 interface FormRow1Props {
     txCode?: string;
@@ -305,7 +306,7 @@ function TransactionsLedger() {
                     Today's Ledger
                 </Text>
             </Card.Header>
-            <Table noCardStyle={true} pagination={true} filterView={true}>
+            <Table noCardStyle={true} pagination={true} filterView={true} extraFilters={<TransactionExtraFilters />}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="Date/Time" />

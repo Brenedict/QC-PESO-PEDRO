@@ -12,9 +12,6 @@ import { GeneralInput, SelectInput } from "../components/Input";
 // Test Data
 import type { AuditLogRecord } from "../data/auditLogs";
 
-// Hooks
-import { useSearchParamsTable } from "../hooks/table";
-
 // Define the props
 interface SystemAuditLogsProps {
     logsData: AuditLogRecord[];

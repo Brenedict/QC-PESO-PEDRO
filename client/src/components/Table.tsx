@@ -67,15 +67,33 @@ function PaginationButtons({
 }
 
 function FilterSection() {
+    const { searchParams, setSearchParams } = useSearchParamsTable();
     const { filterView, extraFilters } = useTable();
 
     if (!filterView) return null;
 
+    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const formElement = e.currentTarget;
+        if (!formElement) return;
+
+        const formData = new FormData(formElement);
+        const params = Object.fromEntries(formData);
+
+        setSearchParams({ ...params, page: 1 });
+    };
+
     return (
         <Card.Header variant="white">
-            <Form method="POST" className="flex justify-between items-center w-full">
+            <Form method="POST" className="flex justify-between items-center w-full" onSubmit={handleSubmit}>
                 <div className="flex items-center gap-4 grow">
-                    <SearchInput placeholder="Search by applicant, ID, or keywords..." className="rounded-xl w-full" />
+                    <SearchInput
+                        name="search"
+                        placeholder="Search by applicant, ID, or keywords..."
+                        className="rounded-xl w-full"
+                        defaultValue={searchParams.search}
+                    />
                     {extraFilters}
                 </div>
                 <Button
@@ -83,6 +101,7 @@ function FilterSection() {
                     className="min-w-60! ml-20 text-description"
                     variant="navy"
                     leftIcon={{ icon: FilterAltOutlinedIcon, variant: "white", size: "bigMedium" }}
+                    type="submit"
                 >
                     Apply Filters
                 </Button>
