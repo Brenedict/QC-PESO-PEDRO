@@ -58,3 +58,18 @@ export function validateForm<T extends z.ZodType>(
 
     return result.data;
 }
+
+export function buildDayRangeParam(date: Date) {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    return { startDate: start.toString(), endDate: end.toString() };
+}
+
+export function buildParamString(init?: string[][] | Record<string, string> | string | URLSearchParams) {
+    const params = new URLSearchParams(init);
+    return params.toString();
+}

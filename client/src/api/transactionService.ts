@@ -7,24 +7,36 @@ import {
 } from "@qcpesopedro/shared/schema/transactions";
 import { decode } from "../utils/hashids";
 import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
-import { apiJson, ensureOk, redirectWithQuery, validateForm } from "./actionService";
+import {
+    apiJson,
+    buildDayRangeParam,
+    buildParamString,
+    ensureOk,
+    redirectWithQuery,
+    validateForm,
+} from "./actionService";
 
 // GET: Fetches all transactions
-export const getTransactions = async ({ request }: ActionFunctionArgs) => {
-    try {
-        // Main Fetch Request
-        const res = await apiJson("/transaction", { method: "GET" });
+export const getTransactions =
+    (daily: boolean) =>
+    async ({ request }: ActionFunctionArgs) => {
+        const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
+        const apiParams = buildParamString({ ...dayRangeParam });
 
-        await ensureOk(res, "Failed to retrive transactions");
+        try {
+            // Main Fetch Request
+            const res = await apiJson(`/transaction?${apiParams}`, { method: "GET" });
 
-        return res.json();
-    } catch (err) {
-        console.error(err);
+            await ensureOk(res, "Failed to retrive transactions");
 
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
-    }
-};
+            return res.json();
+        } catch (err) {
+            console.error(err);
+
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.applicantForm.root);
+        }
+    };
 
 // GET: Transaction id specific fetch
 export const getTransactionById = async ({ params, request }: ActionFunctionArgs) => {

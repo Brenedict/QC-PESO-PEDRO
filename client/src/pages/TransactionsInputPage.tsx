@@ -322,7 +322,7 @@ function TransactionsLedger() {
                 </Table.Row>
 
                 {/* Data rows */}
-                {transactions.map((transaction) => (
+                {transactions?.map((transaction) => (
                     <Table.Row key={transaction.id}>
                         <Table.Data>
                             <DateTime dateTime={new Date(transaction.createdAt)} />

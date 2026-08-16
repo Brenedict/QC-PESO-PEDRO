@@ -65,7 +65,7 @@ function TransactionHistory({
                 </Table.Row>
 
                 {/* Data rows */}
-                {transactions.map((transaction) => (
+                {transactions?.map((transaction) => (
                     <Table.Row key={transaction.id}>
                         <Table.Data>
                             <Identifier>{transaction.txCode}</Identifier>

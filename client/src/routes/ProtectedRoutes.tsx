@@ -182,7 +182,7 @@ export const protectedRoutes: RouteObject[] = [
                             />
                         ),
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
-                        loader: getTransactions,
+                        loader: getTransactions(false),
                     },
                     {
                         path: "monitoring",
@@ -210,7 +210,7 @@ export const protectedRoutes: RouteObject[] = [
                         path: "applicant-form",
                         element: <TransactionsInputPage />,
                         children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
-                        loader: getTransactions,
+                        loader: getTransactions(true),
                         action: createTransaction,
                     },
                     {
