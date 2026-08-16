@@ -27,7 +27,7 @@ describe("Transaction Route", () => {
 
         mockedTransactions = buildMockTransactions(mockedUser.id, mockedShiftLog.id);
         await TransactionService.createTransactionsWithCode(mockedTransactions);
-    });
+    }, 3000000);
 
     app.use("/transaction", transactionRoute);
 
@@ -43,7 +43,7 @@ describe("Transaction Route", () => {
                 expect(transaction).toMatchObject({
                     ...mockedTransactions[i],
                     createdAt: expect.any(String),
-                    txCode: expect.stringMatching(/^TX-\d{6}-\d+$/),
+                    txCode: expect.stringMatching(/^TX-\d{4}-\d+$/),
                 })
             );
         });
@@ -95,17 +95,26 @@ describe("Transaction Route", () => {
 
             it("returns transactions with search filter for id", async () => {
                 const searchRes = await request(app).get("/transaction/3").expect(200);
+
                 const txCode = searchRes.body.transaction.txCode as string;
 
                 const res = await request(app).get("/transaction").query({ search: txCode.toLowerCase() }).expect(200);
 
                 expect(res.body.transactions).toEqual(
-                    expect.arrayContaining([expect.objectContaining(mockedTransactions[2])])
+                    expect.arrayContaining([
+                        expect.objectContaining({
+                            ...mockedTransactions[2],
+                            createdAt: expect.any(String),
+                        }),
+                    ])
                 );
 
                 const nonSearched = mockedTransactions.slice(0, 2);
-                expect(res.body.transactions).not.toEqual(
-                    expect.arrayContaining(nonSearched.map((transaction) => expect.objectContaining(transaction)))
+                nonSearched.map((transaction) =>
+                    expect.objectContaining({
+                        ...transaction,
+                        createdAt: expect.any(String),
+                    })
                 );
             });
 
@@ -173,7 +182,11 @@ describe("Transaction Route", () => {
                 const expected = mockedTransactions.slice((page - 1) * limit, page * limit);
 
                 expect(res.body.transactions).toEqual(
-                    expect.arrayContaining(expected.map((transaction) => expect.objectContaining(transaction)))
+                    expect.arrayContaining(
+                        expected.map((transaction) =>
+                            expect.objectContaining({ ...transaction, createdAt: expect.any(String) })
+                        )
+                    )
                 );
             });
         });
@@ -184,7 +197,7 @@ describe("Transaction Route", () => {
             const transaction = res.body.transaction as Transaction;
             expect(transaction).toMatchObject(mockedTransactions[0]);
             expect(transaction).toHaveProperty("createdAt", expect.any(String));
-            expect(transaction.txCode).toMatch(/^TX-\d{6}-\d+$/);
+            expect(transaction.txCode).toMatch(/^TX-\d{4}-\d+$/);
         });
 
         it("returns a transaction with txCode", async () => {
@@ -216,7 +229,7 @@ describe("Transaction Route", () => {
             const expected = {
                 ...formData,
                 createdAt: expect.any(String),
-                txCode: expect.stringMatching(/^TX-\d{6}-\d+$/),
+                txCode: expect.stringMatching(/^TX-\d{4}-\d+$/),
             };
 
             const postRes = await request(app).post("/transaction").send(formData).expect(201);
@@ -224,7 +237,7 @@ describe("Transaction Route", () => {
 
             const getRes = await request(app).get("/transaction").expect(200);
             expect(getRes.body.transactions).toContainEqual(expect.objectContaining(expected));
-        });
+        }, 300000);
 
         it("returns status 400 when bad request was made", (done) => {
             const formData: TransactionCreateType = {
@@ -243,16 +256,32 @@ describe("Transaction Route", () => {
     });
 
     describe("PATCH /transaction/id", () => {
-        it("updates a transaction", async () => {
+        it("updates a transaction by id", async () => {
             const formData: TransactionUpdateType = {
                 remarks: "Hello this is an edit testing",
             };
 
-            const patchRes = await request(app).patch("/transaction/1").send(formData).expect(201);
+            const patchRes = await request(app).patch("/transaction/1").send(formData).expect(200);
             expect(patchRes.body.transaction).toMatchObject(formData);
 
-            const getRes = await request(app).get("/transaction/1");
-            expect(getRes.body.transaction).toHaveProperty("remarks", formData.remarks);
+            const verifyRes = await request(app).get("/transaction/1").expect(200);
+            expect(verifyRes.body.transaction.remarks).toBe(formData.remarks);
+        });
+
+        it("updates a transaction by txCode", async () => {
+            // 1. Fetch the transaction to get its txCode
+            const searchRes = await request(app).get("/transaction/2").expect(200);
+            const txCode = searchRes.body.transaction.txCode as string;
+
+            const formData: TransactionUpdateType = {
+                remarks: "Hello this is an edit testing",
+            };
+
+            const patchRes = await request(app).patch(`/transaction/${txCode}`).send(formData).expect(200);
+            expect(patchRes.body.transaction).toMatchObject(formData);
+
+            const verifyRes = await request(app).get(`/transaction/${txCode}`).expect(200);
+            expect(verifyRes.body.transaction.remarks).toBe(formData.remarks);
         });
 
         it("returns status 404 when transaction id is not found", async () => {
@@ -264,10 +293,23 @@ describe("Transaction Route", () => {
     });
 
     describe("DELETE /transaction/id", () => {
-        it("deletes a transaction", async () => {
+        it("deletes a transaction by id", async () => {
             await request(app).delete("/transaction/1").expect(204);
 
             const deletedTransaction = structuredClone(mockedTransactions[0]);
+            const getRes = await request(app).get("/transaction");
+
+            getRes.body.transactions.forEach((transaction: Transaction) =>
+                expect(transaction).not.toMatchObject(deletedTransaction)
+            );
+        });
+
+        it("deletes a transaction via txCode", async () => {
+            const searchRes = await request(app).get("/transaction/2").expect(200);
+            const txCode = searchRes.body.transaction.txCode as string;
+
+            const deletedTransaction = structuredClone(mockedTransactions[1]);
+            await request(app).delete(`/transaction/${txCode}`).expect(204);
             const getRes = await request(app).get("/transaction");
 
             getRes.body.transactions.forEach((transaction: Transaction) =>

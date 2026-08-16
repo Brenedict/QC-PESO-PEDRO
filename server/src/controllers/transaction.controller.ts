@@ -38,20 +38,23 @@ export default {
             if (req.query.page !== undefined && req.query.limit === undefined)
                 res.status(400).json({ error: "Page query provided without limit" });
 
-            response.transactions = (await TransactionModel.getTransactions({
-                transactionType: req.query.type as TransactionType | undefined,
-                transactionOutcome: req.query.outcome as Outcome | undefined,
-                page: req.query.page ? parseInt(req.query.page as string) : undefined,
-                limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
-                search: req.query.search as string | undefined,
-                createdAt:
-                    startDate || endDate
-                        ? {
-                              ...(startDate ? { gte: startDate } : {}),
-                              ...(endDate ? { lte: endDate } : {}),
-                          }
-                        : undefined,
-            })) as Transaction[];
+            response.transactions = (await TransactionModel.getTransactions(
+                {
+                    transactionType: req.query.type as TransactionType | undefined,
+                    transactionOutcome: req.query.outcome as Outcome | undefined,
+                    page: req.query.page ? parseInt(req.query.page as string) : undefined,
+                    limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+                    search: req.query.search as string | undefined,
+                    createdAt:
+                        startDate || endDate
+                            ? {
+                                  ...(startDate ? { gte: startDate } : {}),
+                                  ...(endDate ? { lte: endDate } : {}),
+                              }
+                            : undefined,
+                },
+                { createdAt: "desc" }
+            )) as Transaction[];
 
             if (req.query && req.query.limit) {
                 // For filters, pagination, etc.
@@ -91,29 +94,37 @@ export default {
         },
     ],
 
-    patch: [
+    patchTransaction: [
         jwtAccessAuth,
         validateSchema(TransactionFormUpdateSchema),
         async (req: Request, res: Response) => {
-            const id = parseInt(req.params.transactionId as string);
-            const exists = await TransactionService.transactionWithIdExists(id);
+            const { transactionId } = req.params;
+            const id = transactionId as string;
+            const { isNumeric, numericId, exists } = await TransactionService.resolveTransactionId(id);
 
             if (!exists) return res.status(404).json({ error: "Transaction not found" });
 
-            const transaction = await TransactionModel.updateTransaction(id, req.body as TransactionUpdateType);
-            res.status(201).json({ transaction });
+            const transaction = isNumeric
+                ? await TransactionModel.updateTransactionById(numericId, req.body as TransactionUpdateType)
+                : await TransactionModel.updateTransactionByTxCode(id, req.body as TransactionUpdateType);
+            res.status(200).json({ transaction });
         },
     ],
 
-    delete: [
+    deleteTransaction: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
-            const id = parseInt(req.params.transactionId as string);
-            const exists = await TransactionService.transactionWithIdExists(id);
+            const { transactionId } = req.params;
+            const id = transactionId as string;
+            const { isNumeric, numericId, exists } = await TransactionService.resolveTransactionId(id);
 
             if (!exists) return res.status(404).json({ error: "Transaction not found" });
 
-            await TransactionModel.deleteTransaction(id);
+            if (isNumeric) {
+                await TransactionModel.deleteTransactionById(numericId);
+            } else {
+                await TransactionModel.deleteTransactionByTxCode(id);
+            }
             res.status(204).end();
         },
     ],

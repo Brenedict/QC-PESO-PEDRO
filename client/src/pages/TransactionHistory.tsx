@@ -1,4 +1,6 @@
 // General Imports
+
+import { useLoaderData } from "react-router";
 import { Outlet } from "react-router";
 
 // Components
@@ -13,22 +15,23 @@ import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
-// Test Data
-import type { Transaction } from "../data/transactions";
+// Data
+import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import { useSearchParamsTable } from "../hooks/table";
 
 function TransactionHistory({
-    transactions,
     handleFilterSubmit,
 }: {
-    transactions: Transaction[];
     handleFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
 }) {
+    const data = useLoaderData();
     const navigate = useNavigateDefault();
     const { page, handleSetPage } = useSearchParamsTable();
+
+    const transactions = data.transactions as Transaction[];
 
     const handleEdit = (id: string) => () => {
         navigate(ROUTES.history.edit(id), true);
@@ -65,23 +68,23 @@ function TransactionHistory({
                 {transactions.map((transaction) => (
                     <Table.Row key={transaction.id}>
                         <Table.Data>
-                            <Identifier>{transaction.id}</Identifier>
+                            <Identifier>{transaction.txCode}</Identifier>
                         </Table.Data>
                         <Table.Data>
-                            <DateTime dateTime={transaction.dateTime} />
+                            <DateTime dateTime={new Date(transaction.createdAt)} />
                         </Table.Data>
                         <Table.Data>
-                            <Status type="type" variant={transaction.type} />
+                            <Status type="type" variant={transaction.transactionType} />
                         </Table.Data>
                         <Table.Data>
-                            <ColumnText>{transaction.applicant}</ColumnText>
+                            <ColumnText>{transaction.applicantFullName}</ColumnText>
                         </Table.Data>
                         <Table.Data>
-                            <Status type="outcome" variant={transaction.outcome} />
+                            <Status type="outcome" variant={transaction.transactionOutcome} />
                         </Table.Data>
                         <Table.Data>
                             <ActionButtons
-                                id={transaction.id}
+                                id={transaction.txCode}
                                 actions={[
                                     {
                                         color: "black",

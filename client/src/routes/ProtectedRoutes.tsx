@@ -1,8 +1,5 @@
 // General Imports
-import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
-
-// Schema
-import { TransactionFormCreateSchema } from "@qcpesopedro/shared/schema/transactions";
+import { redirect, type RouteObject } from "react-router";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -38,7 +35,6 @@ import { employeeSessions } from "../data/employeeSessions";
 import { auditLogData } from "../data/auditLogs";
 
 // API
-import { createTransaction } from "../api/transactions";
 import { createUser, getUserById, getUsers, resetPassword, updateUser } from "../api/userService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
@@ -46,22 +42,21 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 // Helper function
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { ROUTES } from "../hooks/reroute";
-import { authLoader } from "../api/authService";
+import { createTransaction, getTransactions } from "../api/transactionService";
 
 export const protectedRoutes: RouteObject[] = [
     {
         id: "protected",
         path: "/",
         element: (
+            /* 
+                Initial authentication on '/protected' happens here, and the user data is fetched. 
+                If the user is not authenticated, they will be redirected to '/auth'.
+            */
             <AuthProvider>
                 <ProtectedRoute />
             </AuthProvider>
         ),
-        /* 
-            Initial authentication on '/protected' happens here, and the user data is fetched. 
-            If the user is not authenticated, they will be redirected to '/auth'.
-        */
-        loader: authLoader,
         errorElement: <SystemErrorPage />,
         children: [
             {
@@ -185,10 +180,10 @@ export const protectedRoutes: RouteObject[] = [
                                 handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
                                     e.preventDefault();
                                 }}
-                                transactions={transactions}
                             />
                         ),
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
+                        loader: getTransactions,
                     },
                     {
                         path: "monitoring",
@@ -216,21 +211,8 @@ export const protectedRoutes: RouteObject[] = [
                         path: "applicant-form",
                         element: <TransactionsInputPage />,
                         children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
-                        action: async ({ request }: ActionFunctionArgs) => {
-                            try {
-                                const formData = await request.formData();
-
-                                const data = TransactionFormCreateSchema.parse(formData);
-
-                                await createTransaction(data);
-
-                                return redirect(ROUTES.applicantForm.root);
-                            } catch (err) {
-                                console.error(err);
-
-                                return redirect("..");
-                            }
-                        },
+                        loader: getTransactions,
+                        action: createTransaction,
                     },
                     {
                         path: "audit-logs",

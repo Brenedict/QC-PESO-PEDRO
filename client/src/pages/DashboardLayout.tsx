@@ -1,5 +1,5 @@
 // General Imports
-import { Outlet, useRouteLoaderData } from "react-router";
+import { Outlet } from "react-router";
 import "../index.css";
 
 // Components
@@ -7,20 +7,18 @@ import { NavBar } from "../components/Navbar";
 import TopBar from "../components/Topbar";
 
 // Loader
-import type { authLoader } from "../api/authService";
+import { useAuth } from "../context/AuthContext";
 
 // Context
 import { TopBarProvider } from "../context/TopbarContext";
 import type { TopBarContextValue } from "../context/TopbarContext";
 
 function DashboardLayout() {
-    const data = useRouteLoaderData<typeof authLoader>("protected");
+    const { user } = useAuth();
 
-    if (!data?.user) {
+    if (!user) {
         return null;
     }
-
-    const user = data.user;
 
     const topbarContext: TopBarContextValue = {
         id: user.id,

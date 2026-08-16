@@ -106,11 +106,16 @@ enum EnvironmentTag {
 // ------------------------ Models ---------------------------
 
 model Transaction {
-    id         Int      @id @default(autoincrement())
-    txCode     String   @unique
-    user       User     @relation(fields: [userId], references: [id])
-    userId     Int
-    shiftLog   ShiftLog @relation(fields: [shiftLogId], references: [id])
+    id     Int    @id @default(autoincrement())
+    txCode String @unique
+    user   User   @relation(fields: [userId], references: [id])
+
+    /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
+    userId Int
+
+    shiftLog ShiftLog @relation(fields: [shiftLogId], references: [id])
+
+    /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
     shiftLogId Int
 
     /// @zod.trim().min(1, "Application last name cannot be empty")
@@ -137,6 +142,7 @@ model ShiftLog {
     userId Int
 
     // Sa unang insert timeIn palang yung pwede mailagay
+
     timeIn         DateTime  @default(now()) @db.Timestamptz(0)
     timeOut        DateTime? @db.Timestamptz(0)
     status         ESSStatus @default(PENDING) // Meron pa ring status
@@ -152,18 +158,18 @@ model ShiftLog {
 model User {
     id Int @id @default(autoincrement())
 
-    /// @zod.string.min(1, { message: "Username cannot be empty" }).max(256)
+    /// @zod.string()
     username String @unique @db.VarChar(256)
 
-    /// @zod.string.min(1, { message: "Password cannot be empty" }).max(256)
+    /// @zod.string()
     password String @db.VarChar(256)
 
     /// @zod.string.min(1, { message: "Email cannot be empty" }).max(256)
     email String @unique @db.VarChar(256)
 
-    role Role @default(FRONTLINE)
+    role   Role   @default(FRONTLINE)
     status Status @default(LOGGED_OUT)
-    shift Shift @default(NONE)
+    shift  Shift  @default(NONE)
 
     /// @zod.string.min(1, { message: "First Name cannot be empty" }).max(256)
     firstName String @db.VarChar(256)

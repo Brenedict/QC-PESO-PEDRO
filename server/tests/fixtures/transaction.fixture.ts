@@ -1,7 +1,10 @@
 import { Demographic, Outcome, Sex, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
 
-export const buildMockTransactions = (userId: number, shiftLogId: number): TransactionCreateType[] => [
+export const buildMockTransactions = (
+    userId: number,
+    shiftLogId: number
+): (TransactionCreateType & { id: number })[] => [
     {
         id: 1,
         userId,

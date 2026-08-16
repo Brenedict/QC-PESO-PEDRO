@@ -1,11 +1,11 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
 import { TransactionFormCreateSchema } from "@qcpesopedro/shared/schema/transactions";
-import { editTransaction, deleteTransaction } from "../api/transactions";
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 import { logoutService } from "../api/authService";
 import z from "zod";
+import { deleteTransaction, getTransactionById, updateTransaction } from "../api/transactionService";
 
 export const testActionFn =
     (schema: z.ZodType) =>
@@ -24,42 +24,14 @@ export const transactionsEditAndDelete = (root: transactionRootPage) => [
     {
         path: ":transactionId/edit",
         element: <PopupViewEditTransaction root={root} />, // JSX preserved
-        action: async ({ request }: ActionFunctionArgs) => {
-            try {
-                const formData = await request.formData();
-                const validationResult = TransactionFormCreateSchema.safeParse(formData);
-
-                if (!validationResult.success) {
-                    return { errors: z.treeifyError(validationResult.error) };
-                }
-
-                await editTransaction(validationResult.data);
-                return redirect("..");
-            } catch (err) {
-                console.error(err);
-                return redirect("..");
-            }
-        },
+        action: updateTransaction(root),
+        loader: getTransactionById,
     },
+
     {
         path: ":transactionId/delete",
         element: <PopupDeleteTransaction root={root} />,
-        action: async ({ request }: ActionFunctionArgs) => {
-            try {
-                const formData = await request.formData();
-                const validationResult = TransactionFormCreateSchema.safeParse(formData);
-
-                if (!validationResult.success) {
-                    return { errors: z.treeifyError(validationResult.error) };
-                }
-
-                await deleteTransaction(validationResult.data);
-                return redirect("..");
-            } catch (err) {
-                console.error(err);
-                return redirect("..");
-            }
-        },
+        action: deleteTransaction(root),
     },
 ];
 

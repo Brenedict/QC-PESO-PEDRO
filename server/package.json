@@ -6,7 +6,8 @@
     "scripts": {
         "start": "tsx --env-file=.env ./src/server.ts",
         "dev": "tsx --inspect --watch --env-file=.env ./src/server.ts",
-        "test": "jest --watch --runInBand"
+        "test": "jest --watch --runInBand",
+        "seed": "tsx ./prisma/database.seed.ts"
     },
     "keywords": [],
     "author": "",

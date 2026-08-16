@@ -70,12 +70,20 @@ export default {
         return prisma.transaction.createMany({ data });
     },
 
-    async updateTransaction(id: number, transaction: TransactionUpdateType) {
+    async updateTransactionById(id: number, transaction: TransactionUpdateType) {
         return prisma.transaction.update({ where: { id }, data: transaction as TransactionUncheckedUpdateInput });
     },
 
-    async deleteTransaction(id: number) {
+    async updateTransactionByTxCode(txCode: string, transaction: TransactionUpdateType) {
+        return prisma.transaction.update({ where: { txCode }, data: transaction as TransactionUncheckedUpdateInput });
+    },
+
+    async deleteTransactionById(id: number) {
         return prisma.transaction.delete({ where: { id } });
+    },
+
+    async deleteTransactionByTxCode(txCode: string) {
+        return prisma.transaction.delete({ where: { txCode } });
     },
 
     async count(where?: TransactionWhereInput) {

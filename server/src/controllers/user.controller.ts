@@ -14,18 +14,24 @@ import UserModel from "../models/user.model";
 
 // Service
 import UserService from "../service/user.service";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
+import ShiftModel from "../models/shift.model";
 
 export default {
     getCurrentUser: [
         jwtAccessAuth,
-        (req: Request, res: Response) => {
+        async (req: Request, res: Response) => {
             const user = req.user as User;
 
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
 
-            const userContextPayload = {
+            const shiftLogId =
+                (await UserService.getMostRecentUnfinishedShiftId(user.id)) ||
+                (await ShiftModel.createShift(user.id)).id;
+
+            const userContextPayload: UserContextType = {
                 id: user.id,
                 email: user.email,
                 username: user.username,
@@ -33,6 +39,7 @@ export default {
                 status: user.status,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                shiftLogId,
             };
 
             return res.json(userContextPayload);

@@ -1,4 +1,3 @@
-import { redirect } from "react-router";
 import { apiFetch } from "./httpClient";
 import TokenStore from "./tokenStore";
 
@@ -32,22 +31,6 @@ export const logoutService = async (): Promise<boolean> => {
     }
 };
 
-export const authLoader = async () => {
-    const isAuthenticated = await checkAuthService();
-
-    if (!isAuthenticated) {
-        await logoutService();
-        throw redirect("/auth");
-    }
-
-    const user = await getUserContextLoader();
-
-    return {
-        isAuthenticated,
-        user,
-    };
-};
-
 // GET: Fetches the data of the currently logged-in user. If the user is not authenticated, it will log them out and return null.
 export const getUserContextLoader = async () => {
     try {
@@ -61,7 +44,8 @@ export const getUserContextLoader = async () => {
         });
 
         if (!res.ok) {
-            throw new Error(`Failed to get user data ${res.status}`);
+            const error = (await res.json()).error;
+            throw new Error(`Failed to get user data ${res.status} => ${error}`);
         }
 
         return await res.json();

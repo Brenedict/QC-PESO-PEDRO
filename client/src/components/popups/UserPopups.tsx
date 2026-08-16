@@ -1,7 +1,7 @@
 // General Imports
 import { Form, useLoaderData } from "react-router";
 import { useState, type ReactNode } from "react";
-import type { Role, Shift } from "@qcpesopedro/shared/prisma/client";
+import type { Role, Shift } from "@qcpesopedro/shared/prisma/browser";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // Components

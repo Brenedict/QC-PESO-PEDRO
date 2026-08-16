@@ -6,6 +6,7 @@ const connectionString = process.env.NODE_ENV === "test" ? process.env.TEST_DATA
 
 const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({
+    errorFormat: "pretty",
     adapter,
     log: [
         {
