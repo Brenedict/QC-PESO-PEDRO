@@ -13,7 +13,7 @@ export const testActionFn =
         const validationResult = schema.safeParse(formData);
 
         if (!validationResult.success) {
-            return { errors: z.treeifyError(validationResult.error) };
+            return { errors: z.prettifyError(validationResult.error) };
         }
         return redirect("..");
     };

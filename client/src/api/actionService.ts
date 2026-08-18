@@ -62,8 +62,7 @@ export function validateForm<T extends z.ZodType>(
     const result = schema.safeParse(formData);
 
     if (!result.success) {
-        console.error(z.treeifyError(result.error));
-
+        console.error(z.prettifyError(result.error));
         throw new Error(errorMessage);
     }
 

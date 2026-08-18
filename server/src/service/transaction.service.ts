@@ -1,7 +1,13 @@
 import type { Outcome, TransactionType } from "@qcpedropeso/shared/prisma/client";
 import TransactionModel from "../models/transaction.model";
-import type { TransactionCreateType } from "@qcpedropeso/shared/schema/transactions";
-import type { DateTimeFilter, TransactionOrderByWithRelationInput } from "@qcpedropeso/shared/prisma/models";
+import type { TransactionCreateType, TransactionQueryType } from "@qcpedropeso/shared/schema/transactions";
+import type {
+    DateTimeFilter,
+    TransactionFindManyArgs,
+    TransactionOrderByWithRelationInput,
+} from "@qcpedropeso/shared/prisma/models";
+import type { Request } from "express";
+import QueryUtil from "../utils/query.util";
 
 export interface TransactionFilters {
     transactionType?: TransactionType;
@@ -68,30 +74,30 @@ export default {
         const end = new Date(date);
         end.setHours(23, 59, 59, 999);
 
-        return await TransactionModel.getTransactions(
-            {
+        return await TransactionModel.getTransactions({
+            where: {
                 createdAt: {
                     gte: start,
                     lte: end,
                 },
             },
-            orderBy
-        );
+            orderBy,
+        });
     },
 
     async getTransactionsPerMonth(date: Date, orderBy?: TransactionOrderByWithRelationInput) {
         const start = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
         const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
 
-        return await TransactionModel.getTransactions(
-            {
+        return await TransactionModel.getTransactions({
+            where: {
                 createdAt: {
                     gte: start,
                     lte: end,
                 },
             },
-            orderBy
-        );
+            orderBy,
+        });
     },
 
     async countByDay(date: Date) {
@@ -129,5 +135,32 @@ export default {
             : await this.transactionWithTxCodeExists(id);
 
         return { isNumeric, numericId, exists };
+    },
+
+    parseTransactionQuery(query: TransactionQueryType): TransactionFindManyArgs {
+        const { startDate, endDate, type, outcome, page, limit, search } = query;
+
+        return {
+            where: {
+                transactionType: type as TransactionType | undefined,
+                transactionOutcome: outcome as Outcome | undefined,
+                createdAt:
+                    startDate || endDate
+                        ? {
+                              ...(startDate && { gte: startDate }),
+                              ...(endDate && { lte: endDate }),
+                          }
+                        : undefined,
+
+                ...(search && {
+                    OR: [
+                        { applicantFullName: { contains: search as string, mode: "insensitive" } },
+                        { txCode: { contains: search as string, mode: "insensitive" } },
+                    ],
+                }),
+            },
+            skip: page,
+            take: limit,
+        };
     },
 };

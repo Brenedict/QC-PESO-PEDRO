@@ -10,41 +10,7 @@ import type {
 import type { TransactionFilters } from "../service/transaction.service";
 
 export default {
-    async getTransactions(
-        {
-            transactionType,
-            transactionOutcome,
-            createdAt,
-            page,
-            limit,
-            search,
-        }: TransactionFilters = {} as TransactionFilters,
-        orderBy?: TransactionOrderByWithRelationInput
-    ) {
-        const args: TransactionFindManyArgs = { where: {} as TransactionWhereInput };
-
-        if (transactionType) args.where!.transactionType = transactionType;
-        if (transactionOutcome) args.where!.transactionOutcome = transactionOutcome;
-        if (createdAt) args.where!.createdAt = createdAt;
-
-        if (orderBy) args.orderBy = orderBy;
-        if (limit !== undefined) args.take = limit;
-
-        if (page !== undefined && limit !== undefined) {
-            args.skip = (page - 1) * limit;
-        }
-
-        if (search !== undefined) {
-            args.where!.OR = [
-                {
-                    applicantFullName: { contains: search, mode: "insensitive" },
-                },
-                {
-                    txCode: { contains: search, mode: "insensitive" },
-                },
-            ];
-        }
-
+    async getTransactions(args: TransactionFindManyArgs) {
         return prisma.transaction.findMany(args);
     },
 
@@ -87,6 +53,6 @@ export default {
     },
 
     async count(where?: TransactionWhereInput) {
-        return prisma.transaction.count({ where: where ?? {} });
+        return prisma.transaction.count({ where });
     },
 };

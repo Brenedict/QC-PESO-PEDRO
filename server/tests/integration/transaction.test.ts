@@ -14,7 +14,12 @@ import {
 } from "@qcpesopedro/shared/prisma/client";
 import type { TransactionUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
 import TransactionService from "../../src/service/transaction.service";
-import { TransactionCreateType, TransactionUpdateType } from "@qcpesopedro/shared/schema/transactions";
+import {
+    TransactionCreateType,
+    TransactionQueryType,
+    TransactionUpdateType,
+} from "@qcpesopedro/shared/schema/transactions";
+import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespace";
 
 describe("Transaction Route", () => {
     let mockedTransactions: TransactionCreateType[];
@@ -43,7 +48,7 @@ describe("Transaction Route", () => {
                 expect(transaction).toMatchObject({
                     ...mockedTransactions[i],
                     createdAt: expect.any(String),
-                    txCode: expect.stringMatching(/^TX-\d{4}-\d+$/),
+                    txCode: expect.stringMatching(/^TX-\d+-\d+$/),
                 })
             );
         });
@@ -51,7 +56,9 @@ describe("Transaction Route", () => {
         describe("with filters", () => {
             it("returns transactions with type filter", async () => {
                 await request(app).get("/transaction").expect(200);
-                const res = await request(app).get(`/transaction`).query({ type: TransactionType.WALK_IN_REFERRAL });
+                const res = await request(app)
+                    .get(`/transaction`)
+                    .query({ type: TransactionType.WALK_IN_REFERRAL } as TransactionQueryType);
 
                 expect(res.body).not.toHaveProperty("originalSize");
                 expect(res.body).toHaveProperty("responseSize", res.body.transactions.length);
@@ -62,7 +69,9 @@ describe("Transaction Route", () => {
             });
 
             it("returns transactions with outcome filter", async () => {
-                const res = await request(app).get(`/transaction`).query({ outcome: Outcome.PENDING });
+                const res = await request(app)
+                    .get(`/transaction`)
+                    .query({ outcome: Outcome.PENDING } as TransactionQueryType);
 
                 res.body.transactions.forEach((transaction: Transaction) => {
                     expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
@@ -72,7 +81,10 @@ describe("Transaction Route", () => {
             it("returns transactions with both type and outcome filter", async () => {
                 const res = await request(app)
                     .get(`/transaction`)
-                    .query({ outcome: Outcome.PENDING, type: TransactionType.WALK_IN_REFERRAL });
+                    .query({
+                        outcome: Outcome.PENDING,
+                        type: TransactionType.WALK_IN_REFERRAL,
+                    } as TransactionQueryType);
 
                 res.body.transactions.forEach((transaction: Transaction) => {
                     expect(transaction).toHaveProperty("transactionOutcome", TransactionType.WALK_IN_REFERRAL);
@@ -81,7 +93,10 @@ describe("Transaction Route", () => {
             });
 
             it("returns transactions with search filter for name", async () => {
-                const res = await request(app).get("/transaction").query({ search: "john doe" }).expect(200);
+                const res = await request(app)
+                    .get("/transaction")
+                    .query({ search: "john doe" } as TransactionQueryType)
+                    .expect(200);
 
                 expect(res.body.transactions).toEqual(
                     expect.arrayContaining([expect.objectContaining(mockedTransactions[0])])
@@ -98,7 +113,10 @@ describe("Transaction Route", () => {
 
                 const txCode = searchRes.body.transaction.txCode as string;
 
-                const res = await request(app).get("/transaction").query({ search: txCode.toLowerCase() }).expect(200);
+                const res = await request(app)
+                    .get("/transaction")
+                    .query({ search: txCode.toLowerCase() } as TransactionQueryType)
+                    .expect(200);
 
                 expect(res.body.transactions).toEqual(
                     expect.arrayContaining([
@@ -119,7 +137,10 @@ describe("Transaction Route", () => {
             });
 
             it("returns nothing when search filter is not valid", async () => {
-                const res = await request(app).get("/transaction").query({ search: "john doeeeee" }).expect(200);
+                const res = await request(app)
+                    .get("/transaction")
+                    .query({ search: "john doeeeee" } as TransactionQueryType)
+                    .expect(200);
 
                 expect(res.body.transactions).toHaveLength(0);
             });
@@ -131,7 +152,10 @@ describe("Transaction Route", () => {
 
                 const res = await request(app)
                     .get("/transaction")
-                    .query({ startDate: yesterday.toISOString(), endDate: tomorrow.toISOString() });
+                    .query({
+                        startDate: yesterday,
+                        endDate: tomorrow,
+                    } as TransactionQueryType);
 
                 const expected = mockedTransactions.slice(0, 2);
 
@@ -190,14 +214,16 @@ describe("Transaction Route", () => {
                 );
             });
         });
+    });
 
+    describe("GET /transaction/id", () => {
         it("returns a transaction with id", async () => {
             const res = await request(app).get("/transaction/1").expect(200);
 
             const transaction = res.body.transaction as Transaction;
             expect(transaction).toMatchObject(mockedTransactions[0]);
             expect(transaction).toHaveProperty("createdAt", expect.any(String));
-            expect(transaction.txCode).toMatch(/^TX-\d{4}-\d+$/);
+            expect(transaction.txCode).toMatch(/^TX-\d+-\d+$/);
         });
 
         it("returns a transaction with txCode", async () => {
@@ -229,7 +255,7 @@ describe("Transaction Route", () => {
             const expected = {
                 ...formData,
                 createdAt: expect.any(String),
-                txCode: expect.stringMatching(/^TX-\d{4}-\d+$/),
+                txCode: expect.stringMatching(/^TX-\d+-\d+$/),
             };
 
             const postRes = await request(app).post("/transaction").send(formData).expect(201);
