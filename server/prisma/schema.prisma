@@ -130,6 +130,7 @@ model Transaction {
     applicantSex       Sex
     transactionOutcome Outcome         @default(NONE)
     createdAt          DateTime        @default(now()) @db.Timestamptz(0)
+    updatedAt          DateTime        @default(now()) @db.Timestamptz(0)
     transactionType    TransactionType @default(WALK_IN_REFERRAL)
     remarks            String?
 
