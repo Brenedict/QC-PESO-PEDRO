@@ -20,7 +20,7 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 
 // Types
 import type { Role } from "../types/common";
@@ -134,10 +134,10 @@ function UserManagement() {
                 handleClick: (id) => () => navigate(ROUTES.userManagement.reset(id), true),
             },
             {
-                icon: PersonOffOutlinedIcon,
-                text: "Disable",
-                color: "red",
-                handleClick: (id) => () => navigate(ROUTES.userManagement.disable(id), true),
+                icon: ManageAccountsOutlinedIcon,
+                text: "Manage",
+                color: "black",
+                handleClick: (id) => () => navigate(ROUTES.userManagement.manage(id), true),
             }
         );
 

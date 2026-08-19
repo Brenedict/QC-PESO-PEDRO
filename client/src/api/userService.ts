@@ -195,3 +195,59 @@ export const getUserById = async ({ params, request }: ActionFunctionArgs) => {
         return redirect(`${ROUTES.userManagement.root}?${query}`);
     }
 };
+
+export const manageUserAction = async ({ params, request }: ActionFunctionArgs) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
+
+    try {
+        const { userId } = params;
+        const decodedId = Number(decode(userId));
+        const formData = await request.formData();
+        const actionType = formData.get("manageAction");
+
+        if (actionType === "deactivate") {
+            const res = await apiFetch(`/user/${decodedId}`, {
+                retry: true,
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({ status: "DISABLED" }),
+            });
+
+            if (!res.ok) throw new Error(`Failed to deactivate user ${res.status}`);
+        } else if (actionType === "reactivate") {
+            const res = await apiFetch(`/user/${decodedId}`, {
+                retry: true,
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify({ status: "LOGGED_OUT" }),
+            });
+
+            if (!res.ok) throw new Error(`Failed to reactivate user ${res.status}`);
+        } else if (actionType === "delete") {
+            const res = await apiFetch(`/user/${decodedId}`, {
+                retry: true,
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+            });
+
+            if (!res.ok) throw new Error(`Failed to delete user ${res.status}`);
+        }
+
+        // Returns to root directory and queries
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
+    } catch (err) {
+        console.error(err);
+
+        return redirect(`${ROUTES.userManagement.root}?${query}`);
+    }
+};
