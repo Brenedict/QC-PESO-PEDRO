@@ -1,14 +1,11 @@
 // General Imports
-import { Outlet } from "react-router";
-import { Children, type ReactNode } from "react";
+import { Outlet, useLoaderData } from "react-router";
+import { type ReactNode } from "react";
 
 // Components
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
 import { StatsCard } from "../components/StatsCard";
-import { JobFairParticipants } from "../components/JobFairParticipants";
-import { AccreditationCard } from "../components/AccreditationCard";
-import { WHIPCard } from "../components/WHIPCard";
 import { RecentActivity } from "../components/RecentActivity";
 import { LineChart } from "../components/LineChart";
 import { PieChart } from "../components/PieChart";
@@ -25,86 +22,91 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 // Test Data
 import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/chartsConfigs";
 import { recentActivity } from "../data/recentActivity";
-import {
-    accreditationData,
-    applicantCards,
-    dailyTransactionCards,
-    employmentOutcomeCards,
-    jobFairData,
-    WHIPData,
-} from "../data/overviewDashboard";
-
-// Types
-import type { Role } from "../types/common";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Context
 import { useTopBar } from "../context/TopbarContext.tsx";
+import {
+    buildLineWeekData,
+    buildSexChartWeekData,
+    CARD_MAP,
+    DASHBOARD_OVERVIEW_REQUEST,
+    getQueryIds,
+    type MetricData,
+} from "../api/analyticsRequests.ts";
+
+type CardId = keyof typeof CARD_MAP;
+
+interface CardGroupProps {
+    ids?: CardId[];
+    data: Record<CardId, MetricData | undefined>;
+}
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
 }
 
-function CardGroup({ children }: { children: ReactNode }) {
+function CardGroup({ ids = [], data }: CardGroupProps) {
     // For some reason ayaw gumana ng string substitute kaya eto nag array ako
     // Palitan nyo nalang kung maayos niyo
+    const navigate = useNavigateDefault();
     const columnClass = ["grid-cols-1", "grid-cols-2", "grid-cols-3", "grid-cols-4"];
-    const cardCol = Math.min(Children.count(children), 4);
+    const cardCol = Math.min(ids.length, 4);
 
     return (
         <>
             <hr className="mt-2 border-0 bg-off-white-border h-0.5" />
-            <section className={`grid ${columnClass[cardCol - 1]} gap-6 mt-4`}>{children}</section>
+            <section className={`grid ${columnClass[cardCol - 1]} gap-6 mt-4`}>
+                {ids.map((id) => (
+                    <StatsCard
+                        key={id}
+                        className="w-full"
+                        title={CARD_MAP?.[id].title}
+                        specialIcon={CARD_MAP?.[id].specialIcon}
+                        total={data?.[id]?.current?.count ?? 0}
+                        male={data?.[id]?.current?.grouped?.MALE ?? 0}
+                        female={data?.[id]?.current?.grouped?.FEMALE ?? 0}
+                        previous={data?.[id]?.previous?.count ?? 0}
+                        onClick={() => navigate(ROUTES.dashboard.preview(id))}
+                    />
+                ))}
+            </section>
         </>
     );
 }
 
 function DailyTransactions() {
-    const navigate = useNavigateDefault();
-    return (
-        <CardGroup>
-            {dailyTransactionCards.map((card) => (
-                <StatsCard
-                    key={card.title}
-                    className="w-full"
-                    onClick={() => navigate(ROUTES.dashboard.preview(card.type))}
-                    {...card}
-                />
-            ))}
-        </CardGroup>
-    );
+    const data = useLoaderData();
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 0, 5) as string[];
+
+    return <CardGroup ids={ids} data={data} />;
 }
 
 function ApplicantsDemographics() {
-    return (
-        <CardGroup>
-            {applicantCards.map((card) => (
-                <StatsCard key={card.title} className="w-full" {...card} />
-            ))}
-        </CardGroup>
-    );
+    const data = useLoaderData();
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 5, 9) as string[];
+
+    return <CardGroup ids={ids} data={data} />;
 }
 
 function EmploymentOutcomes() {
-    return (
-        <CardGroup>
-            {employmentOutcomeCards.map((card) => (
-                <StatsCard key={card.title} className="w-full" {...card} />
-            ))}
-        </CardGroup>
-    );
+    const data = useLoaderData();
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 9, 13) as string[];
+
+    return <CardGroup ids={ids} data={data} />;
 }
 
 function EmploymentEvents() {
-    return (
-        <CardGroup>
-            <JobFairParticipants {...jobFairData} />
-            <AccreditationCard {...accreditationData} />
-            <WHIPCard {...WHIPData} />
-        </CardGroup>
-    );
+    return null;
+    // return (
+    //     <CardGroup>
+    //         <JobFairParticipants {...jobFairData} />
+    //         <AccreditationCard {...accreditationData} />
+    //         <WHIPCard {...WHIPData} />
+    //     </CardGroup>
+    // );
 }
 
 function EndShiftValue({ title, children }: { title: string; children: ReactNode }) {
@@ -172,6 +174,10 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 // Main Overview Component
 export function Overview({ pending, approved, revision }: EndShiftProps) {
     const { role } = useTopBar();
+    const data = useLoaderData();
+
+    const weeklyData = buildLineWeekData(data);
+    const sexData = buildSexChartWeekData(data);
 
     return (
         <>
@@ -226,7 +232,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Weekly Transaction Volume</Text>
                         </Card.Header>
                         <Card.Body>
-                            <LineChart options={sampleLineOptions} data={sampleLineData} height={"100px"}></LineChart>
+                            <LineChart options={sampleLineOptions} data={weeklyData} height={"100px"}></LineChart>
                         </Card.Body>
                     </Card>
                     <Card className="col-span-1">
@@ -234,7 +240,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Gender Split</Text>
                         </Card.Header>
                         <Card.Body>
-                            <PieChart options={samplePieOptions} data={samplePieData} height={"250px"}></PieChart>
+                            <PieChart options={samplePieOptions} data={sexData} height={"250px"}></PieChart>
                         </Card.Body>
                     </Card>
                 </section>

@@ -16,6 +16,7 @@ import {
     redirectWithQuery,
     validateForm,
 } from "./actionService";
+import { DASHBOARD_OVERVIEW_REQUEST } from "./analyticsRequests";
 
 // GET: Fetches all transactions
 export const getTransactions =
@@ -39,6 +40,26 @@ export const getTransactions =
             return redirectWithQuery(request, ROUTES.applicantForm.root);
         }
     };
+
+// POST: Fetches analytics
+export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
+    try {
+        // Main Fetch Request
+        const res = await apiJson("/transaction/analytics", {
+            method: "POST",
+            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST),
+        });
+
+        await ensureOk(res, "Failed to query dashboard");
+
+        return res.json();
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.dashboard.root);
+    }
+};
 
 // GET: Transaction id specific fetch
 export const getTransactionById = async ({ params, request }: ActionFunctionArgs) => {

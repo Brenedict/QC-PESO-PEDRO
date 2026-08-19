@@ -97,7 +97,7 @@ function randomDemographics(): Demographic[] | undefined {
 export function generateTransactions(userId: number, shiftLogId: number, count: number): TransactionCreateType[] {
     const transactions: TransactionCreateType[] = [];
 
-    const startDate = new Date("2025-08-16T08:00:00");
+    const startDate = new Date("2026-08-16T08:00:00");
     const endDate = new Date();
 
     for (let i = 0; i < count; i++) {

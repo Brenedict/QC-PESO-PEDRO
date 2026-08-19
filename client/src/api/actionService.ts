@@ -73,6 +73,20 @@ export function buildDayRangeParam(date: Date) {
     return { startDate: date.toISOString(), endDate: date.toISOString() };
 }
 
+export function buildWeekRangeParam(date: Date) {
+    const currentDay = date.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+    const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+
+    const monday = new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + distanceToMonday, 0, 0, 0, 0)
+    );
+
+    const friday = new Date(
+        Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate() + 4, 23, 59, 59, 999)
+    );
+
+    return { startDate: monday.toISOString(), endDate: friday.toISOString() };
+}
 export function buildParamString(init?: string[][] | Record<string, string> | string | URLSearchParams) {
     const params = new URLSearchParams(init);
     return params.toString();

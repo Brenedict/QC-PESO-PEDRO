@@ -41,7 +41,7 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 // Helper function
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { ROUTES } from "../hooks/reroute";
-import { createTransaction, getTransactions } from "../api/transactionService";
+import { createTransaction, getOverviewAnalytics, getTransactions } from "../api/transactionService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -65,6 +65,7 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "",
                         element: <Overview pending={5} approved={18} revision={2} />,
+                        loader: getOverviewAnalytics,
                         children: [
                             {
                                 path: "total",

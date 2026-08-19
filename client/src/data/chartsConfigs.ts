@@ -144,7 +144,6 @@ export const sampleReportsBarOptions = {
 } as const;
 
 // === SAMPLE LINE ARGS ===
-
 // This is the most basic format for the `data` argument of the chart
 export const sampleLineData = {
     labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],

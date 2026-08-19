@@ -47,6 +47,7 @@ export default {
         jwtAccessAuth,
         async (req: Request, res: Response) => {
             const result = ValidateUtil.validateRequestData(TransactionAnalyticsQuerySchema, req.body, res);
+            console.log("testing");
             if (!result.success) return;
 
             const query = TransactionService.parseTransactionAnalyticsQuery(result.data);

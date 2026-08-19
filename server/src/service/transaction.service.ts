@@ -18,11 +18,14 @@ import type {
     TransactionWhereInput,
 } from "@qcpesopedro/shared/prisma/models";
 
+import type { Transaction } from "@qcpesopedro/shared/prisma/client";
+
 import ValidateUtil from "../utils/validate.util";
 import type { TransactionScalarFieldEnum } from "@qcpesopedro/shared/zod/schemas";
 import prisma from "../config/prisma.config";
 import DateUtil from "../utils/date.util";
 import { groupByInterval, groupByIntervalWithColumn } from "@qcpesopedro/shared/prisma/sql";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 // -----------------------------  TYPES & INTERFACES -----------------------------------------------
 
@@ -65,16 +68,24 @@ export default {
         const formattedDate = DateUtil.getFormattedDate(date);
 
         // Number of transactions for that specific day
-        const ordered = await this.getTransactionsPerMonth(date, { txCode: "desc" });
+        const ordered = await this.getLatestTransactionPerMonth(date);
         const nextIndex = ordered?.[0] ? this.extractIndexFromCode(ordered[0].txCode) : 1;
 
-        return [...Array(len)].map((_, i) => `TX-${formattedDate}-${String(nextIndex + i).padStart(3, "0")}`);
+        return [...Array(len)].map((_, i) => `TX-${formattedDate}-${String(nextIndex + i).padStart(4, "0")}`);
     },
 
-    async createTransactionWithCode(transaction: TransactionCreateType) {
+    async createTransactionWithCode(transaction: TransactionCreateType, attempt = 0): Promise<Transaction | undefined> {
         const date = transaction.createdAt ?? new Date();
         const code = (await this.createTransactionCode(date))[0] as string;
-        return await TransactionModel.createTransaction(transaction, code);
+
+        try {
+            return await TransactionModel.createTransaction(transaction, code);
+        } catch (err) {
+            if (err instanceof PrismaClientKnownRequestError && err.code === "P2002" && attempt < 3) {
+                return this.createTransactionWithCode(transaction, attempt + 1);
+            }
+            throw err;
+        }
     },
 
     async createTransactionsWithCode(transactions: TransactionCreateType[]) {
@@ -114,7 +125,7 @@ export default {
         });
     },
 
-    async getTransactionsPerMonth(date: Date, orderBy?: TransactionOrderByWithRelationInput) {
+    async getLatestTransactionPerMonth(date: Date) {
         const start = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
         const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
 
@@ -125,7 +136,8 @@ export default {
                     lte: end,
                 },
             },
-            orderBy,
+            orderBy: { txCode: "desc" },
+            take: 1,
         });
     },
 
@@ -190,6 +202,7 @@ export default {
                     ],
                 }),
             },
+            orderBy: { createdAt: "desc" },
             skip: page,
             take: limit,
         };
