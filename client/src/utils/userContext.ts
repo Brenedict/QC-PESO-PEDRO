@@ -1,4 +1,4 @@
-import { type TopBarContextValue } from "../context/TopbarContext";
+import { type TopBarContextValue } from "../context/UserGlobalContext";
 
 //Temporary lang (naaisip ko nakacontext to once na may backend na tayo)
 export const userContext: TopBarContextValue = {

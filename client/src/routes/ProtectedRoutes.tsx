@@ -1,5 +1,6 @@
 // General Imports
 import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
+import { AccessLevel } from "@qcpesopedro/shared/prisma/accessLevel";
 
 // Schema
 import { TransactionSchema } from "@qcpesopedro/shared/schema//transactions";
@@ -71,6 +72,7 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "",
                         element: <Overview pending={5} approved={18} revision={2} />,
+                        handle: { minAccessLevel: AccessLevel.FRONTLINE },
                         children: [
                             {
                                 path: "total",
@@ -162,11 +164,13 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "profile",
                         element: <ProfilePage />,
+                        handle: { minAccessLevel: AccessLevel.FRONTLINE },
                         children: [...shiftPopups(ROUTES.profile.root)],
                     },
                     {
                         path: "end-shift",
                         element: <EndShiftVerification shiftData={shiftRecords} />,
+                        handle: { minAccessLevel: AccessLevel.ADMIN },
                         children: [
                             {
                                 path: ":shiftId/review",
@@ -188,6 +192,7 @@ export const protectedRoutes: RouteObject[] = [
                                 transactions={transactions}
                             />
                         ),
+                        handle: { minAccessLevel: AccessLevel.FRONTLINE },
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
                     },
                     {
@@ -204,6 +209,7 @@ export const protectedRoutes: RouteObject[] = [
                                 employeeSessions={employeeSessions}
                             />
                         ),
+                        handle: { minAccessLevel: AccessLevel.ADMIN },
                         children: [
                             {
                                 path: ":shiftId/view-history",
@@ -215,6 +221,7 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "applicant-form",
                         element: <TransactionsInputPage />,
+                        handle: { minAccessLevel: AccessLevel.FRONTLINE },
                         children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
                         action: async ({ request }: ActionFunctionArgs) => {
                             try {
@@ -235,11 +242,13 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "audit-logs",
                         element: <SystemAuditLogs logsData={auditLogData} />,
+                        handle: { minAccessLevel: AccessLevel.ADMIN },
                         children: [...shiftPopups(ROUTES.auditLogs.root)],
                     },
                     {
                         path: "user-management",
                         element: <UserManagement />,
+                        handle: { minAccessLevel: AccessLevel.ADMIN },
                         loader: getUsers,
                         children: [
                             {
@@ -283,6 +292,8 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "reports",
                         element: <Reports />,
+                        // Just added this for now, if not correct access level change it
+                        handle: { minAccessLevel: AccessLevel.SUPERADMIN },
                         children: [
                             { path: "daily", element: <PopupReportPreview type={"daily"} /> },
                             { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
@@ -294,6 +305,8 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "context-analytics",
                         element: <ContextAnalytics />,
+                        // Just added this for now, if not correct access level change it
+                        handle: { minAccessLevel: AccessLevel.SUPERADMIN },
                         children: [...shiftPopups(ROUTES.contextAnalysis.root)],
                     },
                 ],

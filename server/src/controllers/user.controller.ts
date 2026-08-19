@@ -14,10 +14,13 @@ import UserModel from "../models/user.model";
 
 // Service
 import UserService from "../service/user.service";
+import { requireAccessLevel } from "../middlewares/authorized.middleware";
+import { AccessLevel } from "@qcpesopedro/shared/prisma/accessLevel";
 
 export default {
     getCurrentUser: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         (req: Request, res: Response) => {
             const user = req.user as User;
 
@@ -41,6 +44,7 @@ export default {
 
     getUserById: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -56,6 +60,7 @@ export default {
 
     getUsers: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Collects queries from URL
             const role = req.query.role as Role;
@@ -71,6 +76,7 @@ export default {
     createUser: [
         jwtAccessAuth,
         validateSchema(UserFormCreateSchema),
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             const user = req.body as User;
             const { email, username } = user;
@@ -90,6 +96,7 @@ export default {
     patch: [
         jwtAccessAuth,
         validateSchema(UserFormUpdateSchema),
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -121,6 +128,7 @@ export default {
 
     delete: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -138,6 +146,7 @@ export default {
 
     resetPassword: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -154,7 +163,7 @@ export default {
                     .status(403)
                     .json({ message: "Forbidden: Administrators can only reset passwords for Frontline Encoders." });
             }
-   
+
             const result = await UserService.resetPassword(userId, user);
             console.log("REACHED");
 

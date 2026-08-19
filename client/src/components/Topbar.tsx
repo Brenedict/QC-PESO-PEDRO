@@ -11,10 +11,10 @@ import Profile from "./Profile";
 import Button from "./Button.tsx";
 
 import { useNavigateDefault } from "../hooks/reroute";
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 
 function LeftSection() {
-    const { onSearchChange } = useTopBar();
+    const { onSearchChange } = useUserGlobal();
 
     return (
         <section className="flex items-center mr-20">
@@ -52,7 +52,7 @@ function DateTime() {
 }
 
 function NotifButton() {
-    const { onNotifClick, hasNotif } = useTopBar();
+    const { onNotifClick, hasNotif } = useUserGlobal();
 
     return (
         <Button
@@ -71,7 +71,7 @@ function NotifButton() {
 }
 
 function ProfileSection() {
-    const { firstName, lastName, role } = useTopBar();
+    const { firstName, lastName, role } = useUserGlobal();
 
     return (
         <div className="flex">
@@ -95,7 +95,7 @@ function ProfileSection() {
 }
 
 function RightSection() {
-    const { status } = useTopBar();
+    const { status } = useUserGlobal();
     const navigate = useNavigateDefault();
 
     return (

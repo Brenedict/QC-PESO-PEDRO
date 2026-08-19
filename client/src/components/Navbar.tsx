@@ -13,7 +13,7 @@ import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import SensorOccupiedOutlinedIcon from "@mui/icons-material/SensorOccupiedOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import type { Role } from "../types/common.ts";
+import { Role } from "@qcpesopedro/shared/prisma/enums";
 
 function NavHeader({ userFullName, profilePicUrl, children }: { children: ReactNode } & ProfileBaseProps) {
     return (

@@ -1,5 +1,6 @@
 // General Imports
 import { Outlet } from "react-router";
+
 import { Children, type ReactNode } from "react";
 
 // Components
@@ -34,14 +35,11 @@ import {
     WHIPData,
 } from "../data/overviewDashboard";
 
-// Types
-import type { Role } from "../types/common";
-
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Context
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
@@ -171,7 +169,7 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 
 // Main Overview Component
 export function Overview({ pending, approved, revision }: EndShiftProps) {
-    const { role } = useTopBar();
+    const { role } = useUserGlobal();
 
     return (
         <>

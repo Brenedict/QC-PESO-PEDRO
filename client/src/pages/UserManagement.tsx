@@ -1,7 +1,7 @@
 import { Outlet, useLoaderData } from "react-router";
 
 // General Imports
-import { useContext, type SubmitEvent } from "react";
+import { type SubmitEvent } from "react";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -22,14 +22,12 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 
-// Types
-import type { Role } from "../types/common";
-
 // Hooks
 import { useSearchParamsTable } from "../hooks/table";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import type { UserFormCreateType } from "../../../shared/schema/users";
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+import type { Role } from "@qcpesopedro/shared/prisma/enums.ts";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -82,9 +80,8 @@ function UserManagement() {
 
     const users = useLoaderData() as UserFormCreateType[];
 
-    const { role } = useTopBar();
+    const { role } = useUserGlobal();
     const userRole = role;
-    console.log("User Role:", userRole); // Debugging line to check the role value
 
     const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
