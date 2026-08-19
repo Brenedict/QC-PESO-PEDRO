@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { checkAuthService, getUserContextLoader, logoutService } from "../api/authService";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { logoutService } from "../api/authService";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
+import { useRouteLoaderData } from "react-router";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -12,39 +13,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<UserContextType | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
+    const data = useRouteLoaderData("protected") as { user: UserContextType } | undefined;
+    const [user, setUser] = useState<UserContextType | null>(data?.user ?? null);
+
+    // isAuthenticated is now implied: if we got here, the loader already confirmed it
+    const isAuthenticated = !!user;
 
     const logout = async () => {
         await logoutService();
-        setIsAuthenticated(false);
+        setUser(null);
     };
 
-    useEffect(() => {
-        const init = async () => {
-            setLoading(true);
-            const isAuthenticated = await checkAuthService();
-            setIsAuthenticated(isAuthenticated);
-            const user = await getUserContextLoader();
-            setUser(user);
-
-            setLoading(false);
-        };
-        init();
-    }, []);
-    return (
-        <AuthContext
-            value={{
-                isAuthenticated,
-                loading,
-                user,
-                logout,
-            }}
-        >
-            {children}
-        </AuthContext>
-    );
+    return <AuthContext value={{ isAuthenticated, loading: false, user, logout }}>{children}</AuthContext>;
 };
 
 /* eslint-disable react-refresh/only-export-components */

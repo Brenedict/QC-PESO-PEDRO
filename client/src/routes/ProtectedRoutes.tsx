@@ -42,20 +42,22 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { ROUTES } from "../hooks/reroute";
 import { createTransaction, getTransactions } from "../api/transactionService";
+import { primaryAuthLoader } from "../api/authService";
 
 export const protectedRoutes: RouteObject[] = [
     {
         id: "protected",
         path: "/",
         element: (
-            /* 
-                Initial authentication on '/protected' happens here, and the user data is fetched. 
-                If the user is not authenticated, they will be redirected to '/auth'.
-            */
             <AuthProvider>
                 <ProtectedRoute />
             </AuthProvider>
         ),
+        /* 
+            Initial authentication on '/protected' NOW happens here, and the user data is fetched. 
+            If the user is not authenticated, they will be redirected to '/auth'.
+        */
+        loader: primaryAuthLoader,
         errorElement: <SystemErrorPage />,
         children: [
             {
@@ -174,13 +176,7 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "history",
-                        element: (
-                            <TransactionHistory
-                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                                    e.preventDefault();
-                                }}
-                            />
-                        ),
+                        element: <TransactionHistory />,
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
                         loader: getTransactions(false),
                     },
@@ -192,9 +188,6 @@ export const protectedRoutes: RouteObject[] = [
                                 totalLogins={18}
                                 totalLogouts={6}
                                 sessionDuration={"8h 12m"}
-                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                                    e.preventDefault();
-                                }}
                                 employeeSessions={employeeSessions}
                             />
                         ),

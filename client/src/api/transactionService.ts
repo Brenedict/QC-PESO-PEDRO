@@ -34,6 +34,10 @@ export const getTransactions =
 
             return res.json();
         } catch (err) {
+            // 2nd Line of Defense on Unauthorized URL Access
+            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
+            if (err instanceof Response) throw err;
+
             console.error(err);
 
             // Returns to root directory + queries
@@ -55,6 +59,10 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
 
         return transaction;
     } catch (err) {
+        // 2nd Line of Defense on Unauthorized URL Access
+        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
+        if (err instanceof Response) throw err;
+
         console.error(err);
 
         // Returns to root directory + queries
@@ -91,6 +99,10 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         // Returns to root directory + queries
         return redirectWithQuery(request, ROUTES.applicantForm.root);
     } catch (err) {
+        // 2nd Line of Defense on Unauthorized URL Access
+        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
+        if (err instanceof Response) throw err;
+
         console.error(err);
 
         // Returns to root directory + queries
@@ -122,6 +134,10 @@ export const deleteTransaction =
             // Returns to root directory + queries
             return redirectWithQuery(request, nextPage);
         } catch (err) {
+            // 2nd Line of Defense on Unauthorized URL Access
+            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
+            if (err instanceof Response) throw err;
+
             console.error(err);
 
             // Returns to root directory + queries
@@ -155,6 +171,10 @@ export const updateTransaction =
             // Returns to root directory + queries
             return redirectWithQuery(request, nextPage);
         } catch (err) {
+            // 2nd Line of Defense on Unauthorized URL Access
+            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
+            if (err instanceof Response) throw err;
+
             console.error(err);
 
             // Returns to root directory + queries
