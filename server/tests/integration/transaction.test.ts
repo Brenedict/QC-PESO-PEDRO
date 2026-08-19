@@ -1,6 +1,14 @@
 import request from "supertest";
 import { app } from "../../jest.integration";
-import { buildMockTransactions } from "../fixtures/transaction.fixture";
+import {
+    buildMockTransactions,
+    getExpectedBreakdown,
+    getExpectedGrouped,
+    getExpectedGroupedBreakdown,
+    getTransactionsInRange,
+    TOMORROW,
+    YESTERDAY,
+} from "../fixtures/transaction.fixture";
 import transactionRoute from "../../src/routes/transaction.route";
 import prisma from "../../src/config/prisma.config";
 import { mockUser } from "../fixtures/user.fixture";
@@ -15,11 +23,15 @@ import {
 import type { TransactionUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
 import TransactionService from "../../src/service/transaction.service";
 import {
+    TransactionAnalyticsQueryInput,
     TransactionCreateType,
     TransactionQueryType,
     TransactionUpdateType,
 } from "@qcpesopedro/shared/schema/transactions";
-import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespace";
+
+const transformMockedDate = (transaction: TransactionCreateType): TransactionCreateType => {
+    return { ...transaction, createdAt: expect.any(String) };
+};
 
 describe("Transaction Route", () => {
     let mockedTransactions: TransactionCreateType[];
@@ -32,7 +44,7 @@ describe("Transaction Route", () => {
 
         mockedTransactions = buildMockTransactions(mockedUser.id, mockedShiftLog.id);
         await TransactionService.createTransactionsWithCode(mockedTransactions);
-    }, 3000000);
+    });
 
     app.use("/transaction", transactionRoute);
 
@@ -46,8 +58,7 @@ describe("Transaction Route", () => {
 
             transactions.forEach((transaction: Transaction, i: number) =>
                 expect(transaction).toMatchObject({
-                    ...mockedTransactions[i],
-                    createdAt: expect.any(String),
+                    ...transformMockedDate(mockedTransactions[i]),
                     txCode: expect.stringMatching(/^TX-\d+-\d+$/),
                 })
             );
@@ -99,7 +110,7 @@ describe("Transaction Route", () => {
                     .expect(200);
 
                 expect(res.body.transactions).toEqual(
-                    expect.arrayContaining([expect.objectContaining(mockedTransactions[0])])
+                    expect.arrayContaining([expect.objectContaining(transformMockedDate(mockedTransactions[0]))])
                 );
 
                 const nonSearched = mockedTransactions.slice(1);
@@ -119,21 +130,11 @@ describe("Transaction Route", () => {
                     .expect(200);
 
                 expect(res.body.transactions).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            ...mockedTransactions[2],
-                            createdAt: expect.any(String),
-                        }),
-                    ])
+                    expect.arrayContaining([expect.objectContaining(transformMockedDate(mockedTransactions[2]))])
                 );
 
                 const nonSearched = mockedTransactions.slice(0, 2);
-                nonSearched.map((transaction) =>
-                    expect.objectContaining({
-                        ...transaction,
-                        createdAt: expect.any(String),
-                    })
-                );
+                nonSearched.map((transaction) => expect.objectContaining(transformMockedDate(transaction)));
             });
 
             it("returns nothing when search filter is not valid", async () => {
@@ -146,38 +147,38 @@ describe("Transaction Route", () => {
             });
 
             it("returns transactions between startDate and endDate", async () => {
-                const today = new Date();
-                const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-
                 const res = await request(app)
                     .get("/transaction")
                     .query({
-                        startDate: yesterday,
-                        endDate: tomorrow,
+                        startDate: YESTERDAY,
+                        endDate: TOMORROW,
                     } as TransactionQueryType);
 
-                const expected = mockedTransactions.slice(0, 2);
+                const expected = mockedTransactions.filter((transaction) => {
+                    const createdAt = transaction.createdAt ?? new Date();
+                    return createdAt >= YESTERDAY && createdAt <= TOMORROW;
+                });
+
+                const notExpected = mockedTransactions.filter((transaction) => {
+                    const createdAt = transaction.createdAt ?? new Date();
+                    return createdAt < YESTERDAY || createdAt > TOMORROW;
+                });
 
                 expect(res.body.transactions).toEqual(
-                    expect.arrayContaining(expected.map((tx) => expect.objectContaining(tx)))
+                    expect.arrayContaining(expected.map((tx) => expect.objectContaining(transformMockedDate(tx))))
                 );
 
                 expect(res.body.transactions).not.toEqual(
-                    expect.arrayContaining([expect.objectContaining(mockedTransactions[2])])
+                    expect.arrayContaining(notExpected.map((tx) => expect.objectContaining(transformMockedDate(tx))))
                 );
 
                 expect(res.body.transactions).toHaveLength(expected.length);
             });
 
             it("returns status 404 when startDate is greater than endDate", (done) => {
-                const today = new Date();
-                const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-
                 request(app)
                     .get("/transaction")
-                    .query({ startDate: tomorrow.toISOString(), endDate: yesterday.toISOString() })
+                    .query({ startDate: TOMORROW.toISOString(), endDate: YESTERDAY.toISOString() })
                     .expect(400, done);
             });
         });
@@ -207,11 +208,397 @@ describe("Transaction Route", () => {
 
                 expect(res.body.transactions).toEqual(
                     expect.arrayContaining(
-                        expected.map((transaction) =>
-                            expect.objectContaining({ ...transaction, createdAt: expect.any(String) })
-                        )
+                        expected.map((transaction) => expect.objectContaining(transformMockedDate(transaction)))
                     )
                 );
+            });
+        });
+    });
+
+    describe("POST /transaction/analytics", () => {
+        it("returns overall transaction count", async () => {
+            const res = await request(app).post("/transaction/analytics").expect(200);
+
+            expect(res.body).toEqual({
+                overall: {
+                    count: mockedTransactions.length,
+                },
+            });
+        });
+
+        it("returns count for a query with filters", async () => {
+            const payload: TransactionAnalyticsQueryInput = {
+                queries: [
+                    {
+                        type: "DATE_RANGE",
+                        id: "filteredCount",
+                        filters: {
+                            type: "WALK_IN_REFERRAL",
+                            outcome: "SUCCESS",
+                        },
+                    },
+                ],
+            };
+
+            const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+            const expectedCount = mockedTransactions.reduce(
+                (total, transaction) =>
+                    transaction.transactionType === TransactionType.WALK_IN_REFERRAL &&
+                    transaction.transactionOutcome === Outcome.SUCCESS
+                        ? total + 1
+                        : total,
+                0
+            );
+
+            expect(res.body).toEqual({
+                filteredCount: {
+                    count: expectedCount,
+                },
+            });
+        }, 300000);
+
+        it("returns full count for a query with empty filters", async () => {
+            const payload: TransactionAnalyticsQueryInput = {
+                queries: [
+                    {
+                        type: "DATE_RANGE",
+                        id: "emptyFilterCount",
+                        filters: {},
+                    },
+                ],
+            };
+
+            const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+            expect(res.body).toEqual({
+                emptyFilterCount: {
+                    count: mockedTransactions.length,
+                },
+            });
+        });
+
+        describe("date type query", () => {
+            it("returns query result using query", async () => {
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "DATE_RANGE",
+                            id: "overallBySex",
+                            groupBy: ["applicantSex"],
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                const expected = mockedTransactions.reduce(
+                    (result, transaction) => {
+                        const sex = transaction.applicantSex;
+                        result[sex] = (result[sex] ?? 0) + 1;
+                        return result;
+                    },
+                    {} as Record<string, number>
+                );
+
+                expect(res.body).toEqual({
+                    overallBySex: {
+                        count: mockedTransactions.length,
+                        grouped: expected,
+                    },
+                });
+
+                expect(res.body).not.toHaveProperty("overall");
+            });
+
+            it("returns multiple query results using their ids", async () => {
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "DATE_RANGE",
+                            id: "bySex",
+                            groupBy: ["applicantSex"],
+                        },
+                        {
+                            type: "DATE_RANGE",
+                            id: "byType",
+                            groupBy: ["transactionType"],
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                expect(res.body).toEqual({
+                    bySex: {
+                        count: expect.any(Number),
+                        grouped: expect.any(Object),
+                    },
+                    byType: {
+                        count: expect.any(Number),
+                        grouped: expect.any(Object),
+                    },
+                });
+                expect(res.body).not.toHaveProperty("overall");
+            });
+
+            it("returns current and previous period for a grouped date range query", async () => {
+                const startDate = new Date("2026-08-19T00:00:00.000Z");
+                const endDate = new Date("2026-08-20T00:00:00.000Z");
+                const previousStart = new Date("2026-08-18T00:00:00.000Z");
+
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "DATE_RANGE",
+                            id: "dailyBySex",
+                            startDate,
+                            endDate,
+                            groupBy: ["applicantSex"],
+                            includePrevious: true,
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                const current = getTransactionsInRange(mockedTransactions, startDate, endDate);
+                const previous = getTransactionsInRange(mockedTransactions, previousStart, startDate);
+
+                expect(res.body).toEqual({
+                    dailyBySex: {
+                        current: {
+                            count: current.length,
+                            grouped: getExpectedGrouped(current, "applicantSex"),
+                        },
+                        previous: {
+                            count: previous.length,
+                            grouped: getExpectedGrouped(previous, "applicantSex"),
+                        },
+                    },
+                });
+            });
+
+            it("returns 400 for invalid analytics request", async () => {
+                const payload = {
+                    queries: [
+                        {
+                            type: "DATE_RANGE",
+                            id: "invalid",
+                            filters: {
+                                type: "INVALID_TYPE",
+                            },
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(400);
+
+                expect(res.body).toHaveProperty("error");
+            });
+
+            it("returns 400 for invalid query", async () => {
+                const payload = {
+                    queries: [
+                        {
+                            id: 123,
+                            groupBy: "applicantSex",
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(400);
+
+                expect(res.body).toHaveProperty("error");
+            });
+        });
+
+        describe("breakdown type query", () => {
+            it.each(["HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"] as const)(
+                "returns %s transaction breakdown",
+                async (breakdown) => {
+                    const startDate = "2026-01-01T00:00:00.000Z";
+                    const endDate = "2026-12-31T23:59:59.999Z";
+                    const payload: TransactionAnalyticsQueryInput = {
+                        queries: [
+                            {
+                                type: "BREAKDOWN",
+                                id: "breakdown",
+                                startDate,
+                                endDate,
+                                breakdown,
+                            },
+                        ],
+                    };
+
+                    const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+                    const expected = getExpectedBreakdown(mockedTransactions, breakdown, startDate, endDate);
+
+                    expect(res.body).toEqual({
+                        breakdown: expected,
+                    });
+                }
+            );
+
+            it("returns query result grouped by applicant full name", async () => {
+                const startDate = "2026-08-01T00:00:00.000Z";
+                const endDate = "2026-08-31T23:59:59.999Z";
+
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "BREAKDOWN",
+                            id: "byFullName",
+                            breakdown: "DAILY",
+                            groupBy: "applicantFullName",
+                            startDate,
+                            endDate,
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                const expected = getExpectedGroupedBreakdown(
+                    mockedTransactions,
+                    "DAILY",
+                    "applicantFullName",
+                    startDate,
+                    endDate
+                );
+                expect(res.body).toEqual({
+                    byFullName: expected,
+                });
+
+                expect(res.body).not.toHaveProperty("overall");
+            });
+
+            it("returns daily breakdown grouped by applicant sex", async () => {
+                const startDate = "2026-08-01T00:00:00.000Z";
+                const endDate = "2026-08-31T23:59:59.999Z";
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "BREAKDOWN",
+                            id: "dailyBySex",
+                            startDate,
+                            endDate,
+                            breakdown: "DAILY",
+                            groupBy: "applicantSex",
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                const expected = getExpectedGroupedBreakdown(
+                    mockedTransactions,
+                    "DAILY",
+                    "applicantSex",
+                    startDate,
+                    endDate
+                );
+
+                expect(res.body).toEqual({
+                    dailyBySex: expected,
+                });
+            });
+
+            it("returns daily breakdown grouped by demographics", async () => {
+                const startDate = "2026-08-01T00:00:00.000Z";
+                const endDate = "2026-08-31T23:59:59.999Z";
+
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "BREAKDOWN",
+                            id: "dailyByDemographic",
+                            startDate,
+                            endDate,
+                            breakdown: "DAILY",
+                            groupBy: "demographics",
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                const expected = getExpectedGroupedBreakdown(
+                    mockedTransactions,
+                    "DAILY",
+                    "demographics",
+                    startDate,
+                    endDate
+                );
+
+                expect(res.body).toEqual({
+                    dailyByDemographic: expected,
+                });
+            });
+
+            it("applies filters to breakdown", async () => {
+                const startDate = "2026-08-01T00:00:00.000Z";
+                const endDate = "2026-08-31T23:59:59.999Z";
+
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "BREAKDOWN",
+                            id: "filteredDaily",
+                            startDate,
+                            endDate,
+                            breakdown: "DAILY",
+                            filters: {
+                                type: "WALK_IN_REFERRAL",
+                                outcome: "SUCCESS",
+                            },
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                const filteredTransactions = mockedTransactions.filter(
+                    (transaction) =>
+                        transaction.transactionType === "WALK_IN_REFERRAL" &&
+                        transaction.transactionOutcome === "SUCCESS"
+                );
+
+                const expected = getExpectedBreakdown(filteredTransactions, "DAILY", startDate, endDate);
+
+                expect(res.body).toEqual({
+                    filteredDaily: expected,
+                });
+            });
+
+            it("applies filters to multiple analytics queries", async () => {
+                const payload: TransactionAnalyticsQueryInput = {
+                    queries: [
+                        {
+                            type: "DATE_RANGE",
+                            id: "successfulBySex",
+                            groupBy: ["applicantSex"],
+                            filters: {
+                                outcome: "SUCCESS",
+                            },
+                        },
+                        {
+                            type: "BREAKDOWN",
+                            id: "successfulDaily",
+                            startDate: "2026-08-01T00:00:00.000Z",
+                            endDate: "2026-08-31T23:59:59.999Z",
+                            breakdown: "DAILY",
+                            filters: {
+                                outcome: "SUCCESS",
+                            },
+                        },
+                    ],
+                };
+
+                const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
+
+                expect(res.body).toHaveProperty("successfulBySex");
+                expect(res.body).toHaveProperty("successfulDaily");
             });
         });
     });
@@ -221,7 +608,7 @@ describe("Transaction Route", () => {
             const res = await request(app).get("/transaction/1").expect(200);
 
             const transaction = res.body.transaction as Transaction;
-            expect(transaction).toMatchObject(mockedTransactions[0]);
+            expect(transaction).toMatchObject(transformMockedDate(mockedTransactions[0]));
             expect(transaction).toHaveProperty("createdAt", expect.any(String));
             expect(transaction.txCode).toMatch(/^TX-\d+-\d+$/);
         });
@@ -231,7 +618,7 @@ describe("Transaction Route", () => {
             const txCode = searchRes.body.transaction.txCode as string;
 
             const res = await request(app).get(`/transaction/${txCode}`).expect(200);
-            expect(res.body.transaction).toMatchObject(mockedTransactions[1]);
+            expect(res.body.transaction).toMatchObject(transformMockedDate(mockedTransactions[1]));
         });
 
         it("returns status 404 when id is not found", (done) => {
@@ -253,8 +640,7 @@ describe("Transaction Route", () => {
             };
 
             const expected = {
-                ...formData,
-                createdAt: expect.any(String),
+                ...transformMockedDate(formData),
                 txCode: expect.stringMatching(/^TX-\d+-\d+$/),
             };
 
@@ -263,7 +649,7 @@ describe("Transaction Route", () => {
 
             const getRes = await request(app).get("/transaction").expect(200);
             expect(getRes.body.transactions).toContainEqual(expect.objectContaining(expected));
-        }, 300000);
+        });
 
         it("returns status 400 when bad request was made", (done) => {
             const formData: TransactionCreateType = {

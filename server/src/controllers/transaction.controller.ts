@@ -3,6 +3,7 @@ import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import TransactionModel from "../models/transaction.model";
 import { validateSchema } from "../middlewares/zod.middleware";
 import {
+    TransactionAnalyticsQuerySchema,
     TransactionFormCreateSchema,
     TransactionFormUpdateSchema,
     TransactionQuerySchema,
@@ -10,23 +11,16 @@ import {
     type TransactionUpdateType,
 } from "@qcpesopedro/shared/schema/transactions";
 import TransactionService from "../service/transaction.service";
-import { z } from "zod";
+import ValidateUtil from "../utils/validate.util";
 
 export default {
     getTransactions: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
-            const result = TransactionQuerySchema.safeParse(req.query);
+            const result = ValidateUtil.validateRequestData(TransactionQuerySchema, req.query, res);
+            if (!result.success) return;
 
-            if (result.error) {
-                return res.status(400).json({
-                    error: z.prettifyError(result.error),
-                });
-            }
-
-            const query = result.data;
-
-            const filters = TransactionService.parseTransactionQuery(query);
+            const filters = TransactionService.parseTransactionQuery(result.data);
             const transactions = await TransactionModel.getTransactions(filters);
 
             interface ResponseType {
@@ -42,18 +36,23 @@ export default {
             };
 
             if (req.query.limit !== undefined) {
-                response.originalSize = await TransactionModel.count(filters.where);
+                response.originalSize = await TransactionModel.count({ where: filters.where });
             }
 
             return res.json(response);
         },
     ],
 
-    getCount: [
+    postAnalytics: [
         jwtAccessAuth,
-        async (_req: Request, res: Response) => {
-            const count = await TransactionModel.count();
-            res.json({ count });
+        async (req: Request, res: Response) => {
+            const result = ValidateUtil.validateRequestData(TransactionAnalyticsQuerySchema, req.body, res);
+            if (!result.success) return;
+
+            const query = TransactionService.parseTransactionAnalyticsQuery(result.data);
+            const response = await TransactionService.resolveAnalyticsFilter(query);
+
+            res.json(response);
         },
     ],
 

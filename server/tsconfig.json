@@ -2,14 +2,15 @@
     // Visit https://aka.ms/tsconfig to read more about this file
     "compilerOptions": {
         // File Layout
+        "rootDir": ".",
         "outDir": "./dist",
         // Environment Settings
         // See also https://aka.ms/tsconfig/module
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "target": "ESNext",
+        "target": "ES2023",
         "esModuleInterop": true,
-        "ignoreDeprecations": "5.0",
+        "ignoreDeprecations": "6.0",
         // For nodejs:
         "lib": [
             "esnext"
@@ -42,7 +43,10 @@
         "moduleDetection": "force",
         "skipLibCheck": true,
         "paths": {
-            "@qcpedropeso/shared/*": [
+            "@qcpesopedro/shared": [
+                "../shared"
+            ],
+            "@qcpesopedro/shared/*": [
                 "../shared/*"
             ]
         }

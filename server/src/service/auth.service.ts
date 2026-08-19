@@ -1,4 +1,4 @@
-import type { User } from "@qcpedropeso/shared/prisma/client";
+import type { User } from "@qcpesopedro/shared/prisma/client";
 import jwt from "jsonwebtoken";
 import env from "../config/env.config";
 import { type Response } from "express";

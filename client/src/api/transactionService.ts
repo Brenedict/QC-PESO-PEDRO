@@ -12,7 +12,6 @@ import {
     buildDayRangeParam,
     buildParamString,
     ensureOk,
-    extractQuery,
     extractQueryToObject,
     redirectWithQuery,
     validateForm,

@@ -1,13 +1,40 @@
-import type { Outcome, TransactionType } from "@qcpedropeso/shared/prisma/client";
+import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import TransactionModel from "../models/transaction.model";
-import type { TransactionCreateType, TransactionQueryType } from "@qcpedropeso/shared/schema/transactions";
+
+import type {
+    QueryBreakdownType,
+    QueryDateRangeType,
+    TransactionAnalyticsQueryType,
+    TransactionCreateType,
+    TransactionQueryType,
+} from "@qcpesopedro/shared/schema/transactions";
+
 import type {
     DateTimeFilter,
+    TransactionCountArgs,
     TransactionFindManyArgs,
+    TransactionGroupByArgs,
     TransactionOrderByWithRelationInput,
-} from "@qcpedropeso/shared/prisma/models";
-import type { Request } from "express";
-import QueryUtil from "../utils/query.util";
+    TransactionWhereInput,
+} from "@qcpesopedro/shared/prisma/models";
+
+import ValidateUtil from "../utils/validate.util";
+import type { TransactionScalarFieldEnum } from "@qcpesopedro/shared/zod/schemas";
+import prisma from "../config/prisma.config";
+import DateUtil from "../utils/date.util";
+import { groupByInterval, groupByIntervalWithColumn } from "@qcpesopedro/shared/prisma/sql";
+
+// -----------------------------  TYPES & INTERFACES -----------------------------------------------
+
+type ParsedAnalyticsQuery =
+    | (Omit<QueryDateRangeType, "groupBy"> & {
+          args: TransactionGroupByArgs | TransactionCountArgs;
+      })
+    | QueryBreakdownType;
+
+interface ParsedAnalyticsRequest {
+    queries: ParsedAnalyticsQuery[];
+}
 
 export interface TransactionFilters {
     transactionType?: TransactionType;
@@ -18,14 +45,16 @@ export interface TransactionFilters {
     search?: string;
 }
 
-export default {
-    getFormattedDate(date: Date) {
-        // 081326 = 08/13/26
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const yy = String(date.getFullYear()).slice(-2);
-        return `${mm}${yy}`;
-    },
+const breakdownMap = {
+    HOURLY: "hour",
+    DAILY: "day",
+    WEEKLY: "week",
+    MONTHLY: "month",
+    YEARLY: "year",
+} as const;
 
+// ----------------------------- PUBLIC FUNCTIONS --------------------------------------------------
+export default {
     extractIndexFromCode(txCode: string) {
         const separatedCodes = txCode.split("-");
         return parseInt(separatedCodes.at(-1) as string) + 1;
@@ -33,7 +62,7 @@ export default {
 
     // Append a `code` field to a transaction object
     async createTransactionCode(date: Date = new Date(), len: number = 1) {
-        const formattedDate = this.getFormattedDate(date);
+        const formattedDate = DateUtil.getFormattedDate(date);
 
         // Number of transactions for that specific day
         const ordered = await this.getTransactionsPerMonth(date, { txCode: "desc" });
@@ -53,7 +82,7 @@ export default {
         const buckets = new Map<string, TransactionCreateType[]>();
         for (const transaction of transactions) {
             const date = transaction.createdAt ?? new Date();
-            const key = this.getFormattedDate(date);
+            const key = DateUtil.getFormattedDate(date);
             buckets.set(key, [...(buckets.get(key) ?? []), transaction]); // Append yung previous na bucket
         }
 
@@ -108,9 +137,11 @@ export default {
         end.setHours(23, 59, 59, 999);
 
         return TransactionModel.count({
-            createdAt: {
-                gte: start,
-                lte: end,
+            where: {
+                createdAt: {
+                    gte: start,
+                    lte: end,
+                },
             },
         });
     },
@@ -163,4 +194,228 @@ export default {
             take: limit,
         };
     },
+
+    parseTransactionAnalyticsQuery(query?: TransactionAnalyticsQueryType): ParsedAnalyticsRequest | undefined {
+        if (!query) return undefined;
+
+        const { queries } = query;
+
+        return {
+            queries:
+                queries?.map((query) => {
+                    const startDate = query.startDate;
+                    const endDate = query.endDate;
+
+                    const where: TransactionWhereInput = {
+                        transactionType: query.filters?.type,
+                        transactionOutcome: query.filters?.outcome,
+                        demographics: query.filters?.demographics ? { has: query.filters.demographics } : undefined,
+                    };
+
+                    if (query.type === "BREAKDOWN") {
+                        return query;
+                    }
+
+                    return {
+                        id: query.id,
+                        type: query.type,
+                        includePrevious: !!query.includePrevious,
+                        startDate,
+                        endDate,
+                        args: {
+                            by: query.groupBy,
+                            _count: { _all: true },
+                            where: {
+                                ...where,
+                                createdAt:
+                                    startDate || endDate
+                                        ? {
+                                              ...(startDate && { gte: startDate }),
+                                              ...(endDate && { lt: endDate }),
+                                          }
+                                        : undefined,
+                            },
+                        },
+                    };
+                }) ?? [],
+        };
+    },
+    async resolveAnalyticsFilter(query?: ParsedAnalyticsRequest) {
+        // No request or queries, dapat may overall
+        if (!query || query.queries.length === 0) {
+            const count = await TransactionModel.count();
+            return { overall: { count } };
+        }
+
+        // If may queries, use their id
+        const response: Record<string, unknown> = {};
+        for (const analyticsQuery of query.queries) {
+            let result;
+            if (analyticsQuery.type === "DATE_RANGE") {
+                result = await resolveTransactionQuery(
+                    analyticsQuery.args,
+                    analyticsQuery.startDate,
+                    analyticsQuery.endDate,
+                    analyticsQuery.includePrevious
+                );
+            } else if (analyticsQuery.type === "BREAKDOWN") {
+                result = await resolveTransactionBreakdown(analyticsQuery);
+            }
+            response[analyticsQuery.id as string] = result;
+        }
+
+        return response;
+    },
 };
+
+// ----------------------------- PRIVATE FUNCTIONS --------------------------------------------------
+async function resolveTransactionQuery(
+    args: TransactionGroupByArgs | TransactionCountArgs,
+    startDate?: Date,
+    endDate?: Date,
+    includePrevious = false
+) {
+    const current = await resolveSingleTransactionQuery(args);
+
+    if (!includePrevious || !startDate || !endDate) {
+        return current;
+    }
+
+    const { startDate: previousStart, endDate: previousEnd } = DateUtil.getPreviousDateRange(startDate, endDate);
+
+    const previous = await resolveSingleTransactionQuery({
+        ...args,
+        where: {
+            ...args.where,
+            createdAt: {
+                gte: previousStart,
+                lt: previousEnd,
+            },
+        },
+    });
+
+    return {
+        current,
+        previous,
+    };
+}
+
+async function resolveSingleTransactionQuery(args: TransactionGroupByArgs | TransactionCountArgs) {
+    const isGroupByArgs = ValidateUtil.isGroupByArgs(args);
+
+    // return only count when we dont have groupBy
+    if (!isGroupByArgs) {
+        const count = await TransactionModel.count(args);
+        return { count };
+    }
+
+    const result = await TransactionModel.groupBy(args);
+    const grouped = await formatTransactionQueryByResult(result, args.by as TransactionScalarFieldEnum[]);
+    const count = Object.values(grouped).reduce((total, value) => total + value, 0);
+
+    return { count, grouped };
+}
+
+async function formatTransactionQueryByResult(
+    result: Awaited<ReturnType<typeof TransactionModel.groupBy>>,
+    groupBy: TransactionScalarFieldEnum[]
+) {
+    const response: Record<string, number> = {};
+
+    const lastKey = groupBy.at(-1);
+    result.forEach((data) => {
+        // format the data into
+        // {MALE: 21, FEMALE: 32 }
+        const valueKey = String(data[lastKey as keyof typeof data]);
+        const countObj = data._count as { _all?: number };
+        response[valueKey] = countObj?._all ?? 0;
+    });
+
+    return response;
+}
+
+async function resolveTransactionBreakdown(query: QueryBreakdownType) {
+    const filtersToStringQuery = (filters?: QueryBreakdownType["filters"]): [string, string, string] => {
+        return [String(filters?.type ?? ""), String(filters?.outcome ?? ""), String(filters?.demographics ?? "")];
+    };
+    const datePart = breakdownMap[query.breakdown];
+
+    let result: groupByInterval.Result[] | groupByIntervalWithColumn.Result[];
+
+    if (query.groupBy) {
+        result = await prisma.$queryRawTyped(
+            groupByIntervalWithColumn(
+                datePart,
+                query.groupBy,
+                query.startDate,
+                query.endDate,
+                ...filtersToStringQuery(query.filters)
+            )
+        );
+    } else {
+        result = await prisma.$queryRawTyped(
+            groupByInterval(datePart, query.startDate, query.endDate, ...filtersToStringQuery(query.filters))
+        );
+    }
+
+    return formatTransactionBreakdownResult(result, query.breakdown);
+}
+
+function formatTransactionBreakdownResult(
+    result: groupByInterval.Result[] | groupByIntervalWithColumn.Result[],
+    breakdown: QueryBreakdownType["breakdown"]
+) {
+    const formatBucket = (bucket: Date) => {
+        switch (breakdown) {
+            case "HOURLY":
+                return bucket.toISOString().slice(11, 13);
+
+            case "DAILY":
+                return bucket.toISOString().slice(0, 10);
+
+            case "WEEKLY":
+                return bucket.toISOString().slice(0, 10);
+
+            case "MONTHLY":
+                return bucket.toISOString().slice(0, 7);
+
+            case "YEARLY":
+                return bucket.toISOString().slice(0, 4);
+        }
+    };
+
+    // BREAKDOWN + groupBy
+    if (result[0] && "groupValue" in result[0]) {
+        const response: Record<string, Record<string, number>> = {};
+
+        for (const row of result) {
+            if (!row.bucket) continue;
+
+            const bucket = formatBucket(row.bucket);
+            const groupValue = (row as groupByIntervalWithColumn.Result).groupValue ?? "UNKNOWN";
+            const count = Number(row.count ?? 0);
+
+            if (!response[bucket]) {
+                response[bucket] = {};
+            }
+
+            response[bucket][groupValue] = count;
+        }
+
+        return response;
+    }
+
+    // BREAKDOWN only
+    const response: Record<string, number> = {};
+
+    for (const row of result) {
+        if (!row.bucket) continue;
+
+        const bucket = formatBucket(row.bucket);
+        const count = Number(row.count ?? 0);
+
+        response[bucket] = count;
+    }
+
+    return response;
+}
