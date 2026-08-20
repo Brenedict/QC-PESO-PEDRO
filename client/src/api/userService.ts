@@ -137,3 +137,40 @@ export const getUserById = async ({ params, request }: ActionFunctionArgs) => {
         return redirectWithQuery(request, ROUTES.userManagement.root);
     }
 };
+
+export const manageUserAction = async ({ params, request }: ActionFunctionArgs) => {
+    try {
+        const { userId } = params;
+        const decodedId = Number(decode(userId));
+        const formData = await request.formData();
+        const actionType = formData.get("manageAction");
+
+        if (actionType === "deactivate") {
+            const res = await apiJson(`/user/${decodedId}`, {
+                method: "PATCH",
+                body: JSON.stringify({ status: "DISABLED" }),
+            });
+
+            await ensureOk(res, "Failed to deactivate user");
+        } else if (actionType === "reactivate") {
+            const res = await apiJson(`/user/${decodedId}`, {
+                method: "PATCH",
+                body: JSON.stringify({ status: "LOGGED_OUT" }),
+            });
+            await ensureOk(res, "Failed to reactivate user");
+        } else if (actionType === "delete") {
+            const res = await apiJson(`/user/${decodedId}`, {
+                method: "DELETE",
+            });
+
+            await ensureOk(res, "Failed to delete user");
+        }
+
+        // Returns to root directory and queries
+        return redirectWithQuery(request, ROUTES.userManagement.root);
+    } catch (err) {
+        console.error(err);
+
+        return redirectWithQuery(request, ROUTES.userManagement.root);
+    }
+};

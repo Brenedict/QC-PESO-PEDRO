@@ -153,13 +153,13 @@ export function PopupAddUser() {
 }
 
 export function PopupEditUser() {
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
     const navigate = useNavigateDefault();
 
     const user = useLoaderData() as User;
     if (!user) return null;
 
-    // Form Validation
-    const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
@@ -185,34 +185,82 @@ export function PopupEditUser() {
     );
 }
 
-export function PopupDisableUser() {
+export function PopupManageUser() {
     const navigate = useNavigateDefault();
-
     const user = useLoaderData() as User;
+
+    // Check if the user is already disabled
+    const isCurrentlyDisabled = user?.status === "DISABLED";
+
+    // Set the default selection that is based on their current status
+    const [actionType, setActionType] = useState<"deactivate" | "reactivate" | "delete">(
+        isCurrentlyDisabled ? "reactivate" : "deactivate"
+    );
+
     if (!user) return null;
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
+            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
+                <Text weight="bold">Manage Account</Text>
+            </Dialog.Header>
             <Dialog.Body className="p-6!">
-                <Form method="post" id="userFormViewDisable" className="flex flex-col h-fit gap-6">
-                    <GeneralInput hidden={true} name="status" type="text" value={"DISABLED"}></GeneralInput>
+                <Form method="post" id="userFormManage" className="flex flex-col h-fit gap-4">
+                    <input type="hidden" name="manageAction" value={actionType} />
+
+                    <Text variant="dark-blue" weight="bold" size="normal">
+                        {`${user.firstName} ${user.lastName}`}
+                    </Text>
+
+                    <div className="flex flex-col gap-3 mt-2">
+                        {isCurrentlyDisabled ? (
+                            <div onClick={() => setActionType("reactivate")}>
+                                <PopupRadio value="reactivate" defaultChecked={true}>
+                                    <div className="flex flex-col text-left pl-1">
+                                        <span className="font-bold text-green-600">Reactivate account</span>
+                                        <span className="text-description text-grayish-blue mt-1">
+                                            This will restore the user's access. The user will be marked as{" "}
+                                            <span className="font-bold">ACTIVE</span> and can log into the system again.
+                                        </span>
+                                    </div>
+                                </PopupRadio>
+                            </div>
+                        ) : (
+                            <div onClick={() => setActionType("deactivate")}>
+                                <PopupRadio value="deactivate" defaultChecked={true}>
+                                    <div className="flex flex-col text-left pl-1">
+                                        <span className="font-bold text-black">Deactivate account</span>
+                                        <span className="text-description text-grayish-blue mt-1">
+                                            Deactivating this account is temporary. The user will be marked as{" "}
+                                            <span className="font-bold">DISABLED</span> and will be unable to log into
+                                            the system.
+                                        </span>
+                                    </div>
+                                </PopupRadio>
+                            </div>
+                        )}
+
+                        {/* Delete Option */}
+                        <div onClick={() => setActionType("delete")}>
+                            <PopupRadio value="delete" defaultChecked={false}>
+                                <div className="flex flex-col text-left pl-1">
+                                    <span className="font-bold text-red-500">Delete account</span>
+                                    <span className="text-description text-grayish-blue mt-1">
+                                        Deleting this account is permanent. All associated data will be removed from the
+                                        database and cannot be retrieved.
+                                    </span>
+                                </div>
+                            </PopupRadio>
+                        </div>
+                    </div>
                 </Form>
-                <section className="flex flex-col justify-center max-w-md">
-                    <PopupIcon icon={PersonOffOutlinedIcon} />
-                    <PopupHeader>Deactivate Account?</PopupHeader>
-                    <PopupDescription>
-                        Are you sure you want to deactivate{" "}
-                        <span className="font-bold text-black">{`${user.firstName} ${user.lastName}`}</span>?
-                    </PopupDescription>
-                    <PopupNotice>This user will no longer be able to log into the system.</PopupNotice>
-                </section>
             </Dialog.Body>
-            <Dialog.Footer className="flex gap-3 justify-end">
+            <Dialog.Footer className="flex gap-3 justify-end mt-4">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="red" form="userFormViewDisable" type="submit">
-                    Confirm
+                <PopupButton variant={actionType === "delete" ? "red" : "blue"} form="userFormManage" type="submit">
+                    Continue
                 </PopupButton>
             </Dialog.Footer>
         </Dialog>
@@ -293,16 +341,18 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
 
 function PopupRadio({
     value,
+    name = "radioGroup",
     defaultChecked = false,
     children,
 }: {
     value: string;
+    name?: string;
     defaultChecked?: boolean;
     children: ReactNode;
 }) {
     return (
-        <div className="border border-off-white-border bg-off-white p-3 rounded-xl">
-            <ChoiceItem inputVariant="radio" name="resetType" value={value} defaultChecked={defaultChecked}>
+        <div className="border border-off-white-border bg-off-white p-3 rounded-xl cursor-pointer hover:bg-[#F3FAFC] transition-colors">
+            <ChoiceItem inputVariant="radio" name={name} value={value} defaultChecked={defaultChecked}>
                 {children}
             </ChoiceItem>
         </div>
