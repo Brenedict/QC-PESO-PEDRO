@@ -164,7 +164,7 @@ function PaginationSection({ pageNumbers, paginationText, windowSize = 5 }: Pagi
 }
 
 interface TableProps extends TableContextValue {
-    items: number;
+    items?: number;
     children: ReactNode;
 }
 

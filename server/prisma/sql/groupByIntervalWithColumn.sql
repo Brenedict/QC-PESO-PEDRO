@@ -1,5 +1,5 @@
 SELECT
-    DATE_TRUNC($1, "createdAt") AS bucket,
+    DATE_TRUNC($1, "createdAt" AT TIME ZONE 'Asia/Manila') AS bucket,
     CASE $2
         WHEN 'applicantFullName' THEN "applicantFullName"::text
         WHEN 'applicantSex' THEN "applicantSex"::text

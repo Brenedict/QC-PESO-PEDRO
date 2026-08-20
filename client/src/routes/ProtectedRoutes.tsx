@@ -41,7 +41,12 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 // Helper function
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { ROUTES } from "../hooks/reroute";
-import { createTransaction, getOverviewAnalytics, getTransactions } from "../api/transactionService";
+import {
+    createTransaction,
+    getDetailsAnalytics,
+    getOverviewAnalytics,
+    getTransactions,
+} from "../api/transactionService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -69,88 +74,93 @@ export const protectedRoutes: RouteObject[] = [
                         children: [
                             {
                                 path: "total",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Total Transactions"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics(),
                             },
                             {
                                 path: "walk-in",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Walk-in Transactions"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ type: "WALK_IN_REFERRAL" }),
                             },
                             {
                                 path: "online",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Online Referrals"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ type: "ONLINE_REFERRAL" }),
                             },
                             {
                                 path: "in-house",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="In-house Referrals"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ type: "IN_HOUSE_RECRUITMENT" }),
                             },
                             {
                                 path: "work-immersion",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Work Immersion"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "WORK_IMMERSION_INTERNSHIP" }),
                             },
                             {
-                                path: "internship",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Internship Referrals"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                path: "job-seeker",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "FIRST_TIME_JOB_SEEKER" }),
                             },
                             {
-                                path: "inquiries",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Other Inquiries"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                path: "pwd",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "PERSONS_WITH_DISABILITY" }),
                             },
+                            {
+                                path: "senior",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "SENIOR_CITIZEN" }),
+                            },
+                            {
+                                path: "young-worker",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "YOUNG_WORKER" }),
+                            },
+                            {
+                                path: "success",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "SUCCESS" }),
+                            },
+                            {
+                                path: "pending",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "PENDING" }),
+                            },
+                            {
+                                path: "mismatch",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "MISMATCH" }),
+                            },
+                            {
+                                path: "none",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "NONE" }),
+                            },
+                            // {
+                            //     path: "internship",
+                            //     element: (
+                            //         <PopupTransactionDetails
+                            //             label="Internship Referrals"
+                            //             today={48}
+                            //             thisWeek={215}
+                            //             thisMonth={840}
+                            //             history={shiftRecords}
+                            //         />
+                            //     ),
+                            // },
+                            // {
+                            //     path: "inquiries",
+                            //     element: (
+                            //         <PopupTransactionDetails
+                            //             label="Other Inquiries"
+                            //             today={48}
+                            //             thisWeek={215}
+                            //             thisMonth={840}
+                            //             history={shiftRecords}
+                            //         />
+                            //     ),
+                            // },
                             ...shiftPopups(ROUTES.dashboard.root),
                         ],
                     },

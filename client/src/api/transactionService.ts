@@ -4,6 +4,7 @@ import {
     TransactionFormCreateSchema,
     TransactionFormDeleteSchema,
     TransactionFormUpdateSchema,
+    type TransactionAnalyticsFilterType,
 } from "@qcpesopedro/shared/schema/transactions";
 import { decode } from "../utils/hashids";
 import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
@@ -16,7 +17,7 @@ import {
     redirectWithQuery,
     validateForm,
 } from "./actionService";
-import { DASHBOARD_OVERVIEW_REQUEST } from "./analyticsRequests";
+import { DASHBOARD_DETAILS_REQUEST, DASHBOARD_OVERVIEW_REQUEST } from "./analyticsRequests";
 
 // GET: Fetches all transactions
 export const getTransactions =
@@ -58,9 +59,30 @@ export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
         console.error(err);
 
         // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.dashboard.root);
+        return redirectWithQuery(request, ROUTES.profile.root);
     }
 };
+
+// POST: Fetches analytics details
+export const getDetailsAnalytics =
+    (filter?: TransactionAnalyticsFilterType) =>
+    async ({ request }: ActionFunctionArgs) => {
+        try {
+            // Main Fetch Request
+            const res = await apiJson("/transaction/analytics", {
+                method: "POST",
+                body: JSON.stringify(DASHBOARD_DETAILS_REQUEST(filter)),
+            });
+
+            await ensureOk(res, "Failed to query analytic details");
+            return res.json();
+        } catch (err) {
+            console.error(err);
+
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.profile.root);
+        }
+    };
 
 // GET: Transaction id specific fetch
 export const getTransactionById = async ({ params, request }: ActionFunctionArgs) => {

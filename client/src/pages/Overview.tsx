@@ -20,7 +20,6 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 // Test Data
-import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/chartsConfigs";
 import { recentActivity } from "../data/recentActivity";
 
 // Hooks
@@ -29,19 +28,24 @@ import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 // Context
 import { useTopBar } from "../context/TopbarContext.tsx";
 import {
-    buildLineWeekData,
-    buildSexChartWeekData,
     CARD_MAP,
     DASHBOARD_OVERVIEW_REQUEST,
     getQueryIds,
-    type MetricData,
+    type AnalyticsData,
+    type DateRangeData,
 } from "../api/analyticsRequests.ts";
+import {
+    buildCategoryChartData,
+    buildTimeSeriesChartData,
+    type CategorySeriesConfig,
+    type TimeSeriesConfig,
+} from "../api/chartService.ts";
 
 type CardId = keyof typeof CARD_MAP;
 
 interface CardGroupProps {
     ids?: CardId[];
-    data: Record<CardId, MetricData | undefined>;
+    data: AnalyticsData;
 }
 
 function OverviewSection({ children }: { children: ReactNode }) {
@@ -59,19 +63,24 @@ function CardGroup({ ids = [], data }: CardGroupProps) {
         <>
             <hr className="mt-2 border-0 bg-off-white-border h-0.5" />
             <section className={`grid ${columnClass[cardCol - 1]} gap-6 mt-4`}>
-                {ids.map((id) => (
-                    <StatsCard
-                        key={id}
-                        className="w-full"
-                        title={CARD_MAP?.[id].title}
-                        specialIcon={CARD_MAP?.[id].specialIcon}
-                        total={data?.[id]?.current?.count ?? 0}
-                        male={data?.[id]?.current?.grouped?.MALE ?? 0}
-                        female={data?.[id]?.current?.grouped?.FEMALE ?? 0}
-                        previous={data?.[id]?.previous?.count ?? 0}
-                        onClick={() => navigate(ROUTES.dashboard.preview(id))}
-                    />
-                ))}
+                {ids.map((id) => {
+                    const dataValue = data?.[id] as DateRangeData | undefined;
+                    if (typeof dataValue?.current?.grouped === "number") return null;
+
+                    return (
+                        <StatsCard
+                            key={id}
+                            className="w-full"
+                            title={CARD_MAP?.[id].title}
+                            specialIcon={CARD_MAP?.[id].specialIcon}
+                            total={dataValue?.current?.count ?? 0}
+                            male={dataValue?.current?.grouped?.MALE ?? 0}
+                            female={dataValue?.current?.grouped?.FEMALE ?? 0}
+                            previous={dataValue?.previous?.count ?? 0}
+                            onClick={() => navigate(ROUTES.dashboard.preview(id))}
+                        />
+                    );
+                })}
             </section>
         </>
     );
@@ -174,10 +183,21 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 // Main Overview Component
 export function Overview({ pending, approved, revision }: EndShiftProps) {
     const { role } = useTopBar();
-    const data = useLoaderData();
+    const data = useLoaderData() as AnalyticsData;
 
-    const weekly = buildLineWeekData(data);
-    const sex = buildSexChartWeekData(data);
+    const referralSeries: TimeSeriesConfig[] = [
+        { key: "WALK_IN_REFERRAL", label: "Walk-ins", color: "light-blue", opaqueColor: "light-blue-opaque" },
+        { key: "ONLINE_REFERRAL", label: "Online Referral", color: "primary-blue", opaqueColor: "primary-blue-opaque" },
+        { key: "IN_HOUSE_RECRUITMENT", label: "Inhouse Referral", color: "red", opaqueColor: "red-opaque" },
+    ];
+
+    const sexSeries: CategorySeriesConfig[] = [
+        { key: "MALE", label: "Male", color: "light-blue", opaqueColor: "light-blue-opaque" },
+        { key: "FEMALE", label: "Female", color: "pink", opaqueColor: "pink-opaque" },
+    ];
+
+    const daily = buildTimeSeriesChartData(data, referralSeries, "weekly-breakdown", "daily");
+    const sex = buildCategoryChartData(data, sexSeries, "sex");
 
     return (
         <>
@@ -232,7 +252,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Weekly Transaction Volume</Text>
                         </Card.Header>
                         <Card.Body>
-                            <LineChart options={weekly.options} data={weekly.data} height={"100px"}></LineChart>
+                            <LineChart options={daily.options} data={daily.data} height={"100px"}></LineChart>
                         </Card.Body>
                     </Card>
                     <Card className="col-span-1">

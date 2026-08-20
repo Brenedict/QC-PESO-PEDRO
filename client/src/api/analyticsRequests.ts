@@ -2,13 +2,19 @@ import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlin
 import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
 import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 
-import type { TransactionAnalyticsQueryInput } from "@qcpesopedro/shared/schema/transactions";
-import { buildDayRangeParam, buildWeekRangeParam } from "./actionService";
+import type {
+    TransactionAnalyticsFilterType,
+    TransactionAnalyticsQueryInput,
+} from "@qcpesopedro/shared/schema/transactions";
+import { buildDayRangeParam, buildMonthRangeParam, buildWeekRangeParam } from "./actionService";
 import type { MaterialIcon } from "../types/common";
-import { sampleLineData } from "../data/chartsConfigs";
-import { ChartColorClasses } from "../types/charts";
 
-export interface MetricData {
+export interface DateRangeData {
+    count?: number;
+    grouped?: {
+        MALE?: number;
+        FEMALE?: number;
+    };
     current?: {
         count?: number;
         grouped?: {
@@ -20,11 +26,13 @@ export interface MetricData {
         count?: number;
     };
 }
+export type BreakdownData = Record<string, number> | Record<string, Record<string, number>>;
+export type AnalyticsData = Record<string, DateRangeData | BreakdownData>;
 
-type BreakdownData = Record<string, Record<string, Record<string, number>>>;
-
-const TODAY_PARAM = buildDayRangeParam(new Date());
+// 8 AM to 5 PM
+const TODAY_PARAM = buildDayRangeParam(new Date(), 8, 17);
 const WEEK_PARAM = buildWeekRangeParam(new Date());
+const MONTH_PARAM = buildMonthRangeParam(new Date());
 
 export const CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
     total: { title: "Total Transaction" },
@@ -48,7 +56,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             type: "DATE_RANGE",
             id: "total",
             includePrevious: true,
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             ...TODAY_PARAM,
         },
         {
@@ -57,7 +65,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 type: "WALK_IN_REFERRAL",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -67,7 +75,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 type: "ONLINE_REFERRAL",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -77,7 +85,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 type: "IN_HOUSE_RECRUITMENT",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             ...TODAY_PARAM,
             includePrevious: true,
         },
@@ -87,7 +95,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 demographics: "WORK_IMMERSION_INTERNSHIP",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -97,7 +105,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 demographics: "FIRST_TIME_JOB_SEEKER",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -107,7 +115,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 demographics: "PERSONS_WITH_DISABILITY",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -117,7 +125,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 demographics: "SENIOR_CITIZEN",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -127,7 +135,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 demographics: "YOUNG_WORKER",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -137,7 +145,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 outcome: "SUCCESS",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -147,7 +155,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 outcome: "PENDING",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -157,7 +165,7 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 outcome: "MISMATCH",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
@@ -167,100 +175,82 @@ export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
             filters: {
                 outcome: "NONE",
             },
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             includePrevious: true,
             ...TODAY_PARAM,
         },
         {
             type: "BREAKDOWN",
-            id: "weekly",
+            id: "weekly-breakdown",
             breakdown: "DAILY",
             groupBy: "transactionType",
             ...WEEK_PARAM,
         },
         {
             type: "DATE_RANGE",
-            groupBy: ["applicantSex"],
+            groupBy: "applicantSex",
             id: "sex",
             ...WEEK_PARAM,
         },
     ],
 } as const;
 
+export const DASHBOARD_DETAILS_REQUEST = (
+    filters?: TransactionAnalyticsFilterType
+): TransactionAnalyticsQueryInput => ({
+    queries: [
+        {
+            type: "DATE_RANGE",
+            id: "today",
+            filters,
+            ...TODAY_PARAM,
+        },
+        {
+            type: "DATE_RANGE",
+            id: "week",
+            filters,
+            ...WEEK_PARAM,
+        },
+        {
+            type: "DATE_RANGE",
+            id: "month",
+            filters,
+            ...MONTH_PARAM,
+        },
+        {
+            type: "BREAKDOWN",
+            id: "hourly",
+            filters,
+            breakdown: "HOURLY",
+            ...TODAY_PARAM,
+        },
+        {
+            type: "DATE_RANGE",
+            id: "sex",
+            filters,
+            groupBy: "applicantSex",
+            ...TODAY_PARAM,
+        },
+        {
+            type: "DATE_RANGE",
+            id: "staff",
+            filters,
+            groupBy: "userId",
+            ...TODAY_PARAM,
+        },
+    ],
+});
+
 export const getQueryIds = (query: TransactionAnalyticsQueryInput, start?: number, end?: number) => {
     return query?.queries?.map((q) => q.id).slice(start, end);
 };
 
-export const buildLineWeekData = (rawData: BreakdownData) => {
-    const rawDates = Object.keys(rawData.weekly); // ["2026-08-16", "2026-08-17", ...]
-
-    const labels = rawDates.map((dateStr) => {
-        const date = new Date(`${dateStr}T00:00:00`);
-
-        // ["Sunday", "Monday", "Tuesday", "Wednesday"]
-        return new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(date);
-    });
-
-    const inHouseData = rawDates.map((date) => rawData.weekly[date].IN_HOUSE_RECRUITMENT);
-    const onlineData = rawDates.map((date) => rawData.weekly[date].ONLINE_REFERRAL);
-    const walkInData = rawDates.map((date) => rawData.weekly[date].WALK_IN_REFERRAL);
-
-    return {
-        labels: labels,
-        datasets: [
-            {
-                label: "Walk-ins",
-                data: walkInData,
-                borderColor: ChartColorClasses["light-blue"],
-                backgroundColor: ChartColorClasses["light-blue"],
-                tension: 0.4,
-                fill: {
-                    target: "origin",
-                    above: ChartColorClasses["light-blue-opaque"],
-                },
-            },
-            {
-                label: "Online Referral",
-                data: onlineData,
-                borderColor: ChartColorClasses["primary-blue"],
-                backgroundColor: ChartColorClasses["primary-blue"],
-                tension: 0.4,
-                fill: {
-                    target: "origin",
-                    above: ChartColorClasses["primary-blue-opaque"],
-                },
-            },
-            {
-                label: "Inhouse Referral",
-                data: inHouseData,
-                borderColor: ChartColorClasses["red"],
-                backgroundColor: ChartColorClasses["red"],
-                tension: 0.4,
-                fill: {
-                    target: "origin",
-                    above: ChartColorClasses["red-opaque"],
-                },
-            },
-        ],
-    };
-};
-
-export const buildSexChartWeekData = (rawData: BreakdownData) => {
-    const femaleValue = rawData?.sex?.grouped?.FEMALE ?? 0;
-    const maleValue = rawData?.sex?.grouped?.MALE ?? 0;
-
-    return {
-        labels: ["Female", "Male"],
-        datasets: [
-            {
-                label: "# of Transactions",
-                data: [femaleValue, maleValue],
-                backgroundColor: [ChartColorClasses["pink-opaque"], ChartColorClasses["light-blue-opaque"]],
-                borderColor: [ChartColorClasses["pink"], ChartColorClasses["light-blue"]],
-            },
-        ],
-    };
+export const extractGroupedFromData = (data: AnalyticsData, sourceKey: string) => {
+    const keyData = data?.[sourceKey] as DateRangeData | undefined;
+    return Object.entries(keyData?.grouped ?? {});
 };
 
 // Testing for postman
-console.log(JSON.stringify(DASHBOARD_OVERVIEW_REQUEST));
+console.log("====== OVERVIEW ========\n", JSON.stringify(DASHBOARD_OVERVIEW_REQUEST));
+console.log();
+console.log("====== DETAILS ========\n", JSON.stringify(DASHBOARD_DETAILS_REQUEST()));

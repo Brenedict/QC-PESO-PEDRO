@@ -1,4 +1,4 @@
-SELECT DATE_TRUNC($1, "createdAt") AS bucket,
+SELECT DATE_TRUNC($1, "createdAt" AT TIME ZONE 'Asia/Manila') AS bucket,
     COUNT(*) AS count
 FROM "Transaction"
 WHERE "createdAt" >= $2 AND "createdAt" < $3

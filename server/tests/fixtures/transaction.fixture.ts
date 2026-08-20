@@ -96,7 +96,7 @@ export const buildMockTransactions = (
 };
 
 type Breakdown = "HOURLY" | "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
-type GroupByTypes = "applicantSex" | "transactionType" | "transactionOutcome" | "demographics" | "applicantFullName";
+type GroupByTypes = "applicantSex" | "transactionType" | "transactionOutcome" | "demographics" | "userId";
 
 const getBreakdownBucket = (date: Date, breakdown: Breakdown): string => {
     switch (breakdown) {

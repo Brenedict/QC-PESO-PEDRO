@@ -1,5 +1,6 @@
 import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import TransactionModel from "../models/transaction.model";
+import UserModel from "../models/user.model";
 
 import type {
     QueryBreakdownType,
@@ -229,7 +230,7 @@ export default {
                         startDate,
                         endDate,
                         args: {
-                            by: query.groupBy,
+                            by: query.groupBy ? [query.groupBy] : undefined,
                             _count: { _all: true },
                             where: {
                                 ...where,
@@ -316,7 +317,7 @@ async function resolveSingleTransactionQuery(args: TransactionGroupByArgs | Tran
     }
 
     const result = await TransactionModel.groupBy(args);
-    const grouped = await formatTransactionQueryByResult(result, args.by as TransactionScalarFieldEnum[]);
+    const grouped = await formatTransactionQueryByResult(result, args.by[0] as TransactionScalarFieldEnum);
     const count = Object.values(grouped).reduce((total, value) => total + value, 0);
 
     return { count, grouped };
@@ -324,20 +325,45 @@ async function resolveSingleTransactionQuery(args: TransactionGroupByArgs | Tran
 
 async function formatTransactionQueryByResult(
     result: Awaited<ReturnType<typeof TransactionModel.groupBy>>,
-    groupBy: TransactionScalarFieldEnum[]
+    groupBy: TransactionScalarFieldEnum
 ) {
     const response: Record<string, number> = {};
 
-    const lastKey = groupBy.at(-1);
     result.forEach((data) => {
         // format the data into
         // {MALE: 21, FEMALE: 32 }
-        const valueKey = String(data[lastKey as keyof typeof data]);
+        const valueKey = String(data[groupBy]);
         const countObj = data._count as { _all?: number };
         response[valueKey] = countObj?._all ?? 0;
     });
 
+    if (groupBy === "userId") {
+        return remapUserIdsToNames(response);
+    }
+
     return response;
+}
+
+async function remapUserIdsToNames(response: Record<string, number>) {
+    const userIds = Object.keys(response)
+        .map((id) => Number(id))
+        .filter((id) => !Number.isNaN(id));
+
+    const users = await UserModel.getUsers({
+        where: { id: { in: userIds } },
+        select: { id: true, firstName: true, lastName: true },
+    });
+
+    if (!users) return response;
+
+    const idToName = new Map(users.map((u) => [String(u.id), `${u.firstName} ${u.lastName}`]));
+
+    const remapped: Record<string, number> = {};
+    for (const [id, count] of Object.entries(response)) {
+        const name = idToName.get(id) ?? `Unknown (${id})`;
+        remapped[name] = (remapped[name] ?? 0) + count; // handles collisions if two ids somehow map to same name
+    }
+    return remapped;
 }
 
 async function resolveTransactionBreakdown(query: QueryBreakdownType) {
@@ -372,21 +398,17 @@ function formatTransactionBreakdownResult(
     breakdown: QueryBreakdownType["breakdown"]
 ) {
     const formatBucket = (bucket: Date) => {
+        const { year, month, day, hour } = DateUtil.getTimezoneParts(bucket);
         switch (breakdown) {
             case "HOURLY":
-                return bucket.toISOString().slice(11, 13);
-
+                return hour;
             case "DAILY":
-                return bucket.toISOString().slice(0, 10);
-
             case "WEEKLY":
-                return bucket.toISOString().slice(0, 10);
-
+                return `${year}-${month}-${day}`;
             case "MONTHLY":
-                return bucket.toISOString().slice(0, 7);
-
+                return `${year}-${month}`;
             case "YEARLY":
-                return bucket.toISOString().slice(0, 4);
+                return `${year}`;
         }
     };
 
@@ -398,6 +420,9 @@ function formatTransactionBreakdownResult(
             if (!row.bucket) continue;
 
             const bucket = formatBucket(row.bucket);
+
+            if (!bucket) continue;
+
             const groupValue = (row as groupByIntervalWithColumn.Result).groupValue ?? "UNKNOWN";
             const count = Number(row.count ?? 0);
 

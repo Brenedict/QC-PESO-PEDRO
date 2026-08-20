@@ -51,14 +51,18 @@ describe("Transaction Route", () => {
     describe("GET /transaction", () => {
         it("returns all transactions", async () => {
             const res = await request(app).get("/transaction").expect(200);
-
             const transactions = res.body.transactions;
+
             expect(res.body).not.toHaveProperty("originalSize");
             expect(res.body).toHaveProperty("responseSize", transactions.length);
 
+            const expectedOrder = [...mockedTransactions].sort(
+                (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+            );
+
             transactions.forEach((transaction: Transaction, i: number) =>
                 expect(transaction).toMatchObject({
-                    ...transformMockedDate(mockedTransactions[i]),
+                    ...transformMockedDate(expectedOrder[i]),
                     txCode: expect.stringMatching(/^TX-\d+-\d+$/),
                 })
             );
@@ -285,7 +289,7 @@ describe("Transaction Route", () => {
                         {
                             type: "DATE_RANGE",
                             id: "overallBySex",
-                            groupBy: ["applicantSex"],
+                            groupBy: "applicantSex",
                         },
                     ],
                 };
@@ -317,12 +321,12 @@ describe("Transaction Route", () => {
                         {
                             type: "DATE_RANGE",
                             id: "bySex",
-                            groupBy: ["applicantSex"],
+                            groupBy: "applicantSex",
                         },
                         {
                             type: "DATE_RANGE",
                             id: "byType",
-                            groupBy: ["transactionType"],
+                            groupBy: "transactionType",
                         },
                     ],
                 };
@@ -354,7 +358,7 @@ describe("Transaction Route", () => {
                             id: "dailyBySex",
                             startDate,
                             endDate,
-                            groupBy: ["applicantSex"],
+                            groupBy: "applicantSex",
                             includePrevious: true,
                         },
                     ],
@@ -440,39 +444,33 @@ describe("Transaction Route", () => {
                 }
             );
 
-            it("returns query result grouped by applicant full name", async () => {
-                const startDate = "2026-08-01T00:00:00.000Z";
-                const endDate = "2026-08-31T23:59:59.999Z";
-
+            it("returns query result grouped by user name", async () => {
                 const payload: TransactionAnalyticsQueryInput = {
                     queries: [
                         {
-                            type: "BREAKDOWN",
-                            id: "byFullName",
-                            breakdown: "DAILY",
-                            groupBy: "applicantFullName",
-                            startDate,
-                            endDate,
+                            type: "DATE_RANGE",
+                            id: "byUser",
+                            groupBy: "userId",
                         },
                     ],
                 };
 
                 const res = await request(app).post("/transaction/analytics").send(payload).expect(200);
 
-                const expected = getExpectedGroupedBreakdown(
-                    mockedTransactions,
-                    "DAILY",
-                    "applicantFullName",
-                    startDate,
-                    endDate
-                );
+                const expectedName = `${mockedUser.firstName} ${mockedUser.lastName}`;
+                const expected = {
+                    [expectedName]: mockedTransactions.length,
+                };
+
                 expect(res.body).toEqual({
-                    byFullName: expected,
+                    byUser: {
+                        count: mockedTransactions.length,
+                        grouped: expected,
+                    },
                 });
 
                 expect(res.body).not.toHaveProperty("overall");
             });
-
             it("returns daily breakdown grouped by applicant sex", async () => {
                 const startDate = "2026-08-01T00:00:00.000Z";
                 const endDate = "2026-08-31T23:59:59.999Z";
@@ -577,7 +575,7 @@ describe("Transaction Route", () => {
                         {
                             type: "DATE_RANGE",
                             id: "successfulBySex",
-                            groupBy: ["applicantSex"],
+                            groupBy: "applicantSex",
                             filters: {
                                 outcome: "SUCCESS",
                             },
