@@ -17,8 +17,17 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-type ScatterChartProps = ComponentProps<typeof Scatter>;
+type ScatterChartProps = ComponentProps<typeof Scatter> & { wrapperClassName?: string };
 
-export function ScatterChart({ options, data, ...props }: ScatterChartProps) {
-    return <Scatter options={options} data={data} {...props} />;
+export function ScatterChart({ options, data, wrapperClassName = "relative w-full h-full min-h-[250px]", ...props }: ScatterChartProps) {
+    const responsiveOptions = {
+        ...(options as object),
+        maintainAspectRatio: false,
+    };
+
+    return (
+        <div className={wrapperClassName}>
+            <Scatter options={options} data={data} {...props} />
+        </div>
+    );
 }

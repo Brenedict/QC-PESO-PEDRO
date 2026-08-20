@@ -17,8 +17,17 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-type LineChartProps = ComponentProps<typeof Line>;
+type LineChartProps = ComponentProps<typeof Line> & { wrapperClassName?: string };
 
-export function LineChart({ options, data, ...props }: LineChartProps) {
-    return <Line options={options} data={data} {...props} />;
+export function LineChart({ options, data, wrapperClassName = "relative w-full h-full min-h-[250px]", ...props}: LineChartProps) {
+    const responsiveOptions = {
+        ...(options as object),
+        maintainAspectRatio: false,
+    };
+
+    return (
+        <div className={wrapperClassName}>
+            <Line options={responsiveOptions} data={data} {...props} />
+        </div>
+    );
 }

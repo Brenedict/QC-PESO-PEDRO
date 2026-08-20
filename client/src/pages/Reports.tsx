@@ -103,7 +103,7 @@ function Reports() {
                         <BarChart
                             options={sampleReportsBarOptions}
                             data={sampleReportsBarData}
-                            height={"80px"}
+                            wrapperClassName="relative w-full h-[400px]"
                         ></BarChart>
                     </Card.Body>
                 </Card>
