@@ -18,16 +18,16 @@ const dateRangeFields = {
 };
 
 const withDateRange = <S extends z.ZodObject<any>>(schema: S) =>
-    schema
-        .refine(({ startDate, endDate }) => !startDate || !endDate || startDate <= endDate, {
-            message: "Start date cannot be after end date",
-            path: ["endDate"],
-        })
-        .transform(({ startDate, endDate, ...rest }) => {
-            if (startDate !== undefined) (startDate as Date).setHours(0, 0, 0, 0);
-            if (endDate !== undefined) (endDate as Date).setHours(23, 59, 59, 999);
-            return Object.assign(rest, { startDate, endDate }) as z.infer<S>;
-        });
+    schema.refine(({ startDate, endDate }) => !startDate || !endDate || startDate <= endDate, {
+        message: "Start date cannot be after end date",
+        path: ["endDate"],
+    });
+
+// .transform(({ startDate, endDate, ...rest }) => {
+//     if (startDate !== undefined) (startDate as Date).setHours(0, 0, 0, 0);
+//     if (endDate !== undefined) (endDate as Date).setHours(23, 59, 59, 999);
+//     return Object.assign(rest, { startDate, endDate }) as z.infer<S>;
+// });
 
 const FilterSchema = z
     .object({
@@ -128,3 +128,4 @@ export type TransactionAnalyticsQueryType = z.infer<typeof TransactionAnalyticsQ
 export type TransactionAnalyticsQueryInput = z.input<typeof TransactionAnalyticsQuerySchema>;
 export type QueryDateRangeType = z.infer<typeof QueryDateRangeSchema>;
 export type QueryBreakdownType = z.infer<typeof QueryBreakdownSchema>;
+export type TransactionAnalyticsFilterType = z.infer<typeof FilterSchema>;

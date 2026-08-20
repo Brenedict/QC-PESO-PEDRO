@@ -69,8 +69,18 @@ export function validateForm<T extends z.ZodType>(
     return result.data;
 }
 
-export function buildDayRangeParam(date: Date) {
-    return { startDate: date.toISOString(), endDate: date.toISOString() };
+// Philippines is in UTC +8
+const PH_OFFSET = 8;
+
+export function buildDayRangeParam(date: Date, startHour = 0, endHour = 23) {
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+
+    const startDate = new Date(Date.UTC(year, month, day, startHour - PH_OFFSET, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, month, day, endHour - PH_OFFSET, 59, 59, 999));
+
+    return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
 }
 
 export function buildWeekRangeParam(date: Date) {
@@ -78,15 +88,22 @@ export function buildWeekRangeParam(date: Date) {
     const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
 
     const monday = new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + distanceToMonday, 0, 0, 0, 0)
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + distanceToMonday, -PH_OFFSET, 0, 0, 0)
     );
 
     const friday = new Date(
-        Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate() + 4, 23, 59, 59, 999)
+        Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate() + 4, 23 - PH_OFFSET, 59, 59, 999)
     );
 
     return { startDate: monday.toISOString(), endDate: friday.toISOString() };
 }
+
+export function buildMonthRangeParam(date: Date) {
+    const startDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1, -PH_OFFSET, 0, 0, 0));
+    const endDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0, 23 - PH_OFFSET, 59, 59, 999));
+    return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
+}
+
 export function buildParamString(init?: string[][] | Record<string, string> | string | URLSearchParams) {
     const params = new URLSearchParams(init);
     return params.toString();

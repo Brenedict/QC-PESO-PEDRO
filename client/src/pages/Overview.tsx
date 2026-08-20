@@ -176,8 +176,8 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
     const { role } = useTopBar();
     const data = useLoaderData();
 
-    const weeklyData = buildLineWeekData(data);
-    const sexData = buildSexChartWeekData(data);
+    const weekly = buildLineWeekData(data);
+    const sex = buildSexChartWeekData(data);
 
     return (
         <>
@@ -232,7 +232,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Weekly Transaction Volume</Text>
                         </Card.Header>
                         <Card.Body>
-                            <LineChart options={sampleLineOptions} data={weeklyData} height={"100px"}></LineChart>
+                            <LineChart options={weekly.options} data={weekly.data} height={"100px"}></LineChart>
                         </Card.Body>
                     </Card>
                     <Card className="col-span-1">
@@ -240,7 +240,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Gender Split</Text>
                         </Card.Header>
                         <Card.Body>
-                            <PieChart options={samplePieOptions} data={sexData} height={"250px"}></PieChart>
+                            <PieChart options={sex.options} data={sex.data} height={"250px"}></PieChart>
                         </Card.Body>
                     </Card>
                 </section>

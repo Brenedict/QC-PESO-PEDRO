@@ -22,7 +22,8 @@ import { DASHBOARD_OVERVIEW_REQUEST } from "./analyticsRequests";
 export const getTransactions =
     (daily: boolean) =>
     async ({ request }: ActionFunctionArgs) => {
-        const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
+        // 8AM to 5PM
+        const dayRangeParam = daily ? buildDayRangeParam(new Date(), 8, 17) : {};
         const otherParams = extractQueryToObject(request, ["page"]);
         const apiParams = buildParamString({ ...dayRangeParam, ...otherParams });
 

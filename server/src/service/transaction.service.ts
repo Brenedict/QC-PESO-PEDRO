@@ -78,6 +78,8 @@ export default {
         const date = transaction.createdAt ?? new Date();
         const code = (await this.createTransactionCode(date))[0] as string;
 
+        // Fallback (kapag di pa natatapos POST tapos nagrefresh nagsasaby sila ng GET)
+        // nangyayari nagiging status 500 siya
         try {
             return await TransactionModel.createTransaction(transaction, code);
         } catch (err) {
@@ -108,17 +110,13 @@ export default {
     },
 
     async getTransactionsPerDay(date: Date, orderBy?: TransactionOrderByWithRelationInput) {
-        const start = new Date(date);
-        start.setHours(0, 0, 0, 0);
-
-        const end = new Date(date);
-        end.setHours(23, 59, 59, 999);
+        const { startDate, endDate } = DateUtil.buildDayRange(date, 8, 17);
 
         return await TransactionModel.getTransactions({
             where: {
                 createdAt: {
-                    gte: start,
-                    lte: end,
+                    gte: startDate,
+                    lte: endDate,
                 },
             },
             orderBy,
@@ -126,14 +124,13 @@ export default {
     },
 
     async getLatestTransactionPerMonth(date: Date) {
-        const start = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
-        const end = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+        const { startDate, endDate } = DateUtil.buildMonthRange(date);
 
         return await TransactionModel.getTransactions({
             where: {
                 createdAt: {
-                    gte: start,
-                    lte: end,
+                    gte: startDate,
+                    lte: endDate,
                 },
             },
             orderBy: { txCode: "desc" },
@@ -142,17 +139,13 @@ export default {
     },
 
     async countByDay(date: Date) {
-        const start = new Date(date);
-        start.setHours(0, 0, 0, 0);
-
-        const end = new Date(date);
-        end.setHours(23, 59, 59, 999);
+        const { startDate, endDate } = DateUtil.buildDayRange(date, 8, 17);
 
         return TransactionModel.count({
             where: {
                 createdAt: {
-                    gte: start,
-                    lte: end,
+                    gte: startDate,
+                    lte: endDate,
                 },
             },
         });
