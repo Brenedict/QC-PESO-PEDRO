@@ -18,7 +18,7 @@ import SystemErrorPage from "../pages/SystemErrorPage";
 // Components
 import {
     PopupAddUser,
-    PopupDisableUser,
+    PopupManageUser,
     PopupEditUser,
     PopupResetUser,
     PopupUserPriveleges,
@@ -34,7 +34,7 @@ import { employeeSessions } from "../data/employeeSessions";
 import { auditLogData } from "../data/auditLogs";
 
 // API
-import { createUser, getUserById, getUsers, resetPassword, updateUser } from "../api/userService";
+import { createUser, getUserById, getUsers, manageUserAction, resetPassword, updateUser } from "../api/userService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 
@@ -192,13 +192,7 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "history",
-                        element: (
-                            <TransactionHistory
-                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                                    e.preventDefault();
-                                }}
-                            />
-                        ),
+                        element: <TransactionHistory />,
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
                         loader: getTransactions(false),
                     },
@@ -210,9 +204,6 @@ export const protectedRoutes: RouteObject[] = [
                                 totalLogins={18}
                                 totalLogouts={6}
                                 sessionDuration={"8h 12m"}
-                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                                    e.preventDefault();
-                                }}
                                 employeeSessions={employeeSessions}
                             />
                         ),
@@ -253,9 +244,9 @@ export const protectedRoutes: RouteObject[] = [
                                 loader: getUserById,
                             },
                             {
-                                path: ":userId/disable",
-                                element: <PopupDisableUser />,
-                                action: updateUser,
+                                path: ":userId/manage",
+                                element: <PopupManageUser />,
+                                action: manageUserAction,
                                 loader: getUserById,
                             },
                             {

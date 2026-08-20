@@ -1,9 +1,10 @@
-import { type ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
 import { decode } from "../utils/hashids";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 import { ROUTES } from "../hooks/reroute";
 import { apiJson, ensureOk, redirectWithQuery, validateForm } from "./actionService";
+import { apiFetch } from "./httpClient";
 
 // POST: User Creation Method
 export const createUser = async ({ request }: ActionFunctionArgs) => {
@@ -114,6 +115,47 @@ export const getUserById = async ({ params, request }: ActionFunctionArgs) => {
         console.error(err);
 
         // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.userManagement.root);
+    }
+};
+
+export const manageUserAction = async ({ params, request }: ActionFunctionArgs) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
+
+    try {
+        const { userId } = params;
+        const decodedId = Number(decode(userId));
+        const formData = await request.formData();
+        const actionType = formData.get("manageAction");
+
+        if (actionType === "deactivate") {
+            const res = await apiJson(`/user/${decodedId}`, {
+                method: "PATCH",
+                body: JSON.stringify({ status: "DISABLED" }),
+            });
+
+            await ensureOk(res, "Failed to deactivate user");
+        } else if (actionType === "reactivate") {
+            const res = await apiJson(`/user/${decodedId}`, {
+                method: "PATCH",
+                body: JSON.stringify({ status: "LOGGED_OUT" }),
+            });
+
+            await ensureOk(res, "Failed to reactivate user");
+        } else if (actionType === "delete") {
+            const res = await apiJson(`/user/${decodedId}`, {
+                method: "DELETE",
+            });
+
+            await ensureOk(res, "Failed to delete user");
+        }
+
+        // Returns to root directory and queries
+        return redirectWithQuery(request, ROUTES.userManagement.root);
+    } catch (err) {
+        console.error(err);
+
         return redirectWithQuery(request, ROUTES.userManagement.root);
     }
 };
