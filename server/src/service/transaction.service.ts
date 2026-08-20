@@ -175,7 +175,7 @@ export default {
     },
 
     parseTransactionQuery(query: TransactionQueryType): TransactionFindManyArgs {
-        const { startDate, endDate, type, outcome, page, limit, search } = query;
+        const { startDate, endDate, type, outcome, page, limit, search, include } = query;
 
         return {
             where: {
@@ -197,6 +197,7 @@ export default {
                 }),
             },
             orderBy: { createdAt: "desc" },
+            include: include?.length ? Object.fromEntries(include.map((key) => [key, true])) : undefined,
             skip: page,
             take: limit,
         };

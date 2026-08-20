@@ -5,6 +5,8 @@ import {
     TransactionFormDeleteSchema,
     TransactionFormUpdateSchema,
     type TransactionAnalyticsFilterType,
+    type TransactionQueryInput,
+    type TransactionQueryType,
 } from "@qcpesopedro/shared/schema/transactions";
 import { decode } from "../utils/hashids";
 import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
@@ -42,6 +44,84 @@ export const getTransactions =
             return redirectWithQuery(request, ROUTES.applicantForm.root);
         }
     };
+
+// GET: Transaction id specific fetch
+export const getTransactionById = async ({ params, request }: ActionFunctionArgs) => {
+    try {
+        const transactionId = decode(params.transactionId);
+
+        // Main Fetch Request
+        const res = await apiJson(`/transaction/${transactionId}`, { method: "GET" });
+
+        await ensureOk(res, "Failed to fetch transaction");
+
+        const transaction: Transaction = await res.json();
+
+        return transaction;
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.applicantForm.root);
+    }
+};
+
+// GET: Transactions as recent activity
+export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => {
+    const dayRangeParam = buildDayRangeParam(new Date(), 8, 17);
+    const apiParams = buildParamString({ ...dayRangeParam, include: ["user"], limit: "4" });
+    console.log(`/transaction?${apiParams}`);
+
+    try {
+        // Main Fetch Request
+        const res = await apiJson(`/transaction?${apiParams}`, { method: "GET" });
+        await ensureOk(res, "Failed to fetch transaction");
+        const transaction: Transaction = await res.json();
+
+        return transaction;
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.profile.root);
+    }
+};
+
+// POST: Transaction Creation Method
+export const createTransaction = async ({ request }: ActionFunctionArgs) => {
+    try {
+        const formData = await request.formData();
+
+        const submitAction = formData.get("action");
+
+        // Remove action before passing FormData to Zod
+        // This is for save and add button
+        formData.delete("action");
+
+        // ZOD Schema Checking
+        const transaction = validateForm(formData, TransactionFormCreateSchema, "Invalid transaction data");
+
+        // Main Fetch Request
+        const res = await apiJson("/transaction", { method: "POST", body: JSON.stringify(transaction) });
+
+        await ensureOk(res, "Failed to create transaction");
+
+        if (submitAction === "save-and-add") {
+            return {
+                success: true,
+                action: "save-and-add",
+            };
+        }
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.applicantForm.root);
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.applicantForm.root);
+    }
+};
 
 // POST: Fetches analytics
 export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
@@ -83,63 +163,6 @@ export const getDetailsAnalytics =
             return redirectWithQuery(request, ROUTES.profile.root);
         }
     };
-
-// GET: Transaction id specific fetch
-export const getTransactionById = async ({ params, request }: ActionFunctionArgs) => {
-    try {
-        const transactionId = decode(params.transactionId);
-
-        // Main Fetch Request
-        const res = await apiJson(`/transaction/${transactionId}`, { method: "GET" });
-
-        await ensureOk(res, "Failed to fetch transaction");
-
-        const transaction: Transaction = await res.json();
-
-        return transaction;
-    } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
-    }
-};
-
-// POST: Transaction Creation Method
-export const createTransaction = async ({ request }: ActionFunctionArgs) => {
-    try {
-        const formData = await request.formData();
-
-        const submitAction = formData.get("action");
-
-        // Remove action before passing FormData to Zod
-        // This is for save and add button
-        formData.delete("action");
-
-        // ZOD Schema Checking
-        const transaction = validateForm(formData, TransactionFormCreateSchema, "Invalid transaction data");
-
-        // Main Fetch Request
-        const res = await apiJson("/transaction", { method: "POST", body: JSON.stringify(transaction) });
-
-        await ensureOk(res, "Failed to create transaction");
-
-        if (submitAction === "save-and-add") {
-            return {
-                success: true,
-                action: "save-and-add",
-            };
-        }
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
-    } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
-    }
-};
 
 // DELETE: Transaction Deletion Method
 export const deleteTransaction =

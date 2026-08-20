@@ -68,6 +68,21 @@ describe("Transaction Route", () => {
             );
         });
 
+        it("returns transactions with included user", async () => {
+            const res = await request(app).get("/transaction?include=user").expect(200);
+            const transactions = res.body.transactions;
+
+            expect(res.body).toHaveProperty("responseSize", transactions.length);
+
+            transactions.forEach((transaction: Transaction & { user?: { id: number } }) => {
+                expect(transaction).toHaveProperty("user");
+                expect(transaction.user).toMatchObject({
+                    id: transaction.userId,
+                });
+                expect(transaction).not.toHaveProperty("shiftLog");
+            });
+        });
+
         describe("with filters", () => {
             it("returns transactions with type filter", async () => {
                 await request(app).get("/transaction").expect(200);

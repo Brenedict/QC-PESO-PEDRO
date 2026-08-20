@@ -42,7 +42,7 @@ const QueryDateRangeSchema = withDateRange(
         .object({
             type: z.literal("DATE_RANGE"),
             id: z.string(),
-            groupBy: z.array(TransactionScalarFieldEnumSchema).optional(),
+            groupBy: TransactionScalarFieldEnumSchema.optional(),
             includePrevious: z.boolean().optional(),
             filters: FilterSchema,
             ...dateRangeFields,
@@ -95,12 +95,16 @@ export const TransactionFormDeleteSchema = zfd.formData(TransactionWhereUniqueIn
 
 export const TransactionQuerySchema = withDateRange(
     z.object({
-        ...dateRangeFields,
         page: z.coerce.number().int().positive().optional(),
         limit: z.coerce.number().int().positive().optional(),
         type: TransactionTypeSchema.optional(),
         outcome: OutcomeSchema.optional(),
         search: z.string().optional(),
+        include: z
+            .union([z.enum(["user", "shiftLog"]), z.array(z.enum(["user", "shiftLog"]))])
+            .transform((val) => (Array.isArray(val) ? val : [val]))
+            .optional(),
+        ...dateRangeFields,
     })
 )
     .refine(({ page, limit }) => page === undefined || limit !== undefined, {
@@ -124,6 +128,7 @@ export type TransactionCreateType = z.infer<typeof TransactionFormCreateSchema>;
 export type TransactionUpdateType = z.infer<typeof TransactionFormUpdateSchema>;
 export type TransactionDeleteType = z.infer<typeof TransactionFormDeleteSchema>;
 export type TransactionQueryType = z.infer<typeof TransactionQuerySchema>;
+export type TransactionQueryInput = z.input<typeof TransactionQuerySchema>;
 export type TransactionAnalyticsQueryType = z.infer<typeof TransactionAnalyticsQuerySchema>;
 export type TransactionAnalyticsQueryInput = z.input<typeof TransactionAnalyticsQuerySchema>;
 export type QueryDateRangeType = z.infer<typeof QueryDateRangeSchema>;

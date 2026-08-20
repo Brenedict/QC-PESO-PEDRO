@@ -8,6 +8,7 @@ import type {
 } from "@qcpesopedro/shared/schema/transactions";
 import { buildDayRangeParam, buildMonthRangeParam, buildWeekRangeParam } from "./actionService";
 import type { MaterialIcon } from "../types/common";
+import type { TransactionType } from "@qcpesopedro/shared/prisma/browser";
 
 export interface DateRangeData {
     count?: number;
@@ -49,6 +50,12 @@ export const CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIco
     ["mismatch"]: { title: "Mismatched Skills", specialIcon: FindInPageOutlinedIcon },
     ["none"]: { title: "None", specialIcon: FindInPageOutlinedIcon },
 } as const;
+
+export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
+    WALK_IN_REFERRAL: CARD_MAP["walk-in"].title,
+    ONLINE_REFERRAL: CARD_MAP.online.title,
+    IN_HOUSE_RECRUITMENT: CARD_MAP["in-house"].title,
+};
 
 export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
     queries: [

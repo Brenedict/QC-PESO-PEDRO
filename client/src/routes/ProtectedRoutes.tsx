@@ -1,5 +1,5 @@
 // General Imports
-import { redirect, type RouteObject } from "react-router";
+import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -45,6 +45,7 @@ import {
     createTransaction,
     getDetailsAnalytics,
     getOverviewAnalytics,
+    getRecentTransactions,
     getTransactions,
 } from "../api/transactionService";
 
@@ -70,7 +71,11 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "",
                         element: <Overview pending={5} approved={18} revision={2} />,
-                        loader: getOverviewAnalytics,
+                        loader: async (args: ActionFunctionArgs) => {
+                            const analytics = await getOverviewAnalytics(args);
+                            const recent = await getRecentTransactions(args);
+                            return { analytics, recent };
+                        },
                         children: [
                             {
                                 path: "total",

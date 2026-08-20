@@ -45,7 +45,7 @@ export const ensureOk = async (res: Response, message: string) => {
         const body = await res.json();
 
         if (body?.error) {
-            errorMessage += `: ${body.error}`;
+            errorMessage += `: \n${body.error}`;
         }
     } catch {
         // Skip if response is not a json
@@ -104,7 +104,21 @@ export function buildMonthRangeParam(date: Date) {
     return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
 }
 
-export function buildParamString(init?: string[][] | Record<string, string> | string | URLSearchParams) {
-    const params = new URLSearchParams(init);
+export function buildParamString(init?: string[][] | Record<string, string | string[]> | string | URLSearchParams) {
+    if (typeof init === "string" || init instanceof URLSearchParams || Array.isArray(init)) {
+        return new URLSearchParams(init).toString();
+    }
+
+    const params = new URLSearchParams();
+    if (init) {
+        for (const [key, value] of Object.entries(init)) {
+            if (value === undefined) continue;
+            if (Array.isArray(value)) {
+                value.forEach((v) => params.append(key, v));
+            } else {
+                params.append(key, value);
+            }
+        }
+    }
     return params.toString();
 }

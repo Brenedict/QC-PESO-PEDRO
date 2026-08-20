@@ -31,6 +31,7 @@ import {
     CARD_MAP,
     DASHBOARD_OVERVIEW_REQUEST,
     getQueryIds,
+    RECENT_TRANSACTION_MAP,
     type AnalyticsData,
     type DateRangeData,
 } from "../api/analyticsRequests.ts";
@@ -40,19 +41,21 @@ import {
     type CategorySeriesConfig,
     type TimeSeriesConfig,
 } from "../api/chartService.ts";
+import type { Transaction, User } from "@qcpesopedro/shared/prisma/browser.ts";
+import { formatTime } from "../utils/time.ts";
 
 type CardId = keyof typeof CARD_MAP;
 
 interface CardGroupProps {
     ids?: CardId[];
-    data: AnalyticsData;
+    analytics: AnalyticsData;
 }
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
 }
 
-function CardGroup({ ids = [], data }: CardGroupProps) {
+function CardGroup({ ids = [], analytics }: CardGroupProps) {
     // For some reason ayaw gumana ng string substitute kaya eto nag array ako
     // Palitan nyo nalang kung maayos niyo
     const navigate = useNavigateDefault();
@@ -64,7 +67,7 @@ function CardGroup({ ids = [], data }: CardGroupProps) {
             <hr className="mt-2 border-0 bg-off-white-border h-0.5" />
             <section className={`grid ${columnClass[cardCol - 1]} gap-6 mt-4`}>
                 {ids.map((id) => {
-                    const dataValue = data?.[id] as DateRangeData | undefined;
+                    const dataValue = analytics?.[id] as DateRangeData | undefined;
                     if (typeof dataValue?.current?.grouped === "number") return null;
 
                     return (
@@ -87,24 +90,24 @@ function CardGroup({ ids = [], data }: CardGroupProps) {
 }
 
 function DailyTransactions() {
-    const data = useLoaderData();
+    const { analytics } = useLoaderData();
     const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 0, 5) as string[];
 
-    return <CardGroup ids={ids} data={data} />;
+    return <CardGroup ids={ids} analytics={analytics} />;
 }
 
 function ApplicantsDemographics() {
-    const data = useLoaderData();
+    const { analytics } = useLoaderData();
     const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 5, 9) as string[];
 
-    return <CardGroup ids={ids} data={data} />;
+    return <CardGroup ids={ids} analytics={analytics} />;
 }
 
 function EmploymentOutcomes() {
-    const data = useLoaderData();
+    const { analytics } = useLoaderData();
     const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 9, 13) as string[];
 
-    return <CardGroup ids={ids} data={data} />;
+    return <CardGroup ids={ids} analytics={analytics} />;
 }
 
 function EmploymentEvents() {
@@ -182,8 +185,9 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 
 // Main Overview Component
 export function Overview({ pending, approved, revision }: EndShiftProps) {
+    const navigate = useNavigateDefault();
     const { role } = useTopBar();
-    const data = useLoaderData() as AnalyticsData;
+    const { analytics, recent } = useLoaderData();
 
     const referralSeries: TimeSeriesConfig[] = [
         { key: "WALK_IN_REFERRAL", label: "Walk-ins", color: "light-blue", opaqueColor: "light-blue-opaque" },
@@ -196,8 +200,17 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
         { key: "FEMALE", label: "Female", color: "pink", opaqueColor: "pink-opaque" },
     ];
 
-    const daily = buildTimeSeriesChartData(data, referralSeries, "weekly-breakdown", "daily");
-    const sex = buildCategoryChartData(data, sexSeries, "sex");
+    const recentActivity = recent?.transactions.map((transaction: Transaction & { user: User }) => ({
+        id: transaction.id,
+        title: RECENT_TRANSACTION_MAP[transaction.transactionType],
+        subject: transaction.applicantFullName,
+        processedBy: `${transaction.user.firstName} ${transaction.user.lastName}`,
+        timestamp: formatTime(new Date(transaction.createdAt)),
+        status: transaction.transactionOutcome,
+    }));
+
+    const daily = buildTimeSeriesChartData(analytics, referralSeries, "weekly-breakdown", "daily");
+    const sex = buildCategoryChartData(analytics, sexSeries, "sex");
 
     return (
         <>
@@ -268,7 +281,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
 
             <br className="block mb-14" />
 
-            <RecentActivity items={recentActivity} onViewAll={() => alert("View all clicked")} />
+            <RecentActivity items={recentActivity} onViewAll={() => navigate(ROUTES.history.root)} />
 
             {/* Popup Uses */}
             <Outlet />
