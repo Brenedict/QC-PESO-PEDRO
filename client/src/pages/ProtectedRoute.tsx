@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useMatches, useRouteLoaderData } from "react-router";
 import { UserGlobalProvider, type UserGlobalContextValue } from "../context/UserGlobalContext";
 import { type RouteHandle } from "../hooks/useAccessLevel";
-import { ROLE_TO_LEVEL } from "@qcpesopedro/shared/prisma/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 import type { authLoader } from "../api/authService";
 
 export function ProtectedRoute() {
@@ -31,10 +31,7 @@ export function ProtectedRoute() {
 
     const minAccessLevel = (route?.handle as RouteHandle | undefined)?.minAccessLevel;
 
-    const userLevel = ROLE_TO_LEVEL[user.role] ?? 0;
-
-    console.log("User Level:", userLevel);
-    console.log("Min Access Level:", minAccessLevel);
+    const userLevel = Number(AccessLevel[user.role]) ?? 0;
 
     if (minAccessLevel !== undefined && userLevel < minAccessLevel) {
         return <Navigate to="/403" />;

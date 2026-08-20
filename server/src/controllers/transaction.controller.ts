@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { requireAccessLevel } from "../middlewares/authorized.middleware";
-import { AccessLevel } from "@qcpesopedro/shared/prisma/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 
 export default {
     get: [

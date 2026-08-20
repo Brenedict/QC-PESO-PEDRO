@@ -1,5 +1,5 @@
 import { useMatches } from "react-router";
-import { AccessLevel } from "@qcpesopedro/shared/prisma/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 
 export type RouteHandle = {
     minAccessLevel?: AccessLevel;

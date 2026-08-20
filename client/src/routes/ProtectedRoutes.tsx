@@ -1,6 +1,6 @@
 // General Imports
 import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
-import { AccessLevel } from "@qcpesopedro/shared/prisma/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 
 // Schema
 import { TransactionSchema } from "@qcpesopedro/shared/schema//transactions";
