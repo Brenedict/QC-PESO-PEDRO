@@ -71,18 +71,11 @@ export default {
     },
 
     getTimezoneParts(bucket: Date) {
-        const MANILA_TZ = "Asia/Manila";
-
-        const manilaParts = new Intl.DateTimeFormat("en-CA", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            hour12: false,
-            timeZone: MANILA_TZ,
-        });
-
-        const parts = Object.fromEntries(manilaParts.formatToParts(bucket).map((p) => [p.type, p.value]));
-        return { year: parts.year, month: parts.month, day: parts.day, hour: parts.hour };
+        return {
+            year: String(bucket.getUTCFullYear()),
+            month: String(bucket.getUTCMonth() + 1).padStart(2, "0"),
+            day: String(bucket.getUTCDate()).padStart(2, "0"),
+            hour: String(bucket.getUTCHours()).padStart(2, "0"),
+        };
     },
 };
