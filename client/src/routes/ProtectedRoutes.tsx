@@ -46,7 +46,9 @@ import {
     getDetailsAnalytics,
     getOverviewAnalytics,
     getRecentTransactions,
+    getTransactionReport,
     getTransactions,
+    getTransactionSummary,
 } from "../api/transactionService";
 
 export const protectedRoutes: RouteObject[] = [
@@ -280,11 +282,28 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "reports",
                         element: <Reports />,
+                        loader: getTransactionSummary,
                         children: [
-                            { path: "daily", element: <PopupReportPreview type={"daily"} /> },
-                            { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
-                            { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
-                            { path: "overall", element: <PopupReportPreview type={"overall"} /> },
+                            {
+                                path: "daily",
+                                element: <PopupReportPreview type={"daily"} />,
+                                loader: getTransactionReport("DAILY"),
+                            },
+                            {
+                                path: "weekly",
+                                element: <PopupReportPreview type={"weekly"} />,
+                                loader: getTransactionReport("WEEKLY"),
+                            },
+                            {
+                                path: "monthly",
+                                element: <PopupReportPreview type={"monthly"} />,
+                                loader: getTransactionReport("MONTHLY"),
+                            },
+                            {
+                                path: "overall",
+                                element: <PopupReportPreview type={"overall"} />,
+                                loader: getTransactionReport("SUMMARY"),
+                            },
                             ...shiftPopups(ROUTES.reports.root),
                         ],
                     },

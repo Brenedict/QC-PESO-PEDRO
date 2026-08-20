@@ -104,6 +104,13 @@ export function buildMonthRangeParam(date: Date) {
     return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
 }
 
+export function buildYearRangeParam(date: Date) {
+    const year = date.getUTCFullYear();
+    const startDate = new Date(Date.UTC(year, 0, 1, -PH_OFFSET, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, 11, 31, 23 - PH_OFFSET, 59, 59, 999));
+    return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
+}
+
 export function buildParamString(init?: string[][] | Record<string, string | string[]> | string | URLSearchParams) {
     if (typeof init === "string" || init instanceof URLSearchParams || Array.isArray(init)) {
         return new URLSearchParams(init).toString();

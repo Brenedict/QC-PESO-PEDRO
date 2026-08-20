@@ -19,7 +19,13 @@ import {
     redirectWithQuery,
     validateForm,
 } from "./actionService";
-import { DASHBOARD_DETAILS_REQUEST, DASHBOARD_OVERVIEW_REQUEST } from "./analyticsRequests";
+import {
+    DASHBOARD_DETAILS_REQUEST,
+    DASHBOARD_OVERVIEW_REQUEST,
+    TRANSACTION_REPORT_REQUEST,
+    TRANSACTION_SUMMARY_REQUEST,
+    type ReportTypes,
+} from "./analyticsRequests";
 
 // GET: Fetches all transactions
 export const getTransactions =
@@ -155,6 +161,48 @@ export const getDetailsAnalytics =
             });
 
             await ensureOk(res, "Failed to query analytic details");
+            return res.json();
+        } catch (err) {
+            console.error(err);
+
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.profile.root);
+        }
+    };
+
+// POST: Fetches transaction summary
+export const getTransactionSummary = async ({ request }: ActionFunctionArgs) => {
+    try {
+        // Main Fetch Request
+        const res = await apiJson("/transaction/analytics", {
+            method: "POST",
+            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST),
+        });
+
+        await ensureOk(res, "Failed to query transaction summary");
+
+        return res.json();
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.profile.root);
+    }
+};
+
+// POST: Fetches transaction summary
+export const getTransactionReport =
+    (type: ReportTypes) =>
+    async ({ request }: ActionFunctionArgs) => {
+        try {
+            // Main Fetch Request
+            const res = await apiJson("/transaction/analytics", {
+                method: "POST",
+                body: JSON.stringify(TRANSACTION_REPORT_REQUEST(type)),
+            });
+
+            await ensureOk(res, "Failed to query transaction report");
+
             return res.json();
         } catch (err) {
             console.error(err);
