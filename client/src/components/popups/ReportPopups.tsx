@@ -8,6 +8,8 @@ import type { ColorVariant } from "../../types/common";
 import Table from "../Table";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { usePDF } from "react-to-pdf";
+import { useLoaderData } from "react-router";
+import type { AnalyticsData } from "../../api/analyticsRequests";
 
 function PaperContainer({ targetRef, children }: { targetRef: RefObject<null>; children: ReactNode }) {
     return (
@@ -76,6 +78,7 @@ function BreakdownTitle() {
 }
 
 export function PopupReportPreview({ type }: { type: string }) {
+    const data = useLoaderData();
     const dateNow = new Date();
     const fileName = type.toLowerCase().replaceAll(" ", "-") + "-transaction-" + formatDDMMYYYY(dateNow);
 
@@ -100,8 +103,16 @@ export function PopupReportPreview({ type }: { type: string }) {
                     <PaperHeader />
                     <PaperTitle date={dateNow} type={type} />
                     <div className="flex gap-8  mb-8">
-                        <ReportMiniCard label="total transactions" value={842} valueVariant="primary-blue" />
-                        <ReportMiniCard label="successful referrals" value={615} valueVariant="green" />
+                        <ReportMiniCard
+                            label="total transactions"
+                            value={data?.total?.count ?? 0}
+                            valueVariant="primary-blue"
+                        />
+                        <ReportMiniCard
+                            label="successful referrals"
+                            value={data?.success?.count ?? 0}
+                            valueVariant="green"
+                        />
                     </div>
                     <BreakdownTitle />
                     <Table noCardStyle={true}>
@@ -114,23 +125,23 @@ export function PopupReportPreview({ type }: { type: string }) {
 
                         <Table.Row>
                             <Table.Data>Walk-In Transactions</Table.Data>
-                            <Table.Data>412</Table.Data>
-                            <Table.Data>210</Table.Data>
-                            <Table.Data>202</Table.Data>
+                            <Table.Data>{data?.walkin?.count ?? 0}</Table.Data>
+                            <Table.Data>{data?.walkin?.grouped?.MALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.walkin?.grouped?.FEMALE ?? 0}</Table.Data>
                         </Table.Row>
 
                         <Table.Row>
                             <Table.Data>Online Referrals</Table.Data>
-                            <Table.Data>320</Table.Data>
-                            <Table.Data>150</Table.Data>
-                            <Table.Data>170</Table.Data>
+                            <Table.Data>{data?.online?.count ?? 0}</Table.Data>
+                            <Table.Data>{data?.online?.grouped?.MALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.online?.grouped?.FEMALE ?? 0}</Table.Data>
                         </Table.Row>
 
                         <Table.Row>
                             <Table.Data>In-House Referral</Table.Data>
-                            <Table.Data>110</Table.Data>
-                            <Table.Data>60</Table.Data>
-                            <Table.Data>50</Table.Data>
+                            <Table.Data>{data?.inhouse?.count ?? 0}</Table.Data>
+                            <Table.Data>{data?.inhouse?.grouped?.MALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.inhouse?.grouped?.FEMALE ?? 0}</Table.Data>
                         </Table.Row>
                     </Table>
                 </PaperContainer>

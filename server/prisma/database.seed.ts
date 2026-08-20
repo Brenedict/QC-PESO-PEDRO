@@ -43,7 +43,7 @@ const remarks = [
     "Awaiting employer feedback",
 ];
 
-const userDummy: UserUncheckedCreateInput = {
+export const userDummy: UserUncheckedCreateInput = {
     username: "john",
     email: "johndoe@gmail.com",
     password: "password123",
@@ -56,7 +56,7 @@ const userDummy: UserUncheckedCreateInput = {
     updatedAt: new Date(),
 };
 
-const shiftDummy = (userId: number): ShiftLogUncheckedCreateInput => ({
+export const shiftDummy = (userId: number): ShiftLogUncheckedCreateInput => ({
     userId,
     status: "PENDING",
     timeIn: new Date(),
@@ -94,11 +94,11 @@ function randomDemographics(): Demographic[] | undefined {
     return shuffled.slice(0, count);
 }
 
-function generateTransactions(userId: number, shiftLogId: number, count: number): TransactionCreateType[] {
+export function generateTransactions(userId: number, shiftLogId: number, count: number): TransactionCreateType[] {
     const transactions: TransactionCreateType[] = [];
 
-    const startDate = new Date("2025-08-16T08:00:00");
-    const endDate = new Date("2026-08-15T17:30:00");
+    const startDate = new Date("2026-08-16T08:00:00");
+    const endDate = new Date();
 
     for (let i = 0; i < count; i++) {
         const applicantSex = randomItem(["MALE", "FEMALE"] as const);

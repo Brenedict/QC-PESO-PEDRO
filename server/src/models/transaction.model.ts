@@ -1,50 +1,15 @@
 import prisma from "../config/prisma.config";
-import type { TransactionCreateType, TransactionUpdateType } from "@qcpedropeso/shared/schema/transactions";
+import type { TransactionCreateType, TransactionUpdateType } from "@qcpesopedro/shared/schema/transactions";
 import type {
+    TransactionCountArgs,
     TransactionFindManyArgs,
-    TransactionOrderByWithRelationInput,
+    TransactionGroupByArgs,
     TransactionUncheckedCreateInput,
     TransactionUncheckedUpdateInput,
-    TransactionWhereInput,
-} from "@qcpedropeso/shared/prisma/models";
-import type { TransactionFilters } from "../service/transaction.service";
+} from "@qcpesopedro/shared/prisma/models";
 
 export default {
-    async getTransactions(
-        {
-            transactionType,
-            transactionOutcome,
-            createdAt,
-            page,
-            limit,
-            search,
-        }: TransactionFilters = {} as TransactionFilters,
-        orderBy?: TransactionOrderByWithRelationInput
-    ) {
-        const args: TransactionFindManyArgs = { where: {} as TransactionWhereInput };
-
-        if (transactionType) args.where!.transactionType = transactionType;
-        if (transactionOutcome) args.where!.transactionOutcome = transactionOutcome;
-        if (createdAt) args.where!.createdAt = createdAt;
-
-        if (orderBy) args.orderBy = orderBy;
-        if (limit !== undefined) args.take = limit;
-
-        if (page !== undefined && limit !== undefined) {
-            args.skip = (page - 1) * limit;
-        }
-
-        if (search !== undefined) {
-            args.where!.OR = [
-                {
-                    applicantFullName: { contains: search, mode: "insensitive" },
-                },
-                {
-                    txCode: { contains: search, mode: "insensitive" },
-                },
-            ];
-        }
-
+    async getTransactions(args: TransactionFindManyArgs) {
         return prisma.transaction.findMany(args);
     },
 
@@ -86,7 +51,13 @@ export default {
         return prisma.transaction.delete({ where: { txCode } });
     },
 
-    async count(where?: TransactionWhereInput) {
-        return prisma.transaction.count({ where: where ?? {} });
+    async count(args?: TransactionCountArgs) {
+        return prisma.transaction.count(args);
+    },
+
+    async groupBy(args: TransactionGroupByArgs = { by: ["id"] }) {
+        // eslint-disable-next-line
+        // @ts-ignore
+        return prisma.transaction.groupBy(args);
     },
 };

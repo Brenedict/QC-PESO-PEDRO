@@ -7,7 +7,8 @@
         "start": "tsx --env-file=.env ./src/server.ts",
         "dev": "tsx --inspect --watch --env-file=.env ./src/server.ts",
         "test": "jest --watch --runInBand",
-        "seed": "tsx ./prisma/database.seed.ts"
+        "seed": "tsx ./prisma/database.seed.ts",
+        "gensql": "prisma generate --sql"
     },
     "keywords": [],
     "author": "",
@@ -24,7 +25,7 @@
         "@types/express": "^5.0.6",
         "@types/jest": "^30.0.0",
         "@types/morgan": "^1.9.10",
-        "@types/node": "^26.1.2",
+        "@types/node": "^26.2.0",
         "@types/passport-jwt": "^4.0.1",
         "@types/passport-local": "^1.0.38",
         "@types/pg": "^8.20.4",
@@ -40,7 +41,7 @@
         "prisma": "^7.9.1",
         "prisma-zod-generator": "^3.1.0",
         "supertest": "^7.2.2",
-        "tsx": "^4.23.9",
+        "tsx": "^4.23.12",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.65.0"
     },
@@ -60,7 +61,7 @@
         "passport-jwt": "^4.0.1",
         "passport-local": "^1.0.0",
         "pg": "^8.22.0",
-        "zod": "^4.4.3",
-        "prisma-zod-generator": "^3.1.0"
+        "prisma-zod-generator": "^3.1.0",
+        "zod": "^4.4.3"
     }
 }

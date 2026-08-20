@@ -51,7 +51,7 @@ export const ensureOk = async (res: Response, message: string) => {
         const body = await res.json();
 
         if (body?.error) {
-            errorMessage += `: ${body.error}`;
+            errorMessage += `: \n${body.error}`;
         }
     } catch {
         // Skip if response is not a json
@@ -68,25 +68,70 @@ export function validateForm<T extends z.ZodType>(
     const result = schema.safeParse(formData);
 
     if (!result.success) {
-        console.error(z.treeifyError(result.error));
-
+        console.error(z.prettifyError(result.error));
         throw new Error(errorMessage);
     }
 
     return result.data;
 }
 
-export function buildDayRangeParam(date: Date) {
-    const start = new Date(date);
-    start.setHours(0, 0, 0, 0);
+// Philippines is in UTC +8
+const PH_OFFSET = 8;
 
-    const end = new Date(date);
-    end.setHours(23, 59, 59, 999);
+export function buildDayRangeParam(date: Date, startHour = 0, endHour = 23) {
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
 
-    return { startDate: start.toString(), endDate: end.toString() };
+    const startDate = new Date(Date.UTC(year, month, day, startHour - PH_OFFSET, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, month, day, endHour - PH_OFFSET, 59, 59, 999));
+
+    return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
 }
 
-export function buildParamString(init?: string[][] | Record<string, string> | string | URLSearchParams) {
-    const params = new URLSearchParams(init);
+export function buildWeekRangeParam(date: Date) {
+    const currentDay = date.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+    const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+
+    const monday = new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + distanceToMonday, -PH_OFFSET, 0, 0, 0)
+    );
+
+    const friday = new Date(
+        Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate() + 4, 23 - PH_OFFSET, 59, 59, 999)
+    );
+
+    return { startDate: monday.toISOString(), endDate: friday.toISOString() };
+}
+
+export function buildMonthRangeParam(date: Date) {
+    const startDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1, -PH_OFFSET, 0, 0, 0));
+    const endDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0, 23 - PH_OFFSET, 59, 59, 999));
+    return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
+}
+
+export function buildYearRangeParam(date: Date) {
+    const year = date.getUTCFullYear();
+    const startDate = new Date(Date.UTC(year, 0, 1, -PH_OFFSET, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, 11, 31, 23 - PH_OFFSET, 59, 59, 999));
+    return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
+}
+
+export function buildParamString(init?: string[][] | Record<string, string | string[]> | string | URLSearchParams) {
+    if (typeof init === "string" || init instanceof URLSearchParams || Array.isArray(init)) {
+        return new URLSearchParams(init).toString();
+    }
+
+    const params = new URLSearchParams();
+    if (init) {
+        for (const [key, value] of Object.entries(init)) {
+            if (value === undefined) continue;
+            if (Array.isArray(value)) {
+                value.forEach((v) => params.append(key, v));
+            } else {
+                params.append(key, value);
+            }
+        }
+    }
     return params.toString();
 }

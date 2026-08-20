@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import routes from "./routes";
 
 createRoot(document.getElementById("root")!).render(
-    // <StrictMode>
-    <RouterProvider router={createBrowserRouter(routes)}></RouterProvider>
-    // </StrictMode>
+    <StrictMode>
+        <RouterProvider router={createBrowserRouter(routes)}></RouterProvider>
+    </StrictMode>
 );

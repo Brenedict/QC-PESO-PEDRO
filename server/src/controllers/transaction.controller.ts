@@ -1,68 +1,56 @@
 import type { Request, Response } from "express";
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import TransactionModel from "../models/transaction.model";
-import type { Outcome, Transaction, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import { validateSchema } from "../middlewares/zod.middleware";
 import {
+    TransactionAnalyticsQuerySchema,
     TransactionFormCreateSchema,
     TransactionFormUpdateSchema,
+    TransactionQuerySchema,
     type TransactionCreateType,
     type TransactionUpdateType,
 } from "@qcpesopedro/shared/schema/transactions";
 import TransactionService from "../service/transaction.service";
+import ValidateUtil from "../utils/validate.util";
 
 export default {
     getTransactions: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
-            const response: Record<string, Transaction[] | number> = {};
+            const result = ValidateUtil.validateRequestData(TransactionQuerySchema, req.query, res);
+            if (!result.success) return;
 
-            const startDateStr = req.query.startDate as string | undefined;
-            const endDateStr = req.query.endDate as string | undefined;
+            const filters = TransactionService.parseTransactionQuery(result.data);
+            const transactions = await TransactionModel.getTransactions(filters);
 
-            let startDate: Date | undefined;
-            let endDate: Date | undefined;
-
-            if (startDateStr) {
-                startDate = new Date(startDateStr);
-            }
-            if (endDateStr) {
-                endDate = new Date(endDateStr);
+            interface ResponseType {
+                transactions: typeof transactions;
+                responseSize: number;
+                originalSize: number | undefined;
             }
 
-            // Validate date range
-            if (startDate && endDate && startDate > endDate)
-                return res.status(400).json({ error: "Start date cannot be after end date" });
+            const response: ResponseType = {
+                transactions,
+                responseSize: transactions.length,
+                originalSize: undefined,
+            };
 
-            //Validate page query
-            if (req.query.page !== undefined && req.query.limit === undefined)
-                res.status(400).json({ error: "Page query provided without limit" });
-
-            response.transactions = (await TransactionModel.getTransactions(
-                {
-                    transactionType: req.query.type as TransactionType | undefined,
-                    transactionOutcome: req.query.outcome as Outcome | undefined,
-                    page: req.query.page ? parseInt(req.query.page as string) : undefined,
-                    limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
-                    search: req.query.search as string | undefined,
-                    createdAt:
-                        startDate || endDate
-                            ? {
-                                  ...(startDate ? { gte: startDate } : {}),
-                                  ...(endDate ? { lte: endDate } : {}),
-                              }
-                            : undefined,
-                },
-                { createdAt: "desc" }
-            )) as Transaction[];
-
-            if (req.query && req.query.limit) {
-                // For filters, pagination, etc.
-                // so that we know what is the original size
-                response.originalSize = await TransactionModel.count();
+            if (req.query.limit !== undefined) {
+                response.originalSize = await TransactionModel.count({ where: filters.where });
             }
 
-            response.responseSize = response.transactions.length;
+            return res.json(response);
+        },
+    ],
+
+    postAnalytics: [
+        jwtAccessAuth,
+        async (req: Request, res: Response) => {
+            const result = ValidateUtil.validateRequestData(TransactionAnalyticsQuerySchema, req.body, res);
+            if (!result.success) return;
+
+            const query = TransactionService.parseTransactionAnalyticsQuery(result.data);
+            const response = await TransactionService.resolveAnalyticsFilter(query);
 
             res.json(response);
         },

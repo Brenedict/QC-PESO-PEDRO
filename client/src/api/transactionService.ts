@@ -4,6 +4,7 @@ import {
     TransactionFormCreateSchema,
     TransactionFormDeleteSchema,
     TransactionFormUpdateSchema,
+    type TransactionAnalyticsFilterType,
 } from "@qcpesopedro/shared/schema/transactions";
 import { decode } from "../utils/hashids";
 import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
@@ -12,17 +13,24 @@ import {
     buildDayRangeParam,
     buildParamString,
     ensureOk,
-    extractQuery,
     extractQueryToObject,
     redirectWithQuery,
     validateForm,
 } from "./actionService";
+import {
+    DASHBOARD_DETAILS_REQUEST,
+    DASHBOARD_OVERVIEW_REQUEST,
+    TRANSACTION_REPORT_REQUEST,
+    TRANSACTION_SUMMARY_REQUEST,
+    type ReportTypes,
+} from "./analyticsRequests";
 
 // GET: Fetches all transactions
 export const getTransactions =
     (daily: boolean) =>
     async ({ request }: ActionFunctionArgs) => {
-        const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
+        // 8AM to 5PM
+        const dayRangeParam = daily ? buildDayRangeParam(new Date(), 8, 17) : {};
         const otherParams = extractQueryToObject(request, ["page"]);
         const apiParams = buildParamString({ ...dayRangeParam, ...otherParams });
 
@@ -70,6 +78,27 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
     }
 };
 
+// GET: Transactions as recent activity
+export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => {
+    const dayRangeParam = buildDayRangeParam(new Date(), 8, 17);
+    const apiParams = buildParamString({ ...dayRangeParam, include: ["user"], limit: "4" });
+    console.log(`/transaction?${apiParams}`);
+
+    try {
+        // Main Fetch Request
+        const res = await apiJson(`/transaction?${apiParams}`, { method: "GET" });
+        await ensureOk(res, "Failed to fetch transaction");
+        const transaction: Transaction = await res.json();
+
+        return transaction;
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.profile.root);
+    }
+};
+
 // POST: Transaction Creation Method
 export const createTransaction = async ({ request }: ActionFunctionArgs) => {
     try {
@@ -109,6 +138,89 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         return redirectWithQuery(request, ROUTES.applicantForm.root);
     }
 };
+
+// POST: Fetches analytics
+export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
+    try {
+        // Main Fetch Request
+        const res = await apiJson("/transaction/analytics", {
+            method: "POST",
+            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST),
+        });
+
+        await ensureOk(res, "Failed to query dashboard");
+
+        return res.json();
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.profile.root);
+    }
+};
+
+// POST: Fetches analytics details
+export const getDetailsAnalytics =
+    (filter?: TransactionAnalyticsFilterType) =>
+    async ({ request }: ActionFunctionArgs) => {
+        try {
+            // Main Fetch Request
+            const res = await apiJson("/transaction/analytics", {
+                method: "POST",
+                body: JSON.stringify(DASHBOARD_DETAILS_REQUEST(filter)),
+            });
+
+            await ensureOk(res, "Failed to query analytic details");
+            return res.json();
+        } catch (err) {
+            console.error(err);
+
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.profile.root);
+        }
+    };
+
+// POST: Fetches transaction summary
+export const getTransactionSummary = async ({ request }: ActionFunctionArgs) => {
+    try {
+        // Main Fetch Request
+        const res = await apiJson("/transaction/analytics", {
+            method: "POST",
+            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST),
+        });
+
+        await ensureOk(res, "Failed to query transaction summary");
+
+        return res.json();
+    } catch (err) {
+        console.error(err);
+
+        // Returns to root directory + queries
+        return redirectWithQuery(request, ROUTES.profile.root);
+    }
+};
+
+// POST: Fetches transaction summary
+export const getTransactionReport =
+    (type: ReportTypes) =>
+    async ({ request }: ActionFunctionArgs) => {
+        try {
+            // Main Fetch Request
+            const res = await apiJson("/transaction/analytics", {
+                method: "POST",
+                body: JSON.stringify(TRANSACTION_REPORT_REQUEST(type)),
+            });
+
+            await ensureOk(res, "Failed to query transaction report");
+
+            return res.json();
+        } catch (err) {
+            console.error(err);
+
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.profile.root);
+        }
+    };
 
 // DELETE: Transaction Deletion Method
 export const deleteTransaction =

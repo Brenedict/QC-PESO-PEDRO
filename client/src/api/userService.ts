@@ -157,6 +157,7 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
                 method: "PATCH",
                 body: JSON.stringify({ status: "LOGGED_OUT" }),
             });
+
             await ensureOk(res, "Failed to reactivate user");
         } else if (actionType === "delete") {
             const res = await apiJson(`/user/${decodedId}`, {
