@@ -153,13 +153,13 @@ export function PopupAddUser() {
 }
 
 export function PopupEditUser() {
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
     const navigate = useNavigateDefault();
 
     const user = useLoaderData() as User;
     if (!user) return null;
 
-    // Form Validation
-    const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
@@ -341,7 +341,7 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
 
 function PopupRadio({
     value,
-    name = "radioGroup", 
+    name = "radioGroup",
     defaultChecked = false,
     children,
 }: {

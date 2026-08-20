@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import z from "zod";
 import { apiFetch } from "./httpClient";
+import { ROUTES } from "../hooks/reroute";
 
 const JSON_HEADERS = {
     "Content-Type": "application/json",
@@ -37,6 +38,11 @@ export const apiJson = async (route: string, options: RequestInit = {}) => {
 export const ensureOk = async (res: Response, message: string) => {
     if (res.ok) {
         return res;
+    }
+
+    // Backup check for 401 Unauthorized response to redirect to login page
+    if (res.status === 401) {
+        throw redirect(ROUTES.auth.root);
     }
 
     let errorMessage = `${message} (${res.status})`;

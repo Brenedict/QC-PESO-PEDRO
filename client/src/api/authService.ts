@@ -1,7 +1,23 @@
+import { redirect } from "react-router";
 import { apiFetch } from "./httpClient";
 import TokenStore from "./tokenStore";
+import { ROUTES } from "../hooks/reroute";
 
 // Auth helpers
+
+/*
+    Initial '/protected' loader that checks for user authentication. 
+    If the user is not authenticated, it will redirect to the login page.
+*/
+export const primaryAuthLoader = async () => {
+    const isAuthenticated = await checkAuthService();
+    if (!isAuthenticated) {
+        throw redirect(ROUTES.auth.root);
+    }
+    const user = await getUserContextLoader();
+    return { user };
+};
+
 export const checkAuthService = async (): Promise<boolean> => {
     try {
         const res = await apiFetch("/auth/protected");

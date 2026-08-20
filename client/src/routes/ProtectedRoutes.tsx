@@ -51,19 +51,22 @@ import {
     getTransactionSummary,
 } from "../api/transactionService";
 
+import { primaryAuthLoader } from "../api/authService";
+
 export const protectedRoutes: RouteObject[] = [
     {
         id: "protected",
         path: "/",
         element: (
-            /* 
-                Initial authentication on '/protected' happens here, and the user data is fetched. 
-                If the user is not authenticated, they will be redirected to '/auth'.
-            */
             <AuthProvider>
                 <ProtectedRoute />
             </AuthProvider>
         ),
+        /* 
+            Initial authentication on '/protected' NOW happens here, and the user data is fetched. 
+            If the user is not authenticated, they will be redirected to '/auth'.
+        */
+        loader: primaryAuthLoader,
         errorElement: <SystemErrorPage />,
         children: [
             {
