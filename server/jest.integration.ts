@@ -34,6 +34,12 @@ jest.mock("./src/middlewares/passport.middleware", () => ({
     },
 }));
 
+jest.mock("./src/middlewares/authorized.middleware", () => ({
+    requireAccessLevel: () => (_req: Request, _res: Response, next: NextFunction) => {
+        next();
+    },
+}));
+
 jest.mock("./src/middlewares/zod.middleware", () => ({
     validateSchema: () => (_req: Request, _res: Response, next: NextFunction) => {
         next();
@@ -41,17 +47,17 @@ jest.mock("./src/middlewares/zod.middleware", () => ({
 }));
 
 beforeEach(async () => {
-    // 1. Reset current mock user state
+    // Reset current mock user state
     mockCurrentAuthUser = mockUser;
 
-    // 2. Clear tables in correct relation order
+    // Clear tables in correct relation order
     await prisma.$transaction([
         prisma.transaction.deleteMany(),
         prisma.shiftLog.deleteMany(),
         prisma.user.deleteMany(),
     ]);
 
-    // 3. Re-create the mock auth user in DB so foreign keys work!
+    // Re-create the mock auth user in DB so foreign keys work!
     await prisma.user.create({
         data: mockUser,
     });

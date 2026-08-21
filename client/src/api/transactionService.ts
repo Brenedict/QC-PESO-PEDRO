@@ -39,7 +39,7 @@ export const getTransactions =
     (daily: boolean) =>
     async ({ request }: ActionFunctionArgs) => {
         // 8AM to 5PM
-        const dayRangeParam = daily ? buildDayRangeParam(new Date(), 8, 17) : {};
+        const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
         const otherParams = extractQueryToObject(request, ["page"]);
         const apiParams = buildParamString({ ...dayRangeParam, ...otherParams });
 
@@ -89,7 +89,7 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
 
 // GET: Transactions as recent activity
 export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => {
-    const dayRangeParam = buildDayRangeParam(new Date(), 8, 17);
+    const dayRangeParam = buildDayRangeParam(new Date());
     const apiParams = buildParamString({ ...dayRangeParam, include: ["user"], limit: "4" });
     console.log(`/transaction?${apiParams}`);
 

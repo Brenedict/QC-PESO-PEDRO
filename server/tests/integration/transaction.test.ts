@@ -1,15 +1,6 @@
 // General Imports
 import request from "supertest";
 import { app } from "../../jest.integration";
-import {
-    buildMockTransactions,
-    getExpectedBreakdown,
-    getExpectedGrouped,
-    getExpectedGroupedBreakdown,
-    getTransactionsInRange,
-    TOMORROW,
-    YESTERDAY,
-} from "../fixtures/transaction.fixture";
 import { jest, beforeEach, expect, describe, it } from "@jest/globals";
 
 // PEDRO SHARED IMPORTS
@@ -36,7 +27,17 @@ import prisma from "../../src/config/prisma.config";
 import { mockUser } from "../fixtures/user.fixture";
 import { buildMockShiftLog } from "../fixtures/shiftLog.fixture";
 import TransactionService from "../../src/service/transaction.service";
+import {
+    buildMockTransactions,
+    getExpectedBreakdown,
+    getExpectedGrouped,
+    getExpectedGroupedBreakdown,
+    getTransactionsInRange,
+    TOMORROW,
+    YESTERDAY,
+} from "../fixtures/transaction.fixture";
 
+// Use actual schema validator
 jest.unmock("../../src/middlewares/zod.middleware");
 
 const transformMockedDate = (transaction: TransactionCreateType): TransactionCreateType => {

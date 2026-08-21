@@ -101,6 +101,7 @@ export default {
 
     patchTransaction: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         validateSchema(TransactionFormUpdateSchema),
         async (req: Request, res: Response) => {
             const { transactionId } = req.params;
@@ -118,6 +119,7 @@ export default {
 
     deleteTransaction: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         async (req: Request, res: Response) => {
             const { transactionId } = req.params;
             const id = transactionId as string;

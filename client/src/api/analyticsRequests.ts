@@ -38,7 +38,7 @@ export type AnalyticsData = Record<string, DateRangeData | BreakdownData>;
 export type ReportTypes = "DAILY" | "WEEKLY" | "MONTHLY" | "SUMMARY";
 
 // 8 AM to 5 PM
-const TODAY_PARAM = buildDayRangeParam(new Date(), 8, 17);
+const TODAY_PARAM = buildDayRangeParam(new Date());
 const WEEK_PARAM = buildWeekRangeParam(new Date());
 const MONTH_PARAM = buildMonthRangeParam(new Date());
 const YEAR_PARAM = buildYearRangeParam(new Date());

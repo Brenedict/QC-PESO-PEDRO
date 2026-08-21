@@ -116,7 +116,7 @@ export default {
     },
 
     async getTransactionsPerDay(date: Date, orderBy?: TransactionOrderByWithRelationInput) {
-        const { startDate, endDate } = DateUtil.buildDayRange(date, 8, 17);
+        const { startDate, endDate } = DateUtil.buildDayRange(date);
 
         return await TransactionModel.getTransactions({
             where: {
@@ -145,7 +145,7 @@ export default {
     },
 
     async countByDay(date: Date) {
-        const { startDate, endDate } = DateUtil.buildDayRange(date, 8, 17);
+        const { startDate, endDate } = DateUtil.buildDayRange(date);
 
         return TransactionModel.count({
             where: {
