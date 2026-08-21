@@ -14,6 +14,7 @@ import {
     buildParamString,
     ensureOk,
     extractQueryToObject,
+    handleErrRedirect,
     redirectWithQuery,
     validateForm,
 } from "./actionService";
@@ -42,14 +43,7 @@ export const getTransactions =
 
             return res.json();
         } catch (err) {
-            // 2nd Line of Defense on Unauthorized URL Access
-            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-            if (err instanceof Response) throw err;
-
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, ROUTES.applicantForm.root);
+            return handleErrRedirect(err, request, ROUTES.applicantForm.root);
         }
     };
 
@@ -67,14 +61,7 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
 
         return transaction;
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
+        return handleErrRedirect(err, request, ROUTES.applicantForm.root);
     }
 };
 
@@ -92,10 +79,7 @@ export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => 
 
         return transaction;
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.profile.root);
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
     }
 };
 
@@ -128,14 +112,7 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         // Returns to root directory + queries
         return redirectWithQuery(request, ROUTES.applicantForm.root);
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
+        return handleErrRedirect(err, request, ROUTES.applicantForm.root);
     }
 };
 
@@ -152,10 +129,7 @@ export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
 
         return res.json();
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.profile.root);
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
     }
 };
 
@@ -173,10 +147,7 @@ export const getDetailsAnalytics =
             await ensureOk(res, "Failed to query analytic details");
             return res.json();
         } catch (err) {
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, ROUTES.profile.root);
+            return handleErrRedirect(err, request, ROUTES.dashboard.root);
         }
     };
 
@@ -193,10 +164,7 @@ export const getTransactionSummary = async ({ request }: ActionFunctionArgs) => 
 
         return res.json();
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.profile.root);
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
     }
 };
 
@@ -215,10 +183,7 @@ export const getTransactionReport =
 
             return res.json();
         } catch (err) {
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, ROUTES.profile.root);
+            return handleErrRedirect(err, request, ROUTES.dashboard.root);
         }
     };
 
@@ -246,14 +211,7 @@ export const deleteTransaction =
             // Returns to root directory + queries
             return redirectWithQuery(request, nextPage);
         } catch (err) {
-            // 2nd Line of Defense on Unauthorized URL Access
-            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-            if (err instanceof Response) throw err;
-
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return handleErrRedirect(err, request, nextPage);
         }
     };
 
@@ -283,13 +241,6 @@ export const updateTransaction =
             // Returns to root directory + queries
             return redirectWithQuery(request, nextPage);
         } catch (err) {
-            // 2nd Line of Defense on Unauthorized URL Access
-            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-            if (err instanceof Response) throw err;
-
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return handleErrRedirect(err, request, nextPage);
         }
     };

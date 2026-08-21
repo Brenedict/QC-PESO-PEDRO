@@ -24,6 +24,16 @@ export const redirectWithQuery = (request: Request, path: string) => {
     return redirect(`${path}?${query}`);
 };
 
+export const handleErrRedirect = (err: unknown, request: Request, path: string) => {
+    // 2nd Line of Defense on Unauthorized URL Access
+    // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
+    if (err instanceof Response) throw err;
+
+    console.error(err);
+
+    // Returns to root directory + queries
+    return redirectWithQuery(request, path);
+};
 export const apiJson = async (route: string, options: RequestInit = {}) => {
     return apiFetch(route, {
         ...options,
