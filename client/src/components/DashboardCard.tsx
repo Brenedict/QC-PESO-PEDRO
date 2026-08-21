@@ -36,7 +36,12 @@ export function CardHeader({ icon, children }: { icon: MaterialIcon; children: R
 export function PercentageChange({ current, previous }: { current: number; previous: number }) {
     if (current === previous) return null;
 
-    const percentage = ((current - previous) / previous) * 100;
+    let percentage: number;
+    if (previous === 0) {
+        percentage = current > 0 ? 100 : -100;
+    } else {
+        percentage = ((current - previous) / previous) * 100;
+    }
     const isPositive = percentage >= 0;
     const changeText = percentage !== 0 ? `${isPositive ? "+" : ""}${percentage.toFixed(0)}% vs Yesterday` : "";
 
