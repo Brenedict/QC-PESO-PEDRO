@@ -1,7 +1,7 @@
 // General Imports
 import { Outlet } from "react-router";
 
-// Componentss
+// Components
 import { Text } from "../components/Text";
 import PageHeader from "../components/PageHeader";
 import Profile from "../components/Profile";
@@ -23,11 +23,11 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import type { MaterialIcon } from "../types/common";
 
 // Context
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 
 //  Profile picture, name, role, and change password button
 function ProfileSummaryCard() {
-    const { firstName, lastName, role } = useTopBar();
+    const { firstName, lastName, role } = useUserGlobal();
     return (
         <Card className="w-full md:w-1/3 flex flex-col">
             <Card.Header variant="off-white" bordered={true} className="h-28">

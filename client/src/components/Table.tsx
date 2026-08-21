@@ -1,23 +1,24 @@
+// General Imports
+import { Children, type MouseEventHandler, type ReactNode } from "react";
+import { Form } from "react-router";
+
+// Components
 import Button from "./Button";
 import { Card } from "./Card";
 import { SearchInput } from "./Input";
-import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import { Text } from "./Text";
-import {
-    Children,
-    useState,
-    type ChangeEventHandler,
-    type MouseEventHandler,
-    type ReactNode,
-    type SubmitEventHandler,
-} from "react";
 import Icon from "./Icon";
-import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
-import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
-import { Form } from "react-router";
-import CancelIcon from "@mui/icons-material/Cancel";
 import EmptyData from "./EmptyData";
+
+// Material UI Icons
+import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
+import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
+import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
+
+// Contexts
 import { TableProvider, useTable, type TableContextValue } from "../context/TableContext";
+
+// Custom Hooks
 import { useSearchParamsTable } from "../hooks/table";
 
 function Row({ children }: { children: ReactNode }) {

@@ -1,8 +1,12 @@
+// General Imports
 import React from "react";
+
+// Components
 import Icon, { type IconProps } from "./Icon";
 
 // Available color and size variants
-export type ButtonVariant = | "blue" | "opaque-blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red" | "white-blue";
+export type ButtonVariant =
+    "blue" | "opaque-blue" | "red" | "green" | "navy" | "white" | "white-black" | "white-red" | "white-blue";
 export type ButtonSize = "tiny" | "smaller" | "small" | "normal" | "large";
 
 // Properties that can be passed to the button component

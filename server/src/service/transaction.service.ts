@@ -1,7 +1,11 @@
-import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
-import TransactionModel from "../models/transaction.model";
-import UserModel from "../models/user.model";
+// General Imports
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
+// PEDRO SHARED IMPORTS
+import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import type { TransactionScalarFieldEnum } from "@qcpesopedro/shared/zod/schemas";
+import { groupByInterval, groupByIntervalWithColumn } from "@qcpesopedro/shared/prisma/sql";
+import type { Transaction } from "@qcpesopedro/shared/prisma/client";
 import type {
     QueryBreakdownType,
     QueryDateRangeType,
@@ -9,7 +13,6 @@ import type {
     TransactionCreateType,
     TransactionQueryType,
 } from "@qcpesopedro/shared/schema/transactions";
-
 import type {
     DateTimeFilter,
     TransactionCountArgs,
@@ -19,14 +22,16 @@ import type {
     TransactionWhereInput,
 } from "@qcpesopedro/shared/prisma/models";
 
-import type { Transaction } from "@qcpesopedro/shared/prisma/client";
+// Models
+import TransactionModel from "../models/transaction.model";
+import UserModel from "../models/user.model";
 
+// Utils
 import ValidateUtil from "../utils/validate.util";
-import type { TransactionScalarFieldEnum } from "@qcpesopedro/shared/zod/schemas";
-import prisma from "../config/prisma.config";
 import DateUtil from "../utils/date.util";
-import { groupByInterval, groupByIntervalWithColumn } from "@qcpesopedro/shared/prisma/sql";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
+
+// Prisma.config
+import prisma from "../config/prisma.config";
 
 // -----------------------------  TYPES & INTERFACES -----------------------------------------------
 

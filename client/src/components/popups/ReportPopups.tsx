@@ -1,15 +1,25 @@
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+// General Imports
+import { usePDF } from "react-to-pdf";
+import { useLoaderData } from "react-router";
+import { type ReactNode, type RefObject } from "react";
+
+// Components
 import { Dialog } from "../Dialog";
 import { PopupButton } from "./PopupPartials";
 import { Text } from "../Text";
-import { useRef, type ReactNode, type RefObject } from "react";
-import { formatDDMMYYYY, formatLongMonthYear } from "../../utils/time";
-import type { ColorVariant } from "../../types/common";
 import Table from "../Table";
+
+// Material UI Icons
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import { usePDF } from "react-to-pdf";
-import { useLoaderData } from "react-router";
-import type { AnalyticsData } from "../../api/analyticsRequests";
+
+// Custom Hooks
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+// Utils
+import { formatDDMMYYYY, formatLongMonthYear } from "../../utils/time";
+
+// Types
+import type { ColorVariant } from "../../types/common";
 
 function PaperContainer({ targetRef, children }: { targetRef: RefObject<null>; children: ReactNode }) {
     return (

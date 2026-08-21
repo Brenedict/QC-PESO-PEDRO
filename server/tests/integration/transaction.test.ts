@@ -1,5 +1,32 @@
+// General Imports
 import request from "supertest";
 import { app } from "../../jest.integration";
+import { jest, beforeEach, expect, describe, it } from "@jest/globals";
+
+// PEDRO SHARED IMPORTS
+import type { TransactionUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
+import {
+    Outcome,
+    TransactionType,
+    type Transaction,
+    type ShiftLog,
+    type User,
+} from "@qcpesopedro/shared/prisma/client";
+import {
+    TransactionAnalyticsQueryInput,
+    TransactionCreateType,
+    TransactionQueryType,
+    TransactionUpdateType,
+} from "@qcpesopedro/shared/schema/transactions";
+
+// Router
+import transactionRoute from "../../src/routes/transaction.route";
+
+// Fixtures
+import prisma from "../../src/config/prisma.config";
+import { mockUser } from "../fixtures/user.fixture";
+import { buildMockShiftLog } from "../fixtures/shiftLog.fixture";
+import TransactionService from "../../src/service/transaction.service";
 import {
     buildMockTransactions,
     getExpectedBreakdown,
@@ -9,25 +36,9 @@ import {
     TOMORROW,
     YESTERDAY,
 } from "../fixtures/transaction.fixture";
-import transactionRoute from "../../src/routes/transaction.route";
-import prisma from "../../src/config/prisma.config";
-import { mockUser } from "../fixtures/user.fixture";
-import { buildMockShiftLog } from "../fixtures/shiftLog.fixture";
-import {
-    Outcome,
-    TransactionType,
-    type Transaction,
-    type ShiftLog,
-    type User,
-} from "@qcpesopedro/shared/prisma/client";
-import type { TransactionUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
-import TransactionService from "../../src/service/transaction.service";
-import {
-    TransactionAnalyticsQueryInput,
-    TransactionCreateType,
-    TransactionQueryType,
-    TransactionUpdateType,
-} from "@qcpesopedro/shared/schema/transactions";
+
+// Use actual schema validator
+jest.unmock("../../src/middlewares/zod.middleware");
 
 const transformMockedDate = (transaction: TransactionCreateType): TransactionCreateType => {
     return { ...transaction, createdAt: expect.any(String) };
@@ -35,11 +46,10 @@ const transformMockedDate = (transaction: TransactionCreateType): TransactionCre
 
 describe("Transaction Route", () => {
     let mockedTransactions: TransactionCreateType[];
-    let mockedUser: User;
+    let mockedUser: User = mockUser;
     let mockedShiftLog: ShiftLog;
 
     beforeEach(async () => {
-        mockedUser = await prisma.user.create({ data: mockUser });
         mockedShiftLog = await prisma.shiftLog.create({ data: buildMockShiftLog(mockedUser.id) });
 
         mockedTransactions = buildMockTransactions(mockedUser.id, mockedShiftLog.id);

@@ -1,4 +1,9 @@
+// General Imports
 import { Outlet, useLoaderData } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import type { Role } from "@qcpesopedro/shared/prisma/enums.ts";
+import type { UserFormCreateType } from "@qcpesopedro/shared/schema/users";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -11,7 +16,7 @@ import { SelectInput } from "../components/Input";
 import { ActionButtons, RoleBadge, type ActionTypes } from "../components/TableCells";
 import Status from "../components/Status";
 
-// Icons
+// Material UI Icons
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
@@ -19,13 +24,11 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 
-// Types
-import type { Role } from "../types/common";
-
-// Hooks
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import type { UserFormCreateType } from "../../../shared/schema/users";
-import { useTopBar } from "../context/TopbarContext.tsx";
+
+// Contexts
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -77,9 +80,8 @@ function UserManagement() {
 
     const users = useLoaderData() as UserFormCreateType[];
 
-    const { role } = useTopBar();
+    const { role } = useUserGlobal();
     const userRole = role;
-    console.log("User Role:", userRole); // Debugging line to check the role value
 
     const RoleButtonMap: Record<Role, RoleButton | null> = {
         SUPERADMIN: null,

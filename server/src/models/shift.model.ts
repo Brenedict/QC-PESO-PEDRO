@@ -1,8 +1,11 @@
+// PEDRO SHARED IMPORTS
 import type {
     ShiftLogOrderByWithRelationInput,
     ShiftLogSelectScalar,
     ShiftLogWhereInput,
 } from "@qcpesopedro/shared/prisma/models";
+
+// Prisma.config
 import prisma from "../config/prisma.config";
 
 export default {

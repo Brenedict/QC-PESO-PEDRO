@@ -2,6 +2,9 @@
 import { Outlet, useLoaderData } from "react-router";
 import { type ReactNode } from "react";
 
+// PEDRO SHARED IMPORTS
+import type { Transaction, User } from "@qcpesopedro/shared/prisma/browser.ts";
+
 // Components
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
@@ -14,19 +17,19 @@ import { NumberText, NumberTitle } from "../components/DashboardCard";
 import { Card } from "../components/Card";
 import Icon from "../components/Icon";
 
-// Icons
+// Material UI Icons
 import SsidChartOutlinedIcon from "@mui/icons-material/SsidChartOutlined";
 import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
-// Test Data
+// API Services
 import { DASHBOARD_CARD_MAP, RECENT_TRANSACTION_MAP } from "../api/transactionService.ts";
 
-// Hooks
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Context
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 import {
     DASHBOARD_OVERVIEW_REQUEST,
     getQueryIds,
@@ -39,7 +42,6 @@ import {
     type CategorySeriesConfig,
     type TimeSeriesConfig,
 } from "../api/chartService.ts";
-import type { Transaction, User } from "@qcpesopedro/shared/prisma/browser.ts";
 import { formatTime } from "../utils/time.ts";
 
 type CardId = keyof typeof DASHBOARD_CARD_MAP;
@@ -184,7 +186,7 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 // Main Overview Component
 export function Overview({ pending, approved, revision }: EndShiftProps) {
     const navigate = useNavigateDefault();
-    const { role } = useTopBar();
+    const { role } = useUserGlobal();
     const { analytics, recent } = useLoaderData();
 
     const referralSeries: TimeSeriesConfig[] = [

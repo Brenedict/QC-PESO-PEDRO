@@ -1,5 +1,8 @@
-import { ColorClasses, type ColorVariant } from "../types/common";
+// Components
 import { Text } from "./Text";
+
+// Types
+import { ColorClasses, type ColorVariant } from "../types/common";
 
 interface ProgressDataItem {
     item: string;

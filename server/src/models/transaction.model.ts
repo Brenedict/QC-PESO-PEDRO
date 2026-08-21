@@ -1,4 +1,4 @@
-import prisma from "../config/prisma.config";
+// PEDRO SHARED IMPORTS
 import type { TransactionCreateType, TransactionUpdateType } from "@qcpesopedro/shared/schema/transactions";
 import type {
     TransactionCountArgs,
@@ -7,6 +7,9 @@ import type {
     TransactionUncheckedCreateInput,
     TransactionUncheckedUpdateInput,
 } from "@qcpesopedro/shared/prisma/models";
+
+// Prisma.config
+import prisma from "../config/prisma.config";
 
 export default {
     async getTransactions(args: TransactionFindManyArgs) {

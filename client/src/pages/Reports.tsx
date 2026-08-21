@@ -10,7 +10,7 @@ import { BarChart } from "../components/BarChart";
 import Icon from "../components/Icon";
 import { Text } from "../components/Text";
 
-// Icons
+// Material UI Icons
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 

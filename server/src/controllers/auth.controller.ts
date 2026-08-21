@@ -1,6 +1,13 @@
+// General Imports
 import type { Request, Response } from "express";
-import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport.middleware";
+
+// PEDRO SHARED IMPORTS
 import type { User } from "@qcpesopedro/shared/prisma/client";
+
+// Middlewares
+import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport.middleware";
+
+// Service
 import AuthService from "../service/auth.service";
 
 export default {

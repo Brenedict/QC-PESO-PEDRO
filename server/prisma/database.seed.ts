@@ -1,8 +1,13 @@
+// PEDRO SHARED IMPORTS
 import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
-import prisma from "../src/config/prisma.config";
-import TransactionService from "../src/service/transaction.service";
 import { Demographic } from "@qcpesopedro/shared/prisma/enums";
 import { ShiftLogUncheckedCreateInput, UserUncheckedCreateInput } from "@qcpesopedro/shared/prisma/models";
+
+// Prisma.config
+import prisma from "../src/config/prisma.config";
+
+// Service
+import TransactionService from "../src/service/transaction.service";
 
 // prettier-ignore
 const maleFirstNames = [ "Juan", "Mark", "John", "Carlo", "Miguel", "Angelo", "Joshua", "Daniel", "Christian", "Gabriel", "Adrian",

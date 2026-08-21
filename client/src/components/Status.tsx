@@ -1,7 +1,7 @@
 // Components
 import { Text } from "./Text";
 
-// Icons
+// Materials UI Icons
 import WifiIcon from "@mui/icons-material/Wifi";
 import WifiOffIcon from "@mui/icons-material/WifiOff";
 import LogoutIcon from "@mui/icons-material/Logout";

@@ -1,6 +1,10 @@
+// General Imports
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter } from "react-router";
+import { RouterProvider } from "react-router/dom";
+
+// PEDRO Defined Routes
 import routes from "./routes";
 
 createRoot(document.getElementById("root")!).render(

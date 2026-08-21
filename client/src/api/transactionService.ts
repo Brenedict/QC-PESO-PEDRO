@@ -1,16 +1,22 @@
+// General Imports
+import { type ActionFunctionArgs } from "react-router";
+
+//
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
 import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
 import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
-import { type ActionFunctionArgs } from "react-router";
-import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+
+// PEDRO SHARED IMPORTS
+import type { Transaction, TransactionType } from "@qcpesopedro/shared/prisma/browser";
 import {
     TransactionFormCreateSchema,
     TransactionFormDeleteSchema,
     TransactionFormUpdateSchema,
     type TransactionAnalyticsFilterType,
 } from "@qcpesopedro/shared/schema/transactions";
+
+// API Services
 import { decode } from "../utils/hashids";
-import type { Transaction, TransactionType } from "@qcpesopedro/shared/prisma/browser";
 import {
     apiJson,
     ensureOk,
@@ -28,6 +34,9 @@ import {
 } from "./analyticsRequests";
 import type { MaterialIcon } from "../types/common";
 import { buildDayRangeParam, buildParamString, TIMEFRAME_MAP, type TIMEFRAME_RESULT } from "./dateService";
+
+// Custom Hooks
+import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 
 // ------------------------- MAPS -------------------------------------------------------
 export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {

@@ -1,13 +1,8 @@
+// Components
 import Icon, { type IconProps } from "./Icon";
-import {
-    SizeClasses,
-    type SizeVariant,
-    ColorClasses,
-    type ColorVariant,
-    type AlignVariant,
-    alignClasses,
-    type MaterialIcon,
-} from "../types/common.ts";
+
+// Types
+import { SizeClasses, type SizeVariant, ColorClasses, type ColorVariant, type AlignVariant } from "../types/common.ts";
 
 const weightClasses = {
     black: "font-black",

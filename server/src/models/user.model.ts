@@ -1,5 +1,7 @@
 // General Imports
 import { Prisma, type User } from "@qcpesopedro/shared/prisma/client";
+
+// Prisma.config
 import prisma from "../config/prisma.config";
 
 // Service

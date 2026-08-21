@@ -1,6 +1,11 @@
+// General Imports
 import { redirect } from "react-router";
 import z from "zod";
+
+// API Services
 import { apiFetch } from "./httpClient";
+
+// Custom Hooks
 import { ROUTES } from "../hooks/reroute";
 
 const JSON_HEADERS = {

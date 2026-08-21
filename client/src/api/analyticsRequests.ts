@@ -21,6 +21,7 @@ export interface DateRangeData {
         count?: number;
     };
 }
+
 export type BreakdownData = Record<string, number> | Record<string, Record<string, number>>;
 export type AnalyticsData = Record<string, DateRangeData | BreakdownData>;
 export type ReportTypes = "DAILY" | "WEEKLY" | "MONTHLY" | "SUMMARY";
@@ -288,7 +289,7 @@ export const extractGroupedFromData = (data: AnalyticsData, sourceKey: string) =
 };
 
 // Testing for postman
-console.log("====== OVERVIEW ========\n", JSON.stringify(DASHBOARD_OVERVIEW_REQUEST));
+// console.log("====== OVERVIEW ========\n", JSON.stringify(DASHBOARD_OVERVIEW_REQUEST));
 // console.log();
 // console.log("====== DETAILS ========\n", JSON.stringify(DASHBOARD_DETAILS_REQUEST()));
 // console.log("====== REPORT ========\n", JSON.stringify(TRANSACTION_REPORT_REQUEST("DAILY")));

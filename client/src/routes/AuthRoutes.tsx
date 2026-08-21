@@ -1,11 +1,20 @@
+// General Imports
 import { redirect, type RouteObject } from "react-router";
-import LoginPage from "../pages/LoginPage";
-import { checkAuthService } from "../api/authService";
-import TokenStore from "../api/tokenStore";
-import { apiFetch } from "../api/httpClient";
-import { ROUTES } from "../hooks/reroute";
-import SystemErrorPage from "../pages/SystemErrorPage";
+
+// PEDRO SHARED IMPORTS
 import { LoginSchema } from "@qcpesopedro/shared/schema/login";
+
+// Components
+import LoginPage from "../pages/LoginPage";
+import SystemErrorPage from "../pages/SystemErrorPage";
+
+// API Services
+import { checkAuthService } from "../api/authService";
+import { apiFetch } from "../api/httpClient";
+import TokenStore from "../api/tokenStore";
+
+// Custom Hooks
+import { ROUTES } from "../hooks/reroute";
 
 export const authRoutes: RouteObject[] = [
     {

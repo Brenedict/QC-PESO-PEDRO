@@ -1,4 +1,4 @@
-// Prisma Type
+// PEDRO SHARED IMPORTS
 import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
 
 // Models

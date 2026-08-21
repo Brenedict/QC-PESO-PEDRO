@@ -1,7 +1,8 @@
+// General Imports
 import type { Request, Response } from "express";
-import { jwtAccessAuth } from "../middlewares/passport.middleware";
-import TransactionModel from "../models/transaction.model";
-import { validateSchema } from "../middlewares/zod.middleware";
+
+// PEDRO SHARED IMPORTS
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 import {
     TransactionAnalyticsQuerySchema,
     TransactionFormCreateSchema,
@@ -10,12 +11,25 @@ import {
     type TransactionCreateType,
     type TransactionUpdateType,
 } from "@qcpesopedro/shared/schema/transactions";
+
+// Middlewares
+import { jwtAccessAuth } from "../middlewares/passport.middleware";
+import { requireAccessLevel } from "../middlewares/authorized.middleware";
+import { validateSchema } from "../middlewares/zod.middleware";
+
+// Model
+import TransactionModel from "../models/transaction.model";
+
+// Service
 import TransactionService from "../service/transaction.service";
+
+// Utils
 import ValidateUtil from "../utils/validate.util";
 
 export default {
     getTransactions: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         async (req: Request, res: Response) => {
             const result = ValidateUtil.validateRequestData(TransactionQuerySchema, req.query, res);
             if (!result.success) return;
@@ -45,6 +59,7 @@ export default {
 
     postAnalytics: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         async (req: Request, res: Response) => {
             const result = ValidateUtil.validateRequestData(TransactionAnalyticsQuerySchema, req.body, res);
             if (!result.success) return;
@@ -58,6 +73,7 @@ export default {
 
     getTransactionById: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         async (req: Request, res: Response) => {
             const { transactionId } = req.params;
 
@@ -74,6 +90,7 @@ export default {
 
     postTransaction: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         validateSchema(TransactionFormCreateSchema),
         async (req: Request, res: Response) => {
             const transaction = req.body as TransactionCreateType;
@@ -84,6 +101,7 @@ export default {
 
     patchTransaction: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         validateSchema(TransactionFormUpdateSchema),
         async (req: Request, res: Response) => {
             const { transactionId } = req.params;
@@ -101,6 +119,7 @@ export default {
 
     deleteTransaction: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         async (req: Request, res: Response) => {
             const { transactionId } = req.params;
             const id = transactionId as string;

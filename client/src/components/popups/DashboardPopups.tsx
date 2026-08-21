@@ -1,22 +1,33 @@
+// General Imports
 import type { ReactNode } from "react";
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import type { MaterialIcon } from "../../types/common";
+import { Link, useLoaderData, useLocation } from "react-router";
+
+// Components
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
+import { BarChart } from "../BarChart";
+import Table from "../Table";
+import { DoughnutChart } from "../DoughnutChart";
+
+// Material UI Icons
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import { Link, useLoaderData, useLocation } from "react-router";
-import Table from "../Table";
-import { BarChart } from "../BarChart";
-import { DoughnutChart } from "../DoughnutChart";
+
+// API Services
 import { extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
+import { DASHBOARD_CARD_MAP } from "../../api/transactionService";
 import {
     buildCategoryChartData,
     buildTimeSeriesChartData,
     type CategorySeriesConfig,
     type TimeSeriesConfig,
 } from "../../api/chartService";
-import { DASHBOARD_CARD_MAP } from "../../api/transactionService";
+
+// Custom Hooks
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+// Types
+import type { MaterialIcon } from "../../types/common";
 
 function TransactionMiniCard({ label, value }: { label: string; value: number }) {
     return (

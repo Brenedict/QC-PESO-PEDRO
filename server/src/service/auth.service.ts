@@ -1,8 +1,11 @@
-import type { User } from "@qcpesopedro/shared/prisma/client";
+// General Imports
 import jwt from "jsonwebtoken";
 import env from "../config/env.config";
 import { type Response } from "express";
 import ms from "ms";
+
+// PEDRO SHARED IMPORTS
+import type { User } from "@qcpesopedro/shared/prisma/client";
 
 export default {
     // Helper to generate tokens

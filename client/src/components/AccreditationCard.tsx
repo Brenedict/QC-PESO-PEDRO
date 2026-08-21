@@ -1,5 +1,8 @@
+// Components
 import { Card } from "./Card";
 import { CardHeader, Divider, NumberText, NumberTitle } from "./DashboardCard";
+
+// Material UI Icons
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 
 interface AccreditationCardProps {

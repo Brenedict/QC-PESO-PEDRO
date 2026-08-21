@@ -1,7 +1,9 @@
 // General Imports
-
 import { useLoaderData } from "react-router";
 import { Outlet } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { Outcome, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -10,13 +12,10 @@ import Table from "../components/Table";
 import Status from "../components/Status";
 import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
 
-// Icons
+// Material UI Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
-
-// Data
-import { Outcome, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
