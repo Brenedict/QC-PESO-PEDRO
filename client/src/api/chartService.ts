@@ -131,7 +131,7 @@ const getCurrentWeekdayBuckets = (): string[] => {
     return Array.from({ length: 5 }, (_, i) => {
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
-        return d.toISOString().slice(0, 10); // "2026-08-17"
+        return d.toLocaleDateString("sv-SE"); // "2026-08-17"
     });
 };
 
@@ -147,7 +147,7 @@ const getCurrentMonthWeekBuckets = (): string[] => {
     return Array.from({ length: 4 }, (_, i) => {
         const weekStart = new Date(monday);
         weekStart.setDate(monday.getDate() + i * 7);
-        return weekStart.toISOString().slice(0, 10); // "2026-08-03"
+        return weekStart.toLocaleDateString("sv-SE"); // "2026-08-03"
     });
 };
 
