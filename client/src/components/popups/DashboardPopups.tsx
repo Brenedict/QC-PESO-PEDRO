@@ -7,18 +7,16 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import { Link, useLoaderData, useLocation } from "react-router";
 import Table from "../Table";
-import { shiftRecords } from "../../data/shiftRecords";
 import { BarChart } from "../BarChart";
-import { samplePieData, samplePieOptions, samplePopupBarData, samplePopupBarOptions } from "../../data/chartsConfigs";
 import { DoughnutChart } from "../DoughnutChart";
-import { CARD_MAP, extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
+import { extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
 import {
     buildCategoryChartData,
     buildTimeSeriesChartData,
     type CategorySeriesConfig,
     type TimeSeriesConfig,
 } from "../../api/chartService";
-import { Sex } from "@qcpesopedro/shared/prisma/browser";
+import { DASHBOARD_CARD_MAP } from "../../api/transactionService";
 
 function TransactionMiniCard({ label, value }: { label: string; value: number }) {
     return (
@@ -74,7 +72,7 @@ export function PopupTransactionDetails() {
     const data = useLoaderData() as AnalyticsData;
     const navigate = useNavigateDefault();
 
-    const label = id && CARD_MAP?.[id]?.title ? CARD_MAP?.[id].title : "Unknown";
+    const label = id && DASHBOARD_CARD_MAP?.[id]?.title ? DASHBOARD_CARD_MAP?.[id].title : "Unknown";
 
     const hourlySeries: TimeSeriesConfig[] = [
         {

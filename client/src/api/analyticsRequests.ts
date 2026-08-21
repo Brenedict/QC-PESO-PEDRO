@@ -1,14 +1,8 @@
-import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
-import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
-import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
-
 import type {
     TransactionAnalyticsFilterType,
     TransactionAnalyticsQueryInput,
 } from "@qcpesopedro/shared/schema/transactions";
-import { buildDayRangeParam, buildMonthRangeParam, buildWeekRangeParam, buildYearRangeParam } from "./actionService";
-import type { MaterialIcon } from "../types/common";
-import type { TransactionType } from "@qcpesopedro/shared/prisma/browser";
+import { MONTH_PARAM, TODAY_PARAM, WEEK_PARAM } from "./dateService";
 
 export interface DateRangeData {
     count?: number;
@@ -30,34 +24,6 @@ export interface DateRangeData {
 export type BreakdownData = Record<string, number> | Record<string, Record<string, number>>;
 export type AnalyticsData = Record<string, DateRangeData | BreakdownData>;
 export type ReportTypes = "DAILY" | "WEEKLY" | "MONTHLY" | "SUMMARY";
-
-// 8 AM to 5 PM
-const TODAY_PARAM = buildDayRangeParam(new Date(), 8, 17);
-const WEEK_PARAM = buildWeekRangeParam(new Date());
-const MONTH_PARAM = buildMonthRangeParam(new Date());
-const YEAR_PARAM = buildYearRangeParam(new Date());
-
-export const CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
-    total: { title: "Total Transaction" },
-    "walk-in": { title: "Walk-in Transaction" },
-    online: { title: "Online Referral" },
-    "in-house": { title: "In-house Referral" },
-    "work-immersion": { title: "Work Immersion", specialIcon: BusinessCenterOutlinedIcon },
-    "job-seeker": { title: "First Time Job Seekers", specialIcon: AssignmentIndOutlinedIcon },
-    pwd: { title: "Persons With Disability", specialIcon: AssignmentIndOutlinedIcon },
-    senior: { title: "Senior Citizens", specialIcon: AssignmentIndOutlinedIcon },
-    ["young-worker"]: { title: "Young Workers", specialIcon: AssignmentIndOutlinedIcon },
-    ["success"]: { title: "Successful Referrals", specialIcon: BusinessCenterOutlinedIcon },
-    ["pending"]: { title: "Pending Applications", specialIcon: FindInPageOutlinedIcon },
-    ["mismatch"]: { title: "Mismatched Skills", specialIcon: FindInPageOutlinedIcon },
-    ["none"]: { title: "None", specialIcon: FindInPageOutlinedIcon },
-} as const;
-
-export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
-    WALK_IN_REFERRAL: CARD_MAP["walk-in"].title,
-    ONLINE_REFERRAL: CARD_MAP.online.title,
-    IN_HOUSE_RECRUITMENT: CARD_MAP["in-house"].title,
-};
 
 export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
     queries: [

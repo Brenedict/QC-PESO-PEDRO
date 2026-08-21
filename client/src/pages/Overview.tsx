@@ -20,7 +20,7 @@ import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 // Test Data
-import { recentActivity } from "../data/recentActivity";
+import { DASHBOARD_CARD_MAP, RECENT_TRANSACTION_MAP } from "../api/transactionService.ts";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
@@ -28,10 +28,8 @@ import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 // Context
 import { useTopBar } from "../context/TopbarContext.tsx";
 import {
-    CARD_MAP,
     DASHBOARD_OVERVIEW_REQUEST,
     getQueryIds,
-    RECENT_TRANSACTION_MAP,
     type AnalyticsData,
     type DateRangeData,
 } from "../api/analyticsRequests.ts";
@@ -44,7 +42,7 @@ import {
 import type { Transaction, User } from "@qcpesopedro/shared/prisma/browser.ts";
 import { formatTime } from "../utils/time.ts";
 
-type CardId = keyof typeof CARD_MAP;
+type CardId = keyof typeof DASHBOARD_CARD_MAP;
 
 interface CardGroupProps {
     ids?: CardId[];
@@ -74,8 +72,8 @@ function CardGroup({ ids = [], analytics }: CardGroupProps) {
                         <StatsCard
                             key={id}
                             className="w-full"
-                            title={CARD_MAP?.[id].title}
-                            specialIcon={CARD_MAP?.[id].specialIcon}
+                            title={DASHBOARD_CARD_MAP?.[id].title}
+                            specialIcon={DASHBOARD_CARD_MAP?.[id].specialIcon}
                             total={dataValue?.current?.count ?? 0}
                             male={dataValue?.current?.grouped?.MALE ?? 0}
                             female={dataValue?.current?.grouped?.FEMALE ?? 0}

@@ -1,3 +1,6 @@
+import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
+import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
+import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import { type ActionFunctionArgs } from "react-router";
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 import {
@@ -7,11 +10,9 @@ import {
     type TransactionAnalyticsFilterType,
 } from "@qcpesopedro/shared/schema/transactions";
 import { decode } from "../utils/hashids";
-import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
+import type { Transaction, TransactionType } from "@qcpesopedro/shared/prisma/browser";
 import {
     apiJson,
-    buildDayRangeParam,
-    buildParamString,
     ensureOk,
     extractQueryToObject,
     handleErrRedirect,
@@ -25,15 +26,44 @@ import {
     TRANSACTION_SUMMARY_REQUEST,
     type ReportTypes,
 } from "./analyticsRequests";
+import type { MaterialIcon } from "../types/common";
+import { buildDayRangeParam, buildParamString, TIMEFRAME_MAP, type TIMEFRAME_RESULT } from "./dateService";
+
+// ------------------------- MAPS -------------------------------------------------------
+export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
+    total: { title: "Total Transaction" },
+    "walk-in": { title: "Walk-in Transaction" },
+    online: { title: "Online Referral" },
+    "in-house": { title: "In-house Referral" },
+    "work-immersion": { title: "Work Immersion", specialIcon: BusinessCenterOutlinedIcon },
+    "job-seeker": { title: "First Time Job Seekers", specialIcon: AssignmentIndOutlinedIcon },
+    pwd: { title: "Persons With Disability", specialIcon: AssignmentIndOutlinedIcon },
+    senior: { title: "Senior Citizens", specialIcon: AssignmentIndOutlinedIcon },
+    ["young-worker"]: { title: "Young Workers", specialIcon: AssignmentIndOutlinedIcon },
+    ["success"]: { title: "Successful Referrals", specialIcon: BusinessCenterOutlinedIcon },
+    ["pending"]: { title: "Pending Applications", specialIcon: FindInPageOutlinedIcon },
+    ["mismatch"]: { title: "Mismatched Skills", specialIcon: FindInPageOutlinedIcon },
+    ["none"]: { title: "None", specialIcon: FindInPageOutlinedIcon },
+} as const;
+
+export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
+    WALK_IN_REFERRAL: DASHBOARD_CARD_MAP["walk-in"].title,
+    ONLINE_REFERRAL: DASHBOARD_CARD_MAP.online.title,
+    IN_HOUSE_RECRUITMENT: DASHBOARD_CARD_MAP["in-house"].title,
+};
+
+// ------------------------------- API --------------------------------------------------
 
 // GET: Fetches all transactions
 export const getTransactions =
     (daily: boolean) =>
     async ({ request }: ActionFunctionArgs) => {
-        // 8AM to 5PM
-        const dayRangeParam = daily ? buildDayRangeParam(new Date(), 8, 17) : {};
-        const otherParams = extractQueryToObject(request, ["page"]);
-        const apiParams = buildParamString({ ...dayRangeParam, ...otherParams });
+        const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
+        const { query, omitted } = extractQueryToObject(request, ["page", "timeframe"]);
+        const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "overall"] as TIMEFRAME_RESULT;
+
+        const apiParams = buildParamString({ ...dayRangeParam, ...query, ...dateRangeOption });
+        console.log(apiParams);
 
         try {
             // Main Fetch Request
@@ -67,7 +97,7 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
 
 // GET: Transactions as recent activity
 export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => {
-    const dayRangeParam = buildDayRangeParam(new Date(), 8, 17);
+    const dayRangeParam = buildDayRangeParam(new Date());
     const apiParams = buildParamString({ ...dayRangeParam, include: ["user"], limit: "4" });
     console.log(`/transaction?${apiParams}`);
 
