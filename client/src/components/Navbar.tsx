@@ -1,7 +1,15 @@
+// PEDRO SHARED IMPORTS
+import { Role } from "@qcpesopedro/shared/prisma/enums";
+
+// General Imports
 import type { ReactNode } from "react";
 import { NavLink } from "react-router";
+
+// Components
 import { Text } from "./Text";
 import Profile, { type ProfileBaseProps } from "./Profile";
+
+// Material UI Icons
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
@@ -13,7 +21,6 @@ import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import SensorOccupiedOutlinedIcon from "@mui/icons-material/SensorOccupiedOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import { Role } from "@qcpesopedro/shared/prisma/enums";
 
 function NavHeader({ userFullName, profilePicUrl, children }: { children: ReactNode } & ProfileBaseProps) {
     return (

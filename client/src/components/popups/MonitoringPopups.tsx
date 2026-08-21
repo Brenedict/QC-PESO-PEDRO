@@ -1,14 +1,22 @@
-import { Form, useParams } from "react-router";
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import { decode } from "../../utils/hashids";
-import { employeeSessions } from "../../data/employeeSessions";
+// General Imports
+import { useParams } from "react-router";
+
+// Components
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
-import { GeneralInput } from "../Input";
-import { PopupButton } from "./PopupPartials";
 import Table from "../Table";
-import { formatDuration, formatMonthDay, formatTime } from "../../utils/time";
+import { PopupButton } from "./PopupPartials";
 import { ColumnDescItalic, ColumnText, Identifier } from "../TableCells";
+
+// Utils
+import { decode } from "../../utils/hashids";
+import { formatDuration, formatMonthDay, formatTime } from "../../utils/time";
+
+// Custom Hooks
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+// Test data
+import { employeeSessions } from "../../data/employeeSessions";
 
 export function PopupViewHistory() {
     const navigate = useNavigateDefault();

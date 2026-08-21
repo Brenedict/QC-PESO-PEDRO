@@ -1,3 +1,4 @@
+// Types
 import { type MaterialIcon, type SizeVariant, SizeClasses, type ColorVariant, ColorClasses } from "../types/common";
 
 const alignClasses = {

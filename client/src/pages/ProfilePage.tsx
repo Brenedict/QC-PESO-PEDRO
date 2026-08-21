@@ -1,7 +1,7 @@
 // General Imports
 import { Outlet } from "react-router";
 
-// Componentss
+// Components
 import { Text } from "../components/Text";
 import PageHeader from "../components/PageHeader";
 import Profile from "../components/Profile";

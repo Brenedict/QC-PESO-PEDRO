@@ -1,13 +1,17 @@
+// General Imports
 import { useNavigate } from "react-router";
-import { useNavigateDefault, ROUTES } from "../hooks/reroute";
+
+// COMPONENTS
 import { Text } from "../components/Text";
 import Button from "../components/Button";
 
-// Icons
+// Material UI Icons
 import FolderOffOutlinedIcon from "@mui/icons-material/FolderOffOutlined";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 
-// COMPONENTS
+// Custom Hooks
+import { useNavigateDefault, ROUTES } from "../hooks/reroute";
+
 function NotFoundVisual() {
     return <FolderOffOutlinedIcon sx={{ fontSize: 120 }} className="text-slate-300 drop-shadow-sm" />;
 }

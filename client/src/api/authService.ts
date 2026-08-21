@@ -1,8 +1,31 @@
+// General Imports
 import { redirect } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+
+// API Services
 import { apiFetch } from "./httpClient";
 import TokenStore from "./tokenStore";
 
+// Custom Hooks
+import { ROUTES } from "../hooks/reroute";
+
 // Auth helpers
+
+/*
+    Initial '/protected' loader that checks for user authentication. 
+    If the user is not authenticated, it will redirect to the login page.
+*/
+export const primaryAuthLoader = async () => {
+    const isAuthenticated = await checkAuthService();
+    if (!isAuthenticated) {
+        throw redirect(ROUTES.auth.root);
+    }
+    const user = await getUserContextLoader();
+    return { user };
+};
+
 export const checkAuthService = async (): Promise<boolean> => {
     try {
         const res = await apiFetch("/auth/protected");
@@ -32,22 +55,6 @@ export const logoutService = async (): Promise<boolean> => {
     }
 };
 
-export const authLoader = async () => {
-    const isAuthenticated = await checkAuthService();
-
-    if (!isAuthenticated) {
-        await logoutService();
-        throw redirect("/auth");
-    }
-
-    const user = await getUserContextLoader();
-
-    return {
-        isAuthenticated,
-        user,
-    };
-};
-
 // GET: Fetches the data of the currently logged-in user. If the user is not authenticated, it will log them out and return null.
 export const getUserContextLoader = async () => {
     try {
@@ -61,7 +68,8 @@ export const getUserContextLoader = async () => {
         });
 
         if (!res.ok) {
-            throw new Error(`Failed to get user data ${res.status}`);
+            const error = (await res.json()).error;
+            throw new Error(`Failed to get user data ${res.status} => ${error}`);
         }
 
         return await res.json();

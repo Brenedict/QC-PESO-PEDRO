@@ -1,5 +1,9 @@
 // General Imports
+import { useLoaderData } from "react-router";
 import { Outlet } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { Outcome, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -8,27 +12,54 @@ import Table from "../components/Table";
 import Status from "../components/Status";
 import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
 
-// Icons
+// Material UI Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
-// Test Data
-import type { Transaction } from "../data/transactions";
-
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import { useSearchParamsTable } from "../hooks/table";
+import { SelectInput } from "../components/Input";
 
-function TransactionHistory({
-    transactions,
-    handleFilterSubmit,
-}: {
-    transactions: Transaction[];
-    handleFilterSubmit?: React.SubmitEventHandler<HTMLFormElement>;
-}) {
+export function TransactionExtraFilters() {
+    const { searchParams } = useSearchParamsTable();
+
+    return (
+        <div className="flex gap-4 items-center">
+            {/* Action Filter */}
+            <SelectInput
+                optionList={[
+                    { content: "All Types", value: "" },
+                    { content: "Walk-in Referral", value: TransactionType.WALK_IN_REFERRAL },
+                    { content: "Online Referral", value: TransactionType.ONLINE_REFERRAL },
+                    { content: "In-house Recruitment", value: TransactionType.IN_HOUSE_RECRUITMENT },
+                ]}
+                name="type"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.type}
+            />
+            <SelectInput
+                optionList={[
+                    { content: "All Outcome", value: "" },
+                    { content: "None", value: Outcome.NONE },
+                    { content: "Pending", value: Outcome.PENDING },
+                    { content: "Mismatch", value: Outcome.MISMATCH },
+                    { content: "Success", value: Outcome.SUCCESS },
+                ]}
+                name="outcome"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.outcome}
+            />
+        </div>
+    );
+}
+
+function TransactionHistory() {
+    const data = useLoaderData();
     const navigate = useNavigateDefault();
-    const { page, handleSetPage } = useSearchParamsTable();
+
+    const transactions = data.transactions as Transaction[];
 
     const handleEdit = (id: string) => () => {
         navigate(ROUTES.history.edit(id), true);
@@ -50,7 +81,7 @@ function TransactionHistory({
                 </Button>
             </PageHeader>
 
-            <Table pagination={{ handleSetPage, currentPage: page, items: 6 }} handleFilterSubmit={handleFilterSubmit}>
+            <Table pagination={true} filterView={true} extraFilters={<TransactionExtraFilters />}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="ID" />
@@ -62,26 +93,26 @@ function TransactionHistory({
                 </Table.Row>
 
                 {/* Data rows */}
-                {transactions.map((transaction) => (
+                {transactions?.map((transaction) => (
                     <Table.Row key={transaction.id}>
                         <Table.Data>
-                            <Identifier>{transaction.id}</Identifier>
+                            <Identifier>{transaction.txCode}</Identifier>
                         </Table.Data>
                         <Table.Data>
-                            <DateTime dateTime={transaction.dateTime} />
+                            <DateTime dateTime={new Date(transaction.createdAt)} />
                         </Table.Data>
                         <Table.Data>
-                            <Status type="type" variant={transaction.type} />
+                            <Status type="type" variant={transaction.transactionType} />
                         </Table.Data>
                         <Table.Data>
-                            <ColumnText>{transaction.applicant}</ColumnText>
+                            <ColumnText>{transaction.applicantFullName}</ColumnText>
                         </Table.Data>
                         <Table.Data>
-                            <Status type="outcome" variant={transaction.outcome} />
+                            <Status type="outcome" variant={transaction.transactionOutcome} />
                         </Table.Data>
                         <Table.Data>
                             <ActionButtons
-                                id={transaction.id}
+                                id={transaction.txCode}
                                 actions={[
                                     {
                                         color: "black",

@@ -1,5 +1,10 @@
+// General Imports
 import type { ReactNode } from "react";
+
+// Components
 import { Text } from "./Text";
+
+// Material UI Icons
 import CancelIcon from "@mui/icons-material/Cancel";
 
 function EmptyData({ children }: { children: ReactNode }) {

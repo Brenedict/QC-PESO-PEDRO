@@ -1,17 +1,24 @@
-import prisma from "./src/config/prisma.config";
-import "./src/config/passport.config";
+// General Imports
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
+import prisma from "./src/config/prisma.config";
+import "./src/config/passport.config";
 import cookieParser from "cookie-parser";
-import { mockAdminUser } from "./tests/fixtures/user.fixture";
+import { jest, beforeEach, afterAll } from "@jest/globals";
+
+// PEDRO SHARED IMPORTS
 import type { User } from "@qcpesopedro/shared/prisma/client";
 
-let mockCurrentAuthUser: User = mockAdminUser;
+// Fixtures
+import { mockUser } from "./tests/fixtures/user.fixture";
+
+let mockCurrentAuthUser: User = mockUser;
 
 export function setCurrentAuthUser(user: User) {
     mockCurrentAuthUser = user;
 }
 
+// Single mock for passport middleware
 jest.mock("./src/middlewares/passport.middleware", () => ({
     localAuth(req: Request, _res: Response, next: NextFunction) {
         req.user = mockCurrentAuthUser;
@@ -34,8 +41,20 @@ jest.mock("./src/middlewares/zod.middleware", () => ({
 }));
 
 beforeEach(async () => {
-    mockCurrentAuthUser = mockAdminUser;
-    await prisma.$transaction([prisma.user.deleteMany()]);
+    // 1. Reset current mock user state
+    mockCurrentAuthUser = mockUser;
+
+    // 2. Clear tables in correct relation order
+    await prisma.$transaction([
+        prisma.transaction.deleteMany(),
+        prisma.shiftLog.deleteMany(),
+        prisma.user.deleteMany(),
+    ]);
+
+    // 3. Re-create the mock auth user in DB so foreign keys work!
+    await prisma.user.create({
+        data: mockUser,
+    });
 });
 
 afterAll(async () => {

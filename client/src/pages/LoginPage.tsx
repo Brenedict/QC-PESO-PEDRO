@@ -10,7 +10,7 @@ import { GeneralInput, PasswordInput } from "../components/Input";
 import ChoiceItem from "../components/ChoiceItem";
 import Button from "../components/Button";
 
-// Icons
+// Material UI Icons
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import CasesOutlinedIcon from "@mui/icons-material/CasesOutlined";

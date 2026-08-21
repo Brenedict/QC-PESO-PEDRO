@@ -1,16 +1,25 @@
+// General Imports
+import { useState } from "react";
 import { Form, useParams } from "react-router";
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+// Components
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
 import { Card } from "../Card";
-import { TextAreaInput, GeneralInput } from "../Input";
 import { PopupButton, LabeledSection, ContextBadge } from "./PopupPartials";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import { TextAreaInput, GeneralInput } from "../Input";
 import Icon from "../Icon";
+
+// Material UI Icons
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+
+// Custom Hooks
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+// Test Data
 import { mockShiftData } from "../../data/endShiftReview";
-import { useState } from "react";
 
 export function PopupEndShiftReview() {
     const navigate = useNavigateDefault();

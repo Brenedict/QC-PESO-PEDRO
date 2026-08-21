@@ -5,7 +5,7 @@ export const mockUser: User = {
     username: "john",
     email: "johndoe@gmail.com",
     password: "password123",
-    role: "FRONTLINE",
+    role: "ADMIN",
     status: "ONLINE",
     shift: "MORNING",
     firstName: "John",

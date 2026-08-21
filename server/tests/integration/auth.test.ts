@@ -1,8 +1,12 @@
+// General Imports
 import request from "supertest";
 import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 import authRouter from "../../src/routes/auth.route";
 import prisma from "../../src/config/prisma.config";
 import { app } from "../../jest.integration";
+import { jest, beforeEach, expect, describe, it } from "@jest/globals";
+
+// Fixture
 import { mockUser } from "../fixtures/user.fixture";
 
 // Use the original auth

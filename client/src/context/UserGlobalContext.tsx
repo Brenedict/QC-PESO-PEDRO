@@ -1,5 +1,8 @@
-import type { Role } from "@qcpesopedro/shared/prisma/enums";
+// General Imports
 import { createContext, useContext, type ReactNode } from "react";
+
+// PEDRO SHARED IMPORTS
+import type { Role } from "@qcpesopedro/shared/prisma/enums";
 
 export interface UserGlobalContextValue {
     id: number;

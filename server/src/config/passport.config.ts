@@ -1,10 +1,12 @@
-import passportJwt from "passport-jwt";
-import env from "./env.config";
-import UserModel from "../models/user.model";
+// General Imports
 import type { Request } from "express";
-import { Strategy as LocalStrategy, type VerifyFunction } from "passport-local";
-
 import passport from "passport";
+import passportJwt from "passport-jwt";
+import { Strategy as LocalStrategy, type VerifyFunction } from "passport-local";
+import env from "./env.config";
+
+// Model
+import UserModel from "../models/user.model";
 
 // ------------------- PASSPORT LOCAL STRATEGY -------------------------------------
 

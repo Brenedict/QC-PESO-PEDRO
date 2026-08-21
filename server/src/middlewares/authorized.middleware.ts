@@ -1,4 +1,7 @@
+// General Imports
 import type { Request, Response, NextFunction } from "express";
+
+// PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 

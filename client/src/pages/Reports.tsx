@@ -1,5 +1,5 @@
 // General Imports
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import type { MouseEventHandler, ReactNode } from "react";
 
 // Components
@@ -10,7 +10,7 @@ import { BarChart } from "../components/BarChart";
 import Icon from "../components/Icon";
 import { Text } from "../components/Text";
 
-// Icons
+// Material UI Icons
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 
@@ -18,7 +18,7 @@ import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Data
-import { sampleReportsBarData, sampleReportsBarOptions } from "../data/chartsConfigs";
+import { buildTimeSeriesChartData, type TimeSeriesConfig } from "../api/chartService";
 
 function ReportCard({ children, onClick }: { children: ReactNode; onClick?: MouseEventHandler<HTMLButtonElement> }) {
     return (
@@ -77,7 +77,20 @@ function ButtonGroup() {
 }
 
 function Reports() {
+    const data = useLoaderData();
     const navigate = useNavigateDefault();
+
+    const weeklySeries: TimeSeriesConfig[] = [
+        {
+            key: "TOTAL",
+            label: "Total Transaction",
+            color: "primary-blue",
+            opaqueColor: "primary-blue-opaque",
+        },
+    ];
+
+    const weekly = buildTimeSeriesChartData(data, weeklySeries, "summary", "daily");
+
     return (
         <>
             <div className="min-h-screen flex flex-col gap-6">
@@ -101,10 +114,11 @@ function Reports() {
                     </Card.Header>
                     <Card.Body>
                         <BarChart
-                            options={sampleReportsBarOptions}
-                            data={sampleReportsBarData}
+                            options={weekly.options}
+                            data={weekly.data}
                             height={"80px"}
-                        ></BarChart>
+                            wrapperClassName="relative w-full h-[400px]"
+                        />
                     </Card.Body>
                 </Card>
 

@@ -1,34 +1,40 @@
 // General Imports
-import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
 import type { Request, Response } from "express";
 
-// Middleware
+// PEDRO SHARED IMPORTS
+import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
+import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
+
+// Middlewares
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
-
-// Prisma Types
-import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import { requireAccessLevel } from "../middlewares/authorized.middleware";
 
 // Models
 import UserModel from "../models/user.model";
+import ShiftModel from "../models/shift.model";
 
 // Service
 import UserService from "../service/user.service";
-import { requireAccessLevel } from "../middlewares/authorized.middleware";
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 
 export default {
     getCurrentUser: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
-        (req: Request, res: Response) => {
+        async (req: Request, res: Response) => {
             const user = req.user as User;
 
             if (!user) {
                 return res.status(404).json({ message: "User not found" });
             }
 
-            const userContextPayload = {
+            const shiftLogId =
+                (await UserService.getMostRecentUnfinishedShiftId(user.id)) ||
+                (await ShiftModel.createShift(user.id)).id;
+
+            const userContextPayload: UserContextType = {
                 id: user.id,
                 email: user.email,
                 username: user.username,
@@ -36,6 +42,7 @@ export default {
                 status: user.status,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                shiftLogId,
             };
 
             return res.json(userContextPayload);

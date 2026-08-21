@@ -1,11 +1,17 @@
+// General Imports
 import request from "supertest";
 import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
-import userRouter from "../../src/routes/user.route";
 import prisma from "../../src/config/prisma.config";
 import { app, setCurrentAuthUser } from "../../jest.integration";
+import { beforeEach, expect, describe, it } from "@jest/globals";
+
+// Router
+import userRouter from "../../src/routes/user.route";
+
+// Fixture
 import { mockFrontlineUser, mockAdminUser, mockSuperAdminUser } from "../fixtures/user.fixture";
 
-// This only test role-based accessing and does not validate actual requests and responses
+// This only test role-based accessing and does not validate actual requests and responses (i.e. schema request)
 describe("User routes - Role Authorization Matrix", () => {
     app.use("/user", userRouter);
     app.use((err: ErrorRequestHandler, _req: Request, res: Response, _next: NextFunction) => {

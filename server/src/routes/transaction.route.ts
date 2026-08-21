@@ -1,11 +1,23 @@
+// General Imports
 import express from "express";
 
-const router = express.Router();
+// Controllers
 import controller from "../controllers/transaction.controller";
 
-router.get("/", controller.get);
-router.post("/", controller.post);
-router.patch("/", controller.patch);
-router.delete("/", controller.delete);
+const router = express.Router();
+
+// GET
+router.get("/:transactionId", controller.getTransactionById);
+router.get("/", controller.getTransactions);
+
+// POST
+router.post("/analytics", controller.postAnalytics);
+router.post("/", controller.postTransaction);
+
+// PATCH
+router.patch("/:transactionId", controller.patchTransaction);
+
+// DELETE
+router.delete("/:transactionId", controller.deleteTransaction);
 
 export default router;

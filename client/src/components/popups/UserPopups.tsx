@@ -1,7 +1,9 @@
 // General Imports
 import { Form, useLoaderData } from "react-router";
 import { useState, type ReactNode } from "react";
-import type { Role, Shift } from "@qcpesopedro/shared/prisma/client";
+
+// PEDRO SHARED IMPORTS
+import type { Role, Shift } from "@qcpesopedro/shared/prisma/browser";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
@@ -11,12 +13,11 @@ import { GeneralInput, SelectInput } from "../Input";
 import ChoiceItem from "../ChoiceItem";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
 
-// Icons
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+// Material UI Icons
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 
-// Helpers
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 
 type PopupUser = {
@@ -153,13 +154,13 @@ export function PopupAddUser() {
 }
 
 export function PopupEditUser() {
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
     const navigate = useNavigateDefault();
 
     const user = useLoaderData() as User;
     if (!user) return null;
 
-    // Form Validation
-    const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
@@ -341,7 +342,7 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
 
 function PopupRadio({
     value,
-    name = "radioGroup", 
+    name = "radioGroup",
     defaultChecked = false,
     children,
 }: {

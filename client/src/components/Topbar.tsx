@@ -1,17 +1,27 @@
+// General Imports
+import { useEffect, useState } from "react";
+
+// Components
 import Status from "./Status.tsx";
 import { Text } from "./Text";
 import { SearchInput } from "./Input.tsx";
-import { useEffect, useState } from "react";
-import { getDateTimeNow } from "../utils/time.ts";
 import Icon from "./Icon";
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import NotificationImportantOutlinedIcon from "@mui/icons-material/NotificationImportantOutlined";
 import Profile from "./Profile";
 import Button from "./Button.tsx";
 
+// Material UI Icons
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import NotificationImportantOutlinedIcon from "@mui/icons-material/NotificationImportantOutlined";
+
+// Custom Hooks
 import { useNavigateDefault } from "../hooks/reroute";
+
+// Contexts
 import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+
+// Utils
+import { getDateTimeNow } from "../utils/time.ts";
 
 function LeftSection() {
     const { onSearchChange } = useUserGlobal();

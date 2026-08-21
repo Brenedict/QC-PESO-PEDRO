@@ -1,37 +1,35 @@
-import type { MouseEventHandler } from "react";
+// General Imports
 import { useSearchParams, type SetURLSearchParams } from "react-router";
+import type { MouseEventHandler } from "react";
 
-type SearchParamsType = Record<string, string>;
+type SearchParamsType = Record<string, string | number>;
+type SetSearchParamsType = (params: Record<string, string | number>) => void;
 
 interface TableHookReturn {
     page: number;
     handleSetPage: (page: number) => MouseEventHandler<HTMLButtonElement>;
-    handleFilterSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
-    handleFilterChange: (e: React.ChangeEvent<HTMLFormElement>) => void;
     searchParams: SearchParamsType;
-    setSearchParams: (key: string, value: string) => void;
+    setSearchParams: SetSearchParamsType;
 }
 
 // Setter for a single param that preserves other params
 function createParamSetter(setSearchParams: SetURLSearchParams) {
-    return (key: string, value: string) => {
+    return (params: SearchParamsType) => {
         setSearchParams((prev) => {
             const next = new URLSearchParams(prev);
-            next.set(key, value);
-            return next;
-        });
-    };
-}
 
-// Handle form submit: merge FormData into existing params
-function createFilterHandler(setSearchParams: SetURLSearchParams) {
-    return (e: React.SubmitEvent<HTMLFormElement> | React.ChangeEvent<HTMLFormElement>) => {
-        setSearchParams((prev) => {
-            const formData = new FormData(e.currentTarget);
-            const next = new URLSearchParams(prev);
-            for (const [key, value] of formData.entries()) {
-                next.set(key, value.toString());
+            for (const [key, value] of Object.entries(params)) {
+                const stringValue = value?.toString() ?? "";
+
+                const isDefault = (key === "page" && stringValue === "1") || stringValue.trim() === "";
+
+                if (isDefault) {
+                    next.delete(key);
+                } else {
+                    next.set(key, stringValue);
+                }
             }
+
             return next;
         });
     };
@@ -52,17 +50,12 @@ export function useSearchParamsTable(defaultExtraParams?: SearchParamsType): Tab
     const setSearchParamsFn = createParamSetter(setSearchParams);
 
     // Set page for table using query ?page=something
-    const handleSetPage = (newPage: number) => () => setSearchParamsFn("page", newPage.toString());
-
-    const handleFilterSubmit = createFilterHandler(setSearchParams);
-    const handleFilterChange = createFilterHandler(setSearchParams);
+    const handleSetPage = (newPage: number) => () => setSearchParamsFn({ page: newPage });
 
     return {
         page,
         handleSetPage,
         searchParams: searchParamsObj,
         setSearchParams: setSearchParamsFn,
-        handleFilterSubmit,
-        handleFilterChange,
     };
 }
