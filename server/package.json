@@ -7,8 +7,12 @@
         "start": "tsx --env-file=.env ./src/server.ts",
         "dev": "tsx --inspect --watch --env-file=.env ./src/server.ts",
         "test": "jest --watch --runInBand",
-        "seed": "tsx ./prisma/database.seed.ts",
-        "gensql": "prisma generate --sql"
+        "mig:prisma": "prisma migrate dev",
+        "res:prisma": "prisma migrate reset",
+        "gen:prisma": "prisma generate",
+        "seed:prisma": "tsx ./prisma/database.seed.ts",
+        "gensql:prisma": "prisma generate --sql",
+        "create:prisma": "prisma migrate dev --create-only"
     },
     "keywords": [],
     "author": "",
