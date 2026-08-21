@@ -117,7 +117,7 @@ function Reports() {
                             options={weekly.options}
                             data={weekly.data}
                             height={"80px"}
-                            wrapperClassName="relative w-full h-[400px]"
+                            wrapperClassName="relative w-full h-[500px]!"
                         />
                     </Card.Body>
                 </Card>

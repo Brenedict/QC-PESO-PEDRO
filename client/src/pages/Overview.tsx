@@ -265,7 +265,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Weekly Transaction Volume</Text>
                         </Card.Header>
                         <Card.Body>
-                            <LineChart options={daily.options} data={daily.data} height={"100px"}></LineChart>
+                            <LineChart options={daily.options} data={daily.data} wrapperClassName="h-100!"></LineChart>
                         </Card.Body>
                     </Card>
                     <Card className="col-span-1">
@@ -273,7 +273,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Gender Split</Text>
                         </Card.Header>
                         <Card.Body>
-                            <PieChart options={sex.options} data={sex.data} height={"250px"}></PieChart>
+                            <PieChart options={sex.options} data={sex.data} wrapperClassName="h-90!"></PieChart>
                         </Card.Body>
                     </Card>
                 </section>

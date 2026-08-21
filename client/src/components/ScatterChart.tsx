@@ -19,7 +19,12 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 type ScatterChartProps = ComponentProps<typeof Scatter> & { wrapperClassName?: string };
 
-export function ScatterChart({ options, data, wrapperClassName = "relative w-full h-full min-h-[250px]", ...props }: ScatterChartProps) {
+export function ScatterChart({
+    options,
+    data,
+    wrapperClassName = "relative w-full h-full min-h-[250px]",
+    ...props
+}: ScatterChartProps) {
     const responsiveOptions = {
         ...(options as object),
         maintainAspectRatio: false,
@@ -27,7 +32,7 @@ export function ScatterChart({ options, data, wrapperClassName = "relative w-ful
 
     return (
         <div className={wrapperClassName}>
-            <Scatter options={options} data={data} {...props} />
+            <Scatter options={responsiveOptions} data={data} {...props} />
         </div>
     );
 }
