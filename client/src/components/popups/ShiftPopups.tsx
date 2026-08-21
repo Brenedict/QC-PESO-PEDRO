@@ -1,23 +1,13 @@
 // General Imports
-import { Form, redirect, useParams } from "react-router";
-
-// Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import { useState } from "react"; 
+import { useState } from "react";
+import { Form } from "react-router";
 
 // Components
-import { Card } from "../Card";
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
 import Icon from "../Icon";
 import Button from "../Button";
-
-// Icons
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-
-// Test Data
 import { GeneralInput, TextAreaInput } from "../Input";
-import { LogoutOutlined } from "@mui/icons-material";
 import {
     ContextBadge,
     GrayMiniCard,
@@ -27,7 +17,14 @@ import {
     PopupHeader,
     PopupIcon,
 } from "./PopupPartials";
+
+// Material UI Icons
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import { LogoutOutlined } from "@mui/icons-material";
+
+// Custom Hooks
+import { useNavigateDefault } from "../../hooks/reroute";
 
 export function PopupTimeIn({ root }: { root: string }) {
     const navigate = useNavigateDefault();
@@ -97,7 +94,7 @@ export function PopupTimeIn({ root }: { root: string }) {
 export function PopupLogout({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 

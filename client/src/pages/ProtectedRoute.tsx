@@ -1,12 +1,35 @@
-import { Navigate, Outlet } from "react-router";
-import { useAuth } from "../context/AuthContext";
-import { ROUTES } from "../hooks/reroute";
+// General Imports
+import { Outlet, useRouteLoaderData } from "react-router";
+
+// API Services
+import type { primaryAuthLoader } from "../api/authService";
+
+// Contexts
+import { UserGlobalProvider, type UserGlobalContextValue } from "../context/UserGlobalContext";
 
 export function ProtectedRoute() {
-    const { isAuthenticated, loading } = useAuth();
-    if (loading) return <div>Loading...</div>;
+    const data = useRouteLoaderData<typeof primaryAuthLoader>("protected");
+    const user = data?.user;
 
-    if (!isAuthenticated) return <Navigate to={ROUTES.auth.root} replace />;
+    if (!data?.user) {
+        return null;
+    }
 
-    return <Outlet />;
+    // Global context gathered from `/user/me`
+    const userGlobalContext: UserGlobalContextValue = {
+        id: user.id,
+        status: user.status ?? "ONLINE",
+        hasNotif: false,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        onSearchChange: () => {},
+        onNotifClick: () => {},
+    };
+
+    return (
+        <UserGlobalProvider value={userGlobalContext}>
+            <Outlet />
+        </UserGlobalProvider>
+    );
 }

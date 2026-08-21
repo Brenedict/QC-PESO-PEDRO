@@ -1,6 +1,11 @@
+// General Imporst
 import Hashids from "hashids";
 
-const hashids = new Hashids(import.meta.env.VITE_HASHIDS_SALT || "some salt value");
+// .env hashid imports
+const salt = import.meta.env?.VITE_HASHIDS_SALT || process.env.VITE_HASHIDS_SALT || "some salt value";
+
+const hashids = new Hashids(salt);
+
 const textEncoder = new TextEncoder();
 
 export const encode = (id: string | number) => {

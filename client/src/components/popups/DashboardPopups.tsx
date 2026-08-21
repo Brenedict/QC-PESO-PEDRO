@@ -1,16 +1,33 @@
+// General Imports
 import type { ReactNode } from "react";
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import type { MaterialIcon } from "../../types/common";
+import { Link, useLoaderData, useLocation } from "react-router";
+
+// Components
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
+import { BarChart } from "../BarChart";
+import Table from "../Table";
+import { DoughnutChart } from "../DoughnutChart";
+
+// Material UI Icons
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import { Link } from "react-router";
-import Table from "../Table";
-import { shiftRecords } from "../../data/shiftRecords";
-import { BarChart } from "../BarChart";
-import { samplePieData, samplePieOptions, samplePopupBarData, samplePopupBarOptions } from "../../data/chartsConfigs";
-import { DoughnutChart } from "../DoughnutChart";
+
+// API Services
+import { extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
+import { DASHBOARD_CARD_MAP } from "../../api/transactionService";
+import {
+    buildCategoryChartData,
+    buildTimeSeriesChartData,
+    type CategorySeriesConfig,
+    type TimeSeriesConfig,
+} from "../../api/chartService";
+
+// Custom Hooks
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+
+// Types
+import type { MaterialIcon } from "../../types/common";
 
 function TransactionMiniCard({ label, value }: { label: string; value: number }) {
     return (
@@ -59,16 +76,33 @@ function ChartContainer({ children, ...props }: { children: ReactNode } & ChartL
     );
 }
 
-interface PopupTransactionDetailsProps {
-    label: string;
-    today: number;
-    thisWeek: number;
-    thisMonth: number;
-    history: typeof shiftRecords; //temporary lang
-}
+export function PopupTransactionDetails() {
+    const location = useLocation();
+    const id = location.pathname.split("/").at(-1) as string | undefined;
 
-export function PopupTransactionDetails({ label, today, thisWeek, thisMonth, history }: PopupTransactionDetailsProps) {
+    const data = useLoaderData() as AnalyticsData;
     const navigate = useNavigateDefault();
+
+    const label = id && DASHBOARD_CARD_MAP?.[id]?.title ? DASHBOARD_CARD_MAP?.[id].title : "Unknown";
+
+    const hourlySeries: TimeSeriesConfig[] = [
+        {
+            key: "TOTAL",
+            label,
+            color: "primary-blue",
+            opaqueColor: "primary-blue-opaque",
+        },
+    ];
+
+    const sexSeries: CategorySeriesConfig[] = [
+        { key: "MALE", label: "Male", color: "light-blue", opaqueColor: "light-blue-opaque" },
+        { key: "FEMALE", label: "Female", color: "pink", opaqueColor: "pink-opaque" },
+    ];
+
+    const hourly = buildTimeSeriesChartData(data, hourlySeries, "hourly", "hourly");
+    const sex = buildCategoryChartData(data, sexSeries, "sex");
+    const staffs = extractGroupedFromData(data, "staff");
+
     return (
         <Dialog className="w-3xl" dropShadow={true} onClose={() => navigate(ROUTES.dashboard.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.dashboard.root, true)}>
@@ -78,17 +112,17 @@ export function PopupTransactionDetails({ label, today, thisWeek, thisMonth, his
             </Dialog.Header>
             <Dialog.Body className="p-6! overflow-y-auto! max-h-[80vh]!">
                 <div className="flex gap-4 mb-8">
-                    <TransactionMiniCard label="Today" value={today} />
-                    <TransactionMiniCard label="This Week" value={thisWeek} />
-                    <TransactionMiniCard label="This Month" value={thisMonth} />
+                    <TransactionMiniCard label="Today" value={(data?.today?.count as number | undefined) ?? 0} />
+                    <TransactionMiniCard label="This Week" value={(data?.week?.count as number | undefined) ?? 0} />
+                    <TransactionMiniCard label="This Month" value={(data?.month?.count as number | undefined) ?? 0} />
                 </div>
 
                 <div className="flex gap-8 mb-8">
                     <ChartContainer label="Hourly Distribution" leftIcon={BarChartOutlinedIcon}>
-                        <BarChart options={samplePopupBarOptions} data={samplePopupBarData} />
+                        <BarChart options={hourly.options} data={hourly.data} />
                     </ChartContainer>
                     <ChartContainer label="Demographics" leftIcon={PeopleAltOutlinedIcon}>
-                        <DoughnutChart options={samplePieOptions} data={samplePieData}></DoughnutChart>
+                        <DoughnutChart options={sex.options} data={sex.data}></DoughnutChart>
                     </ChartContainer>
                 </div>
                 <div className="flex justify-between mb-4">
@@ -110,10 +144,10 @@ export function PopupTransactionDetails({ label, today, thisWeek, thisMonth, his
                         <Table.Header text="processed today" />
                     </Table.Row>
 
-                    {history.slice(0, 3).map((user) => (
-                        <Table.Row key={user.id}>
-                            <Table.Data>{user.name}</Table.Data>
-                            <Table.Data>{user.trans}</Table.Data>
+                    {staffs.slice(0, 3).map((staff, i) => (
+                        <Table.Row key={i}>
+                            <Table.Data>{staff[0]}</Table.Data> {/* Name */}
+                            <Table.Data>{staff[1]}</Table.Data> {/* Processed Transactions */}
                         </Table.Row>
                     ))}
                 </Table>

@@ -43,8 +43,8 @@ type Story = StoryObj<typeof meta>;
 export const TableFullView: Story = {
     args: {
         children: "",
-        handleFilterSubmit: fn(),
-        pagination: { items: 6, currentPage: 1, handleSetPage: fn() },
+        pagination: true,
+        filterView: true,
     },
     parameters: {
         docs: {
@@ -54,7 +54,7 @@ export const TableFullView: Story = {
         },
     },
     render: (args) => (
-        <Table pagination={args.pagination} handleFilterSubmit={args.handleFilterSubmit}>
+        <Table pagination={args.pagination} filterView={args.filterView}>
             {/* Header row */}
             <Table.Row>
                 <Table.Header text="ID" />
@@ -96,7 +96,7 @@ export const TableFullView: Story = {
 export const TablePaginationOnly: Story = {
     args: {
         children: "",
-        pagination: { items: 6, currentPage: 1, handleSetPage: fn() },
+        pagination: true,
     },
     parameters: {
         docs: {
@@ -106,7 +106,7 @@ export const TablePaginationOnly: Story = {
         },
     },
     render: (args) => (
-        <Table pagination={args.pagination} handleFilterSubmit={args.handleFilterSubmit}>
+        <Table pagination={args.pagination}>
             {/* Header row */}
             <Table.Row>
                 <Table.Header text="ID" />
@@ -148,7 +148,7 @@ export const TablePaginationOnly: Story = {
 export const TableFilterOnly: Story = {
     args: {
         children: "",
-        handleFilterSubmit: fn(),
+        filterView: true,
     },
     parameters: {
         docs: {
@@ -158,7 +158,7 @@ export const TableFilterOnly: Story = {
         },
     },
     render: (args) => (
-        <Table pagination={args.pagination} handleFilterSubmit={args.handleFilterSubmit}>
+        <Table pagination={args.pagination} filterView={args.filterView}>
             {/* Header row */}
             <Table.Row>
                 <Table.Header text="ID" />
@@ -209,7 +209,7 @@ export const TableBase: Story = {
         },
     },
     render: (args) => (
-        <Table pagination={args.pagination} handleFilterSubmit={args.handleFilterSubmit}>
+        <Table pagination={args.pagination}>
             {/* Header row */}
             <Table.Row>
                 <Table.Header text="ID" />
@@ -260,7 +260,7 @@ export const TableEmpty: Story = {
         },
     },
     render: (args) => (
-        <Table pagination={args.pagination} handleFilterSubmit={args.handleFilterSubmit}>
+        <Table pagination={args.pagination}>
             {/* Header row */}
             <Table.Row>
                 <Table.Header text="ID" />

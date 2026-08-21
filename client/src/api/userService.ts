@@ -1,205 +1,118 @@
-import { apiFetch } from "./httpClient";
-import { redirect, type ActionFunctionArgs } from "react-router";
+// General Imports
+import { type ActionFunctionArgs } from "react-router";
+
+// PEDRO SHARED IMPORTS
 import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
-import { decode } from "../utils/hashids";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
+
+// API Services
+import { apiJson, ensureOk, handleErrRedirect, redirectWithQuery, validateForm } from "./actionService";
+
+// Utils
+import { decode } from "../utils/hashids";
+
+// Custom Hooks
 import { ROUTES } from "../hooks/reroute";
 
 // POST: User Creation Method
 export const createUser = async ({ request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const formData = await request.formData();
 
         // ZOD Schema Checking
-        const result = UserFormCreateSchema.safeParse(formData);
-        if (!result.success) {
-            console.error(result.error.flatten().fieldErrors);
-
-            throw new Error("Invalid user data");
-        }
-
-        const user = result.data;
+        const user = validateForm(formData, UserFormCreateSchema, "Invalid user data");
 
         // Main Fetch Request
-        const res = await apiFetch("/user", {
-            retry: true,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify(user),
-        });
+        const res = await apiJson("/user", { method: "POST", body: JSON.stringify(user) });
 
-        if (!res.ok) {
-            throw new Error(`Failed to create user ${res.status}`);
-        }
+        await ensureOk(res, "Failed to create user");
 
         // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
 // PATCH: Applies to all user updates (included na here actions: disable, edit, demote/promote)
 export const updateUser = async ({ params, request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const { userId } = params;
+        const decodedId = Number(decode(userId));
 
         const formData = await request.formData();
 
         // ZOD Schema Checking
-        const result = UserFormUpdateSchema.safeParse(formData);
-        if (!result.success) {
-            console.error(result.error.flatten().fieldErrors);
-
-            throw new Error("Invalid user data");
-        }
-
-        const decodedId = Number(decode(userId));
-        const user = result.data;
+        const user = validateForm(formData, UserFormUpdateSchema, "Invalid user data");
 
         // Main Fetch Request
-        const res = await apiFetch(`/user/${decodedId}`, {
-            retry: true,
+        const res = await apiJson(`/user/${decodedId}`, {
             method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
             body: JSON.stringify(user),
         });
 
-        if (!res.ok) {
-            throw new Error(`Failed to update user ${res.status}`);
-        }
+        await ensureOk(res, "Failed to update user");
 
         // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
 // PATCH: Special patch method for resetting password to default
 export const resetPassword = async ({ params, request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const { userId } = params;
 
         const decodedId = Number(decode(userId));
 
         // Main Fetch Request
-        const res = await apiFetch(`/user/${decodedId}/reset-password`, {
-            retry: true,
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-        });
+        const res = await apiJson(`/user/${decodedId}/reset-password`, { method: "PATCH" });
 
-        if (!res.ok) {
-            throw new Error(`Failed to reset password ${res.status}`);
-        }
+        await ensureOk(res, "Failed to reset password");
 
         // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
 // GET: Fetches all users
 export const getUsers = async ({ request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         // Main Fetch Request
-        const res = await apiFetch("/user", {
-            retry: true,
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-        });
+        const res = await apiJson("/user", { method: "GET" });
 
-        if (!res.ok) {
-            throw new Error(`Failed to retrieve users: ${res.status}`);
-        }
+        await ensureOk(res, "Failed to retrieve users");
 
         return res.json();
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
 // GET: User id specific fetch
 export const getUserById = async ({ params, request }: ActionFunctionArgs) => {
-    // URL Mapper
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const decodedId = decode(params.userId);
         const userId = Number(decodedId);
 
         // Main Fetch Request
-        const res = await apiFetch(`/user/${userId}`, {
-            retry: true,
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-        });
+        const res = await apiJson(`/user/${userId}`, { method: "GET" });
 
-        if (!res.ok) {
-            throw new Error(`Failed to fetch user ${res.status}`);
-        }
+        await ensureOk(res, "Failed to fetch user");
 
         const user: User = await res.json();
 
         return user;
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
 export const manageUserAction = async ({ params, request }: ActionFunctionArgs) => {
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const { userId } = params;
         const decodedId = Number(decode(userId));
@@ -207,55 +120,35 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         const actionType = formData.get("manageAction");
 
         if (actionType === "deactivate") {
-            const res = await apiFetch(`/user/${decodedId}`, {
-                retry: true,
+            const res = await apiJson(`/user/${decodedId}`, {
                 method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
                 body: JSON.stringify({ status: "DISABLED" }),
             });
 
-            if (!res.ok) throw new Error(`Failed to deactivate user ${res.status}`);
+            await ensureOk(res, "Failed to deactivate user");
         } else if (actionType === "reactivate") {
-            const res = await apiFetch(`/user/${decodedId}`, {
-                retry: true,
+            const res = await apiJson(`/user/${decodedId}`, {
                 method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
                 body: JSON.stringify({ status: "LOGGED_OUT" }),
             });
 
-            if (!res.ok) throw new Error(`Failed to reactivate user ${res.status}`);
+            await ensureOk(res, "Failed to reactivate user");
         } else if (actionType === "delete") {
-            const res = await apiFetch(`/user/${decodedId}`, {
-                retry: true,
+            const res = await apiJson(`/user/${decodedId}`, {
                 method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
             });
 
-            if (!res.ok) throw new Error(`Failed to delete user ${res.status}`);
+            await ensureOk(res, "Failed to delete user");
         }
 
         // Returns to root directory and queries
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        console.error(err);
-
-        return redirect(`${ROUTES.userManagement.root}?${query}`);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
 export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
-    const url = new URL(request.url);
-    const query = url.searchParams.toString();
-
     try {
         const formData = await request.formData();
 
@@ -265,12 +158,12 @@ export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
         };
 
         console.log("Form submitted successfully with payload:", payload);
-        
+
         alert("TEST");
 
-        return redirect(`${ROUTES.profile.root}?${query}`);
+        // Returns to root directory and queries
+        return redirectWithQuery(request, ROUTES.profile.root);
     } catch (err) {
-        console.error(err);
-        return redirect(`${ROUTES.profile.root}?${query}`);
+        return handleErrRedirect(err, request, ROUTES.profile.root);
     }
 };

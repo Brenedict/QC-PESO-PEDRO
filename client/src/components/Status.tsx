@@ -1,7 +1,7 @@
 // Components
 import { Text } from "./Text";
 
-// Icons
+// Materials UI Icons
 import WifiIcon from "@mui/icons-material/Wifi";
 import WifiOffIcon from "@mui/icons-material/WifiOff";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -11,13 +11,14 @@ import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 
 // Types
 import type { MaterialIcon, ColorVariant, AlignVariant } from "../types/common.ts";
+import type { Outcome, Status as StatusEnum, TransactionType } from "@qcpesopedro/shared/prisma/enums.ts";
 
 // Available variants for each status type
 type StatusVariantMap = {
-    type: "walkin" | "online" | "inhouse";
-    outcome: "pending" | "mismatched" | "success";
+    type: TransactionType;
+    outcome: Outcome;
     verification: "pending" | "approved" | "needsrevision" | "rejected";
-    status: "ONLINE" | "OFFLINE" | "DISABLED" | "LOGGED_OUT";
+    status: StatusEnum;
 };
 
 // Types of status that can be displayed
@@ -32,6 +33,7 @@ const colorClasses = {
     red: "bg-red-opaque border-red-opaque",
     blue: "bg-grayish-blue-opaque border-grayish-blue-opaque",
     offWhite: "bg-off-white border-off-white-border",
+    black: "bg-off-white-border border-off-white-border",
 } as const;
 
 // Status Config
@@ -45,14 +47,15 @@ interface StatusConfig {
 // Main configuration map
 const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
     type: {
-        walkin: { text: "Walk-In Referral", variant: "primary-blue", theme: colorClasses.blue },
-        online: { text: "Online Referral", variant: "primary-blue", theme: colorClasses.blue },
-        inhouse: { text: "In-house Recruitment", variant: "primary-blue", theme: colorClasses.blue },
+        WALK_IN_REFERRAL: { text: "Walk-In Referral", variant: "primary-blue", theme: colorClasses.blue },
+        ONLINE_REFERRAL: { text: "Online Referral", variant: "primary-blue", theme: colorClasses.blue },
+        IN_HOUSE_RECRUITMENT: { text: "In-house Recruitment", variant: "primary-blue", theme: colorClasses.blue },
     },
     outcome: {
-        pending: { text: "Pending", variant: "grayish-blue", theme: colorClasses.offWhite },
-        mismatched: { text: "Mismatch", variant: "red", theme: colorClasses.red },
-        success: { text: "Success", variant: "green", theme: colorClasses.green },
+        NONE: { text: "None", variant: "dark-blue", theme: colorClasses.black },
+        PENDING: { text: "Pending", variant: "grayish-blue", theme: colorClasses.offWhite },
+        MISMATCH: { text: "Mismatch", variant: "red", theme: colorClasses.red },
+        SUCCESS: { text: "Success", variant: "green", theme: colorClasses.green },
     },
     verification: {
         pending: { text: "Pending", variant: "grayish-blue", theme: colorClasses.offWhite },

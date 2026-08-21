@@ -2,7 +2,7 @@
 import { Outlet } from "react-router";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
-// Componentss
+// Components
 import { Text } from "../components/Text";
 import PageHeader from "../components/PageHeader";
 import Profile from "../components/Profile";
@@ -24,19 +24,19 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import type { MaterialIcon } from "../types/common";
 
 // Context
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 
 //  Profile picture, name, role, and change password button
 function ProfileSummaryCard() {
-    const { firstName, lastName, role } = useTopBar();
+    const { firstName, lastName, role } = useUserGlobal();
     const navigate = useNavigateDefault();
-
     return (
         <Card className="w-full md:w-1/3 flex flex-col">
+            {" "}
             <Card.Header variant="off-white" bordered={true} className="h-28">
+                {" "}
                 {null}
             </Card.Header>
-
             <Card.Body className="flex-1 flex flex-col items-center text-center relative pt-0">
                 {/*Profile Picture*/}
                 <div className="absolute -top-12">
@@ -63,7 +63,6 @@ function ProfileSummaryCard() {
                     Processing daily walk-ins and referral transactions for the Public Employment Division.
                 </Text>
             </Card.Body>
-
             <Card.Footer variant="white" bordered={false} className="pt-2 pb-6 px-6">
                 <Button
                     variant="white-black"

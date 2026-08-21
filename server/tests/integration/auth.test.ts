@@ -1,43 +1,27 @@
+// General Imports
 import request from "supertest";
-import express from "express";
 import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
-import cookieParser from "cookie-parser";
 import authRouter from "../../src/routes/auth.route";
-import type { User } from "@qcpesopedro/shared/prisma/client";
 import prisma from "../../src/config/prisma.config";
+import { app } from "../../jest.integration";
+import { jest, beforeEach, expect, describe, it } from "@jest/globals";
 
-export const mockUser: User = {
-    id: 1,
-    username: "john",
-    email: "johndoe@gmail.com",
-    password: "password123",
-    role: "ADMIN",
-    status: "ONLINE",
-    shift: "MORNING",
-    firstName: "John",
-    lastName: "Doe",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-};
+// Fixture
+import { mockUser } from "../fixtures/user.fixture";
 
-function createTestApp() {
-    const app = express();
-    app.use(express.json());
-    app.use(cookieParser());
+// Use the original auth
+jest.unmock("../../src/middlewares/passport.middleware");
+
+describe("Auth routes", () => {
     app.use("/auth", authRouter);
     app.use((err: ErrorRequestHandler, _req: Request, res: Response, _next: NextFunction) => {
         console.error("DEBUG INTEGRATION ERROR STACK:", err);
         res.status(500).json({ error: err.toString() });
     });
-    return app;
-}
 
-describe("auth routes", () => {
     beforeEach(async () => {
         await prisma.$transaction([prisma.user.deleteMany(), prisma.user.create({ data: mockUser })]);
     });
-
-    const app = createTestApp();
 
     describe("POST /auth/login", () => {
         it("returns access token & sets refresh cookie", async () => {

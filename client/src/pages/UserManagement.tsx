@@ -1,7 +1,9 @@
+// General Imports
 import { Outlet, useLoaderData } from "react-router";
 
-// General Imports
-import { useContext, type SubmitEvent } from "react";
+// PEDRO SHARED IMPORTS
+import type { Role } from "@qcpesopedro/shared/prisma/enums.ts";
+import type { UserFormCreateType } from "@qcpesopedro/shared/schema/users";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -14,7 +16,7 @@ import { SelectInput } from "../components/Input";
 import { ActionButtons, RoleBadge, type ActionTypes } from "../components/TableCells";
 import Status from "../components/Status";
 
-// Icons
+// Material UI Icons
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
@@ -22,14 +24,11 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 
-// Types
-import type { Role } from "../types/common";
-
-// Hooks
-import { useSearchParamsTable } from "../hooks/table";
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import type { UserFormCreateType } from "../../../shared/schema/users";
-import { useTopBar } from "../context/TopbarContext.tsx";
+
+// Contexts
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -77,18 +76,12 @@ type RoleButton = {
 };
 
 function UserManagement() {
-    const { page, handleSetPage } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
     const users = useLoaderData() as UserFormCreateType[];
 
-    const { role } = useTopBar();
+    const { role } = useUserGlobal();
     const userRole = role;
-    console.log("User Role:", userRole); // Debugging line to check the role value
-
-    const handleFilterSubmit = (e: SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
 
     const RoleButtonMap: Record<Role, RoleButton | null> = {
         SUPERADMIN: null,
@@ -153,7 +146,6 @@ function UserManagement() {
                     { content: "Administrator", value: "admin" },
                     { content: "Frontline Encoder", value: "frontline" },
                 ]}
-                iconClassName="top-2! right-2!"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
             <SelectInput
@@ -162,7 +154,6 @@ function UserManagement() {
                     { content: "Active", value: "active" },
                     { content: "Inactive", value: "inactive" },
                 ]}
-                iconClassName="top-2! right-2!"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
         </div>
@@ -191,11 +182,7 @@ function UserManagement() {
                 <StatCard title="Roles" value={3} />
             </div>
 
-            <Table
-                pagination={{ currentPage: page, handleSetPage, items: 5 }}
-                handleFilterSubmit={handleFilterSubmit}
-                extraFilters={extraFilters}
-            >
+            <Table pagination={true} filterView={true} extraFilters={extraFilters}>
                 <Table.Row>
                     <Table.Header text="USER" />
                     <Table.Header text="USERNAME" />

@@ -1,7 +1,9 @@
 // General Imports
 import { Form, useLoaderData } from "react-router";
 import { useState, type ReactNode } from "react";
-import type { Role, Shift } from "@qcpesopedro/shared/prisma/client";
+
+// PEDRO SHARED IMPORTS
+import type { Role, Shift } from "@qcpesopedro/shared/prisma/browser";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
@@ -12,12 +14,11 @@ import ChoiceItem from "../ChoiceItem";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
 import { PasswordInput } from "../Input";
 
-// Icons
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+// Material UI Icons
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 
-// Helpers
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 
 type PopupUser = {
@@ -33,7 +34,7 @@ type PopupUser = {
 type PopupUserFormsProps = {
     formId: string;
     user?: PopupUser;
-    onChange?: React.FormEventHandler<HTMLFormElement>;
+    onChange?: React.ChangeEventHandler<HTMLFormElement>;
 };
 
 function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
@@ -112,7 +113,7 @@ export function PopupAddUser() {
 
     // Form Validation
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 
@@ -154,14 +155,14 @@ export function PopupAddUser() {
 }
 
 export function PopupEditUser() {
+    // Form Validation
+    const [isFormValid, setIsFormValid] = useState(false);
     const navigate = useNavigateDefault();
 
     const user = useLoaderData() as User;
     if (!user) return null;
 
-    // Form Validation
-    const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 
@@ -401,14 +402,18 @@ export function PopupResetUser() {
 export function PopupChangePassword() {
     const navigate = useNavigateDefault();
     const [passwordError, setPasswordError] = useState("");
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
 
-    const validatePasswords = (e: React.FormEvent<HTMLFormElement>) => {
+    const validatePasswords = (e: React.SubmitEvent<HTMLFormElement>) => {
         const formData = new FormData(e.currentTarget);
         const newPassword = formData.get("newPassword") as string;
         const confirmPassword = formData.get("confirmPassword") as string;
 
         if (newPassword !== confirmPassword) {
-            e.preventDefault(); 
+            e.preventDefault();
             setPasswordError("New password do not match.");
         } else {
             setPasswordError("");
@@ -426,6 +431,7 @@ export function PopupChangePassword() {
                     id="userFormChangePassword"
                     onSubmit={validatePasswords}
                     className="flex flex-col h-fit gap-4"
+                    onChange={handleFormChange}
                 >
                     <PasswordInput
                         id="currentPassword"
@@ -447,7 +453,7 @@ export function PopupChangePassword() {
                         label="New password"
                         placeholder="Enter your new password"
                         isRequired={true}
-                        onChange={() => setPasswordError("")} 
+                        onChange={() => setPasswordError("")}
                     />
 
                     <PasswordInput
@@ -456,7 +462,7 @@ export function PopupChangePassword() {
                         label="Confirm new password"
                         placeholder="Confirm your new password"
                         isRequired={true}
-                        error={passwordError} 
+                        error={passwordError}
                         onChange={() => setPasswordError("")}
                     />
                 </Form>
@@ -465,7 +471,7 @@ export function PopupChangePassword() {
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.profile.root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" type="submit" form="userFormChangePassword">
+                <PopupButton variant="blue" type="submit" form="userFormChangePassword" disabled={!isFormValid}>
                     Change Password
                 </PopupButton>
             </Dialog.Footer>

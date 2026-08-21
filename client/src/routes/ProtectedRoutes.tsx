@@ -1,8 +1,6 @@
 // General Imports
-import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
-
-// Schema
-import { TransactionSchema } from "@qcpesopedro/shared/schema//transactions";
+import { redirect, type RouteObject } from "react-router";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -34,21 +32,28 @@ import { PopupViewHistory } from "../components/popups/MonitoringPopups";
 import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
 
 // Test Data
-import { transactions } from "../data/transactions";
 import { shiftRecords } from "../data/shiftRecords";
 import { employeeSessions } from "../data/employeeSessions";
 import { auditLogData } from "../data/auditLogs";
 
 // API
-import { createTransaction } from "../api/transactions";
-import { createUser, getUserById, getUsers, resetPassword, updateUser, manageUserAction } from "../api/userService";
+import { createUser, getUserById, getUsers, manageUserAction, resetPassword, updateUser } from "../api/userService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 
 // Helper function
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
 import { ROUTES } from "../hooks/reroute";
-import { authLoader } from "../api/authService";
+import {
+    createTransaction,
+    getDetailsAnalytics,
+    getTransactionReport,
+    getTransactions,
+    getTransactionSummary,
+} from "../api/transactionService";
+
+import { primaryAuthLoader, requireAccess } from "../api/authService";
+import { getAnalytics } from "../api/analyticsService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -60,10 +65,10 @@ export const protectedRoutes: RouteObject[] = [
             </AuthProvider>
         ),
         /* 
-            Initial authentication on '/protected' happens here, and the user data is fetched. 
+            Initial authentication on '/protected' NOW happens here, and the user data is fetched. 
             If the user is not authenticated, they will be redirected to '/auth'.
         */
-        loader: authLoader,
+        loader: primaryAuthLoader,
         errorElement: <SystemErrorPage />,
         children: [
             {
@@ -73,91 +78,97 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "",
                         element: <Overview pending={5} approved={18} revision={2} />,
+                        loader: requireAccess(AccessLevel.FRONTLINE, getAnalytics),
                         children: [
                             {
                                 path: "total",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Total Transactions"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics(),
                             },
                             {
                                 path: "walk-in",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Walk-in Transactions"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ type: "WALK_IN_REFERRAL" }),
                             },
                             {
                                 path: "online",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Online Referrals"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ type: "ONLINE_REFERRAL" }),
                             },
                             {
                                 path: "in-house",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="In-house Referrals"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ type: "IN_HOUSE_RECRUITMENT" }),
                             },
                             {
                                 path: "work-immersion",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Work Immersion"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "WORK_IMMERSION_INTERNSHIP" }),
                             },
                             {
-                                path: "internship",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Internship Referrals"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                path: "job-seeker",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "FIRST_TIME_JOB_SEEKER" }),
                             },
                             {
-                                path: "inquiries",
-                                element: (
-                                    <PopupTransactionDetails
-                                        label="Other Inquiries"
-                                        today={48}
-                                        thisWeek={215}
-                                        thisMonth={840}
-                                        history={shiftRecords}
-                                    />
-                                ),
+                                path: "pwd",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "PERSONS_WITH_DISABILITY" }),
                             },
+                            {
+                                path: "senior",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "SENIOR_CITIZEN" }),
+                            },
+                            {
+                                path: "young-worker",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ demographics: "YOUNG_WORKER" }),
+                            },
+                            {
+                                path: "success",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "SUCCESS" }),
+                            },
+                            {
+                                path: "pending",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "PENDING" }),
+                            },
+                            {
+                                path: "mismatch",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "MISMATCH" }),
+                            },
+                            {
+                                path: "none",
+                                element: <PopupTransactionDetails />,
+                                loader: getDetailsAnalytics({ outcome: "NONE" }),
+                            },
+                            // {
+                            //     path: "internship",
+                            //     element: (
+                            //         <PopupTransactionDetails
+                            //             label="Internship Referrals"
+                            //             today={48}
+                            //             thisWeek={215}
+                            //             thisMonth={840}
+                            //             history={shiftRecords}
+                            //         />
+                            //     ),
+                            // },
+                            // {
+                            //     path: "inquiries",
+                            //     element: (
+                            //         <PopupTransactionDetails
+                            //             label="Other Inquiries"
+                            //             today={48}
+                            //             thisWeek={215}
+                            //             thisMonth={840}
+                            //             history={shiftRecords}
+                            //         />
+                            //     ),
+                            // },
                             ...shiftPopups(ROUTES.dashboard.root),
                         ],
                     },
@@ -168,10 +179,12 @@ export const protectedRoutes: RouteObject[] = [
                             { path: "change-password", element: <PopupChangePassword />, action: changePasswordAction },
                             ...shiftPopups(ROUTES.profile.root),
                         ],
+                        loader: requireAccess(AccessLevel.FRONTLINE),
                     },
                     {
                         path: "end-shift",
                         element: <EndShiftVerification shiftData={shiftRecords} />,
+                        loader: requireAccess(AccessLevel.ADMIN),
                         children: [
                             {
                                 path: ":shiftId/review",
@@ -185,15 +198,9 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "history",
-                        element: (
-                            <TransactionHistory
-                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                                    e.preventDefault();
-                                }}
-                                transactions={transactions}
-                            />
-                        ),
+                        element: <TransactionHistory />,
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
+                        loader: requireAccess(AccessLevel.FRONTLINE, getTransactions(false)),
                     },
                     {
                         path: "monitoring",
@@ -203,12 +210,10 @@ export const protectedRoutes: RouteObject[] = [
                                 totalLogins={18}
                                 totalLogouts={6}
                                 sessionDuration={"8h 12m"}
-                                handleFilterSubmit={(e: React.SubmitEvent<HTMLFormElement>) => {
-                                    e.preventDefault();
-                                }}
                                 employeeSessions={employeeSessions}
                             />
                         ),
+                        loader: requireAccess(AccessLevel.ADMIN),
                         children: [
                             {
                                 path: ":shiftId/view-history",
@@ -221,31 +226,19 @@ export const protectedRoutes: RouteObject[] = [
                         path: "applicant-form",
                         element: <TransactionsInputPage />,
                         children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
-                        action: async ({ request }: ActionFunctionArgs) => {
-                            try {
-                                const formData = await request.formData();
-
-                                const data = TransactionSchema.parse(formData);
-
-                                await createTransaction(data);
-
-                                return redirect(ROUTES.applicantForm.root);
-                            } catch (err) {
-                                console.error(err);
-
-                                return redirect("..");
-                            }
-                        },
+                        loader: requireAccess(AccessLevel.FRONTLINE, getTransactions(true)),
+                        action: createTransaction,
                     },
                     {
                         path: "audit-logs",
                         element: <SystemAuditLogs logsData={auditLogData} />,
+                        loader: requireAccess(AccessLevel.ADMIN),
                         children: [...shiftPopups(ROUTES.auditLogs.root)],
                     },
                     {
                         path: "user-management",
                         element: <UserManagement />,
-                        loader: getUsers,
+                        loader: requireAccess(AccessLevel.ADMIN, getUsers),
                         children: [
                             {
                                 path: "create",
@@ -288,17 +281,37 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "reports",
                         element: <Reports />,
+                        // Just added this for now, if not correct access level change it
+                        loader: requireAccess(AccessLevel.SUPERADMIN, getTransactionSummary),
                         children: [
-                            { path: "daily", element: <PopupReportPreview type={"daily"} /> },
-                            { path: "weekly", element: <PopupReportPreview type={"weekly"} /> },
-                            { path: "monthly", element: <PopupReportPreview type={"monthly"} /> },
-                            { path: "overall", element: <PopupReportPreview type={"overall"} /> },
+                            {
+                                path: "daily",
+                                element: <PopupReportPreview type={"daily"} />,
+                                loader: getTransactionReport("DAILY"),
+                            },
+                            {
+                                path: "weekly",
+                                element: <PopupReportPreview type={"weekly"} />,
+                                loader: getTransactionReport("WEEKLY"),
+                            },
+                            {
+                                path: "monthly",
+                                element: <PopupReportPreview type={"monthly"} />,
+                                loader: getTransactionReport("MONTHLY"),
+                            },
+                            {
+                                path: "overall",
+                                element: <PopupReportPreview type={"overall"} />,
+                                loader: getTransactionReport("SUMMARY"),
+                            },
                             ...shiftPopups(ROUTES.reports.root),
                         ],
                     },
                     {
                         path: "context-analytics",
                         element: <ContextAnalytics />,
+                        // Just added this for now, if not correct access level change it
+                        loader: requireAccess(AccessLevel.SUPERADMIN),
                         children: [...shiftPopups(ROUTES.contextAnalysis.root)],
                     },
                 ],

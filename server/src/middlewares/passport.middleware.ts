@@ -1,5 +1,8 @@
+// General Imports
 import passport from "passport";
 import type { Request, Response, NextFunction } from "express";
+
+// PEDRO SHARED IMPORTS
 import type { User } from "@qcpesopedro/shared/prisma/client";
 
 type PPError = Error | null;

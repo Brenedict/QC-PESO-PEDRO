@@ -15,9 +15,22 @@ import {
 } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement, Title, Tooltip, Legend);
+type BarChartProps = ComponentProps<typeof Bar> & { wrapperClassName?: string };
 
-type BarChartProps = ComponentProps<typeof Bar>;
+export function BarChart({
+    options,
+    data,
+    wrapperClassName = "relative w-full h-full min-h-[250px]",
+    ...props
+}: BarChartProps) {
+    const responsiveOptions = {
+        ...(options as object),
+        maintainAspectRatio: false,
+    };
 
-export function BarChart({ options, data, ...props }: BarChartProps) {
-    return <Bar options={options} data={data} {...props} />;
+    return (
+        <div className={wrapperClassName}>
+            <Bar options={responsiveOptions} data={data} {...props} />
+        </div>
+    );
 }

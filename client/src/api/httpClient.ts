@@ -1,6 +1,7 @@
+// API Services
 import TokenStore from "./tokenStore";
 
-type FetchOptions = RequestInit & { retry?: boolean };
+export type FetchOptions = RequestInit & { retry?: boolean };
 
 export const getApiUrl = (route: string): string => {
     const api = import.meta.env.API_URL ?? "http://localhost:3000/api/v1";

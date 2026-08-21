@@ -1,6 +1,9 @@
+// General Imports
 import { type ReactNode, useEffect } from "react";
-import { Card, type CardProps } from "./Card";
 import { createPortal } from "react-dom";
+
+// Components
+import { Card, type CardProps } from "./Card";
 
 function Header({
     children,

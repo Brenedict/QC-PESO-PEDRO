@@ -1,9 +1,14 @@
+// General Imports
 import type { ReactNode } from "react";
-import type { ColorVariant, MaterialIcon, SizeVariant } from "../../types/common";
+
+// Components
 import Button, { type ButtonVariant } from "../Button";
 import { Card } from "../Card";
 import { Text, type WeightVariant } from "../Text";
 import Icon from "../Icon";
+
+// Types
+import type { ColorVariant, MaterialIcon, SizeVariant } from "../../types/common";
 
 export function GrayMiniCard({
     descriptionText,

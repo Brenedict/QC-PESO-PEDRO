@@ -1,66 +1,30 @@
-import { redirect, type ActionFunctionArgs } from "react-router";
-import { TransactionSchema } from "../../../shared/schema/transactions";
-import { editTransaction, deleteTransaction } from "../api/transactions";
+// General Imports
+import { redirect } from "react-router";
+
+// Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
 
-import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+// API Services
 import { logoutService } from "../api/authService";
-import type { UserFormCreateSchema } from "@qcpesopedro/shared/schema/users";
+import { deleteTransaction, getTransactionById, updateTransaction } from "../api/transactionService";
 
-export const testActionFn =
-    (schema: typeof TransactionSchema | typeof UserFormCreateSchema) =>
-    async ({ request }: ActionFunctionArgs) => {
-        const formData = await request.formData();
-        const validationResult = schema.safeParse(formData);
-
-        if (!validationResult.success) {
-            return { errors: validationResult.error.flatten() };
-        }
-        return redirect("..");
-    };
+// Custom Hooks
+import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 
 // Transaction edit/delete routes shared across sections
 export const transactionsEditAndDelete = (root: transactionRootPage) => [
     {
         path: ":transactionId/edit",
         element: <PopupViewEditTransaction root={root} />, // JSX preserved
-        action: async ({ request }: ActionFunctionArgs) => {
-            try {
-                const formData = await request.formData();
-                const validationResult = TransactionSchema.safeParse(formData);
-
-                if (!validationResult.success) {
-                    return { errors: validationResult.error.flatten() };
-                }
-
-                await editTransaction(validationResult.data);
-                return redirect("..");
-            } catch (err) {
-                console.error(err);
-                return redirect("..");
-            }
-        },
+        action: updateTransaction(root),
+        loader: getTransactionById,
     },
+
     {
         path: ":transactionId/delete",
         element: <PopupDeleteTransaction root={root} />,
-        action: async ({ request }: ActionFunctionArgs) => {
-            try {
-                const formData = await request.formData();
-                const validationResult = TransactionSchema.safeParse(formData);
-
-                if (!validationResult.success) {
-                    return { errors: validationResult.error.flatten() };
-                }
-
-                await deleteTransaction(validationResult.data);
-                return redirect("..");
-            } catch (err) {
-                console.error(err);
-                return redirect("..");
-            }
-        },
+        action: deleteTransaction(root),
     },
 ];
 

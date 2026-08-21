@@ -1,8 +1,15 @@
+// General Imports
 import React, { type ReactNode } from "react";
+
+// Components
 import Icon from "./Icon";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { ColorClasses } from "../types/common";
 import Button, { variantStyles } from "./Button";
+
+// Icons
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+
+// Types
+import { ColorClasses } from "../types/common";
 
 export type ReducedColorVariant = Extract<
     keyof typeof ColorClasses,

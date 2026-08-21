@@ -1,5 +1,4 @@
 // General Imports
-import React from "react";
 import { Outlet } from "react-router";
 
 // Components
@@ -11,9 +10,6 @@ import { GeneralInput, SelectInput } from "../components/Input";
 
 // Test Data
 import type { AuditLogRecord } from "../data/auditLogs";
-
-// Hooks
-import { useSearchParamsTable } from "../hooks/table";
 
 // Define the props
 interface SystemAuditLogsProps {
@@ -36,12 +32,6 @@ function UserCell({ name, role }: { name: string; role: string }) {
 
 // Main Page
 function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
-    const { page, handleSetPage } = useSearchParamsTable();
-
-    const handleFilterSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
-
     // Extra filter inputs for the Table Filter Section
     const extraFilters = (
         <div className="flex gap-4 items-center">
@@ -69,7 +59,6 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                     { content: "End Shift Approved", value: "approved" },
                     { content: "User Role Changed", value: "role_changed" },
                 ]}
-                iconClassName="top-2! right-2!"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
         </div>
@@ -82,11 +71,7 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                 secondaryText="Review transaction modifications, shift approvals, and data integrity events."
             />
 
-            <Table
-                pagination={{ currentPage: page, handleSetPage, items: 5 }}
-                handleFilterSubmit={handleFilterSubmit}
-                extraFilters={extraFilters}
-            >
+            <Table pagination={true} filterView={true} extraFilters={extraFilters}>
                 <Table.Row>
                     <Table.Header text="DATE & TIME" />
                     <Table.Header text="USER" />

@@ -1,5 +1,8 @@
-import { type ColorVariant, ColorClasses } from "../types/common";
+// Components
 import { Text } from "./Text";
+
+// Types
+import { type ColorVariant } from "../types/common";
 
 export interface ProfileBaseProps {
     userFullName?: string;

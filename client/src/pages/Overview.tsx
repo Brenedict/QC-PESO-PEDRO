@@ -1,14 +1,14 @@
 // General Imports
-import { Outlet } from "react-router";
-import { Children, type ReactNode } from "react";
+import { Outlet, useLoaderData } from "react-router";
+import { type ReactNode } from "react";
+
+// PEDRO SHARED IMPORTS
+import type { Transaction, User } from "@qcpesopedro/shared/prisma/browser.ts";
 
 // Components
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
 import { StatsCard } from "../components/StatsCard";
-import { JobFairParticipants } from "../components/JobFairParticipants";
-import { AccreditationCard } from "../components/AccreditationCard";
-import { WHIPCard } from "../components/WHIPCard";
 import { RecentActivity } from "../components/RecentActivity";
 import { LineChart } from "../components/LineChart";
 import { PieChart } from "../components/PieChart";
@@ -17,95 +17,108 @@ import { NumberText, NumberTitle } from "../components/DashboardCard";
 import { Card } from "../components/Card";
 import Icon from "../components/Icon";
 
-// Icons
+// Material UI Icons
 import SsidChartOutlinedIcon from "@mui/icons-material/SsidChartOutlined";
 import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
-// Test Data
-import { sampleLineData, sampleLineOptions, samplePieData, samplePieOptions } from "../data/chartsConfigs";
-import { recentActivity } from "../data/recentActivity";
-import {
-    accreditationData,
-    applicantCards,
-    dailyTransactionCards,
-    employmentOutcomeCards,
-    jobFairData,
-    WHIPData,
-} from "../data/overviewDashboard";
+// API Services
+import { DASHBOARD_CARD_MAP, RECENT_TRANSACTION_MAP } from "../api/transactionService.ts";
 
-// Types
-import type { Role } from "../types/common";
-
-// Hooks
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Context
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+import {
+    DASHBOARD_OVERVIEW_REQUEST,
+    getQueryIds,
+    type AnalyticsData,
+    type DateRangeData,
+} from "../api/analyticsRequests.ts";
+import {
+    buildCategoryChartData,
+    buildTimeSeriesChartData,
+    type CategorySeriesConfig,
+    type TimeSeriesConfig,
+} from "../api/chartService.ts";
+import { formatTime } from "../utils/time.ts";
+
+type CardId = keyof typeof DASHBOARD_CARD_MAP;
+
+interface CardGroupProps {
+    ids?: CardId[];
+    analytics: AnalyticsData;
+}
 
 function OverviewSection({ children }: { children: ReactNode }) {
     return <section className="mt-8">{children}</section>;
 }
 
-function CardGroup({ children }: { children: ReactNode }) {
+function CardGroup({ ids = [], analytics }: CardGroupProps) {
     // For some reason ayaw gumana ng string substitute kaya eto nag array ako
     // Palitan nyo nalang kung maayos niyo
+    const navigate = useNavigateDefault();
     const columnClass = ["grid-cols-1", "grid-cols-2", "grid-cols-3", "grid-cols-4"];
-    const cardCol = Math.min(Children.count(children), 4);
+    const cardCol = Math.min(ids.length, 4);
 
     return (
         <>
             <hr className="mt-2 border-0 bg-off-white-border h-0.5" />
-            <section className={`grid ${columnClass[cardCol - 1]} gap-6 mt-4`}>{children}</section>
+            <section className={`grid ${columnClass[cardCol - 1]} gap-6 mt-4`}>
+                {ids.map((id) => {
+                    const dataValue = analytics?.[id] as DateRangeData | undefined;
+                    if (typeof dataValue?.current?.grouped === "number") return null;
+
+                    return (
+                        <StatsCard
+                            key={id}
+                            className="w-full"
+                            title={DASHBOARD_CARD_MAP?.[id].title}
+                            specialIcon={DASHBOARD_CARD_MAP?.[id].specialIcon}
+                            total={dataValue?.current?.count ?? 0}
+                            male={dataValue?.current?.grouped?.MALE ?? 0}
+                            female={dataValue?.current?.grouped?.FEMALE ?? 0}
+                            previous={dataValue?.previous?.count ?? 0}
+                            onClick={() => navigate(ROUTES.dashboard.preview(id))}
+                        />
+                    );
+                })}
+            </section>
         </>
     );
 }
 
 function DailyTransactions() {
-    const navigate = useNavigateDefault();
-    return (
-        <CardGroup>
-            {dailyTransactionCards.map((card) => (
-                <StatsCard
-                    key={card.title}
-                    className="w-full"
-                    onClick={() => navigate(ROUTES.dashboard.preview(card.type))}
-                    {...card}
-                />
-            ))}
-        </CardGroup>
-    );
+    const { analytics } = useLoaderData();
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 0, 5) as string[];
+
+    return <CardGroup ids={ids} analytics={analytics} />;
 }
 
 function ApplicantsDemographics() {
-    return (
-        <CardGroup>
-            {applicantCards.map((card) => (
-                <StatsCard key={card.title} className="w-full" {...card} />
-            ))}
-        </CardGroup>
-    );
+    const { analytics } = useLoaderData();
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 5, 9) as string[];
+
+    return <CardGroup ids={ids} analytics={analytics} />;
 }
 
 function EmploymentOutcomes() {
-    return (
-        <CardGroup>
-            {employmentOutcomeCards.map((card) => (
-                <StatsCard key={card.title} className="w-full" {...card} />
-            ))}
-        </CardGroup>
-    );
+    const { analytics } = useLoaderData();
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 9, 13) as string[];
+
+    return <CardGroup ids={ids} analytics={analytics} />;
 }
 
-function EmploymentEvents() {
-    return (
-        <CardGroup>
-            <JobFairParticipants {...jobFairData} />
-            <AccreditationCard {...accreditationData} />
-            <WHIPCard {...WHIPData} />
-        </CardGroup>
-    );
-}
+// function EmploymentEvents() {
+//     return (
+//         <CardGroup>
+//             <JobFairParticipants {...jobFairData} />
+//             <AccreditationCard {...accreditationData} />
+//             <WHIPCard {...WHIPData} />
+//         </CardGroup>
+//     );
+// }
 
 function EndShiftValue({ title, children }: { title: string; children: ReactNode }) {
     return (
@@ -171,7 +184,32 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 
 // Main Overview Component
 export function Overview({ pending, approved, revision }: EndShiftProps) {
-    const { role } = useTopBar();
+    const navigate = useNavigateDefault();
+    const { role } = useUserGlobal();
+    const { analytics, recent } = useLoaderData();
+
+    const referralSeries: TimeSeriesConfig[] = [
+        { key: "WALK_IN_REFERRAL", label: "Walk-ins", color: "light-blue", opaqueColor: "light-blue-opaque" },
+        { key: "ONLINE_REFERRAL", label: "Online Referral", color: "primary-blue", opaqueColor: "primary-blue-opaque" },
+        { key: "IN_HOUSE_RECRUITMENT", label: "Inhouse Referral", color: "red", opaqueColor: "red-opaque" },
+    ];
+
+    const sexSeries: CategorySeriesConfig[] = [
+        { key: "MALE", label: "Male", color: "light-blue", opaqueColor: "light-blue-opaque" },
+        { key: "FEMALE", label: "Female", color: "pink", opaqueColor: "pink-opaque" },
+    ];
+
+    const recentActivity = recent?.transactions.map((transaction: Transaction & { user: User }) => ({
+        id: transaction.id,
+        title: RECENT_TRANSACTION_MAP[transaction.transactionType],
+        subject: transaction.applicantFullName,
+        processedBy: `${transaction.user.firstName} ${transaction.user.lastName}`,
+        timestamp: formatTime(new Date(transaction.createdAt)),
+        status: transaction.transactionOutcome,
+    }));
+
+    const daily = buildTimeSeriesChartData(analytics, referralSeries, "weekly-breakdown", "daily");
+    const sex = buildCategoryChartData(analytics, sexSeries, "sex");
 
     return (
         <>
@@ -226,7 +264,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Weekly Transaction Volume</Text>
                         </Card.Header>
                         <Card.Body>
-                            <LineChart options={sampleLineOptions} data={sampleLineData} height={"100px"}></LineChart>
+                            <LineChart options={daily.options} data={daily.data} wrapperClassName="h-100!"></LineChart>
                         </Card.Body>
                     </Card>
                     <Card className="col-span-1">
@@ -234,7 +272,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Gender Split</Text>
                         </Card.Header>
                         <Card.Body>
-                            <PieChart options={samplePieOptions} data={samplePieData} height={"250px"}></PieChart>
+                            <PieChart options={sex.options} data={sex.data} wrapperClassName="h-90!"></PieChart>
                         </Card.Body>
                     </Card>
                 </section>
@@ -242,7 +280,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
 
             <br className="block mb-14" />
 
-            <RecentActivity items={recentActivity} onViewAll={() => alert("View all clicked")} />
+            <RecentActivity items={recentActivity} onViewAll={() => navigate(ROUTES.history.root)} />
 
             {/* Popup Uses */}
             <Outlet />

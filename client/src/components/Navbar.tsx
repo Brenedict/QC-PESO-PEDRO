@@ -1,7 +1,15 @@
+// PEDRO SHARED IMPORTS
+import { Role } from "@qcpesopedro/shared/prisma/enums";
+
+// General Imports
 import type { ReactNode } from "react";
 import { NavLink } from "react-router";
+
+// Components
 import { Text } from "./Text";
 import Profile, { type ProfileBaseProps } from "./Profile";
+
+// Material UI Icons
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
@@ -13,7 +21,6 @@ import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import SensorOccupiedOutlinedIcon from "@mui/icons-material/SensorOccupiedOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import type { Role } from "../types/common.ts";
 
 function NavHeader({ userFullName, profilePicUrl, children }: { children: ReactNode } & ProfileBaseProps) {
     return (
@@ -72,38 +79,27 @@ function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to:
     );
 }
 
-function NavBodyFrontline() {
-    return (
-        <>
-            <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/applicant-form" />
-            <NavButton linkType="transaction_history" to="/history" />
-            <NavButton linkType="settings" to="/profile" />
-        </>
-    );
-}
-
-function NavBodyAdmin() {
-    return (
-        <>
-            <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/applicant-form" />
-            <NavButton linkType="transaction_history" to="/history" />
-            <NavButton linkType="end_shift_verification" to="/end-shift" />
-            <NavButton linkType="login_monitoring" to="/monitoring" />
-            <NavButton linkType="context_analytics" to="/context-analytics" />
-            <NavButton linkType="reports" to="/reports" />
-            <NavButton linkType="audit_logs" to="/audit-logs" />
-            <NavButton linkType="user_management" to="/user-management" />
-            <NavButton linkType="settings" to="/profile" />
-        </>
-    );
-}
-
 function NavBody({ userType }: { userType?: Role }) {
     return (
         <div className="py-6 px-4 flex flex-col">
-            {userType === "ADMIN" || userType === "SUPERADMIN" ? <NavBodyAdmin /> : <NavBodyFrontline />}
+            <NavButton linkType="dashboard" to="/" />
+            <NavButton linkType="transaction_entry" to="/applicant-form" />
+            <NavButton linkType="transaction_history" to="/history" />
+            {(userType === "ADMIN" || userType === "SUPERADMIN") && (
+                <>
+                    <NavButton linkType="end_shift_verification" to="/end-shift" />
+                    <NavButton linkType="login_monitoring" to="/monitoring" />
+                    {userType === "SUPERADMIN" && (
+                        <>
+                            <NavButton linkType="context_analytics" to="/context-analytics" />
+                            <NavButton linkType="reports" to="/reports" />
+                        </>
+                    )}
+                    <NavButton linkType="audit_logs" to="/audit-logs" />
+                    <NavButton linkType="user_management" to="/user-management" />
+                </>
+            )}
+            <NavButton linkType="settings" to="/profile" />
         </div>
     );
 }

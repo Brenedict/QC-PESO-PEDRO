@@ -1,4 +1,7 @@
+// General Imports
 import { useLocation, useNavigate } from "react-router";
+
+// Utils
 import { encode } from "../utils/hashids";
 
 const BASE_ROUTES = {
