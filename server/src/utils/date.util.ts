@@ -1,4 +1,4 @@
-const PH_OFFSET = 8;
+import type { QueryBreakdownType } from "@qcpesopedro/shared/schema/transactions";
 
 export default {
     getFormattedDate(date: Date) {
@@ -19,63 +19,45 @@ export default {
         };
     },
     buildDayRange(date: Date, startHour = 0, endHour = 23) {
-        const year = date.getUTCFullYear();
-        const month = date.getUTCMonth();
-        const day = date.getUTCDate();
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const day = date.getDate();
 
-        const startDate = new Date(Date.UTC(year, month, day, startHour - PH_OFFSET, 0, 0, 0));
-
-        const endDate = new Date(Date.UTC(year, month, day, endHour - PH_OFFSET, 59, 59, 999));
-
+        const startDate = new Date(year, month, day, startHour, 0, 0, 0);
+        const endDate = new Date(year, month, day, endHour, 59, 59, 999);
         return { startDate, endDate };
     },
     buildWeekRange(date: Date) {
-        const currentDay = date.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+        const currentDay = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
         const distanceToMonday = currentDay === 0 ? -6 : 1 - currentDay;
 
-        const monday = new Date(
-            Date.UTC(
-                date.getUTCFullYear(),
-                date.getUTCMonth(),
-                date.getUTCDate() + distanceToMonday,
-                -PH_OFFSET,
-                0,
-                0,
-                0
-            )
-        );
-
-        const friday = new Date(
-            Date.UTC(
-                monday.getUTCFullYear(),
-                monday.getUTCMonth(),
-                monday.getUTCDate() + 4,
-                23 - PH_OFFSET,
-                59,
-                59,
-                999
-            )
-        );
-
-        return { startDate: monday.toISOString(), endDate: friday.toISOString() };
+        const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate() + distanceToMonday, 0, 0, 0, 0);
+        const friday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 4, 23, 59, 59, 999);
+        return { startDate: monday, endDate: friday };
     },
-
     buildMonthRange(date: Date) {
-        const year = date.getUTCFullYear();
-        const month = date.getUTCMonth();
-
-        const startDate = new Date(Date.UTC(year, month, 1, -PH_OFFSET, 0, 0, 0));
-        const endDate = new Date(Date.UTC(year, month + 1, 0, 23 - PH_OFFSET, 59, 59, 999));
-
+        const startDate = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
+        const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
         return { startDate, endDate };
     },
-
-    getTimezoneParts(bucket: Date) {
-        return {
-            year: String(bucket.getUTCFullYear()),
-            month: String(bucket.getUTCMonth() + 1).padStart(2, "0"),
-            day: String(bucket.getUTCDate()).padStart(2, "0"),
-            hour: String(bucket.getUTCHours()).padStart(2, "0"),
+    formatDateBucket(bucket: Date, breakdown: QueryBreakdownType["breakdown"]) {
+        const { year, month, day, hour } = {
+            year: String(bucket.getFullYear()),
+            month: String(bucket.getMonth() + 1).padStart(2, "0"),
+            day: String(bucket.getDate()).padStart(2, "0"),
+            hour: String(bucket.getHours()).padStart(2, "0"),
         };
+
+        switch (breakdown) {
+            case "HOURLY":
+                return hour;
+            case "DAILY":
+            case "WEEKLY":
+                return `${year}-${month}-${day}`;
+            case "MONTHLY":
+                return `${year}-${month}`;
+            case "YEARLY":
+                return `${year}`;
+        }
     },
 };

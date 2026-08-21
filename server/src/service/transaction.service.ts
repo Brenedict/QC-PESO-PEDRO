@@ -398,21 +398,6 @@ function formatTransactionBreakdownResult(
     result: groupByInterval.Result[] | groupByIntervalWithColumn.Result[],
     breakdown: QueryBreakdownType["breakdown"]
 ) {
-    const formatBucket = (bucket: Date) => {
-        const { year, month, day, hour } = DateUtil.getTimezoneParts(bucket);
-        switch (breakdown) {
-            case "HOURLY":
-                return hour;
-            case "DAILY":
-            case "WEEKLY":
-                return `${year}-${month}-${day}`;
-            case "MONTHLY":
-                return `${year}-${month}`;
-            case "YEARLY":
-                return `${year}`;
-        }
-    };
-
     // BREAKDOWN + groupBy
     if (result[0] && "groupValue" in result[0]) {
         const response: Record<string, Record<string, number>> = {};
@@ -420,7 +405,7 @@ function formatTransactionBreakdownResult(
         for (const row of result) {
             if (!row.bucket) continue;
 
-            const bucket = formatBucket(row.bucket);
+            const bucket = DateUtil.formatDateBucket(row.bucket, breakdown);
 
             if (!bucket) continue;
 
@@ -443,7 +428,7 @@ function formatTransactionBreakdownResult(
     for (const row of result) {
         if (!row.bucket) continue;
 
-        const bucket = formatBucket(row.bucket);
+        const bucket = DateUtil.formatDateBucket(row.bucket, breakdown);
         const count = Number(row.count ?? 0);
 
         response[bucket] = count;

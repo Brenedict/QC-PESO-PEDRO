@@ -1,5 +1,6 @@
-import { Demographic, Outcome, Sex, Transaction, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import { Demographic, Outcome, Sex, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
+import DateUtil from "../../src/utils/date.util";
 
 export const TODAY = new Date("2026-08-19T00:00:00.000Z");
 
@@ -98,41 +99,12 @@ export const buildMockTransactions = (
 type Breakdown = "HOURLY" | "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
 type GroupByTypes = "applicantSex" | "transactionType" | "transactionOutcome" | "demographics" | "userId";
 
-const getBreakdownBucket = (date: Date, breakdown: Breakdown): string => {
-    switch (breakdown) {
-        case "HOURLY":
-            return date.toISOString().slice(11, 13);
-
-        case "DAILY":
-            return date.toISOString().slice(0, 10);
-
-        case "WEEKLY": {
-            const weekStart = new Date(date);
-            const day = weekStart.getUTCDay();
-            const diff = day === 0 ? -6 : 1 - day;
-
-            weekStart.setUTCDate(weekStart.getUTCDate() + diff);
-
-            return weekStart.toISOString().slice(0, 10);
-        }
-
-        case "MONTHLY":
-            return date.toISOString().slice(0, 7);
-
-        case "YEARLY":
-            return date.toISOString().slice(0, 4);
-    }
-};
-
-const getGroupValues = (transaction: TransactionCreateType, groupBy: GroupByTypes): string[] => {
+const getGroupValues = (transaction: TransactionCreateType, groupBy: GroupByTypes): (number | string)[] => {
     if (groupBy === "demographics") {
         return (transaction.demographics as string[] | undefined) ?? [];
     }
 
-    const value =
-        groupBy === "applicantFullName"
-            ? `${transaction.applicantFirstName} ${transaction.applicantLastName}`
-            : transaction[groupBy];
+    const value = transaction[groupBy];
 
     return value == null ? [] : [value];
 };
@@ -178,7 +150,9 @@ export const getExpectedBreakdown = (
     const result: Record<string, number> = {};
 
     for (const transaction of getTransactionsInRange(transactions, startDate, endDate)) {
-        const bucket = getBreakdownBucket(new Date(transaction.createdAt!), breakdown);
+        const date = new Date(transaction.createdAt!);
+        const bucketDate = breakdown === "WEEKLY" ? DateUtil.buildWeekRange(date).startDate : date;
+        const bucket = DateUtil.formatDateBucket(bucketDate, breakdown);
 
         result[bucket] = (result[bucket] ?? 0) + 1;
     }
@@ -196,7 +170,9 @@ export const getExpectedGroupedBreakdown = (
     const result: Record<string, Record<string, number>> = {};
 
     for (const transaction of getTransactionsInRange(transactions, startDate, endDate)) {
-        const bucket = getBreakdownBucket(new Date(transaction.createdAt!), breakdown);
+        const date = new Date(transaction.createdAt!);
+        const bucketDate = breakdown === "WEEKLY" ? DateUtil.buildWeekRange(date).startDate : date;
+        const bucket = DateUtil.formatDateBucket(bucketDate, breakdown);
         const groupValues = getGroupValues(transaction, groupBy);
 
         result[bucket] ??= {};
