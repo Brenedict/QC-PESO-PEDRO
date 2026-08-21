@@ -21,13 +21,27 @@ import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import { useSearchParamsTable } from "../hooks/table";
 import { SelectInput } from "../components/Input";
+import { TIMEFRAME_TYPE } from "../api/dateService";
 
-export function TransactionExtraFilters() {
+export function TransactionExtraFilters({ timeframe = false }: { timeframe?: boolean }) {
     const { searchParams } = useSearchParamsTable();
 
     return (
         <div className="flex gap-4 items-center">
-            {/* Action Filter */}
+            {timeframe && (
+                <SelectInput
+                    optionList={[
+                        { content: "Overall", value: "" },
+                        { content: "This Day", value: TIMEFRAME_TYPE.day },
+                        { content: "This Week", value: TIMEFRAME_TYPE.week },
+                        { content: "This Month", value: TIMEFRAME_TYPE.month },
+                        { content: "This Year", value: TIMEFRAME_TYPE.year },
+                    ]}
+                    name="timeframe"
+                    className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                    defaultValue={searchParams.timeframe}
+                />
+            )}
             <SelectInput
                 optionList={[
                     { content: "All Types", value: "" },
@@ -81,7 +95,7 @@ function TransactionHistory() {
                 </Button>
             </PageHeader>
 
-            <Table pagination={true} filterView={true} extraFilters={<TransactionExtraFilters />}>
+            <Table pagination={true} filterView={true} extraFilters={<TransactionExtraFilters timeframe={true} />}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="ID" />

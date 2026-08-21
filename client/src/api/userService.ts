@@ -6,7 +6,7 @@ import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
-import { apiJson, ensureOk, redirectWithQuery, validateForm } from "./actionService";
+import { apiJson, ensureOk, handleErrRedirect, redirectWithQuery, validateForm } from "./actionService";
 
 // Utils
 import { decode } from "../utils/hashids";
@@ -30,14 +30,7 @@ export const createUser = async ({ request }: ActionFunctionArgs) => {
         // Returns to root directory + queries
         return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
@@ -63,14 +56,7 @@ export const updateUser = async ({ params, request }: ActionFunctionArgs) => {
         // Returns to root directory + queries
         return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
@@ -89,14 +75,7 @@ export const resetPassword = async ({ params, request }: ActionFunctionArgs) => 
         // Returns to root directory + queries
         return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
@@ -110,14 +89,7 @@ export const getUsers = async ({ request }: ActionFunctionArgs) => {
 
         return res.json();
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
@@ -136,14 +108,7 @@ export const getUserById = async ({ params, request }: ActionFunctionArgs) => {
 
         return user;
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
@@ -179,8 +144,6 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         // Returns to root directory and queries
         return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
-        console.error(err);
-
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };

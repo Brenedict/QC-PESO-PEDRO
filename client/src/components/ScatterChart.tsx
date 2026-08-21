@@ -32,7 +32,7 @@ export function ScatterChart({
 
     return (
         <div className={wrapperClassName}>
-            <Scatter options={options} data={data} {...props} />
+            <Scatter options={responsiveOptions} data={data} {...props} />
         </div>
     );
 }

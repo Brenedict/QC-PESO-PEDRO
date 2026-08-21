@@ -1,22 +1,27 @@
 // General Imports
 import { type ActionFunctionArgs } from "react-router";
 
+//
+import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
+import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
+import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
+
 // PEDRO SHARED IMPORTS
+import type { Transaction, TransactionType } from "@qcpesopedro/shared/prisma/browser";
 import {
     TransactionFormCreateSchema,
     TransactionFormDeleteSchema,
     TransactionFormUpdateSchema,
     type TransactionAnalyticsFilterType,
 } from "@qcpesopedro/shared/schema/transactions";
-import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
+import { decode } from "../utils/hashids";
 import {
     apiJson,
-    buildDayRangeParam,
-    buildParamString,
     ensureOk,
     extractQueryToObject,
+    handleErrRedirect,
     redirectWithQuery,
     validateForm,
 } from "./actionService";
@@ -27,21 +32,47 @@ import {
     TRANSACTION_SUMMARY_REQUEST,
     type ReportTypes,
 } from "./analyticsRequests";
-
-// Utils
-import { decode } from "../utils/hashids";
+import type { MaterialIcon } from "../types/common";
+import { buildDayRangeParam, buildParamString, TIMEFRAME_MAP, type TIMEFRAME_RESULT } from "./dateService";
 
 // Custom Hooks
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+
+// ------------------------- MAPS -------------------------------------------------------
+export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
+    total: { title: "Total Transaction" },
+    "walk-in": { title: "Walk-in Transaction" },
+    online: { title: "Online Referral" },
+    "in-house": { title: "In-house Referral" },
+    "work-immersion": { title: "Work Immersion", specialIcon: BusinessCenterOutlinedIcon },
+    "job-seeker": { title: "First Time Job Seekers", specialIcon: AssignmentIndOutlinedIcon },
+    pwd: { title: "Persons With Disability", specialIcon: AssignmentIndOutlinedIcon },
+    senior: { title: "Senior Citizens", specialIcon: AssignmentIndOutlinedIcon },
+    ["young-worker"]: { title: "Young Workers", specialIcon: AssignmentIndOutlinedIcon },
+    ["success"]: { title: "Successful Referrals", specialIcon: BusinessCenterOutlinedIcon },
+    ["pending"]: { title: "Pending Applications", specialIcon: FindInPageOutlinedIcon },
+    ["mismatch"]: { title: "Mismatched Skills", specialIcon: FindInPageOutlinedIcon },
+    ["none"]: { title: "None", specialIcon: FindInPageOutlinedIcon },
+} as const;
+
+export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
+    WALK_IN_REFERRAL: DASHBOARD_CARD_MAP["walk-in"].title,
+    ONLINE_REFERRAL: DASHBOARD_CARD_MAP.online.title,
+    IN_HOUSE_RECRUITMENT: DASHBOARD_CARD_MAP["in-house"].title,
+};
+
+// ------------------------------- API --------------------------------------------------
 
 // GET: Fetches all transactions
 export const getTransactions =
     (daily: boolean) =>
     async ({ request }: ActionFunctionArgs) => {
-        // 8AM to 5PM
         const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
-        const otherParams = extractQueryToObject(request, ["page"]);
-        const apiParams = buildParamString({ ...dayRangeParam, ...otherParams });
+        const { query, omitted } = extractQueryToObject(request, ["page", "timeframe"]);
+        const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "overall"] as TIMEFRAME_RESULT;
+
+        const apiParams = buildParamString({ ...dayRangeParam, ...query, ...dateRangeOption });
+        console.log(apiParams);
 
         try {
             // Main Fetch Request
@@ -51,14 +82,7 @@ export const getTransactions =
 
             return res.json();
         } catch (err) {
-            // 2nd Line of Defense on Unauthorized URL Access
-            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-            if (err instanceof Response) throw err;
-
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, ROUTES.applicantForm.root);
+            return handleErrRedirect(err, request, ROUTES.applicantForm.root);
         }
     };
 
@@ -76,14 +100,7 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
 
         return transaction;
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
+        return handleErrRedirect(err, request, ROUTES.applicantForm.root);
     }
 };
 
@@ -101,10 +118,7 @@ export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => 
 
         return transaction;
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.profile.root);
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
     }
 };
 
@@ -137,14 +151,7 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         // Returns to root directory + queries
         return redirectWithQuery(request, ROUTES.applicantForm.root);
     } catch (err) {
-        // 2nd Line of Defense on Unauthorized URL Access
-        // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-        if (err instanceof Response) throw err;
-
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
+        return handleErrRedirect(err, request, ROUTES.applicantForm.root);
     }
 };
 
@@ -161,10 +168,7 @@ export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
 
         return res.json();
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.profile.root);
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
     }
 };
 
@@ -182,10 +186,7 @@ export const getDetailsAnalytics =
             await ensureOk(res, "Failed to query analytic details");
             return res.json();
         } catch (err) {
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, ROUTES.profile.root);
+            return handleErrRedirect(err, request, ROUTES.dashboard.root);
         }
     };
 
@@ -202,10 +203,7 @@ export const getTransactionSummary = async ({ request }: ActionFunctionArgs) => 
 
         return res.json();
     } catch (err) {
-        console.error(err);
-
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.profile.root);
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
     }
 };
 
@@ -224,10 +222,7 @@ export const getTransactionReport =
 
             return res.json();
         } catch (err) {
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, ROUTES.profile.root);
+            return handleErrRedirect(err, request, ROUTES.dashboard.root);
         }
     };
 
@@ -255,14 +250,7 @@ export const deleteTransaction =
             // Returns to root directory + queries
             return redirectWithQuery(request, nextPage);
         } catch (err) {
-            // 2nd Line of Defense on Unauthorized URL Access
-            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-            if (err instanceof Response) throw err;
-
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return handleErrRedirect(err, request, nextPage);
         }
     };
 
@@ -292,13 +280,6 @@ export const updateTransaction =
             // Returns to root directory + queries
             return redirectWithQuery(request, nextPage);
         } catch (err) {
-            // 2nd Line of Defense on Unauthorized URL Access
-            // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
-            if (err instanceof Response) throw err;
-
-            console.error(err);
-
-            // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return handleErrRedirect(err, request, nextPage);
         }
     };

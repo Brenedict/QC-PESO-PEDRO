@@ -2,6 +2,9 @@
 import { Outlet, useLoaderData } from "react-router";
 import { type ReactNode } from "react";
 
+// PEDRO SHARED IMPORTS
+import type { Transaction, User } from "@qcpesopedro/shared/prisma/browser.ts";
+
 // Components
 import PageHeader from "../components/PageHeader";
 import { Text } from "../components/Text";
@@ -19,16 +22,17 @@ import SsidChartOutlinedIcon from "@mui/icons-material/SsidChartOutlined";
 import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
+// API Services
+import { DASHBOARD_CARD_MAP, RECENT_TRANSACTION_MAP } from "../api/transactionService.ts";
+
 // Custom Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Context
 import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 import {
-    CARD_MAP,
     DASHBOARD_OVERVIEW_REQUEST,
     getQueryIds,
-    RECENT_TRANSACTION_MAP,
     type AnalyticsData,
     type DateRangeData,
 } from "../api/analyticsRequests.ts";
@@ -38,10 +42,9 @@ import {
     type CategorySeriesConfig,
     type TimeSeriesConfig,
 } from "../api/chartService.ts";
-import type { Transaction, User } from "@qcpesopedro/shared/prisma/browser.ts";
 import { formatTime } from "../utils/time.ts";
 
-type CardId = keyof typeof CARD_MAP;
+type CardId = keyof typeof DASHBOARD_CARD_MAP;
 
 interface CardGroupProps {
     ids?: CardId[];
@@ -71,8 +74,8 @@ function CardGroup({ ids = [], analytics }: CardGroupProps) {
                         <StatsCard
                             key={id}
                             className="w-full"
-                            title={CARD_MAP?.[id].title}
-                            specialIcon={CARD_MAP?.[id].specialIcon}
+                            title={DASHBOARD_CARD_MAP?.[id].title}
+                            specialIcon={DASHBOARD_CARD_MAP?.[id].specialIcon}
                             total={dataValue?.current?.count ?? 0}
                             male={dataValue?.current?.grouped?.MALE ?? 0}
                             female={dataValue?.current?.grouped?.FEMALE ?? 0}
@@ -262,7 +265,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Weekly Transaction Volume</Text>
                         </Card.Header>
                         <Card.Body>
-                            <LineChart options={daily.options} data={daily.data} height={"100px"}></LineChart>
+                            <LineChart options={daily.options} data={daily.data} wrapperClassName="h-100!"></LineChart>
                         </Card.Body>
                     </Card>
                     <Card className="col-span-1">
@@ -270,7 +273,7 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                             <Text weight="bold">Gender Split</Text>
                         </Card.Header>
                         <Card.Body>
-                            <PieChart options={sex.options} data={sex.data} height={"250px"}></PieChart>
+                            <PieChart options={sex.options} data={sex.data} wrapperClassName="h-90!"></PieChart>
                         </Card.Body>
                     </Card>
                 </section>

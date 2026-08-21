@@ -14,7 +14,8 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 
 // API Services
-import { CARD_MAP, extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
+import { extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
+import { DASHBOARD_CARD_MAP } from "../../api/transactionService";
 import {
     buildCategoryChartData,
     buildTimeSeriesChartData,
@@ -82,7 +83,7 @@ export function PopupTransactionDetails() {
     const data = useLoaderData() as AnalyticsData;
     const navigate = useNavigateDefault();
 
-    const label = id && CARD_MAP?.[id]?.title ? CARD_MAP?.[id].title : "Unknown";
+    const label = id && DASHBOARD_CARD_MAP?.[id]?.title ? DASHBOARD_CARD_MAP?.[id].title : "Unknown";
 
     const hourlySeries: TimeSeriesConfig[] = [
         {
