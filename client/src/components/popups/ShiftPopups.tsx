@@ -3,7 +3,7 @@ import { Form, redirect, useParams } from "react-router";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import { useState } from "react"; 
+import { useState } from "react";
 
 // Components
 import { Card } from "../Card";
@@ -28,6 +28,7 @@ import {
     PopupIcon,
 } from "./PopupPartials";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import { EnvironmentTag } from "@qcpesopedro/shared/prisma/browser";
 
 export function PopupTimeIn({ root }: { root: string }) {
     const navigate = useNavigateDefault();
@@ -175,10 +176,15 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
                         />
                     </div>
                     <LabeledSection label="Context Tags">
-                        <div className="flex gap-2">
-                            <ContextBadge highlighted={true}>Normal Operation</ContextBadge>
-                            <ContextBadge>Slow Internet</ContextBadge>
-                            <ContextBadge>Heavy Rain</ContextBadge>
+                        <div className="flex flex-wrap gap-2 max-w-120">
+                            <ContextBadge value={EnvironmentTag.SLOW_INTERNET}>Slow Internet</ContextBadge>
+                            <ContextBadge value={EnvironmentTag.HEAVY_RAIN}>Heavy Rain</ContextBadge>
+                            <ContextBadge value={EnvironmentTag.BROKEN_EQUIPMENT}>Broken Equipment</ContextBadge>
+                            <ContextBadge value={EnvironmentTag.APPLICANT_ISSUES}>Applicant Issues</ContextBadge>
+                            <ContextBadge value={EnvironmentTag.FEELING_UNWELL}>Feeling Unwell</ContextBadge>
+                            <ContextBadge value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM}>
+                                Broken Software System
+                            </ContextBadge>
                         </div>
                     </LabeledSection>
 

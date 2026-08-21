@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type InputHTMLAttributes, type ReactNode } from "react";
 import type { ColorVariant, MaterialIcon, SizeVariant } from "../../types/common";
 import Button, { type ButtonVariant } from "../Button";
 import { Card } from "../Card";
@@ -65,13 +65,21 @@ export function LabeledSection({ label, children }: { label: string; children: R
     );
 }
 
-export function ContextBadge({ highlighted = false, children }: { highlighted?: boolean; children: ReactNode }) {
+export function ContextBadge({
+    children,
+    defaultChecked = false,
+    ...props
+}: { children: ReactNode } & InputHTMLAttributes<HTMLInputElement>) {
+    const [selected, setSelected] = useState(defaultChecked);
+
     return (
-        <div
-            className={`font-medium w-fit px-3 py-1 text-small-description rounded-3xl ${highlighted ? "bg-primary-blue text-white" : "bg-off-white text-grayish-blue border border-off-white-border  "}`}
+        <label
+            className={`cursor-pointer block w-fit px-3 py-1 text-small-description rounded-3xl transition-transform hover:scale-105 select-none ${selected ? "bg-primary-blue text-white font-bold hover:bg-blue-950" : "bg-off-white text-grayish-blue border border-off-white-border font-medium hover:bg-off-white-border  "}`}
+            onChange={() => setSelected((prevSelected) => !prevSelected)}
         >
+            <input type="checkbox" name="context" hidden defaultChecked={defaultChecked} {...props} />
             {children}
-        </div>
+        </label>
     );
 }
 
