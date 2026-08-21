@@ -251,3 +251,26 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         return redirect(`${ROUTES.userManagement.root}?${query}`);
     }
 };
+
+export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
+    const url = new URL(request.url);
+    const query = url.searchParams.toString();
+
+    try {
+        const formData = await request.formData();
+
+        const payload = {
+            currentPassword: formData.get("currentPassword"),
+            newPassword: formData.get("newPassword"),
+        };
+
+        console.log("Form submitted successfully with payload:", payload);
+        
+        alert("TEST");
+
+        return redirect(`${ROUTES.profile.root}?${query}`);
+    } catch (err) {
+        console.error(err);
+        return redirect(`${ROUTES.profile.root}?${query}`);
+    }
+};

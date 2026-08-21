@@ -10,6 +10,7 @@ import { Text } from "../Text";
 import { GeneralInput, SelectInput } from "../Input";
 import ChoiceItem from "../ChoiceItem";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
+import { PasswordInput } from "../Input";
 
 // Icons
 import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
@@ -341,7 +342,7 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
 
 function PopupRadio({
     value,
-    name = "radioGroup", 
+    name = "radioGroup",
     defaultChecked = false,
     children,
 }: {
@@ -391,6 +392,81 @@ export function PopupResetUser() {
                 </PopupButton>
                 <PopupButton variant="blue" form="userFormResetPassword" type="submit">
                     Reset Password
+                </PopupButton>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupChangePassword() {
+    const navigate = useNavigateDefault();
+    const [passwordError, setPasswordError] = useState("");
+
+    const validatePasswords = (e: React.FormEvent<HTMLFormElement>) => {
+        const formData = new FormData(e.currentTarget);
+        const newPassword = formData.get("newPassword") as string;
+        const confirmPassword = formData.get("confirmPassword") as string;
+
+        if (newPassword !== confirmPassword) {
+            e.preventDefault(); 
+            setPasswordError("New password do not match.");
+        } else {
+            setPasswordError("");
+        }
+    };
+
+    return (
+        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.profile.root, true)}>
+            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.profile.root, true)}>
+                <Text weight="bold">Change Password</Text>
+            </Dialog.Header>
+            <Dialog.Body className="p-6!">
+                <Form
+                    method="post"
+                    id="userFormChangePassword"
+                    onSubmit={validatePasswords}
+                    className="flex flex-col h-fit gap-4"
+                >
+                    <PasswordInput
+                        id="currentPassword"
+                        name="currentPassword"
+                        label="Current password"
+                        placeholder="Enter your current password"
+                        isRequired={true}
+                    />
+
+                    <div className="flex justify-end -mt-3 mb-2">
+                        <Text size="small" variant="primary-blue" className="cursor-pointer hover:underline">
+                            Don't know your password?
+                        </Text>
+                    </div>
+
+                    <PasswordInput
+                        id="newPassword"
+                        name="newPassword"
+                        label="New password"
+                        placeholder="Enter your new password"
+                        isRequired={true}
+                        onChange={() => setPasswordError("")} 
+                    />
+
+                    <PasswordInput
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        label="Confirm new password"
+                        placeholder="Confirm your new password"
+                        isRequired={true}
+                        error={passwordError} 
+                        onChange={() => setPasswordError("")}
+                    />
+                </Form>
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end mt-2">
+                <PopupButton variant="white-black" onClick={() => navigate(ROUTES.profile.root, true)}>
+                    Cancel
+                </PopupButton>
+                <PopupButton variant="blue" type="submit" form="userFormChangePassword">
+                    Change Password
                 </PopupButton>
             </Dialog.Footer>
         </Dialog>

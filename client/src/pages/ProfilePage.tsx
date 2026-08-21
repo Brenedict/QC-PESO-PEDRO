@@ -1,5 +1,6 @@
 // General Imports
 import { Outlet } from "react-router";
+import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Componentss
 import { Text } from "../components/Text";
@@ -28,6 +29,8 @@ import { useTopBar } from "../context/TopbarContext.tsx";
 //  Profile picture, name, role, and change password button
 function ProfileSummaryCard() {
     const { firstName, lastName, role } = useTopBar();
+    const navigate = useNavigateDefault();
+
     return (
         <Card className="w-full md:w-1/3 flex flex-col">
             <Card.Header variant="off-white" bordered={true} className="h-28">
@@ -67,6 +70,7 @@ function ProfileSummaryCard() {
                     size="normal"
                     className="w-full text-sm font-semibold"
                     leftIcon={{ icon: KeyOutlinedIcon, size: "medium", variant: "black" }}
+                    onClick={() => navigate(ROUTES.profile.changePassword, true)}
                 >
                     Change Password
                 </Button>

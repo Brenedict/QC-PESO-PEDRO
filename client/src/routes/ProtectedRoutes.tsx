@@ -17,6 +17,8 @@ import SystemAuditLogs from "../pages/SystemAuditLogs";
 import UserManagement from "../pages/UserManagement";
 import Reports from "../pages/Reports";
 import SystemErrorPage from "../pages/SystemErrorPage";
+import { PopupChangePassword } from "../components/popups/UserPopups";
+import { changePasswordAction } from "../api/userService";
 
 // Components
 import {
@@ -162,7 +164,10 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "profile",
                         element: <ProfilePage />,
-                        children: [...shiftPopups(ROUTES.profile.root)],
+                        children: [
+                            { path: "change-password", element: <PopupChangePassword />, action: changePasswordAction },
+                            ...shiftPopups(ROUTES.profile.root),
+                        ],
                     },
                     {
                         path: "end-shift",

@@ -29,6 +29,7 @@ export const ROUTES = {
     },
     profile: {
         root: BASE_ROUTES.profile,
+        changePassword: `${BASE_ROUTES.profile}/change-password`,
     },
     history: {
         root: BASE_ROUTES.history,
