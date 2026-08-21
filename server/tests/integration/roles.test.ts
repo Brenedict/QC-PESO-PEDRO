@@ -12,36 +12,17 @@ import transactionRouter from "../../src/routes/transaction.route";
 // Fixture
 import { mockFrontlineUser, mockAdminUser, mockSuperAdminUser } from "../fixtures/user.fixture";
 
-import {
-    Outcome,
-    TransactionType,
-    type Transaction,
-    type ShiftLog,
-    type User,
-} from "@qcpesopedro/shared/prisma/client";
+import { type ShiftLog, type User } from "@qcpesopedro/shared/prisma/client";
 import {
     TransactionAnalyticsQueryInput,
     TransactionCreateType,
-    TransactionQueryType,
     TransactionUpdateType,
 } from "@qcpesopedro/shared/schema/transactions";
 
-// Router
-import transactionRoute from "../../src/routes/transaction.route";
-
 // Fixtures
-import { mockUser } from "../fixtures/user.fixture";
 import { buildMockShiftLog } from "../fixtures/shiftLog.fixture";
 import TransactionService from "../../src/service/transaction.service";
-import {
-    buildMockTransaction,
-    getExpectedBreakdown,
-    getExpectedGrouped,
-    getExpectedGroupedBreakdown,
-    getTransactionsInRange,
-    TOMORROW,
-    YESTERDAY,
-} from "../fixtures/transaction.fixture";
+import { buildMockTransaction } from "../fixtures/transaction.fixture";
 
 // Use actual role validator
 jest.unmock("../../src/middlewares/authorized.middleware");
@@ -245,7 +226,7 @@ describe("Server Routes - Role Authorization Matrix", () => {
             mockedShiftLog = await prisma.shiftLog.create({ data: buildMockShiftLog(mockedUser.id) });
 
             // Used to temporarily retrieved Transaction Id
-            let temp = buildMockTransaction(mockedUser.id, mockedShiftLog.id);
+            const temp = buildMockTransaction(mockedUser.id, mockedShiftLog.id);
 
             mockedTransactionId = temp.id;
             mockedTransaction = temp;

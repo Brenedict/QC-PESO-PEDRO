@@ -4,7 +4,7 @@ import { mockDeep, mockReset, type DeepMockProxy } from "jest-mock-extended";
 import prisma from "./src/config/prisma.config";
 
 // PEDRO SHARED IMPORTS
-import type { PrismaClient } from "@qcpesopedro/shared/prisma";
+import { PrismaClient } from "@qcpesopedro/shared/prisma/client";
 
 jest.mock("./src/config/prisma.config", () => ({
     __esModule: true,
