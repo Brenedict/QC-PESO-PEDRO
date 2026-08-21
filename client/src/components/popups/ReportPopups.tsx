@@ -10,6 +10,7 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { usePDF } from "react-to-pdf";
 import { useLoaderData } from "react-router";
 import type { AnalyticsData } from "../../api/analyticsRequests";
+import * as XLSX from "xlsx";
 
 function PaperContainer({ targetRef, children }: { targetRef: RefObject<null>; children: ReactNode }) {
     return (
@@ -75,6 +76,33 @@ function BreakdownTitle() {
             <hr className="mt-2 mb-4 border-0 bg-off-white-border h-0.5" />
         </>
     );
+}
+
+function downloadExcel(data: any, date: Date, type: string, fileName: string) {
+    const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+
+    const rows = [
+        ["Quezon City Government"],
+        ["Public Employment Service Office (QC PESO)"],
+        ["PED Daily Monitoring and Tracking System"],
+        [],
+        [`${capitalizedType} Transaction Summary Report`],
+        [`Generated: ${formatLongMonthYear(date)}`],
+        [],
+        ["Total Transactions", data?.total?.count ?? 0],
+        ["Successful Referrals", data?.success?.count ?? 0],
+        [],
+        ["Type", "Total", "Male", "Female"],
+        ["Walk-In Transactions", data?.walkin?.count ?? 0, data?.walkin?.grouped?.MALE ?? 0, data?.walkin?.grouped?.FEMALE ?? 0],
+        ["Online Referrals", data?.online?.count ?? 0, data?.online?.grouped?.MALE ?? 0, data?.online?.grouped?.FEMALE ?? 0],
+        ["In-House Referral", data?.inhouse?.count ?? 0, data?.inhouse?.grouped?.MALE ?? 0, data?.inhouse?.grouped?.FEMALE ?? 0],
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
 }
 
 export function PopupReportPreview({ type }: { type: string }) {
@@ -159,7 +187,7 @@ export function PopupReportPreview({ type }: { type: string }) {
                 </PopupButton>
                 <PopupButton
                     variant="green"
-                    onClick={() => navigate(ROUTES.reports.root, false)}
+                    onClick={() => downloadExcel(data, dateNow, type, fileName)}
                     leftIcon={{ icon: FileDownloadOutlinedIcon, variant: "white" }}
                 >
                     Download Excel
