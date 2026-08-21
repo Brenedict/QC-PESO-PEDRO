@@ -40,6 +40,7 @@ export interface ChartData {
 
 export interface ChartConfigs {
     responsive: boolean;
+    maintainAspectRatio?: boolean;
     plugins: {
         legend: {
             display?: boolean;

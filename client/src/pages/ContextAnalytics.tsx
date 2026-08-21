@@ -245,7 +245,7 @@ function Level1Section() {
                         <DoughnutChart
                             options={sampleContextDoughnutOptions}
                             data={sampleContextDoughnut1Data}
-                            height="250px"
+                            wrapperClassName="relative w-full h-[250px]"
                         ></DoughnutChart>
                     </Card.Body>
                 </Card>
@@ -259,7 +259,7 @@ function Level1Section() {
                         <LineChart
                             options={sampleContextLineOptions}
                             data={sampleContextLineData}
-                            height="60px"
+                            wrapperClassName="relative w-full h-[80px]"
                         ></LineChart>
                     </Card.Body>
                     <Card.Footer bordered={false} variant="white">
@@ -269,7 +269,7 @@ function Level1Section() {
                                 "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
                             }
                         />
-                    </Card.Footer>
+                    </Card.Footer>  
                 </Card>
             </div>
         </section>
@@ -294,7 +294,7 @@ function Level2Section() {
                         <BarChart
                             options={sampleContextBarOptions}
                             data={sampleContextBarData}
-                            height="180px"
+                            wrapperClassName="relative w-full h-[200px]"
                         ></BarChart>
                     </Card.Body>
                 </Card>
@@ -347,7 +347,7 @@ function Level3Section() {
                             <DoughnutChart
                                 options={sampleContextDoughnutOptions}
                                 data={sampleContextDoughnut2Data}
-                                height={"250px"}
+                                wrapperClassName="relative w-full h-[250px]"
                             ></DoughnutChart>
                         </div>
                         <hr className="border-1.2 border-grayish-blue-opaque" />
@@ -372,7 +372,11 @@ function Level3Section() {
                         <Text weight="bold">Correlation: Operational Issue vs Transactions Processed</Text>
                     </Card.Header>
                     <Card.Body>
-                        <ScatterChart options={sampleScatterOptions} data={sampleScatterData}></ScatterChart>
+                        <ScatterChart
+                            options={sampleScatterOptions}
+                            data={sampleScatterData}
+                            wrapperClassName="relative w-full h-[300px]"
+                        ></ScatterChart>
                     </Card.Body>
                     <Card.Footer bordered={false} variant="white">
                         <ContextTipCard

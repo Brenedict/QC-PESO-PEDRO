@@ -18,7 +18,6 @@ import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Data
-import { sampleReportsBarData, sampleReportsBarOptions } from "../data/chartsConfigs";
 import { buildTimeSeriesChartData, type TimeSeriesConfig } from "../api/chartService";
 
 function ReportCard({ children, onClick }: { children: ReactNode; onClick?: MouseEventHandler<HTMLButtonElement> }) {
@@ -114,7 +113,12 @@ function Reports() {
                         <Text weight="bold">Transaction Summary Preview</Text>
                     </Card.Header>
                     <Card.Body>
-                        <BarChart options={weekly.options} data={weekly.data} height={"80px"}></BarChart>
+                        <BarChart
+                            options={weekly.options}
+                            data={weekly.data}
+                            height={"80px"}
+                            wrapperClassName="relative w-full h-[400px]"
+                        />
                     </Card.Body>
                 </Card>
 
