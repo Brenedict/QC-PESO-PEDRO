@@ -1,5 +1,6 @@
 // General Imports
-import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
+import { redirect, type RouteObject } from "react-router";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -44,14 +45,13 @@ import { ROUTES } from "../hooks/reroute";
 import {
     createTransaction,
     getDetailsAnalytics,
-    getOverviewAnalytics,
-    getRecentTransactions,
     getTransactionReport,
     getTransactions,
     getTransactionSummary,
 } from "../api/transactionService";
 
-import { primaryAuthLoader } from "../api/authService";
+import { primaryAuthLoader, requireAccess } from "../api/authService";
+import { getAnalytics } from "../api/analyticsService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -76,11 +76,7 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "",
                         element: <Overview pending={5} approved={18} revision={2} />,
-                        loader: async (args: ActionFunctionArgs) => {
-                            const analytics = await getOverviewAnalytics(args);
-                            const recent = await getRecentTransactions(args);
-                            return { analytics, recent };
-                        },
+                        loader: requireAccess(AccessLevel.FRONTLINE, getAnalytics),
                         children: [
                             {
                                 path: "total",
@@ -178,10 +174,12 @@ export const protectedRoutes: RouteObject[] = [
                         path: "profile",
                         element: <ProfilePage />,
                         children: [...shiftPopups(ROUTES.profile.root)],
+                        loader: requireAccess(AccessLevel.FRONTLINE),
                     },
                     {
                         path: "end-shift",
                         element: <EndShiftVerification shiftData={shiftRecords} />,
+                        loader: requireAccess(AccessLevel.ADMIN),
                         children: [
                             {
                                 path: ":shiftId/review",
@@ -197,7 +195,7 @@ export const protectedRoutes: RouteObject[] = [
                         path: "history",
                         element: <TransactionHistory />,
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
-                        loader: getTransactions(false),
+                        loader: requireAccess(AccessLevel.FRONTLINE, getTransactions(false)),
                     },
                     {
                         path: "monitoring",
@@ -210,6 +208,7 @@ export const protectedRoutes: RouteObject[] = [
                                 employeeSessions={employeeSessions}
                             />
                         ),
+                        loader: requireAccess(AccessLevel.ADMIN),
                         children: [
                             {
                                 path: ":shiftId/view-history",
@@ -222,18 +221,19 @@ export const protectedRoutes: RouteObject[] = [
                         path: "applicant-form",
                         element: <TransactionsInputPage />,
                         children: [...transactionsEditAndDelete("entry"), ...shiftPopups(ROUTES.applicantForm.root)],
-                        loader: getTransactions(true),
+                        loader: requireAccess(AccessLevel.FRONTLINE, getTransactions(true)),
                         action: createTransaction,
                     },
                     {
                         path: "audit-logs",
                         element: <SystemAuditLogs logsData={auditLogData} />,
+                        loader: requireAccess(AccessLevel.ADMIN),
                         children: [...shiftPopups(ROUTES.auditLogs.root)],
                     },
                     {
                         path: "user-management",
                         element: <UserManagement />,
-                        loader: getUsers,
+                        loader: requireAccess(AccessLevel.ADMIN, getUsers),
                         children: [
                             {
                                 path: "create",
@@ -276,7 +276,8 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "reports",
                         element: <Reports />,
-                        loader: getTransactionSummary,
+                        // Just added this for now, if not correct access level change it
+                        loader: requireAccess(AccessLevel.SUPERADMIN, getTransactionSummary),
                         children: [
                             {
                                 path: "daily",
@@ -304,6 +305,8 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "context-analytics",
                         element: <ContextAnalytics />,
+                        // Just added this for now, if not correct access level change it
+                        loader: requireAccess(AccessLevel.SUPERADMIN),
                         children: [...shiftPopups(ROUTES.contextAnalysis.root)],
                     },
                 ],

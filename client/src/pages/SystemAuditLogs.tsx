@@ -1,5 +1,4 @@
 // General Imports
-import React from "react";
 import { Outlet } from "react-router";
 
 // Components
@@ -33,10 +32,6 @@ function UserCell({ name, role }: { name: string; role: string }) {
 
 // Main Page
 function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
-    const handleFilterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
-
     // Extra filter inputs for the Table Filter Section
     const extraFilters = (
         <div className="flex gap-4 items-center">

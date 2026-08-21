@@ -1,22 +1,16 @@
-import { redirect, type ActionFunctionArgs } from "react-router";
+// General Imports
+import { redirect } from "react-router";
+
+// Components
 import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/popups/TransactionsPopups";
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
-import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+
+// API Services
 import { logoutService } from "../api/authService";
-import z from "zod";
 import { deleteTransaction, getTransactionById, updateTransaction } from "../api/transactionService";
 
-export const testActionFn =
-    (schema: z.ZodType) =>
-    async ({ request }: ActionFunctionArgs) => {
-        const formData = await request.formData();
-        const validationResult = schema.safeParse(formData);
-
-        if (!validationResult.success) {
-            return { errors: z.prettifyError(validationResult.error) };
-        }
-        return redirect("..");
-    };
+// Custom Hooks
+import { ROUTES, type transactionRootPage } from "../hooks/reroute";
 
 // Transaction edit/delete routes shared across sections
 export const transactionsEditAndDelete = (root: transactionRootPage) => [

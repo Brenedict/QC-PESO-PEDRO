@@ -1,8 +1,14 @@
+// General Imporst
 import type { ReactNode } from "react";
+
+// Components
 import { Text } from "../components/Text";
 import Button from "../components/Button";
 
+// Types
 import type { ColorVariant, MaterialIcon, Role } from "../types/common";
+
+// Utils
 import { formatShortMonthYear, formatTime } from "../utils/time";
 
 export function ColumnText({ children }: { children: ReactNode }) {

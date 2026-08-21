@@ -14,7 +14,7 @@ import Icon from "../components/Icon";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
 
-// Test Data
+// Default Chart configs
 import {
     sampleContextBarData,
     sampleContextBarOptions,

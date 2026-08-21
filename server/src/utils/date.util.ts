@@ -1,3 +1,4 @@
+// PEDRO SHARED IMPORTS
 import type { QueryBreakdownType } from "@qcpesopedro/shared/schema/transactions";
 
 export default {

@@ -1,5 +1,6 @@
-import type { MouseEventHandler } from "react";
+// General Imports
 import { useSearchParams, type SetURLSearchParams } from "react-router";
+import type { MouseEventHandler } from "react";
 
 type SearchParamsType = Record<string, string | number>;
 type SetSearchParamsType = (params: Record<string, string | number>) => void;

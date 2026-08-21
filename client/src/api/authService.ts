@@ -1,7 +1,16 @@
+// General Imports
 import { redirect } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+
+// API Services
 import { apiFetch } from "./httpClient";
 import TokenStore from "./tokenStore";
+
+// Custom Hooks
 import { ROUTES } from "../hooks/reroute";
+import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // Auth helpers
 
@@ -45,6 +54,21 @@ export const logoutService = async (): Promise<boolean> => {
         console.error("Logout network error:", err);
         return false;
     }
+};
+
+export const requireAccess = (minLevel: AccessLevel, loaderFn?: Function) => {
+    return async (args: any) => {
+        // Fetch current user details
+        const user = (await primaryAuthLoader()).user as User;
+
+        if (!user || AccessLevel[user.role] < minLevel) {
+            // Instantly redirect unauthorized roles before firing the endpoint loader
+            throw redirect("/404");
+        }
+
+        // If authorized and a loader exists, proceed
+        return loaderFn ? await loaderFn(args) : null;
+    };
 };
 
 // GET: Fetches the data of the currently logged-in user. If the user is not authenticated, it will log them out and return null.

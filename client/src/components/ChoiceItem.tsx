@@ -1,3 +1,4 @@
+// Components
 import { Text } from "./Text";
 
 interface OptionsProp extends React.ButtonHTMLAttributes<HTMLInputElement> {

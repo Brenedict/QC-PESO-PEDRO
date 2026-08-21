@@ -1,3 +1,4 @@
+// Components
 import { Card } from "./Card";
 import { Text } from "./Text";
 import EmptyData from "./EmptyData";

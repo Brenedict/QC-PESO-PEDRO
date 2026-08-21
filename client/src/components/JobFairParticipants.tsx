@@ -1,5 +1,8 @@
+// Components
 import { Card } from "./Card";
 import { CardHeader, Divider, FemaleText, MaleText, NumberText, NumberTitle } from "./DashboardCard";
+
+// Material UI Icons
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
 
 export interface JobFairParticipantsProps {

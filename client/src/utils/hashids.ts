@@ -1,5 +1,7 @@
+// General Imporst
 import Hashids from "hashids";
 
+// .env hashid imports
 const salt = import.meta.env?.VITE_HASHIDS_SALT || process.env.VITE_HASHIDS_SALT || "some salt value";
 
 const hashids = new Hashids(salt);

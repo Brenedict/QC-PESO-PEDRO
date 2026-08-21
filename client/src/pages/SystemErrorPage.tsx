@@ -1,12 +1,14 @@
+// General Imports
 import { useRouteError } from "react-router";
+
+// COMPONENTS
 import { Text } from "../components/Text";
 import Button from "../components/Button";
 
-// Icons
+// Material UI Icons
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 
-// COMPONENTS
 function SystemErrorVisual() {
     return <WarningAmberRoundedIcon sx={{ fontSize: 120 }} className="text-red-400 opacity-80 drop-shadow-sm" />;
 }

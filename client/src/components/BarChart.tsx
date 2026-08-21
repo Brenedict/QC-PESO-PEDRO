@@ -17,7 +17,12 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, BarElement, Title, Tooltip, Legend);
 type BarChartProps = ComponentProps<typeof Bar> & { wrapperClassName?: string };
 
-export function BarChart({ options, data, wrapperClassName = "relative w-full h-full min-h-[250px]", ...props}: BarChartProps) {
+export function BarChart({
+    options,
+    data,
+    wrapperClassName = "relative w-full h-full min-h-[250px]",
+    ...props
+}: BarChartProps) {
     const responsiveOptions = {
         ...(options as object),
         maintainAspectRatio: false,

@@ -14,10 +14,10 @@ import { ActionButton, DateTime } from "../components/TableCells";
 // Sample Data
 import type { ShiftRecord } from "../data/shiftRecords";
 
-// Hooks
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
-// Icon
+// Materials UI Icon
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
 // Define the props

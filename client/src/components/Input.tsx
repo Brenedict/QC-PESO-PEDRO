@@ -1,8 +1,13 @@
+// General Imports
+import { useState, type ReactNode } from "react";
+
+// Components
+import Icon from "./Icon";
+
+// Material UI Icons
 import VisiblityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { useState, type ReactNode } from "react";
-import Icon from "./Icon";
 import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined";
 
 interface LabelProp {

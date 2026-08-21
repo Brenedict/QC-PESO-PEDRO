@@ -2,6 +2,10 @@
 import { Form, Outlet, useLoaderData, useActionData } from "react-router";
 import { useEffect, useRef, useState } from "react";
 
+// PEDRO SHARED IMPORTS
+import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
+import { Demographic, TransactionType, Sex, type Transaction, Outcome } from "@qcpesopedro/shared/prisma/browser";
+
 // Components
 import { Text } from "../components/Text";
 import { Card } from "../components/Card";
@@ -12,21 +16,23 @@ import { GeneralInput, SelectInput, TextAreaInput } from "../components/Input";
 import { ActionButtons, ColumnText, DateTime } from "../components/TableCells";
 import ChoiceItem from "../components/ChoiceItem";
 import Status from "../components/Status";
+import { TransactionExtraFilters } from "./TransactionHistory";
 
-// Icons
+// Material UI Icons
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
-// Hooks
+// Custom Hooks
 import { useNavigateDefault, ROUTES } from "../hooks/reroute";
-import { Demographic, TransactionType, Sex, type Transaction, Outcome } from "@qcpesopedro/shared/prisma/browser";
-import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
-import { useAuth } from "../context/AuthContext";
+
+// API Services
 import { createTransaction } from "../api/transactionService";
-import { TransactionExtraFilters } from "./TransactionHistory";
+
+// Contexts
+import { useAuth } from "../context/AuthContext";
 
 interface FormRow1Props {
     txCode?: string;

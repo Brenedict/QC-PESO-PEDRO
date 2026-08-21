@@ -1,6 +1,8 @@
 // General Imports
 import { Form, useLoaderData } from "react-router";
 import { useState, type ReactNode } from "react";
+
+// PEDRO SHARED IMPORTS
 import type { Role, Shift } from "@qcpesopedro/shared/prisma/browser";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
@@ -11,12 +13,11 @@ import { GeneralInput, SelectInput } from "../Input";
 import ChoiceItem from "../ChoiceItem";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
 
-// Icons
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+// Material UI Icons
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 
-// Helpers
+// Custom Hooks
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 
 type PopupUser = {

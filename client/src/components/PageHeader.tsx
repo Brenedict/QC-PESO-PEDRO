@@ -1,4 +1,7 @@
+// General Imports
 import type { ReactNode } from "react";
+
+// Components
 import { Text } from "./Text";
 import { type IconProps } from "./Icon";
 

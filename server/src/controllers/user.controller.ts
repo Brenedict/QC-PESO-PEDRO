@@ -1,25 +1,28 @@
 // General Imports
-import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
 import type { Request, Response } from "express";
 
-// Middleware
+// PEDRO SHARED IMPORTS
+import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
+import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
+
+// Middlewares
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
-
-// Prisma Types
-import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import { requireAccessLevel } from "../middlewares/authorized.middleware";
 
 // Models
 import UserModel from "../models/user.model";
+import ShiftModel from "../models/shift.model";
 
 // Service
 import UserService from "../service/user.service";
-import type { UserContextType } from "@qcpesopedro/shared/schema/login";
-import ShiftModel from "../models/shift.model";
 
 export default {
     getCurrentUser: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
         async (req: Request, res: Response) => {
             const user = req.user as User;
 
@@ -48,6 +51,7 @@ export default {
 
     getUserById: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -63,6 +67,7 @@ export default {
 
     getUsers: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Collects queries from URL
             const role = req.query.role as Role;
@@ -77,6 +82,7 @@ export default {
 
     createUser: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         validateSchema(UserFormCreateSchema),
         async (req: Request, res: Response) => {
             const user = req.body as User;
@@ -96,6 +102,7 @@ export default {
 
     patch: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         validateSchema(UserFormUpdateSchema),
         async (req: Request, res: Response) => {
             // Default user check
@@ -107,12 +114,6 @@ export default {
             }
 
             const requestor = req.user as User;
-
-            if (requestor.role === "ADMIN" && user.role !== "FRONTLINE") {
-                return res
-                    .status(403)
-                    .json({ message: "Forbidden: Administrators can only modify Frontline Encoders." });
-            }
 
             const userUpdate = req.body as User;
 
@@ -128,6 +129,7 @@ export default {
 
     delete: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -145,6 +147,7 @@ export default {
 
     resetPassword: [
         jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -154,16 +157,7 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            const requestor = req.user as User;
-
-            if (requestor.role === "ADMIN" && user.role !== "FRONTLINE") {
-                return res
-                    .status(403)
-                    .json({ message: "Forbidden: Administrators can only reset passwords for Frontline Encoders." });
-            }
-
             const result = await UserService.resetPassword(userId, user);
-            console.log("REACHED");
 
             return res.status(204).send();
         },

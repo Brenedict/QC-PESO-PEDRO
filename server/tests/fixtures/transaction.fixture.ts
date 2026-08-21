@@ -10,6 +10,22 @@ YESTERDAY.setHours(0, 0, 0, 0);
 export const TOMORROW = new Date(TODAY.getDate() + 1);
 TOMORROW.setHours(23, 59, 59, 999);
 
+export const buildMockTransaction = (userId: number, shiftLogId: number) => {
+    return {
+        id: 1,
+        userId,
+        shiftLogId,
+        applicantFirstName: "John",
+        applicantLastName: "Doe",
+        applicantSex: Sex.MALE,
+        transactionOutcome: Outcome.SUCCESS,
+        transactionType: TransactionType.WALK_IN_REFERRAL,
+        remarks: null,
+        demographics: [Demographic.FIRST_TIME_JOB_SEEKER],
+        createdAt: new Date("2026-08-19T08:15:00.000Z"),
+    };
+};
+
 export const buildMockTransactions = (
     userId: number,
     shiftLogId: number
