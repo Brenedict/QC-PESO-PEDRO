@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import handleShutdown from "./middlewares/shutdown.middleware";
+import errorMiddleware from "./middlewares/error.middleware";
 import env from "./config/env.config";
 import "./config/passport.config";
 
@@ -48,6 +49,8 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use(errorMiddleware.notFoundError);
+app.use(errorMiddleware.internalError);
 
 // --------------------- SERVER EXIT ----------------------------------
 

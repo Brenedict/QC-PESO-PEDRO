@@ -4,8 +4,12 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-    provider = "prisma-client"
-    output   = "../../shared/prisma"
+    provider               = "prisma-client"
+    output                 = "../../shared/prisma"
+    previewFeatures        = ["typedSql"]
+    moduleFormat           = "esm"
+    generatedFileExtension = "ts"
+    importFileExtension    = "ts"
 }
 
 generator zod {
@@ -103,17 +107,31 @@ enum EnvironmentTag {
 // ------------------------ Models ---------------------------
 
 model Transaction {
-    id         Int      @id @default(autoincrement())
-    user       User     @relation(fields: [userId], references: [id])
-    userId     Int
-    shiftLog   ShiftLog @relation(fields: [shiftLogId], references: [id])
+    id     Int    @id @default(autoincrement())
+    txCode String @unique
+    user   User   @relation(fields: [userId], references: [id])
+
+    /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
+    userId Int
+
+    shiftLog ShiftLog @relation(fields: [shiftLogId], references: [id])
+
+    /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
     shiftLogId Int
 
-    applicantFirstName String          @db.VarChar(256)
-    applicantLastName  String          @db.VarChar(256)
+    /// @zod.trim().min(1, "Application last name cannot be empty")
+    applicantFirstName String @db.VarChar(256)
+
+    /// @zod.trim().min(1, "Application last name cannot be empty")
+    applicantLastName String @db.VarChar(256)
+
+    // Para mag span yung search sa full name string
+    applicantFullName String? @db.VarChar(256)
+
     applicantSex       Sex
     transactionOutcome Outcome         @default(NONE)
     createdAt          DateTime        @default(now()) @db.Timestamptz(0)
+    updatedAt          DateTime        @default(now()) @db.Timestamptz(0)
     transactionType    TransactionType @default(WALK_IN_REFERRAL)
     remarks            String?
 
@@ -126,6 +144,7 @@ model ShiftLog {
     userId Int
 
     // Sa unang insert timeIn palang yung pwede mailagay
+
     timeIn         DateTime  @default(now()) @db.Timestamptz(0)
     timeOut        DateTime? @db.Timestamptz(0)
     status         ESSStatus @default(PENDING) // Meron pa ring status
@@ -141,18 +160,18 @@ model ShiftLog {
 model User {
     id Int @id @default(autoincrement())
 
-    /// @zod.string.min(1, { message: "Username cannot be empty" }).max(256)
+    /// @zod.string()
     username String @unique @db.VarChar(256)
 
-    /// @zod.string.min(1, { message: "Password cannot be empty" }).max(256)
+    /// @zod.string()
     password String @db.VarChar(256)
 
     /// @zod.string.min(1, { message: "Email cannot be empty" }).max(256)
     email String @unique @db.VarChar(256)
 
-    role Role @default(FRONTLINE)
+    role   Role   @default(FRONTLINE)
     status Status @default(LOGGED_OUT)
-    shift Shift @default(NONE)
+    shift  Shift  @default(NONE)
 
     /// @zod.string.min(1, { message: "First Name cannot be empty" }).max(256)
     firstName String @db.VarChar(256)

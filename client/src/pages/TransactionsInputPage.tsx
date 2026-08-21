@@ -1,6 +1,6 @@
 // General Imports
-import { Form, Outlet } from "react-router";
-import { useState } from "react";
+import { Form, Outlet, useLoaderData, useActionData } from "react-router";
+import { useEffect, useRef, useState } from "react";
 
 // Components
 import { Text } from "../components/Text";
@@ -20,57 +20,80 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
-// Sample Data
-import { transactions } from "../data/transactions";
-
 // Hooks
-import { useSearchParamsTable } from "../hooks/table";
 import { useNavigateDefault, ROUTES } from "../hooks/reroute";
+import { Demographic, TransactionType, Sex, type Transaction, Outcome } from "@qcpesopedro/shared/prisma/browser";
+import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
+import { useAuth } from "../context/AuthContext";
+import { createTransaction } from "../api/transactionService";
+import { TransactionExtraFilters } from "./TransactionHistory";
 
-export function FormRow1() {
+interface FormRow1Props {
+    txCode?: string;
+    applicantFirstName?: string;
+    applicantLastName?: string;
+}
+
+export function FormRow1({ applicantFirstName, applicantLastName }: FormRow1Props) {
+    const { user } = useAuth();
+
     return (
-        <section className="grid grid-cols-5 gap-6">
-            <div className="col-span-3 flex gap-6">
-                <GeneralInput
-                    name="applicantFirstName"
-                    type="text"
-                    placeholder="First Name"
-                    label="First Name"
-                    required
-                    isRequired={true}
-                />
-                <GeneralInput
-                    name="applicantLastName"
-                    type="text"
-                    placeholder="Last Name"
-                    label="Last Name"
-                    required
-                    isRequired={true}
-                />
-            </div>
-            <div className="col-span-2 flex gap-6">
-                <GeneralInput name="date" type="date" placeholder="" label="Date" required isRequired={true} />
-                <GeneralInput name="time" type="time" placeholder="" label="Time" required isRequired={true} />
-            </div>
+        <section className="grid grid-cols-2 gap-6">
+            <GeneralInput
+                name={TransactionScalarFieldEnum.userId}
+                type="number"
+                hidden={true}
+                defaultValue={user?.id}
+            />
+            <GeneralInput
+                name={TransactionScalarFieldEnum.shiftLogId}
+                type="number"
+                hidden={true}
+                defaultValue={user?.shiftLogId}
+            />
+
+            <GeneralInput
+                name={TransactionScalarFieldEnum.applicantFirstName}
+                type="text"
+                placeholder="First Name"
+                label="First Name"
+                isRequired={true}
+                defaultValue={applicantFirstName}
+            />
+            <GeneralInput
+                name={TransactionScalarFieldEnum.applicantLastName}
+                type="text"
+                placeholder="Last Name"
+                label="Last Name"
+                isRequired={true}
+                defaultValue={applicantLastName}
+            />
         </section>
     );
 }
 
-export function FormRow2() {
+interface FormRow2Props {
+    transactionType?: TransactionType;
+    applicantSex?: Sex;
+    transactionOutcome?: Outcome;
+}
+
+export function FormRow2({ transactionType, applicantSex, transactionOutcome }: FormRow2Props) {
     return (
         <section className="flex gap-6">
             <div className="w-1/3">
                 <SelectInput
-                    name="transactionType"
+                    name={TransactionScalarFieldEnum.transactionType}
                     label="Transaction Type"
                     required
                     isRequired={true}
                     optionList={[
-                        { content: "Walk-In Referral", value: "walkinReferral" },
-                        { content: "Online Referral", value: "onlineReferral" },
-                        { content: "Inhouse Recruitment", value: "inhouseRecruitment" },
+                        { content: "Walk-In Referral", value: TransactionType.WALK_IN_REFERRAL },
+                        { content: "Online Referral", value: TransactionType.ONLINE_REFERRAL },
+                        { content: "Inhouse Recruitment", value: TransactionType.IN_HOUSE_RECRUITMENT },
                     ]}
-                ></SelectInput>
+                    defaultValue={transactionType}
+                />
             </div>
 
             <div className="w-1/3 flex flex-wrap content-start gap-x-6 gap-y-3">
@@ -79,50 +102,96 @@ export function FormRow2() {
                         Sex
                     </Text>
                 </div>
-                <ChoiceItem inputVariant="radio" name="applicantSex" value="male" defaultChecked>
+                <ChoiceItem
+                    inputVariant="radio"
+                    name={TransactionScalarFieldEnum.applicantSex}
+                    value={Sex.MALE}
+                    defaultChecked={applicantSex === Sex.MALE || applicantSex === undefined}
+                >
                     Male
                 </ChoiceItem>
-                <ChoiceItem inputVariant="radio" name="applicantSex" value="female">
+                <ChoiceItem
+                    inputVariant="radio"
+                    name={TransactionScalarFieldEnum.applicantSex}
+                    value={Sex.FEMALE}
+                    defaultChecked={applicantSex === Sex.FEMALE}
+                >
                     Female
                 </ChoiceItem>
             </div>
             <div className="w-1/3">
                 <SelectInput
-                    name="transactionOutcome"
+                    name={TransactionScalarFieldEnum.transactionOutcome}
                     label="Transaction Outcome"
                     required
                     isRequired={true}
                     optionList={[
-                        { content: "Pending", value: "pending" },
-                        { content: "Mismatched", value: "mismatched" },
-                        { content: "Success", value: "success" },
+                        { content: "None", value: Outcome.NONE },
+                        { content: "Pending", value: Outcome.PENDING },
+                        { content: "Mismatched", value: Outcome.MISMATCH },
+                        { content: "Success", value: Outcome.SUCCESS },
                     ]}
+                    defaultValue={transactionOutcome}
                 ></SelectInput>
             </div>
         </section>
     );
 }
 
-export function FormRow3() {
+interface FormRow3Props {
+    demographics?: Demographic[];
+}
+
+export function FormRow3({ demographics }: FormRow3Props) {
     return (
         <section className="flex flex-col gap-1">
             <Text size="description" variant="dark-blue" weight="medium">
                 Applicant Classification
             </Text>
             <div className="flex flex-wrap gap-3">
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="firstTimeJobSeeker">
+                <ChoiceItem
+                    inputVariant="checkbox"
+                    stylized={true}
+                    name={TransactionScalarFieldEnum.demographics}
+                    value={Demographic.FIRST_TIME_JOB_SEEKER}
+                    defaultChecked={demographics?.includes(Demographic.FIRST_TIME_JOB_SEEKER)}
+                >
                     First Time Job Seeker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="personsWithDisability">
+                <ChoiceItem
+                    inputVariant="checkbox"
+                    stylized={true}
+                    name={TransactionScalarFieldEnum.demographics}
+                    value={Demographic.PERSONS_WITH_DISABILITY}
+                    defaultChecked={demographics?.includes(Demographic.PERSONS_WITH_DISABILITY)}
+                >
                     Person With Disability (PWD)
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="seniorCitizen">
+                <ChoiceItem
+                    inputVariant="checkbox"
+                    stylized={true}
+                    name={TransactionScalarFieldEnum.demographics}
+                    value={Demographic.SENIOR_CITIZEN}
+                    defaultChecked={demographics?.includes(Demographic.SENIOR_CITIZEN)}
+                >
                     Senior Citizen
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="youngWorker">
+                <ChoiceItem
+                    inputVariant="checkbox"
+                    stylized={true}
+                    name={TransactionScalarFieldEnum.demographics}
+                    value={Demographic.YOUNG_WORKER}
+                    defaultChecked={demographics?.includes(Demographic.YOUNG_WORKER)}
+                >
                     Young Worker
                 </ChoiceItem>
-                <ChoiceItem inputVariant="checkbox" stylized={true} name="workImmersionInternship">
+                <ChoiceItem
+                    inputVariant="checkbox"
+                    stylized={true}
+                    name={TransactionScalarFieldEnum.demographics}
+                    value={Demographic.WORK_IMMERSION_INTERNSHIP}
+                    defaultChecked={demographics?.includes(Demographic.WORK_IMMERSION_INTERNSHIP)}
+                >
                     Work Immersion/Internship
                 </ChoiceItem>
             </div>
@@ -130,14 +199,19 @@ export function FormRow3() {
     );
 }
 
-export function FormRow4() {
+interface FormRow4Props {
+    remarks?: string;
+}
+
+export function FormRow4({ remarks }: FormRow4Props) {
     return (
         <section>
             <TextAreaInput
                 id="remarks"
                 label="Remarks"
-                name="remarks"
+                name={TransactionScalarFieldEnum.remarks}
                 placeholder="Optional notes regarding the transaction..."
+                defaultValue={remarks}
             />
         </section>
     );
@@ -146,14 +220,26 @@ export function FormRow4() {
 //  Profile picture, name, role, and change password button
 function TransactionsInputForm() {
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const formRef = useRef<HTMLFormElement>(null);
+    const handleFormChange = (e: React.SubmitEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
+    const actionData = useActionData<typeof createTransaction>();
+
+    useEffect(() => {
+        const checkAction = async () => {
+            if (actionData?.success && actionData.action === "save-and-add") {
+                formRef.current?.reset();
+                setIsFormValid(false);
+            }
+        };
+        checkAction();
+    }, [actionData]);
 
     return (
         <Card className="w-full flex flex-col h-fit">
             {/* Added onChange handler here */}
-            <Form method="post" onChange={handleFormChange}>
+            <Form ref={formRef} method="post" onChange={handleFormChange}>
                 <Card.Body className="flex flex-col gap-6">
                     <FormRow1 />
                     <FormRow2 />
@@ -167,6 +253,7 @@ function TransactionsInputForm() {
                         size="normal"
                         className="text-sm font-semibold text-black"
                         leftIcon={{ icon: CloseRoundedIcon, size: "normal", variant: "black" }}
+                        type="reset"
                     >
                         Cancel
                     </Button>
@@ -176,6 +263,9 @@ function TransactionsInputForm() {
                         className="text-sm font-light"
                         leftIcon={{ icon: AddCircleOutlineRoundedIcon, size: "normal", variant: "white" }}
                         disabled={!isFormValid}
+                        type="submit"
+                        name="action"
+                        value="save-and-add"
                     >
                         Save & Add Another
                     </Button>
@@ -185,6 +275,7 @@ function TransactionsInputForm() {
                         className="text-sm font-semibold"
                         leftIcon={{ icon: SaveOutlinedIcon, size: "normal", variant: "white" }}
                         disabled={!isFormValid}
+                        type="submit"
                     >
                         Save Record
                     </Button>
@@ -196,7 +287,9 @@ function TransactionsInputForm() {
 
 function TransactionsLedger() {
     const navigate = useNavigateDefault();
-    const { page, handleSetPage } = useSearchParamsTable();
+    const data = useLoaderData();
+
+    const transactions = data.transactions as Transaction[];
 
     const handleEdit = (id: string) => () => {
         navigate(ROUTES.applicantForm.edit(id), true);
@@ -213,11 +306,7 @@ function TransactionsLedger() {
                     Today's Ledger
                 </Text>
             </Card.Header>
-            <Table
-                noCardStyle={true}
-                pagination={{ handleSetPage, currentPage: page, items: 6 }}
-                handleFilterSubmit={() => {}}
-            >
+            <Table noCardStyle={true} pagination={true} filterView={true} extraFilters={<TransactionExtraFilters />}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="Date/Time" />
@@ -228,23 +317,23 @@ function TransactionsLedger() {
                 </Table.Row>
 
                 {/* Data rows */}
-                {transactions.map((transaction) => (
+                {transactions?.map((transaction) => (
                     <Table.Row key={transaction.id}>
                         <Table.Data>
-                            <DateTime dateTime={transaction.dateTime} />
+                            <DateTime dateTime={new Date(transaction.createdAt)} />
                         </Table.Data>
                         <Table.Data>
-                            <ColumnText>{transaction.applicant}</ColumnText>
+                            <ColumnText>{transaction.applicantFullName}</ColumnText>
                         </Table.Data>
                         <Table.Data>
-                            <Status type="type" variant={transaction.type} />
+                            <Status type="type" variant={transaction.transactionType} />
                         </Table.Data>
                         <Table.Data>
-                            <Status type="outcome" variant={transaction.outcome} />
+                            <Status type="outcome" variant={transaction.transactionOutcome} />
                         </Table.Data>
                         <Table.Data>
                             <ActionButtons
-                                id={transaction.id}
+                                id={transaction.txCode}
                                 actions={[
                                     {
                                         color: "black",

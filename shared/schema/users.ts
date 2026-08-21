@@ -7,6 +7,10 @@ export const UserFormCreateSchema = zfd.formData(
     UserUncheckedCreateInputObjectZodSchema.omit({
         password: true,
         createdAt: true,
+        auditLogs: true,
+        shiftLogs: true,
+        accountLogs: true,
+        transactions: true,
     })
 );
 
@@ -17,6 +21,10 @@ export const UserFormUpdateSchema = zfd.formData(
         id: true,
         createdAt: true,
         updatedAt: true,
+        auditLogs: true,
+        shiftLogs: true,
+        accountLogs: true,
+        transactions: true,
     })
 );
 

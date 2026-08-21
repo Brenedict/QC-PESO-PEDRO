@@ -9,7 +9,7 @@ interface LabelProp {
     htmlFor?: string;
     label?: ReactNode;
     isRequired?: boolean;
-    error?: string; 
+    error?: string;
 }
 
 interface InputProp extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -144,7 +144,7 @@ export function TextAreaInput({
     hidden = false,
     isRequired,
     error,
-    onChange, 
+    onChange,
     ...props
 }: LabelProp & TextAreaProp) {
     const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -153,7 +153,7 @@ export function TextAreaInput({
         if (isRequired && textValue.length > 0 && textValue.trim() === "") {
             e.target.setCustomValidity("This field cannot be empty or just spaces.");
         } else {
-            e.target.setCustomValidity(""); 
+            e.target.setCustomValidity("");
         }
         if (onChange) onChange(e);
     };
@@ -167,7 +167,7 @@ export function TextAreaInput({
                 required={isRequired}
                 aria-required={isRequired}
                 aria-invalid={!!error}
-                onChange={handleTextAreaChange} 
+                onChange={handleTextAreaChange}
                 className={`block rounded-2xl text-description font-normal px-4 py-3 scroll-px-4 scroll-py-3 border ${
                     error ? "border-red-500" : "border-off-white-border"
                 } bg-off-white w-full min-h-20 resize-none placeholder-grayish-blue ${className}`}
@@ -205,34 +205,37 @@ export function SelectInput({
     ...props
 }: LabelProp & SelectProp & { iconClassName?: string }) {
     return (
-        <div className={`text-dark-blue w-full relative ${hidden ? "hidden" : ""}`}>
+        <div className={`text-dark-blue w-full ${hidden ? "hidden" : ""}`}>
             <Label label={label} isRequired={isRequired} />
-            <select
-                required={isRequired}
-                aria-required={isRequired}
-                aria-invalid={!!error}
-                className={`appearance-none block rounded-2xl text-description font-normal px-4 py-3 pr-10 border ${
-                    error ? "border-red-500" : "border-off-white-border"
-                } bg-off-white w-full placeholder-grayish-blue hover:bg-off-white-border transition-colors ${className}`}
-                {...props}
-            >
-                {isRequired && (
-                    <option value="" disabled hidden>
-                        Select an option...
-                    </option>
-                )}
 
-                {optionList.map((option) => (
-                    <option key={option.value} value={option.value}>
-                        {option.content}
-                    </option>
-                ))}
-            </select>
-            <span
-                className={`hover:bg-off-white-border font-consolas absolute right-3.5 ${error ? "bottom-8" : "bottom-2"} pointer-events-none ${iconClassName}`}
-            >
-                <Icon icon={ArrowDropDownOutlinedIcon} size="bigger" variant="grayish-blue"></Icon>
-            </span>
+            <div className="flex items-center">
+                <select
+                    required={isRequired}
+                    aria-required={isRequired}
+                    aria-invalid={!!error}
+                    className={`appearance-none block rounded-2xl text-description font-normal px-4 py-3 border ${
+                        error ? "border-red-500" : "border-off-white-border"
+                    } bg-off-white w-full placeholder-grayish-blue hover:bg-off-white-border transition-colors ${className}`}
+                    {...props}
+                >
+                    {isRequired && (
+                        <option value="" disabled hidden>
+                            Select an option...
+                        </option>
+                    )}
+
+                    {optionList.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.content}
+                        </option>
+                    ))}
+                </select>
+
+                <span className={`shrink-0 ml-[-2.5rem] pointer-events-none ${iconClassName}`}>
+                    <Icon icon={ArrowDropDownOutlinedIcon} size="bigger" variant="grayish-blue" />
+                </span>
+            </div>
+
             <ErrorMessage error={error} />
         </div>
     );

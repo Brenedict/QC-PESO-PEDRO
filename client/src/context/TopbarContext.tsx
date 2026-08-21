@@ -1,12 +1,14 @@
+import type { Role } from "@qcpesopedro/shared/prisma/browser";
 import { createContext, useContext, type ReactNode } from "react";
+import type { StatusVariant } from "../components/Status";
 
 export interface TopBarContextValue {
     id: number;
-    status: "DISABLED" | "ONLINE" | "OFFLINE" | "LOGGED_OUT";
+    status: StatusVariant<"status">;
     hasNotif: boolean;
     firstName: string;
     lastName: string;
-    role: "SUPERADMIN" | "ADMIN" | "FRONTLINE";
+    role: Role;
     onSearchChange: () => void;
     onNotifClick: () => void;
 }

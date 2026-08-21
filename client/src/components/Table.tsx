@@ -17,6 +17,8 @@ import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRig
 import { Form } from "react-router";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EmptyData from "./EmptyData";
+import { TableProvider, useTable, type TableContextValue } from "../context/TableContext";
+import { useSearchParamsTable } from "../hooks/table";
 
 function Row({ children }: { children: ReactNode }) {
     return <tr>{children}</tr>;
@@ -64,25 +66,42 @@ function PaginationButtons({
     );
 }
 
-interface FilterProps {
-    children: ReactNode;
-    onSubmit?: SubmitEventHandler<HTMLFormElement>;
-    onChange?: ChangeEventHandler<HTMLFormElement>;
-}
+function FilterSection() {
+    const { searchParams, setSearchParams } = useSearchParamsTable();
+    const { filterView, extraFilters } = useTable();
 
-function FilterSection({ children, onSubmit, onChange }: FilterProps) {
+    if (!filterView) return null;
+
+    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const formElement = e.currentTarget;
+        if (!formElement) return;
+
+        const formData = new FormData(formElement);
+        const params = Object.fromEntries(formData);
+
+        setSearchParams({ ...params, page: 1 });
+    };
+
     return (
         <Card.Header variant="white">
-            <Form method="POST" className="flex justify-between items-center w-full" onSubmit={onSubmit}>
+            <Form method="POST" className="flex justify-between items-center w-full" onSubmit={handleSubmit}>
                 <div className="flex items-center gap-4 grow">
-                    <SearchInput placeholder="Search by applicant, ID, or keywords..." className="rounded-xl w-full" />
-                    {children}
+                    <SearchInput
+                        name="search"
+                        placeholder="Search by applicant, ID, or keywords..."
+                        className="rounded-xl w-full"
+                        defaultValue={searchParams.search}
+                    />
+                    {extraFilters}
                 </div>
                 <Button
                     size="normal"
                     className="min-w-60! ml-20 text-description"
                     variant="navy"
                     leftIcon={{ icon: FilterAltOutlinedIcon, variant: "white", size: "bigMedium" }}
+                    type="submit"
                 >
                     Apply Filters
                 </Button>
@@ -91,38 +110,34 @@ function FilterSection({ children, onSubmit, onChange }: FilterProps) {
     );
 }
 
-interface PaginationProps {
-    currentPage: number;
+interface PaginationSectionProps {
     pageNumbers: number;
     paginationText: string;
-    handleSetPage: (page: number) => MouseEventHandler<HTMLButtonElement>;
-    windowSize?: number; // optional, default 3
+    windowSize?: number; // optional, default 5
 }
 
-function PaginationSection({
-    currentPage,
-    pageNumbers,
-    handleSetPage,
-    paginationText,
-    windowSize = 5,
-}: PaginationProps) {
-    // Sliding window for page numbers
-    const maxStart = Math.max(0, pageNumbers - windowSize);
-    const windowStart = Math.max(0, Math.min(currentPage - (windowSize - 1), maxStart));
+function PaginationSection({ pageNumbers, paginationText, windowSize = 5 }: PaginationSectionProps) {
+    const { page, handleSetPage } = useSearchParamsTable();
+    const { pagination } = useTable();
 
-    const visiblePages = Array.from(
-        { length: Math.min(windowSize, pageNumbers) },
-        (_, i) => windowStart + i + 1 // 1-indexed
-    );
+    if (!pagination) return null;
+
+    const halfWindow = Math.floor(windowSize / 2);
+
+    // Sliding window for page numbers
+    const windowStart = Math.max(1, Math.min(page - halfWindow, pageNumbers - windowSize + 1));
+    const windowEnd = Math.min(pageNumbers, windowStart + windowSize - 1);
+    const visiblePages = Array.from({ length: windowEnd - windowStart + 1 }, (_, i) => windowStart + i);
 
     return (
         <Card.Footer variant="off-white" className="flex justify-between">
             <Text variant="grayish-blue" size="description" weight="normal" align="left">
                 {paginationText}
             </Text>
+
             <div className="flex gap-1 justify-end">
-                {pageNumbers > 1 && currentPage !== 1 && (
-                    <PaginationButtons onClick={handleSetPage(currentPage - 1)}>
+                {pageNumbers > 1 && page !== 1 && (
+                    <PaginationButtons onClick={handleSetPage(page - 1)}>
                         <Icon size="big" variant="grayish-blue" icon={KeyboardArrowLeftOutlinedIcon} />
                     </PaginationButtons>
                 )}
@@ -130,16 +145,16 @@ function PaginationSection({
                 {visiblePages.length > 1 &&
                     visiblePages.map((pageNum) => (
                         <PaginationButtons
-                            onClick={handleSetPage(pageNum)}
-                            highlighted={currentPage === pageNum}
                             key={pageNum}
+                            onClick={handleSetPage(pageNum)}
+                            highlighted={page === pageNum}
                         >
                             {pageNum}
                         </PaginationButtons>
                     ))}
 
-                {pageNumbers > 1 && currentPage !== pageNumbers && (
-                    <PaginationButtons onClick={handleSetPage(currentPage + 1)}>
+                {pageNumbers > 1 && page !== pageNumbers && (
+                    <PaginationButtons onClick={handleSetPage(page + 1)}>
                         <Icon size="big" variant="grayish-blue" icon={KeyboardArrowRightOutlinedIcon} />
                     </PaginationButtons>
                 )}
@@ -148,88 +163,71 @@ function PaginationSection({
     );
 }
 
-interface TableProps {
+interface TableProps extends TableContextValue {
+    items?: number;
     children: ReactNode;
-    pagination?: {
-        items: number;
-        currentPage: number;
-        handleSetPage: (page: number) => MouseEventHandler<HTMLButtonElement>;
-    };
-    handleFilterSubmit?: SubmitEventHandler<HTMLFormElement>;
-    handleFilterChange?: ChangeEventHandler<HTMLFormElement>;
-    extraFilters?: ReactNode;
-    noCardStyle?: boolean;
 }
 
-function Table({
-    extraFilters,
-    children,
-    pagination,
-    noCardStyle = false,
-    handleFilterSubmit,
-    handleFilterChange,
-}: TableProps) {
-    let paginationSection = null;
-    const header = Children.toArray(children)[0];
-    let viewRows = Children.toArray(children).slice(1);
+function Table({ children, items = 5, ...tableContext }: TableProps) {
+    // Pagination hook
+    const { page } = useSearchParamsTable();
 
-    if (pagination) {
-        const [start, end] = [
-            (pagination.currentPage - 1) * pagination.items,
-            pagination.currentPage * pagination.items,
-        ];
+    const childrenArray = Children.toArray(children);
+    const header = childrenArray[0];
+    const rows = childrenArray.slice(1);
 
-        const childrenArr = Children.toArray(children).slice(1);
-        viewRows = childrenArr.slice(start, end);
+    let viewRows = rows;
+    let paginationSection: ReactNode = null;
 
-        const lastIndex = Math.min(end, childrenArr.length);
-        const paginationText = `Showing ${viewRows.length > 0 ? `${start + 1} to ${lastIndex}` : "0"} out of ${childrenArr.length}`;
-        const pageNumbers = Math.ceil(childrenArr.length / pagination.items);
+    if (tableContext.pagination) {
+        const start = (page - 1) * items;
+        const end = page * items;
 
-        paginationSection = (
-            <PaginationSection
-                {...{
-                    paginationText,
-                    pageNumbers,
-                    handleSetPage: pagination.handleSetPage,
-                    currentPage: pagination.currentPage,
-                }}
-            />
-        );
+        viewRows = rows.slice(start, end);
+        const lastIndex = Math.min(end, rows.length);
+
+        const paginationText = `Showing ${viewRows.length > 0 ? `${start + 1} to ${lastIndex}` : "0"} out of ${rows.length}`;
+        const pageNumbers = Math.ceil(rows.length / items);
+
+        paginationSection = <PaginationSection pageNumbers={pageNumbers} paginationText={paginationText} />;
     }
 
     return (
-        <Card {...(noCardStyle && { dropShadow: false, className: "rounded-none! border-0!" })}>
-            {/* Header */}
-            {handleFilterSubmit && (
-                <FilterSection onSubmit={handleFilterSubmit} onChange={handleFilterChange}>
-                    {extraFilters}
-                </FilterSection>
-            )}
+        <TableProvider value={tableContext}>
+            <Card
+                {...(tableContext.noCardStyle && {
+                    dropShadow: false,
+                    className: "rounded-none! border-0!",
+                })}
+            >
+                {/* Header */}
+                <FilterSection />
 
-            {/* Body */}
-            <Card.Body className="p-0!">
-                <table className="table-auto w-full">
-                    <thead>{header}</thead>
-                    <tbody>
-                        {viewRows.length <= 0 ? (
-                            <tr>
-                                <td colSpan={9999} className="p-20">
-                                    <div className="flex justify-center">
-                                        <EmptyData>No data to show here!</EmptyData>
-                                    </div>
-                                </td>
-                            </tr>
-                        ) : (
-                            viewRows
-                        )}
-                    </tbody>
-                </table>
-            </Card.Body>
+                {/* Body */}
+                <Card.Body className="p-0! overflow-auto">
+                    <table className="table-auto w-full">
+                        <thead>{header}</thead>
 
-            {/* Footer */}
-            {paginationSection}
-        </Card>
+                        <tbody>
+                            {viewRows.length <= 0 ? (
+                                <tr>
+                                    <td colSpan={9999} className="p-20">
+                                        <div className="flex justify-center">
+                                            <EmptyData>No data to show here!</EmptyData>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                viewRows
+                            )}
+                        </tbody>
+                    </table>
+                </Card.Body>
+
+                {/* Footer */}
+                {paginationSection}
+            </Card>
+        </TableProvider>
     );
 }
 

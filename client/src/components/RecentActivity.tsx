@@ -5,9 +5,10 @@ import Status, { type StatusVariant } from "./Status";
 
 // Dot color per status
 const statusDotBg: Record<StatusVariant<"outcome">, string> = {
-    success: "bg-green",
-    pending: "bg-grayish-blue",
-    mismatched: "bg-red",
+    SUCCESS: "bg-green",
+    PENDING: "bg-grayish-blue",
+    NONE: "bg-grayish-blue",
+    MISMATCH: "bg-red",
 };
 
 export interface ActivityItemData {
@@ -103,4 +104,3 @@ export function RecentActivity({
         </Card>
     );
 }
-

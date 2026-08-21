@@ -4,6 +4,7 @@ import prisma from "../config/prisma.config";
 
 // Service
 import { type UserManagementFilter } from "../service/user.service";
+import type { UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
 
 export default {
     async createUser(user: User): Promise<User | null> {
@@ -33,6 +34,10 @@ export default {
                 username,
             },
         });
+    },
+
+    async getUsers(args: UserFindManyArgs): Promise<User[] | null> {
+        return prisma.user.findMany(args);
     },
 
     async getUsersWithFilters(filters: UserManagementFilter): Promise<User[] | null> {

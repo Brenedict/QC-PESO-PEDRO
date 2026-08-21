@@ -1,5 +1,5 @@
 // General Imports
-import { Form, useParams } from "react-router";
+import { Form, useLoaderData, useParams } from "react-router";
 import { useState } from "react";
 
 // Hooks
@@ -18,16 +18,22 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 import { decode } from "../../utils/hashids";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
 
+import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
+import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
+
 export function PopupViewEditTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
     const { transactionId } = useParams();
+    const [isFormValid, setIsFormValid] = useState(false);
+    const transaction = useLoaderData().transaction as Transaction;
+
     if (!transactionId) return null;
+
     const decodedId = decode(transactionId);
     const returnPageOnClose = root == "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
 
     // Form Validation
-    const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.SubmitEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 
@@ -44,11 +50,17 @@ export function PopupViewEditTransaction({ root = "history" }: { root: transacti
                     className="flex flex-col h-fit gap-6"
                     onChange={handleFormChange}
                 >
-                    <GeneralInput hidden={true} name="id" type="text" defaultValue={transactionId}></GeneralInput>
-                    <FormRow1 />
-                    <FormRow2 />
-                    <FormRow3 />
-                    <FormRow4 />
+                    <FormRow1
+                        applicantFirstName={transaction?.applicantFirstName}
+                        applicantLastName={transaction?.applicantLastName}
+                    />
+                    <FormRow2
+                        transactionType={transaction?.transactionType}
+                        transactionOutcome={transaction?.transactionOutcome}
+                        applicantSex={transaction?.applicantSex}
+                    />
+                    <FormRow3 demographics={transaction?.demographics} />
+                    <FormRow4 remarks={transaction?.remarks ? transaction.remarks : undefined} />
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
@@ -79,7 +91,12 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
             <Dialog.Body className="p-6!">
                 <Form method="post" id="transactionsFormDelete" className="flex flex-col h-fit gap-6">
                     {/* ID holder */}
-                    <GeneralInput hidden={true} name="id" type="text" defaultValue={transactionId}></GeneralInput>
+                    <GeneralInput
+                        hidden={true}
+                        name={TransactionScalarFieldEnum.txCode}
+                        type="text"
+                        defaultValue={decodedId as string}
+                    />
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
                     <PopupIcon icon={DeleteOutlineOutlinedIcon} />
