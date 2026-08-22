@@ -1,6 +1,6 @@
 // PEDRO SHARED IMPORTS
 import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
-import { Demographic } from "@qcpesopedro/shared/prisma/enums";
+import { Demographic, Outcome, TransactionType } from "@qcpesopedro/shared/prisma/enums";
 import { ShiftLogUncheckedCreateInput, UserUncheckedCreateInput } from "@qcpesopedro/shared/prisma/models";
 
 // Prisma.config
@@ -28,8 +28,8 @@ const lastNames = [ "Dela Cruz", "Santos", "Reyes", "Garcia", "Mendoza", "Bautis
     "Valdez", "Francisco", "Soriano", "Lim", "Tan", "Chua", "Sy", "David", "De Leon", "Ocampo", "Padilla", "Rosales", "Tolentino", "Miranda", 
 ];
 
-const transactionTypes = ["WALK_IN_REFERRAL", "ONLINE_REFERRAL", "IN_HOUSE_RECRUITMENT"] as const;
-const outcomes = ["PENDING", "MISMATCH", "SUCCESS", "NONE"] as const;
+const transactionTypes = ["WALK_IN_REFERRAL", "ONLINE_REFERRAL", "IN_HOUSE_RECRUITMENT"] as TransactionType[];
+const outcomes = ["PENDING", "MISMATCH", "SUCCESS", "NONE"] as Outcome[];
 
 const demographics = [
     "FIRST_TIME_JOB_SEEKER",
@@ -37,7 +37,7 @@ const demographics = [
     "SENIOR_CITIZEN",
     "YOUNG_WORKER",
     "WORK_IMMERSION_INTERNSHIP",
-] as const;
+] as Demographic[];
 
 const remarks = [
     null,
@@ -68,8 +68,6 @@ export const shiftDummy = (userId: number): ShiftLogUncheckedCreateInput => ({
     timeOut: new Date(),
     generalRemarks: null,
     adminRemarks: null,
-    lastVerifiedBy: "someone",
-    lastVerifiedAt: new Date(),
     environmentTags: ["APPLICANT_ISSUES"],
 });
 

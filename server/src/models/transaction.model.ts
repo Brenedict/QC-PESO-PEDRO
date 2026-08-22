@@ -58,7 +58,7 @@ export default {
         return prisma.transaction.count(args);
     },
 
-    async groupBy(args: TransactionGroupByArgs = { by: ["id"] }) {
+    async groupBy(args: TransactionGroupByArgs) {
         // eslint-disable-next-line
         // @ts-ignore
         return prisma.transaction.groupBy(args);

@@ -6,7 +6,7 @@ import prisma from "../config/prisma.config";
 
 // Service
 import { type UserManagementFilter } from "../service/user.service";
-import type { UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
+import type { UserCountArgs, UserFindManyArgs, UserGroupByArgs } from "@qcpesopedro/shared/prisma/models";
 
 export default {
     async createUser(user: User): Promise<User | null> {
@@ -42,19 +42,6 @@ export default {
         return prisma.user.findMany(args);
     },
 
-    async getUsersWithFilters(filters: UserManagementFilter): Promise<User[] | null> {
-        const where: Prisma.UserWhereInput = {};
-
-        if (filters.role) {
-            where.role = filters.role;
-        }
-        if (filters.status) {
-            where.status = filters.status;
-        }
-
-        return prisma.user.findMany({ where });
-    },
-
     async updateUser(userId: number, user: User): Promise<User | null> {
         return prisma.user.update({
             where: {
@@ -70,5 +57,15 @@ export default {
                 id,
             },
         });
+    },
+
+    async count(args?: UserCountArgs) {
+        return prisma.user.count(args);
+    },
+
+    async groupBy(args: UserGroupByArgs) {
+        // eslint-disable-next-line
+        // @ts-ignore
+        return prisma.user.groupBy(args);
     },
 };

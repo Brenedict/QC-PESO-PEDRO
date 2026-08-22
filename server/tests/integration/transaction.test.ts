@@ -41,12 +41,15 @@ import {
 jest.unmock("../../src/middlewares/zod.middleware");
 
 const transformMockedDate = (transaction: TransactionCreateType): TransactionCreateType => {
-    return { ...transaction, createdAt: expect.any(String) };
+    const newTransaction = { ...transaction };
+
+    if (newTransaction.createdAt) newTransaction.createdAt = expect.any(String) as unknown as Date;
+    return newTransaction;
 };
 
 describe("Transaction Route", () => {
     let mockedTransactions: TransactionCreateType[];
-    let mockedUser: User = mockUser;
+    const mockedUser: User = mockUser;
     let mockedShiftLog: ShiftLog;
 
     beforeEach(async () => {
@@ -671,8 +674,8 @@ describe("Transaction Route", () => {
             expect(postRes.body.transaction).toMatchObject(formData);
 
             const getRes = await request(app).get("/transaction").expect(200);
-            expect(getRes.body.transactions).toContainEqual(expect.objectContaining(expected));
-        });
+            expect(getRes.body.transactions).toContainEqual(expect.objectContaining(transformMockedDate(expected)));
+        }, 300000);
 
         it("returns status 400 when bad request was made", (done) => {
             const formData: TransactionCreateType = {

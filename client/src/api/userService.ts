@@ -6,13 +6,21 @@ import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
-import { apiJson, ensureOk, handleErrRedirect, redirectWithQuery, validateForm } from "./actionService";
+import {
+    apiJson,
+    ensureOk,
+    extractQueryToObject,
+    handleErrRedirect,
+    redirectWithQuery,
+    validateForm,
+} from "./actionService";
 
 // Utils
 import { decode } from "../utils/hashids";
 
 // Custom Hooks
 import { ROUTES } from "../hooks/reroute";
+import { buildParamString } from "./dateService";
 
 // POST: User Creation Method
 export const createUser = async ({ request }: ActionFunctionArgs) => {
@@ -81,9 +89,13 @@ export const resetPassword = async ({ params, request }: ActionFunctionArgs) => 
 
 // GET: Fetches all users
 export const getUsers = async ({ request }: ActionFunctionArgs) => {
+    const { query } = extractQueryToObject(request, ["page", "timeframe"]);
+    const apiParams = buildParamString(query);
+    console.log(apiParams);
+
     try {
         // Main Fetch Request
-        const res = await apiJson("/user", { method: "GET" });
+        const res = await apiJson(`/user?${apiParams}`, { method: "GET" });
 
         await ensureOk(res, "Failed to retrieve users");
 

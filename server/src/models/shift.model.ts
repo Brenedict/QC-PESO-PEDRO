@@ -1,5 +1,8 @@
 // PEDRO SHARED IMPORTS
 import type {
+    ShiftLogCountArgs,
+    ShiftLogCreateArgs,
+    ShiftLogFindManyArgs,
     ShiftLogOrderByWithRelationInput,
     ShiftLogSelectScalar,
     ShiftLogWhereInput,
@@ -9,8 +12,8 @@ import type {
 import prisma from "../config/prisma.config";
 
 export default {
-    async getShiftLogs(where?: ShiftLogWhereInput) {
-        return prisma.shiftLog.findMany({ where });
+    async getShiftLogs(args?: ShiftLogFindManyArgs) {
+        return prisma.shiftLog.findMany(args);
     },
 
     async getShiftLogById(id: number) {
@@ -26,7 +29,11 @@ export default {
         return prisma.shiftLog.findMany({ where: { userId, ...where }, orderBy, select });
     },
 
-    async createShift(userId: number) {
-        return prisma.shiftLog.create({ data: { userId } });
+    async createShift(args: ShiftLogCreateArgs) {
+        return prisma.shiftLog.create(args);
+    },
+
+    async count(args?: ShiftLogCountArgs) {
+        return prisma.shiftLog.count(args);
     },
 };

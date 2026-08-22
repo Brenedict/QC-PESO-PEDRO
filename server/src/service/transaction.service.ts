@@ -27,7 +27,6 @@ import TransactionModel from "../models/transaction.model";
 import UserModel from "../models/user.model";
 
 // Utils
-import ValidateUtil from "../utils/validate.util";
 import DateUtil from "../utils/date.util";
 
 // Prisma.config
@@ -314,7 +313,7 @@ async function resolveTransactionQuery(
 }
 
 async function resolveSingleTransactionQuery(args: TransactionGroupByArgs | TransactionCountArgs) {
-    const isGroupByArgs = ValidateUtil.isGroupByArgs(args);
+    const isGroupByArgs = args && "by" in args && args.by?.length > 0;
 
     // return only count when we dont have groupBy
     if (!isGroupByArgs) {

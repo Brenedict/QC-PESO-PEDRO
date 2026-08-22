@@ -72,7 +72,6 @@ export const getTransactions =
         const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "overall"] as TIMEFRAME_RESULT;
 
         const apiParams = buildParamString({ ...dayRangeParam, ...query, ...dateRangeOption });
-        console.log(apiParams);
 
         try {
             // Main Fetch Request

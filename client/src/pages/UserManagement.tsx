@@ -2,7 +2,7 @@
 import { Outlet, useLoaderData } from "react-router";
 
 // PEDRO SHARED IMPORTS
-import type { Role } from "@qcpesopedro/shared/prisma/enums.ts";
+import { Role } from "@qcpesopedro/shared/prisma/enums.ts";
 import type { UserFormCreateType } from "@qcpesopedro/shared/schema/users";
 
 // Components
@@ -29,6 +29,9 @@ import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Contexts
 import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+import { useSearchParamsTable } from "../hooks/table.ts";
+import type { User } from "@qcpesopedro/shared/prisma/browser.ts";
+import { useAuth } from "../context/AuthContext.tsx";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -76,9 +79,11 @@ type RoleButton = {
 };
 
 function UserManagement() {
+    const { user } = useAuth();
+    const { searchParams } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
-    const users = useLoaderData() as UserFormCreateType[];
+    const { total, active, inactive, roles, users } = useLoaderData();
 
     const { role } = useUserGlobal();
     const userRole = role;
@@ -142,19 +147,23 @@ function UserManagement() {
             <SelectInput
                 optionList={[
                     { content: "All Roles", value: "" },
-                    { content: "Super Administrator", value: "superadmin" },
-                    { content: "Administrator", value: "admin" },
-                    { content: "Frontline Encoder", value: "frontline" },
+                    { content: "Super Administrator", value: Role.SUPERADMIN },
+                    { content: "Administrator", value: Role.ADMIN },
+                    { content: "Frontline Encoder", value: Role.FRONTLINE },
                 ]}
+                name="role"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.role}
             />
             <SelectInput
                 optionList={[
                     { content: "All Statuses", value: "" },
-                    { content: "Active", value: "active" },
-                    { content: "Inactive", value: "inactive" },
+                    { content: "Active", value: "ACTIVE" },
+                    { content: "Inactive", value: "INACTIVE" },
                 ]}
+                name="status"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.status}
             />
         </div>
     );
@@ -165,21 +174,23 @@ function UserManagement() {
                 primaryText="User Management"
                 secondaryText="Manage system access, roles, and employee accounts."
             >
-                <Button
-                    size="normal"
-                    variant="blue"
-                    leftIcon={{ icon: PersonAddOutlinedIcon, size: "medium", variant: "white" }}
-                    onClick={() => navigate(ROUTES.userManagement.create)}
-                >
-                    Add User
-                </Button>
+                {user?.role === "SUPERADMIN" && (
+                    <Button
+                        size="normal"
+                        variant="blue"
+                        leftIcon={{ icon: PersonAddOutlinedIcon, size: "medium", variant: "white" }}
+                        onClick={() => navigate(ROUTES.userManagement.create)}
+                    >
+                        Add User
+                    </Button>
+                )}
             </PageHeader>
 
             <div className="flex flex-col md:flex-row gap-4 mb-8 w-full">
-                <StatCard title="Total Users" value={24} />
-                <StatCard title="Active Users" value={20} />
-                <StatCard title="Inactive Users" value={4} />
-                <StatCard title="Roles" value={3} />
+                <StatCard title="Total Users" value={total} />
+                <StatCard title="Active Users" value={active} />
+                <StatCard title="Inactive Users" value={inactive} />
+                <StatCard title="Roles" value={roles} />
             </div>
 
             <Table pagination={true} filterView={true} extraFilters={extraFilters}>
@@ -191,7 +202,7 @@ function UserManagement() {
                     <Table.Header text="ACTIONS" />
                 </Table.Row>
 
-                {users.map((user) => (
+                {users.map((user: User) => (
                     <Table.Row key={user.id}>
                         <Table.Data>
                             <UserCell name={`${user.firstName} ${user.lastName}`} email={user.email} />

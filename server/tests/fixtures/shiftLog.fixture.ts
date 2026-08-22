@@ -5,10 +5,10 @@ export const buildMockShiftLog = (userId: number): ShiftLog => ({
     userId,
     status: "PENDING",
     timeIn: new Date(),
-    timeOut: new Date(),
+    timeOut: null,
     generalRemarks: null,
     adminRemarks: null,
-    lastVerifiedBy: "someone",
-    lastVerifiedAt: new Date(),
+    verifierId: null,
+    lastVerifiedAt: null,
     environmentTags: ["APPLICANT_ISSUES"],
 });

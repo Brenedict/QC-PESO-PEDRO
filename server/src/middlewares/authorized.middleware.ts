@@ -7,7 +7,11 @@ import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 export function requireAccessLevel(minAccessLevel: AccessLevel) {
     return (req: Request, res: Response, next: NextFunction) => {
-        const requestor = req.user as User;
+        const requestor = req.user as User | undefined;
+
+        if (!requestor) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
         const userLevel = AccessLevel[requestor.role] ?? 0;
 

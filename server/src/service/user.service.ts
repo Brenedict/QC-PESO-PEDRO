@@ -1,13 +1,15 @@
 // PEDRO SHARED IMPORTS
-import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import type { Prisma, Role, Status, User } from "@qcpesopedro/shared/prisma/client";
 
 // Models
 import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
+import DateUtil from "../utils/date.util";
 
 export interface UserManagementFilter {
-    role?: Role | undefined;
-    status?: Status | undefined;
+    role?: Role;
+    status?: "ACTIVE" | "INACTIVE";
+    search?: string;
 }
 
 export default {
@@ -19,7 +21,20 @@ export default {
     },
 
     async getUsers(filters: UserManagementFilter) {
-        return UserModel.getUsersWithFilters(filters);
+        const where: Prisma.UserWhereInput = {};
+
+        if (filters.role) {
+            where.role = filters.role;
+        }
+        if (filters.status) {
+            where.status = filters.status === "ACTIVE" ? "ONLINE" : { not: "ONLINE" };
+        }
+
+        if (filters.search) {
+            where.fullName = { contains: filters.search as string, mode: "insensitive" };
+        }
+
+        return UserModel.getUsers({ where });
     },
 
     async ensureUserExist(userId: number): Promise<User | null> {
@@ -57,20 +72,29 @@ export default {
     },
 
     async getRecentUnfinishedShifts(userId: number) {
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-
-        const end = new Date();
-        end.setHours(23, 59, 59, 999);
+        const { startDate, endDate } = DateUtil.buildDayRange(new Date());
 
         return ShiftModel.getShiftLogsByUserId(
             userId,
-            { timeOut: null, timeIn: { gte: start, lte: end } },
+            { timeOut: null, timeIn: { gte: startDate, lte: endDate } },
             { timeIn: "desc" }
         );
     },
 
     async getMostRecentUnfinishedShiftId(userId: number) {
         return (await this.getRecentUnfinishedShifts(userId))?.[0]?.id;
+    },
+
+    async getActiveAndInactiveCount() {
+        const overall = await UserModel.groupBy({ by: ["status"] });
+        const active = overall.reduce((total, user) => (user.status === "ONLINE" ? total + 1 : total), 0);
+        const inactive = overall.reduce((total, user) => (user.status !== "ONLINE" ? total + 1 : total), 0);
+
+        return { active, inactive };
+    },
+
+    async getRolesCount() {
+        const overall = await UserModel.groupBy({ by: ["status"] });
+        return overall.length;
     },
 };

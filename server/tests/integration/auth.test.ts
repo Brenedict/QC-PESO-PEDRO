@@ -1,6 +1,5 @@
 // General Imports
 import request from "supertest";
-import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 import authRouter from "../../src/routes/auth.route";
 import prisma from "../../src/config/prisma.config";
 import { app } from "../../jest.integration";
@@ -14,10 +13,6 @@ jest.unmock("../../src/middlewares/passport.middleware");
 
 describe("Auth routes", () => {
     app.use("/auth", authRouter);
-    app.use((err: ErrorRequestHandler, _req: Request, res: Response, _next: NextFunction) => {
-        console.error("DEBUG INTEGRATION ERROR STACK:", err);
-        res.status(500).json({ error: err.toString() });
-    });
 
     beforeEach(async () => {
         await prisma.$transaction([prisma.user.deleteMany(), prisma.user.create({ data: mockUser })]);

@@ -3,7 +3,7 @@ import { Role } from "@qcpesopedro/shared/prisma/enums";
 
 // General Imports
 import type { ReactNode } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 
 // Components
 import { Text } from "./Text";
@@ -105,9 +105,11 @@ function NavBody({ userType }: { userType?: Role }) {
 }
 
 function NavFooter() {
+    const location = useLocation();
+    const redirectPath = `${location.pathname}/log-out`;
     return (
         <div className="p-4">
-            <NavButton linkType="logout" to="/log-out" isLogout />
+            <NavButton linkType="logout" to={redirectPath} isLogout />
         </div>
     );
 }

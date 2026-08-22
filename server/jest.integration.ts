@@ -5,6 +5,7 @@ import prisma from "./src/config/prisma.config";
 import "./src/config/passport.config";
 import cookieParser from "cookie-parser";
 import { jest, beforeEach, afterAll } from "@jest/globals";
+import errorMiddleware from "./src/middlewares/error.middleware";
 
 // PEDRO SHARED IMPORTS
 import type { User } from "@qcpesopedro/shared/prisma/client";
@@ -61,6 +62,9 @@ beforeEach(async () => {
     await prisma.user.create({
         data: mockUser,
     });
+
+    app.use(errorMiddleware.notFoundError);
+    app.use(errorMiddleware.internalError);
 });
 
 afterAll(async () => {
@@ -71,3 +75,13 @@ export const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Make req.query mutable like body
+app.use((req, _res, next) => {
+    Object.defineProperty(req, "query", {
+        ...Object.getOwnPropertyDescriptor(req, "query"),
+        value: req.query,
+        writable: true,
+    });
+    next();
+});
