@@ -30,6 +30,15 @@ export default {
             },
         });
     },
+
+    async getByResetToken(resetToken: string): Promise<User | null> {
+        return prisma.user.findUnique({
+            where: {
+                resetToken: resetToken,
+            },
+        });
+    },
+
     async getByUsername(username: string): Promise<User | null> {
         return prisma.user.findFirst({
             where: {

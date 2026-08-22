@@ -9,6 +9,8 @@ import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passpor
 
 // Service
 import AuthService from "../service/auth.service";
+import UserService from "../service/user.service";
+import { requireValidResetToken } from "../middlewares/authorized.middleware";
 
 export default {
     loginPost: [
@@ -39,6 +41,54 @@ export default {
         });
         res.json({ message: "Logged out successfully" });
     },
+
+    async forgotPasswordPost(req: Request, res: Response) {
+        const { email } = req.body;
+        const user = await UserService.emailExist(email);
+
+        if (user) {
+            AuthService.sendOTPEmail(user);
+        }
+
+        /*
+            Regardless if the email exists or not status 200 is sent.
+            Prevents unathorized users from bruteforcing which emails exists or not
+        */
+        return res.status(200).send();
+    },
+
+    protectedResetPasswordGet: [
+        requireValidResetToken,
+        (req: Request, res: Response) => {
+            const { email } = req.user as User;
+            const [name, domain] = email.split("@");
+            if (!name || !domain) return res.status(401).json({ message: "Email is missing from user" });
+
+            console.log(email);
+
+            // Show first char, mask middle chars, show last char of local part if long enough
+            let maskedName = name[0] + "****";
+            if (name.length > 2) {
+                maskedName = `${name[0]}****${name[name.length - 1]}`;
+            }
+
+            const maskedEmail = `${maskedName}@${domain}`;
+
+            return res.json({
+                email: maskedEmail,
+            });
+        },
+    ],
+
+    resetPasswordPost: [
+        requireValidResetToken,
+        async (req: Request, res: Response) => {
+            const user = req.user as User;
+            const { newPassword } = req.body;
+
+            return res.status(200).send();
+        },
+    ],
 
     protectedGet: [
         jwtAccessAuth,

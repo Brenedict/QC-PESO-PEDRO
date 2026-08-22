@@ -11,17 +11,21 @@ type PPInfo = { message: string } | null;
 
 export const localAuth = (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate("local", { session: false }, (err: PPError, user: PPUser, info: PPInfo) => {
-        if (err) {
-            return res.status(500).json({ error: "Internal server error" });
-        }
+        try {
+            if (err) {
+                return res.status(500).json({ error: "Internal server error" });
+            }
 
-        if (!user) {
-            const fallbackMessage = "Invalid email or password";
-            return res.status(401).json({ error: info?.message || fallbackMessage });
-        }
+            if (!user) {
+                const fallbackMessage = "Invalid email or password";
+                return res.status(401).json({ error: info?.message || fallbackMessage });
+            }
 
-        req.user = user;
-        return next();
+            req.user = user;
+            return next();
+        } catch (error) {
+            next(error);
+        }
     })(req, res, next);
 };
 

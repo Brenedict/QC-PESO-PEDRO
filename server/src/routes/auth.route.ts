@@ -11,6 +11,11 @@ router.post("/login", controller.loginPost);
 router.post("/refresh", controller.refreshPost);
 router.post("/logout", controller.logoutPost);
 
+// Reset Password
+router.patch("/forgot-password", controller.forgotPasswordPost);
+router.get("/protected/reset-password", controller.protectedResetPasswordGet);
+router.patch("/reset-password", controller.resetPasswordPost);
+
 // Protected Route
 router.get("/protected", controller.protectedGet);
 export default router;

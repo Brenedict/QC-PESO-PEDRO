@@ -1,11 +1,13 @@
 // General Imports
-import { redirect, type RouteObject } from "react-router";
+import { redirect, useSearchParams, type ActionFunctionArgs, type RouteObject } from "react-router";
 
 // PEDRO SHARED IMPORTS
 import { LoginSchema } from "@qcpesopedro/shared/schema/login";
 
 // Components
 import LoginPage from "../pages/LoginPage";
+import { ForgotPassword } from "../pages/ForgotPassword";
+import { ResetPassword } from "../pages/ResetPassword";
 import SystemErrorPage from "../pages/SystemErrorPage";
 
 // API Services
@@ -15,6 +17,7 @@ import TokenStore from "../api/tokenStore";
 
 // Custom Hooks
 import { ROUTES } from "../hooks/reroute";
+import { apiJson, ensureOk, handleErrRedirect } from "../api/actionService";
 
 export const authRoutes: RouteObject[] = [
     {
@@ -52,11 +55,49 @@ export const authRoutes: RouteObject[] = [
             return null;
         },
         loader: async () => {
-            const success = await checkAuthService();
-            if (success) {
-                return redirect(ROUTES.dashboard.root);
+            try {
+                const success = await checkAuthService();
+                if (success) {
+                    return redirect(ROUTES.dashboard.root);
+                }
+                return null;
+            } catch (err) {
+                return null;
             }
-            return null;
+        },
+    },
+    {
+        path: "forgot",
+        element: <ForgotPassword />,
+    },
+    {
+        path: "reset-password",
+        element: <ResetPassword />,
+        loader: async ({ request }: ActionFunctionArgs) => {
+            try {
+                // Create URL object for query extraction
+                const url = new URL(request.url);
+
+                // Extract the 'token' query parameter
+                const token = url.searchParams.get("token") ?? "";
+
+                // Initial check for token length, prevents wasteful query on fake tokens
+                if (token.trim().length === 0 || token.trim().length <= 63) {
+                    throw redirect(ROUTES.auth.root);
+                }
+
+                const res = await apiJson(`/auth/protected/reset-password?token=${token}`, { method: "GET" });
+
+                await ensureOk(res, "Failed to authenticate reset token");
+
+                const result = (await res.json()) as Promise<{ email: string; message: string }>;
+
+                console.log(result);
+
+                return result;
+            } catch (err) {
+                return handleErrRedirect(err, request, ROUTES.auth.root, false);
+            }
         },
     },
 ];
