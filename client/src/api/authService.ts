@@ -1,5 +1,5 @@
 // General Imports
-import { redirect } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 
 // PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
@@ -11,6 +11,7 @@ import TokenStore from "./tokenStore";
 // Custom Hooks
 import { ROUTES } from "../hooks/reroute";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
+import { apiJson } from "./actionService";
 
 // Auth helpers
 
@@ -92,6 +93,25 @@ export const getUserContextLoader = async () => {
     } catch (err) {
         console.error(err);
         await logoutService();
+        return null;
+    }
+};
+
+export const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>): Promise<boolean | null> => {
+    try {
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+
+        e.preventDefault(); // Stop full page reload
+
+        const response = await apiJson("/auth/forgot-password", {
+            method: "PATCH",
+            body: JSON.stringify({ email }),
+        });
+
+        return response.ok;
+    } catch (err) {
+        console.error(err);
         return null;
     }
 };

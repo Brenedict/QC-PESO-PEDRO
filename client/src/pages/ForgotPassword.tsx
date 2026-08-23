@@ -17,7 +17,7 @@ import { GeneralInput } from "../components/Input";
 import { useState } from "react";
 import { apiJson, ensureOk } from "../api/actionService";
 
-export function ForgotPassword() {
+export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void }) {
     const navigate = useNavigateDefault();
 
     const [isSuccessful, setIsSuccessful] = useState(false);
@@ -27,18 +27,10 @@ export function ForgotPassword() {
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        const formData = new FormData(e.currentTarget);
-        const email = formData.get("email");
+        const isStatusSucess = (await onSubmit(e)) ?? false;
 
-        e.preventDefault(); // Stop full page reload
-
-        const response = await apiJson("/auth/forgot-password", {
-            method: "PATCH",
-            body: JSON.stringify({ email }),
-        });
-
-        if (response.ok) {
-            // setIsSuccessful(true); // Control local UI state cleanly
+        if (isStatusSucess) {
+            setIsSuccessful(true);
         }
     };
 
@@ -90,13 +82,8 @@ export function ForgotPassword() {
                             email address was entered correctly.
                         </Text>
 
-                        <Button
-                            variant="blue"
-                            size="normal"
-                            className="w-full!"
-                            onClick={() => navigate(ROUTES.auth.root, false)}
-                        >
-                            Return to Login
+                        <Button variant="blue" size="normal" className="w-full!">
+                            <Link to={ROUTES.auth.root}>Return to Login</Link>
                         </Button>
                     </Card.Body>
                 )}

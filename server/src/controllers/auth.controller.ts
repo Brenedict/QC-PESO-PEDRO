@@ -11,6 +11,8 @@ import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passpor
 import AuthService from "../service/auth.service";
 import UserService from "../service/user.service";
 import { requireValidResetToken } from "../middlewares/authorized.middleware";
+import { validateSchema } from "../middlewares/zod.middleware";
+import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
 
 export default {
     loginPost: [
@@ -42,10 +44,11 @@ export default {
         res.json({ message: "Logged out successfully" });
     },
 
-    async forgotPasswordPost(req: Request, res: Response) {
+    async forgotPasswordPatch(req: Request, res: Response) {
         const { email } = req.body;
         const user = await UserService.emailExist(email);
 
+        // Prevents sending email when user email doesn't exist in database
         if (user) {
             AuthService.sendOTPEmail(user);
         }
@@ -59,32 +62,65 @@ export default {
 
     protectedResetPasswordGet: [
         requireValidResetToken,
-        (req: Request, res: Response) => {
-            const { email } = req.user as User;
+        async (req: Request, res: Response) => {
+            const currentTimestampTz = new Date();
+
+            const { id, email, resetTokenExpiresAt } = req.user as User;
             const [name, domain] = email.split("@");
-            if (!name || !domain) return res.status(401).json({ message: "Email is missing from user" });
 
-            console.log(email);
+            let returnMaskedEmail = "";
 
-            // Show first char, mask middle chars, show last char of local part if long enough
-            let maskedName = name[0] + "****";
-            if (name.length > 2) {
-                maskedName = `${name[0]}****${name[name.length - 1]}`;
+            // Fallback check if email still exist
+            if (!name || !domain) {
+                return res.status(401).json({ message: "Email is missing from user" });
             }
 
-            const maskedEmail = `${maskedName}@${domain}`;
+            // Checks if resetToken already expired
+            if (resetTokenExpiresAt && currentTimestampTz >= resetTokenExpiresAt) {
+                await AuthService.clearResetToken(id);
 
-            return res.json({
-                email: maskedEmail,
-            });
+                return res.json({
+                    email: returnMaskedEmail,
+                    isTokenExpired: true,
+                });
+            }
+
+            // Checks if resetToken already expired
+            else {
+                // Show first char, mask middle chars, show last char of local part if long enough
+                let maskedName = name[0] + "****";
+                if (name.length > 2) {
+                    maskedName = `${name[0]}****${name[name.length - 1]}`;
+                }
+
+                returnMaskedEmail = `${maskedName}@${domain}`;
+
+                return res.json({
+                    email: returnMaskedEmail,
+                    isTokenExpired: false,
+                });
+            }
         },
     ],
 
-    resetPasswordPost: [
+    changePasswordPatch: [
         requireValidResetToken,
+        validateSchema(UserFormChangePasswordSchema),
         async (req: Request, res: Response) => {
+            console.log("ENDPOINT REACHED");
+            const { currentPassword, newPassword, confirmPassword } = req.body;
             const user = req.user as User;
-            const { newPassword } = req.body;
+
+            // Add password checking (if old matches new)
+            // Hash passwords
+
+            const result = UserService.changePassword(user.id, newPassword);
+
+            if (!result) {
+                return res.status(404).json({ message: "User doesn't exist" });
+            }
+
+            AuthService.clearResetToken(user.id);
 
             return res.status(200).send();
         },

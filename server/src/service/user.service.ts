@@ -56,6 +56,14 @@ export default {
         return await UserModel.updateUser(userId, updatedUser);
     },
 
+    async changePassword(userId: number, newPassword: string): Promise<User | null> {
+        const updatedUser = {
+            password: newPassword,
+        } as User;
+
+        return await UserModel.updateUser(userId, updatedUser);
+    },
+
     async getRecentUnfinishedShifts(userId: number) {
         const start = new Date();
         start.setHours(0, 0, 0, 0);

@@ -2,7 +2,11 @@
 import { type ActionFunctionArgs } from "react-router";
 
 // PEDRO SHARED IMPORTS
-import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
+import {
+    UserFormChangePasswordSchema,
+    UserFormCreateSchema,
+    UserFormUpdateSchema,
+} from "@qcpesopedro/shared/schema/users";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
@@ -117,6 +121,7 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         const { userId } = params;
         const decodedId = Number(decode(userId));
         const formData = await request.formData();
+
         const actionType = formData.get("manageAction");
 
         if (actionType === "deactivate") {
@@ -148,22 +153,19 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
     }
 };
 
-export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
+export const changePasswordAction = async (formData: FormData, resetToken: string): Promise<boolean | null> => {
     try {
-        const formData = await request.formData();
+        const payload = validateForm(formData, UserFormChangePasswordSchema, "Invalid password credentials");
 
-        const payload = {
-            currentPassword: formData.get("currentPassword"),
-            newPassword: formData.get("newPassword"),
-        };
-
-        console.log("Form submitted successfully with payload:", payload);
-
-        alert("TEST");
+        const response = await apiJson(`/auth/change-password?token=${resetToken}`, {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        });
 
         // Returns to root directory and queries
-        return redirectWithQuery(request, ROUTES.profile.root);
+        return response.ok;
     } catch (err) {
-        return handleErrRedirect(err, request, ROUTES.profile.root);
+        console.error(err);
+        return null;
     }
 };

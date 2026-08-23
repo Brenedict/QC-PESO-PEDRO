@@ -11,13 +11,15 @@ import { ResetPassword } from "../pages/ResetPassword";
 import SystemErrorPage from "../pages/SystemErrorPage";
 
 // API Services
-import { checkAuthService } from "../api/authService";
+import { checkAuthService, handleForgotPassword } from "../api/authService";
 import { apiFetch } from "../api/httpClient";
 import TokenStore from "../api/tokenStore";
 
 // Custom Hooks
 import { ROUTES } from "../hooks/reroute";
 import { apiJson, ensureOk, handleErrRedirect } from "../api/actionService";
+import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
+import { changePasswordAction } from "../api/userService";
 
 export const authRoutes: RouteObject[] = [
     {
@@ -67,12 +69,18 @@ export const authRoutes: RouteObject[] = [
         },
     },
     {
-        path: "forgot",
-        element: <ForgotPassword />,
+        path: "forgot-password",
+        element: <ForgotPassword onSubmit={handleForgotPassword} />,
     },
     {
         path: "reset-password",
-        element: <ResetPassword />,
+        element: <ResetPassword onSubmit={changePasswordAction} />,
+        action: async ({ request }) => {
+            const formData = await request.formData();
+            const result = UserFormChangePasswordSchema.safeParse(formData);
+
+            console.log(result);
+        },
         loader: async ({ request }: ActionFunctionArgs) => {
             try {
                 // Create URL object for query extraction
@@ -90,7 +98,7 @@ export const authRoutes: RouteObject[] = [
 
                 await ensureOk(res, "Failed to authenticate reset token");
 
-                const result = (await res.json()) as Promise<{ email: string; message: string }>;
+                const result = (await res.json()) as Promise<{ isTokenExpired: boolean; email: string }>;
 
                 console.log(result);
 

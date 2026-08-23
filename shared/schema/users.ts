@@ -30,3 +30,14 @@ export const UserFormUpdateSchema = zfd.formData(
 );
 
 export type UserFormUpdateType = z.infer<typeof UserFormUpdateSchema>;
+
+export const UserFormChangePasswordSchema = zfd
+    .formData({
+        currentPassword: z.string().min(8).optional(),
+        newPassword: z.string().min(8),
+        confirmPassword: z.string().min(8),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    });

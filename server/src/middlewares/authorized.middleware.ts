@@ -36,6 +36,8 @@ export async function requireValidResetToken(req: Request, res: Response, next: 
         }
 
         req.user = requestor;
+        console.log(req.user);
+
         return next(); // Explicitly return next()
     } catch (error) {
         console.error("Error verifying reset token:", error);

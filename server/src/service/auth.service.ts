@@ -56,6 +56,16 @@ export default {
         return await UserModel.updateUser(userId, updatedUser);
     },
 
+    async clearResetToken(userId: number) {
+        // Clears reset tokens
+        const updatedUser = {
+            resetToken: null,
+            resetTokenExpiresAt: null,
+        } as User;
+
+        return await UserModel.updateUser(userId, updatedUser);
+    },
+
     async sendOTPEmail(user: User) {
         try {
             // .env prerequisites

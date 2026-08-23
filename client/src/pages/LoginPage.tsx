@@ -14,6 +14,7 @@ import Button from "../components/Button";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import CasesOutlinedIcon from "@mui/icons-material/CasesOutlined";
+import { ROUTES } from "../hooks/reroute";
 
 function HeroIcons({ className }: React.HTMLAttributes<HTMLDivElement>) {
     return (
@@ -117,7 +118,7 @@ function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
                 <ChoiceItem inputVariant="checkbox" stylized={false} disabled>
                     Remember me
                 </ChoiceItem>
-                <Link to="/forgot" className="hover:underline ">
+                <Link to={ROUTES.forgotPassword.root} className="hover:underline ">
                     <Text weight="medium" variant="primary-blue" size="description">
                         Forgot your password?
                     </Text>
