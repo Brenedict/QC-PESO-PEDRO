@@ -6,10 +6,17 @@ import prisma from "../config/prisma.config";
 
 // Service
 import { type UserManagementFilter } from "../service/user.service";
-import type { UserCountArgs, UserFindManyArgs, UserGroupByArgs } from "@qcpesopedro/shared/prisma/models";
+import type {
+    UserCountArgs,
+    UserCreateInput,
+    UserDeleteArgs,
+    UserDeleteManyArgs,
+    UserFindManyArgs,
+    UserGroupByArgs,
+} from "@qcpesopedro/shared/prisma/models";
 
 export default {
-    async createUser(user: User): Promise<User | null> {
+    async createUser(user: User | UserCreateInput): Promise<User | null> {
         return prisma.user.create({
             data: user,
         });
@@ -57,6 +64,10 @@ export default {
                 id,
             },
         });
+    },
+
+    async deleteUsers(args?: UserDeleteManyArgs) {
+        return prisma.user.deleteMany(args);
     },
 
     async count(args?: UserCountArgs) {

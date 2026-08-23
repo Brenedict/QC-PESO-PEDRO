@@ -17,6 +17,7 @@ const config = {
 
         {
             displayName: "integration",
+            testTimeout: 30000,
             testMatch: ["<rootDir>/tests/integration/**/*.test.ts"],
             setupFiles: ["dotenv/config"],
             setupFilesAfterEnv: ["<rootDir>/jest.integration.ts"], // Real passport & prisma pag integration

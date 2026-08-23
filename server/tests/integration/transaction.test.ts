@@ -2,6 +2,7 @@
 import request from "supertest";
 import { app } from "../../jest.integration";
 import { jest, beforeEach, expect, describe, it } from "@jest/globals";
+import ShiftModel from "../../src/models/shift.model";
 
 // PEDRO SHARED IMPORTS
 import type { TransactionUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
@@ -33,30 +34,29 @@ import {
     getExpectedGrouped,
     getExpectedGroupedBreakdown,
     getTransactionsInRange,
-    TOMORROW,
-    YESTERDAY,
 } from "../fixtures/transaction.fixture";
+import { TOMORROW, YESTERDAY } from "../../src/utils/date.util";
 
 // Use actual schema validator
 jest.unmock("../../src/middlewares/zod.middleware");
 
-const transformMockedDate = (transaction: TransactionCreateType): TransactionCreateType => {
+const transformMockedDate = (transaction: Transaction): TransactionCreateType => {
     const newTransaction = { ...transaction };
-
     if (newTransaction.createdAt) newTransaction.createdAt = expect.any(String) as unknown as Date;
+    if (newTransaction.updatedAt) newTransaction.updatedAt = expect.any(String) as unknown as Date;
     return newTransaction;
 };
 
 describe("Transaction Route", () => {
-    let mockedTransactions: TransactionCreateType[];
+    let mockedTransactions: Transaction[];
     const mockedUser: User = mockUser;
     let mockedShiftLog: ShiftLog;
 
     beforeEach(async () => {
-        mockedShiftLog = await prisma.shiftLog.create({ data: buildMockShiftLog(mockedUser.id) });
+        mockedShiftLog = await ShiftModel.createShift({ data: buildMockShiftLog(mockedUser.id) });
 
-        mockedTransactions = buildMockTransactions(mockedUser.id, mockedShiftLog.id);
-        await TransactionService.createTransactionsWithCode(mockedTransactions);
+        const mockData = buildMockTransactions(mockedUser.id, mockedShiftLog.id);
+        mockedTransactions = await TransactionService.createTransactionsWithCode(mockData);
     });
 
     app.use("/transaction", transactionRoute);
@@ -234,9 +234,13 @@ describe("Transaction Route", () => {
                 const page = 2;
                 const res = await request(app).get("/transaction").query({ limit, page }).expect(200);
 
-                expect(res.body.transactions).not.toContainEqual(mockedTransactions[0]);
+                const sortedTransactions = [...mockedTransactions].sort(
+                    (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+                );
 
-                const expected = mockedTransactions.slice((page - 1) * limit, page * limit);
+                expect(res.body.transactions).not.toContainEqual(sortedTransactions[0]);
+
+                const expected = sortedTransactions.slice((page - 1) * limit, page * limit);
 
                 expect(res.body.transactions).toEqual(
                     expect.arrayContaining(
@@ -417,9 +421,8 @@ describe("Transaction Route", () => {
                         {
                             type: "DATE_RANGE",
                             id: "invalid",
-                            filters: {
-                                type: "INVALID_TYPE",
-                            },
+                            filters: {},
+                            type: "INVALID_TYPE",
                         },
                     ],
                 };

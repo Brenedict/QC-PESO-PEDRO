@@ -111,12 +111,12 @@ model Transaction {
     id Int @id @default(autoincrement())
 
     /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
-    user   User @relation(fields: [userId], references: [id])
-    userId Int
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int?
 
     /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
-    shiftLog   ShiftLog @relation(fields: [shiftLogId], references: [id])
-    shiftLogId Int
+    shiftLog   ShiftLog? @relation(fields: [shiftLogId], references: [id], onDelete: SetNull)
+    shiftLogId Int?
 
     /// @zod.trim().min(1, "Application last name cannot be empty")
     applicantFirstName String @db.VarChar(256)
@@ -142,11 +142,11 @@ model Transaction {
 model ShiftLog {
     id Int @id @default(autoincrement())
 
-    userId Int
-    user   User @relation("UserShiftLogs", fields: [userId], references: [id])
+    userId Int?
+    user   User? @relation("UserShiftLogs", fields: [userId], references: [id], onDelete: SetNull)
 
     verifierId Int?
-    verifier   User? @relation("VerifiedShiftLogs", fields: [verifierId], references: [id])
+    verifier   User? @relation("VerifiedShiftLogs", fields: [verifierId], references: [id], onDelete: SetNull)
 
     // Sa unang insert timeIn palang yung pwede mailagay
     timeIn          DateTime         @default(now()) @db.Timestamptz(0)
@@ -202,8 +202,8 @@ model User {
 model AuditLog {
     id Int @id @default(autoincrement())
 
-    userId Int
-    user   User @relation(fields: [userId], references: [id])
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
     createdAt        DateTime  @default(now()) @db.Timestamptz(0)
     actionPerformed  LogAction
@@ -216,8 +216,8 @@ model AuditLog {
 model AccountLog {
     id Int @id @default(autoincrement())
 
-    userId Int
-    user   User @relation(fields: [userId], references: [id])
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
     // Sa unang insert logIn palang yung pwede mailagay
     logIn   DateTime  @default(now()) @db.Timestamptz(0)

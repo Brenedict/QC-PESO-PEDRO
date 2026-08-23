@@ -2,10 +2,15 @@
 import type {
     ShiftLogCountArgs,
     ShiftLogCreateArgs,
+    ShiftLogCreateManyArgs,
     ShiftLogFindManyArgs,
+    ShiftLogInclude,
     ShiftLogOrderByWithRelationInput,
     ShiftLogSelectScalar,
+    ShiftLogUncheckedUpdateManyInput,
+    ShiftLogUpdateArgs,
     ShiftLogWhereInput,
+    UserInclude,
 } from "@qcpesopedro/shared/prisma/models";
 
 // Prisma.config
@@ -16,8 +21,8 @@ export default {
         return prisma.shiftLog.findMany(args);
     },
 
-    async getShiftLogById(id: number) {
-        return prisma.shiftLog.findMany({ where: { id } });
+    async getShiftLogById(id: number, include?: ShiftLogInclude) {
+        return prisma.shiftLog.findUnique({ where: { id }, include });
     },
 
     async getShiftLogsByUserId(
@@ -31,6 +36,14 @@ export default {
 
     async createShift(args: ShiftLogCreateArgs) {
         return prisma.shiftLog.create(args);
+    },
+
+    async createShifts(args: ShiftLogCreateManyArgs) {
+        return prisma.shiftLog.createManyAndReturn(args);
+    },
+
+    async updateShiftById(id: number, data: ShiftLogUncheckedUpdateManyInput) {
+        return prisma.shiftLog.update({ where: { id }, data });
     },
 
     async count(args?: ShiftLogCountArgs) {

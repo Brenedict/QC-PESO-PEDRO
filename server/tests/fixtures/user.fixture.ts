@@ -1,6 +1,8 @@
-import type { User } from "@qcpesopedro/shared/prisma/client";
+import { UserCreateInput } from "@qcpesopedro/shared/prisma/models";
 
-export const mockUser: User = {
+type UserCreate = UserCreateInput & { id: number };
+
+export const mockUser: UserCreate = {
     id: 1,
     username: "john",
     email: "johndoe@gmail.com",
@@ -14,7 +16,7 @@ export const mockUser: User = {
     updatedAt: new Date(),
 };
 
-export const mockFrontlineUser: User = {
+export const mockFrontlineUser: UserCreate = {
     id: 2,
     username: "benedettos",
     email: "benedictbin@gmail.com",
@@ -28,7 +30,7 @@ export const mockFrontlineUser: User = {
     updatedAt: new Date(),
 };
 
-export const mockAdminUser: User = {
+export const mockAdminUser: UserCreate = {
     id: 3,
     username: "kenneth",
     email: "kennethpab@gmail.com",
@@ -42,7 +44,7 @@ export const mockAdminUser: User = {
     updatedAt: new Date(),
 };
 
-export const mockSuperAdminUser: User = {
+export const mockSuperAdminUser: UserCreate = {
     id: 4,
     username: "richard",
     email: "richarddav@gmail.com",

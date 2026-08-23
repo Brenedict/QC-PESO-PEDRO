@@ -35,7 +35,7 @@ export default {
             .slice(0, minLen)
             .map((transaction, i) => ({ ...transaction, txCode: txCodes[i] }) as TransactionUncheckedCreateInput);
 
-        return prisma.transaction.createMany({ data });
+        return prisma.transaction.createManyAndReturn({ data });
     },
 
     async updateTransactionById(id: number, transaction: TransactionUpdateType) {

@@ -11,24 +11,7 @@ import {
     TransactionWhereUniqueInputObjectZodSchema,
 } from "../zod/schemas/";
 import z from "zod";
-
-// ------------------------------- SCHEMA -------------------------------------
-const dateRangeFields = {
-    startDate: z.coerce.date().optional(),
-    endDate: z.coerce.date().optional(),
-};
-
-const withDateRange = <S extends z.ZodObject<any>>(schema: S) =>
-    schema.refine(({ startDate, endDate }) => !startDate || !endDate || startDate <= endDate, {
-        message: "Start date cannot be after end date",
-        path: ["endDate"],
-    });
-
-// .transform(({ startDate, endDate, ...rest }) => {
-//     if (startDate !== undefined) (startDate as Date).setHours(0, 0, 0, 0);
-//     if (endDate !== undefined) (endDate as Date).setHours(23, 59, 59, 999);
-//     return Object.assign(rest, { startDate, endDate }) as z.infer<S>;
-// });
+import { dateRangeFields, withDateRange } from "./date";
 
 const FilterSchema = z
     .object({
@@ -89,6 +72,10 @@ export const TransactionFormUpdateSchema = zfd.formData(
     }).extend({
         shiftLogId: zfd.numeric(TransactionUncheckedUpdateInputObjectZodSchema.shape.shiftLogId),
         userId: zfd.numeric(TransactionUncheckedUpdateInputObjectZodSchema.shape.userId),
+        demographics: z.preprocess(
+            (val) => (val == null ? [] : Array.isArray(val) ? val : [val]),
+            z.array(DemographicSchema).optional()
+        ),
     })
 );
 

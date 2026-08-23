@@ -6,16 +6,18 @@ import "./src/config/passport.config";
 import cookieParser from "cookie-parser";
 import { jest, beforeEach, afterAll } from "@jest/globals";
 import errorMiddleware from "./src/middlewares/error.middleware";
+import http from "http";
 
 // PEDRO SHARED IMPORTS
 import type { User } from "@qcpesopedro/shared/prisma/client";
 
 // Fixtures
 import { mockUser } from "./tests/fixtures/user.fixture";
+import { UserCreateInput } from "@qcpesopedro/shared/prisma/models";
 
-let mockCurrentAuthUser: User = mockUser;
+let mockCurrentAuthUser: UserCreateInput = mockUser;
 
-export function setCurrentAuthUser(user: User) {
+export function setCurrentAuthUser(user: UserCreateInput) {
     mockCurrentAuthUser = user;
 }
 

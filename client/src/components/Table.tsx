@@ -169,7 +169,7 @@ interface TableProps extends TableContextValue {
     children: ReactNode;
 }
 
-function Table({ children, items = 5, ...tableContext }: TableProps) {
+function Table({ children, items = 10, ...tableContext }: TableProps) {
     // Pagination hook
     const { page } = useSearchParamsTable();
 

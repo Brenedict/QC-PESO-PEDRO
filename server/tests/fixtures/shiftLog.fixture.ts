@@ -1,4 +1,5 @@
 import type { ShiftLog } from "@qcpesopedro/shared/prisma/client";
+import DateUtil, { TODAY } from "../../src/utils/date.util";
 
 export const buildMockShiftLog = (userId: number): ShiftLog => ({
     id: 1,
@@ -12,3 +13,54 @@ export const buildMockShiftLog = (userId: number): ShiftLog => ({
     lastVerifiedAt: null,
     environmentTags: ["APPLICANT_ISSUES"],
 });
+
+export const buildMockShiftLogs = (userId: number | null): ShiftLog[] => [
+    {
+        id: 1,
+        userId,
+        status: "PENDING",
+        timeIn: TODAY,
+        timeOut: null,
+        generalRemarks: null,
+        adminRemarks: null,
+        verifierId: null,
+        lastVerifiedAt: null,
+        environmentTags: ["APPLICANT_ISSUES", "BROKEN_EQUIPMENT"],
+    },
+    {
+        id: 2,
+        userId,
+        status: "ONGOING",
+        timeIn: TODAY,
+        timeOut: null,
+        generalRemarks: null,
+        adminRemarks: null,
+        verifierId: null,
+        lastVerifiedAt: null,
+        environmentTags: [],
+    },
+    {
+        id: 3,
+        userId,
+        status: "APPROVED",
+        timeIn: TODAY,
+        timeOut: DateUtil.offsetHours(TODAY, 5),
+        generalRemarks: null,
+        adminRemarks: null,
+        verifierId: null,
+        lastVerifiedAt: DateUtil.offsetHours(TODAY, 6),
+        environmentTags: ["HEAVY_RAIN", "SLOW_INTERNET"],
+    },
+    {
+        id: 4,
+        userId,
+        status: "APPROVED",
+        timeIn: TODAY,
+        timeOut: DateUtil.offsetHours(TODAY, 6),
+        generalRemarks: null,
+        adminRemarks: null,
+        verifierId: null,
+        lastVerifiedAt: DateUtil.offsetHours(TODAY, 8),
+        environmentTags: ["HEAVY_RAIN", "SLOW_INTERNET"],
+    },
+];

@@ -200,7 +200,7 @@ export default {
                     ],
                 }),
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: [{ createdAt: "desc" }, { id: "asc" }],
             include: include?.length ? Object.fromEntries(include.map((key) => [key, true])) : undefined,
             skip: page,
             take: limit,
@@ -416,11 +416,8 @@ function formatTransactionBreakdownResult(
             const groupValue = (row as groupByIntervalWithColumn.Result).groupValue ?? "UNKNOWN";
             const count = Number(row.count ?? 0);
 
-            if (!response[bucket]) {
-                response[bucket] = {};
-            }
-
-            response[bucket][groupValue] = count;
+            response[bucket] ??= {};
+            response[bucket][groupValue] = (response[bucket][groupValue] ?? 0) + count;
         }
 
         return response;
@@ -435,7 +432,7 @@ function formatTransactionBreakdownResult(
         const bucket = DateUtil.formatDateBucket(row.bucket, breakdown);
         const count = Number(row.count ?? 0);
 
-        response[bucket] = count;
+        response[bucket] = (response[bucket] ?? 0) + count;
     }
 
     return response;

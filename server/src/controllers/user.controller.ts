@@ -79,7 +79,9 @@ export default {
             const total = await UserModel.count();
             const { active, inactive } = await UserService.getActiveAndInactiveCount();
             const roles = await UserService.getRolesCount();
-            const users = await UserService.getUsers(req.query as unknown as UserQueryType);
+            const users = await UserService.getUsers(req.query as unknown as UserQueryType, {
+                orderBy: { fullName: "asc" },
+            });
 
             return res.status(200).json({ total, active, inactive, roles, users });
         },

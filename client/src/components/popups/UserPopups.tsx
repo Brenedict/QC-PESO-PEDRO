@@ -352,11 +352,11 @@ function PopupRadio({
     children: ReactNode;
 }) {
     return (
-        <div className="border border-off-white-border bg-off-white p-3 rounded-xl cursor-pointer hover:bg-[#F3FAFC] transition-colors">
+        <label className="border block border-off-white-border bg-off-white p-3 rounded-xl cursor-pointer hover:bg-[#F3FAFC] transition-colors">
             <ChoiceItem inputVariant="radio" name={name} value={value} defaultChecked={defaultChecked}>
                 {children}
             </ChoiceItem>
-        </div>
+        </label>
     );
 }
 

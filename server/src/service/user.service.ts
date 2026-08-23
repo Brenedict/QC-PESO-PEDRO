@@ -5,6 +5,7 @@ import type { Prisma, Role, Status, User } from "@qcpesopedro/shared/prisma/clie
 import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
+import type { UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
 
 export interface UserManagementFilter {
     role?: Role;
@@ -20,7 +21,7 @@ export default {
         return temporaryPassword;
     },
 
-    async getUsers(filters: UserManagementFilter) {
+    async getUsers(filters: UserManagementFilter, args?: UserFindManyArgs) {
         const where: Prisma.UserWhereInput = {};
 
         if (filters.role) {
@@ -34,7 +35,7 @@ export default {
             where.fullName = { contains: filters.search as string, mode: "insensitive" };
         }
 
-        return UserModel.getUsers({ where });
+        return UserModel.getUsers({ where: { ...where, ...args?.where }, ...args });
     },
 
     async ensureUserExist(userId: number): Promise<User | null> {

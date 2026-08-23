@@ -1,14 +1,6 @@
 import { Demographic, Outcome, Sex, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
-import DateUtil from "../../src/utils/date.util";
-
-export const TODAY = new Date("2026-08-19T00:00:00.000Z");
-
-export const YESTERDAY = new Date(TODAY.getDate() - 1);
-YESTERDAY.setHours(0, 0, 0, 0);
-
-export const TOMORROW = new Date(TODAY.getDate() + 1);
-TOMORROW.setHours(23, 59, 59, 999);
+import DateUtil, { TODAY } from "../../src/utils/date.util";
 
 export const buildMockTransaction = (userId: number, shiftLogId: number) => {
     return {
@@ -27,8 +19,8 @@ export const buildMockTransaction = (userId: number, shiftLogId: number) => {
 };
 
 export const buildMockTransactions = (
-    userId: number,
-    shiftLogId: number
+    userId: number | null,
+    shiftLogId: number | null
 ): (TransactionCreateType & { id: number })[] => {
     return [
         {
@@ -42,7 +34,7 @@ export const buildMockTransactions = (
             transactionType: TransactionType.WALK_IN_REFERRAL,
             remarks: null,
             demographics: [Demographic.FIRST_TIME_JOB_SEEKER],
-            createdAt: new Date("2026-08-19T08:15:00.000Z"),
+            createdAt: TODAY,
         },
         {
             id: 2,
@@ -55,7 +47,7 @@ export const buildMockTransactions = (
             transactionType: TransactionType.ONLINE_REFERRAL,
             remarks: "Awaiting approval",
             demographics: [Demographic.PERSONS_WITH_DISABILITY, Demographic.SENIOR_CITIZEN],
-            createdAt: new Date("2026-08-19T08:45:00.000Z"),
+            createdAt: TODAY,
         },
         {
             id: 3,
@@ -68,7 +60,7 @@ export const buildMockTransactions = (
             transactionType: TransactionType.IN_HOUSE_RECRUITMENT,
             remarks: "Mismatch in credentials",
             demographics: [Demographic.YOUNG_WORKER],
-            createdAt: new Date("2026-08-18T09:30:00.000Z"),
+            createdAt: TODAY,
         },
         {
             id: 4,
@@ -81,7 +73,7 @@ export const buildMockTransactions = (
             transactionType: TransactionType.WALK_IN_REFERRAL,
             remarks: null,
             demographics: [Demographic.FIRST_TIME_JOB_SEEKER],
-            createdAt: new Date("2026-08-18T10:15:00.000Z"),
+            createdAt: DateUtil.offsetDays(TODAY, -4),
         },
         {
             id: 5,
@@ -94,7 +86,7 @@ export const buildMockTransactions = (
             transactionType: TransactionType.ONLINE_REFERRAL,
             remarks: "Awaiting approval",
             demographics: [Demographic.PERSONS_WITH_DISABILITY, Demographic.SENIOR_CITIZEN],
-            createdAt: new Date("2026-08-12T11:00:00.000Z"),
+            createdAt: DateUtil.offsetDays(TODAY, -2),
         },
         {
             id: 6,
@@ -107,7 +99,7 @@ export const buildMockTransactions = (
             transactionType: TransactionType.IN_HOUSE_RECRUITMENT,
             remarks: "Mismatch in credentials",
             demographics: [Demographic.YOUNG_WORKER],
-            createdAt: new Date("2026-07-20T14:30:00.000Z"),
+            createdAt: DateUtil.offsetDays(TODAY, -7),
         },
     ];
 };

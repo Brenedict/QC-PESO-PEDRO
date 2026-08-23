@@ -225,7 +225,7 @@ describe("User Routes", () => {
         it("forbids an ADMIN from granting SUPERADMIN privileges", async () => {
             setCurrentAuthUser(mockAdminUser);
 
-            request(app).patch(`/user/${mockFrontlineUser.id}`).send({ role: "SUPERADMIN" }).expect(403);
+            await request(app).patch(`/user/${mockFrontlineUser.id}`).send({ role: "SUPERADMIN" }).expect(403);
 
             const unchanged = await UserModel.getById(mockFrontlineUser.id);
             expect(unchanged?.role).not.toBe("SUPERADMIN");
