@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 /**
  * Bcryptjs is used in PEDRO for higher level hashing (adds salt)
@@ -6,6 +7,16 @@ import crypto from "crypto";
  * Yung salt kasi nag-aadd ng randomness, makes it difficult to search for reset tokens via db queries.
  */
 export default {
+    async hashPassword(plainText: string): Promise<string> {
+        const saltRounds = parseInt(process.env.HASHSALT || "10", 10);
+        const salt = await bcrypt.genSalt(saltRounds);
+        return await bcrypt.hash(plainText, salt);
+    },
+
+    async comparePassword(plainText: string, hash: string): Promise<boolean> {
+        return await bcrypt.compare(plainText, hash);
+    },
+
     generatePlainToken(): string {
         return crypto.randomBytes(32).toString("hex");
     },

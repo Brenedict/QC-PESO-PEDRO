@@ -5,6 +5,9 @@ import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
 import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
 
+// Utils
+import HashUtil from "../utils/hash.util";
+
 export interface UserManagementFilter {
     role?: Role | undefined;
     status?: Status | undefined;
@@ -40,25 +43,28 @@ export default {
 
     async createUser(user: User): Promise<User | null> {
         const generatedTemporaryPassword = this.generateTemporaryPassword(user.firstName, user.lastName);
+        const hashedPassword = await HashUtil.hashPassword(generatedTemporaryPassword);
 
-        user.password = generatedTemporaryPassword;
+        user.password = hashedPassword;
 
         return await UserModel.createUser(user);
     },
 
     async resetPassword(userId: number, user: User): Promise<User | null> {
         const generatedTemporaryPassword = this.generateTemporaryPassword(user.firstName, user.lastName);
+        const hashedPassword = await HashUtil.hashPassword(generatedTemporaryPassword);
 
         const updatedUser = {
-            password: generatedTemporaryPassword,
+            password: hashedPassword,
         } as User;
 
         return await UserModel.updateUser(userId, updatedUser);
     },
 
     async changePassword(userId: number, newPassword: string): Promise<User | null> {
+        const hashedPassword = await HashUtil.hashPassword(newPassword);
         const updatedUser = {
-            password: newPassword,
+            password: hashedPassword,
         } as User;
 
         return await UserModel.updateUser(userId, updatedUser);

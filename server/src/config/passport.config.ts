@@ -8,6 +8,9 @@ import env from "./env.config";
 // Model
 import UserModel from "../models/user.model";
 
+// Utils
+import HashUtil from "../utils/hash.util";
+
 // ------------------- PASSPORT LOCAL STRATEGY -------------------------------------
 
 // For standard email and password login
@@ -22,7 +25,7 @@ const verifyFunction: VerifyFunction = async (email, password, done) => {
 
         if (!user) return done(null, false, { message: "Email not found" });
 
-        const match = password === user.password; // Temporary (must use bcrypt)
+        const match = await HashUtil.comparePassword(password, user.password); // Temporary (must use bcrypt)
         if (!match) return done(null, false, { message: "Password Incorrect" });
 
         return done(null, user);

@@ -9,6 +9,9 @@ import prisma from "../src/config/prisma.config";
 // Service
 import TransactionService from "../src/service/transaction.service";
 
+// Util
+import HashUtil from "../src/utils/hash.util";
+
 // prettier-ignore
 const maleFirstNames = [ "Juan", "Mark", "John", "Carlo", "Miguel", "Angelo", "Joshua", "Daniel", "Christian", "Gabriel", "Adrian",
     "Paolo", "Rafael", "Kevin", "James", "Nathan", "Francis", "Michael", "Jerome", "Luis", "Jose", "Renz", "Jayson", "Patrick", "Kenneth",
@@ -51,7 +54,7 @@ const remarks = [
 export const userDummy: UserUncheckedCreateInput = {
     username: "john",
     email: "johndoe@gmail.com",
-    password: "password123",
+    password: await HashUtil.hashPassword("password123"),
     role: "ADMIN",
     status: "ONLINE",
     shift: "MORNING",

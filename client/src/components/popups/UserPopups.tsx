@@ -1,6 +1,6 @@
 // General Imports
-import { Form, useLoaderData } from "react-router";
-import { useState, type ReactNode } from "react";
+import { Form, Link, useLoaderData, useSearchParams } from "react-router";
+import { useEffect, useState, type ReactNode } from "react";
 
 // PEDRO SHARED IMPORTS
 import type { Role, Shift } from "@qcpesopedro/shared/prisma/browser";
@@ -20,6 +20,7 @@ import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutl
 
 // Custom Hooks
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import { useUserGlobal } from "../../context/UserGlobalContext";
 
 type PopupUser = {
     id?: number;
@@ -400,6 +401,25 @@ export function PopupResetUser() {
 }
 
 export function PopupChangePassword() {
+    const { id } = useUserGlobal();
+    if (!id) return null;
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [currentPasswordError, setCurrentPasswordError] = useState<string>("");
+
+    useEffect(() => {
+        const errorKey = searchParams.get("passwordError");
+
+        if (errorKey) {
+            setCurrentPasswordError(errorKey);
+
+            // Clean up error from URL so it doesn't persist on page refresh
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("passwordError");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
     const navigate = useNavigateDefault();
     const [passwordError, setPasswordError] = useState("");
     const [isFormValid, setIsFormValid] = useState(false);
@@ -433,18 +453,25 @@ export function PopupChangePassword() {
                     className="flex flex-col h-fit gap-4"
                     onChange={handleFormChange}
                 >
+                    {/* Hidden User Id To Be Submitted with FormData */}
+                    <input hidden type="text" name="id" value={id} />
+
                     <PasswordInput
                         id="currentPassword"
                         name="currentPassword"
                         label="Current password"
                         placeholder="Enter your current password"
                         isRequired={true}
+                        onChange={() => setCurrentPasswordError("")}
+                        error={currentPasswordError}
                     />
 
                     <div className="flex justify-end -mt-3 mb-2">
-                        <Text size="small" variant="primary-blue" className="cursor-pointer hover:underline">
-                            Don't know your password?
-                        </Text>
+                        <Link to={ROUTES.forgotPassword.root}>
+                            <Text size="small" variant="primary-blue" className="cursor-pointer hover:underline">
+                                Don't know your password?
+                            </Text>
+                        </Link>
                     </div>
 
                     <PasswordInput

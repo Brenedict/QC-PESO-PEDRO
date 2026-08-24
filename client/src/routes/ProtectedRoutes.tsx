@@ -1,5 +1,5 @@
 // General Imports
-import { redirect, type RouteObject } from "react-router";
+import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
 import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
 
 // Pages
@@ -176,10 +176,14 @@ export const protectedRoutes: RouteObject[] = [
                         path: "profile",
                         element: <ProfilePage />,
                         children: [
-                            { path: "change-password", element: <PopupChangePassword />, action: changePasswordAction },
+                            {
+                                path: "change-password",
+                                element: <PopupChangePassword />,
+                                loader: requireAccess(AccessLevel.FRONTLINE),
+                                action: changePasswordAction,
+                            },
                             ...shiftPopups(ROUTES.profile.root),
                         ],
-                        loader: requireAccess(AccessLevel.FRONTLINE),
                     },
                     {
                         path: "end-shift",

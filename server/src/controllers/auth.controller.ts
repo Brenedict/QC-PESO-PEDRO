@@ -108,11 +108,8 @@ export default {
         validateSchema(UserFormChangePasswordSchema),
         async (req: Request, res: Response) => {
             console.log("ENDPOINT REACHED");
-            const { currentPassword, newPassword, confirmPassword } = req.body;
+            const { _currentPassword, newPassword, _confirmPassword } = req.body;
             const user = req.user as User;
-
-            // Add password checking (if old matches new)
-            // Hash passwords
 
             const result = UserService.changePassword(user.id, newPassword);
 

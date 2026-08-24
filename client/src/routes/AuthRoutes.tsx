@@ -18,8 +18,7 @@ import TokenStore from "../api/tokenStore";
 // Custom Hooks
 import { ROUTES } from "../hooks/reroute";
 import { apiJson, ensureOk, handleErrRedirect } from "../api/actionService";
-import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
-import { changePasswordAction } from "../api/userService";
+import { changePasswordPatch } from "../api/userService";
 
 export const authRoutes: RouteObject[] = [
     {
@@ -74,13 +73,7 @@ export const authRoutes: RouteObject[] = [
     },
     {
         path: "reset-password",
-        element: <ResetPassword onSubmit={changePasswordAction} />,
-        action: async ({ request }) => {
-            const formData = await request.formData();
-            const result = UserFormChangePasswordSchema.safeParse(formData);
-
-            console.log(result);
-        },
+        element: <ResetPassword onSubmit={changePasswordPatch} />,
         loader: async ({ request }: ActionFunctionArgs) => {
             try {
                 // Create URL object for query extraction
