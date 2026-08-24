@@ -21,8 +21,9 @@ import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import { ESSStatus, type Shift, type ShiftLog, type User } from "@qcpesopedro/shared/prisma/browser";
 import { SelectInput } from "../components/Input";
-import { TIMEFRAME_TYPE } from "../api/dateService";
 import { useSearchParamsTable } from "../hooks/table";
+import { useTimeframeFilter } from "../hooks/useTimeFrameFilter";
+import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 
 // Define the props
 interface EndShiftVerificationProps {
@@ -62,16 +63,13 @@ function EmployeeCell({ name }: { name: string }) {
 
 // Main Page
 function EndShiftVerification() {
+    const timeframeFilter = useTimeframeFilter("day");
     const { searchParams } = useSearchParamsTable();
     const data = useLoaderData();
     const navigate = useNavigateDefault();
 
     const handleReview = (id: string) => () => {
         navigate(ROUTES.endshift.review(id), true);
-    };
-
-    const handleDetails = (id: string) => () => {
-        navigate(ROUTES.endshift.details(id), true);
     };
 
     const getDayPeriod = (date: Date) => {
@@ -81,17 +79,11 @@ function EndShiftVerification() {
 
     const extraFilters = (
         <div className="flex gap-4 items-center">
-            <SelectInput
-                optionList={[
-                    { content: "Overall", value: TIMEFRAME_TYPE.overall },
-                    { content: "This Day", value: "" },
-                    { content: "This Week", value: TIMEFRAME_TYPE.week },
-                    { content: "This Month", value: TIMEFRAME_TYPE.month },
-                    { content: "This Year", value: TIMEFRAME_TYPE.year },
-                ]}
-                name="timeframe"
-                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
-                defaultValue={searchParams.timeframe ?? ""}
+            <TimeframeInputs
+                startDate={timeframeFilter.startDate}
+                endDate={timeframeFilter.endDate}
+                handleStartDateChange={timeframeFilter.handleStartDateChange}
+                handleEndDateChange={timeframeFilter.handleEndDateChange}
             />
             <SelectInput
                 optionList={[
@@ -115,13 +107,10 @@ function EndShiftVerification() {
                 primaryText="End Shift Verification"
                 secondaryText="Review, verify, and approve daily shift summaries."
             >
-                <Button
-                    size="small"
-                    variant="white-black"
-                    leftIcon={{ icon: FileDownloadOutlinedIcon, size: "medium", variant: "black" }}
-                >
-                    Export
-                </Button>
+                <TimeframeSelect
+                    timeframe={timeframeFilter.timeframe}
+                    handleTimeframeChange={timeframeFilter.handleTimeframeChange}
+                />
             </PageHeader>
 
             <div className="flex flex-col md:flex-row gap-4 mb-8 w-full">
@@ -132,7 +121,12 @@ function EndShiftVerification() {
                 <StatCard title="Avg Approval Time" value={data?.average ?? "N/A"} valueVariant="primary-blue" />
             </div>
 
-            <Table pagination={true} filterView={true} extraFilters={extraFilters}>
+            <Table
+                pagination={true}
+                filterView={true}
+                extraFilters={extraFilters}
+                isExternalFilterChanged={timeframeFilter.isTimeframeChanged}
+            >
                 <Table.Row>
                     <Table.Header text="EMPLOYEE" />
                     <Table.Header text="SHIFT" />
@@ -166,9 +160,10 @@ function EndShiftVerification() {
                         </Table.Data>
                         <Table.Data>
                             <div className="flex gap-3">
-                                <ActionButton handleClick={handleDetails} id={String(shift.id)} text="Details" />
-                                {shift?.status === "PENDING" && (
+                                {shift?.status === "PENDING" ? (
                                     <ActionButton handleClick={handleReview} id={String(shift.id)} text="Review" />
+                                ) : (
+                                    <Text weight="bold"> -</Text>
                                 )}
                             </div>
                         </Table.Data>

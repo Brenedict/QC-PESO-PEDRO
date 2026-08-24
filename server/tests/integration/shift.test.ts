@@ -138,10 +138,9 @@ describe("Shift Route", () => {
             const shiftYesterday = `/shift${yesterdayQuery}`;
 
             const res = await request(app).get(shiftYesterday).expect(200);
-            const pendingLength = mockedShiftLogs.filter((s) => s.status === "PENDING").length;
 
-            expect(res.body.shifts).toHaveLength(pendingLength);
-            expect(res.body.pending).toBe(pendingLength);
+            expect(res.body.shifts).toHaveLength(0);
+            expect(res.body.pending).toBe(0);
             expect(res.body.approved).toBe(0);
             expect(res.body.average).toBe("N/A");
         });

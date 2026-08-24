@@ -134,7 +134,7 @@ export function ActionButton({
     handleClick: (id: string) => React.MouseEventHandler<HTMLButtonElement>;
 }) {
     return (
-        <Button variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
+        <Button type="button" variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
             {text}
         </Button>
     );

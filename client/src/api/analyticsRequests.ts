@@ -2,7 +2,7 @@ import type {
     TransactionAnalyticsFilterType,
     TransactionAnalyticsQueryInput,
 } from "@qcpesopedro/shared/schema/transactions";
-import { MONTH_PARAM, TODAY_PARAM, WEEK_PARAM } from "./dateService";
+import { getDateParams } from "./dateService";
 
 export interface DateRangeData {
     count?: number;
@@ -26,212 +26,222 @@ export type BreakdownData = Record<string, number> | Record<string, Record<strin
 export type AnalyticsData = Record<string, DateRangeData | BreakdownData>;
 export type ReportTypes = "DAILY" | "WEEKLY" | "MONTHLY" | "SUMMARY";
 
-export const DASHBOARD_OVERVIEW_REQUEST: TransactionAnalyticsQueryInput = {
-    queries: [
-        {
-            type: "DATE_RANGE",
-            id: "total",
-            includePrevious: true,
-            groupBy: "applicantSex",
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "walk-in",
-            filters: {
-                type: "WALK_IN_REFERRAL",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "online",
-            filters: {
-                type: "ONLINE_REFERRAL",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "in-house",
-            filters: {
-                type: "IN_HOUSE_RECRUITMENT",
-            },
-            groupBy: "applicantSex",
-            ...TODAY_PARAM,
-            includePrevious: true,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "work-immersion",
-            filters: {
-                demographics: "WORK_IMMERSION_INTERNSHIP",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "job-seeker",
-            filters: {
-                demographics: "FIRST_TIME_JOB_SEEKER",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "pwd",
-            filters: {
-                demographics: "PERSONS_WITH_DISABILITY",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "senior",
-            filters: {
-                demographics: "SENIOR_CITIZEN",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "young-worker",
-            filters: {
-                demographics: "YOUNG_WORKER",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "success",
-            filters: {
-                outcome: "SUCCESS",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "pending",
-            filters: {
-                outcome: "PENDING",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "mismatch",
-            filters: {
-                outcome: "MISMATCH",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "none",
-            filters: {
-                outcome: "NONE",
-            },
-            groupBy: "applicantSex",
-            includePrevious: true,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "BREAKDOWN",
-            id: "weekly-breakdown",
-            breakdown: "DAILY",
-            groupBy: "transactionType",
-            ...WEEK_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            groupBy: "applicantSex",
-            id: "sex",
-            ...WEEK_PARAM,
-        },
-    ],
-} as const;
+export const DASHBOARD_OVERVIEW_REQUEST = (): TransactionAnalyticsQueryInput => {
+    const { todayParam, weekParam } = getDateParams();
 
-export const DASHBOARD_DETAILS_REQUEST = (
-    filters?: TransactionAnalyticsFilterType
-): TransactionAnalyticsQueryInput => ({
-    queries: [
-        {
-            type: "DATE_RANGE",
-            id: "today",
-            filters,
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "week",
-            filters,
-            ...WEEK_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "month",
-            filters,
-            ...MONTH_PARAM,
-        },
-        {
-            type: "BREAKDOWN",
-            id: "hourly",
-            filters,
-            breakdown: "HOURLY",
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "sex",
-            filters,
-            groupBy: "applicantSex",
-            ...TODAY_PARAM,
-        },
-        {
-            type: "DATE_RANGE",
-            id: "staff",
-            filters,
-            groupBy: "userId",
-            ...TODAY_PARAM,
-        },
-    ],
-});
+    return {
+        queries: [
+            {
+                type: "DATE_RANGE",
+                id: "total",
+                includePrevious: true,
+                groupBy: "applicantSex",
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "walk-in",
+                filters: {
+                    type: "WALK_IN_REFERRAL",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "online",
+                filters: {
+                    type: "ONLINE_REFERRAL",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "in-house",
+                filters: {
+                    type: "IN_HOUSE_RECRUITMENT",
+                },
+                groupBy: "applicantSex",
+                ...todayParam,
+                includePrevious: true,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "work-immersion",
+                filters: {
+                    demographics: "WORK_IMMERSION_INTERNSHIP",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "job-seeker",
+                filters: {
+                    demographics: "FIRST_TIME_JOB_SEEKER",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "pwd",
+                filters: {
+                    demographics: "PERSONS_WITH_DISABILITY",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "senior",
+                filters: {
+                    demographics: "SENIOR_CITIZEN",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "young-worker",
+                filters: {
+                    demographics: "YOUNG_WORKER",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "success",
+                filters: {
+                    outcome: "SUCCESS",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "pending",
+                filters: {
+                    outcome: "PENDING",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "mismatch",
+                filters: {
+                    outcome: "MISMATCH",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "none",
+                filters: {
+                    outcome: "NONE",
+                },
+                groupBy: "applicantSex",
+                includePrevious: true,
+                ...todayParam,
+            },
+            {
+                type: "BREAKDOWN",
+                id: "weekly-breakdown",
+                breakdown: "DAILY",
+                groupBy: "transactionType",
+                ...weekParam,
+            },
+            {
+                type: "DATE_RANGE",
+                groupBy: "applicantSex",
+                id: "sex",
+                ...weekParam,
+            },
+        ],
+    };
+};
 
-export const TRANSACTION_SUMMARY_REQUEST: TransactionAnalyticsQueryInput = {
-    queries: [{ id: "summary", type: "BREAKDOWN", breakdown: "DAILY", ...WEEK_PARAM }],
+export const DASHBOARD_DETAILS_REQUEST = (filters?: TransactionAnalyticsFilterType): TransactionAnalyticsQueryInput => {
+    const { todayParam, monthParam, weekParam } = getDateParams();
+    return {
+        queries: [
+            {
+                type: "DATE_RANGE",
+                id: "today",
+                filters,
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "week",
+                filters,
+                ...weekParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "month",
+                filters,
+                ...monthParam,
+            },
+            {
+                type: "BREAKDOWN",
+                id: "hourly",
+                filters,
+                breakdown: "HOURLY",
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "sex",
+                filters,
+                groupBy: "applicantSex",
+                ...todayParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "staff",
+                filters,
+                groupBy: "userId",
+                ...todayParam,
+            },
+        ],
+    };
+};
+
+export const TRANSACTION_SUMMARY_REQUEST = (): TransactionAnalyticsQueryInput => {
+    const { weekParam } = getDateParams();
+
+    return {
+        queries: [{ id: "summary", type: "BREAKDOWN", breakdown: "DAILY", ...weekParam }],
+    };
 };
 
 export const TRANSACTION_REPORT_REQUEST = (type: ReportTypes): TransactionAnalyticsQueryInput => {
+    const { todayParam, monthParam, weekParam } = getDateParams();
     let dateRange: { startDate: string; endDate: string } | undefined;
     switch (type) {
         case "DAILY":
-            dateRange = TODAY_PARAM;
+            dateRange = todayParam;
             break;
         case "WEEKLY":
-            dateRange = WEEK_PARAM;
+            dateRange = weekParam;
             break;
         case "MONTHLY":
-            dateRange = MONTH_PARAM;
+            dateRange = monthParam;
             break;
         default:
             dateRange = undefined;

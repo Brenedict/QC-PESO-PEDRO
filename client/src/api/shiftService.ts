@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
-import { buildParamString, buildWeekRangeParam, TIMEFRAME_MAP, type TIMEFRAME_RESULT } from "./dateService";
+import { buildParamString, getStartEndHour, getTimeframeRange } from "./dateService";
 import {
     apiJson,
     ensureOk,
@@ -15,9 +15,10 @@ import { ShiftFormVerifySchema } from "@qcpesopedro/shared/schema/shift";
 // GET: Fetches all shifts
 export const getShifts = async ({ request }: ActionFunctionArgs) => {
     const { query, omitted } = extractQueryToObject(request, ["page", "timeframe"]);
-    const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "day"] as TIMEFRAME_RESULT;
+    const dateRangeOption = query.timeframe === "overall" ? getTimeframeRange(omitted?.timeframe ?? "day") : {};
+    const startEndHour = getStartEndHour(query.startDate, query.endDate);
+    const apiParams = buildParamString({ ...query, ...dateRangeOption, ...startEndHour });
 
-    const apiParams = buildParamString({ ...query, ...dateRangeOption });
     console.log(apiParams);
 
     try {

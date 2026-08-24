@@ -14,34 +14,31 @@ import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/T
 
 // Material UI Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import { useSearchParamsTable } from "../hooks/table";
 import { SelectInput } from "../components/Input";
-import { TIMEFRAME_TYPE } from "../api/dateService";
+import { useTimeframeFilter, type TimeframeFilter } from "../hooks/useTimeFrameFilter";
+import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 
-export function TransactionExtraFilters({ timeframe = false }: { timeframe?: boolean }) {
+export function TransactionExtraFilters({ timeframeFilter }: { timeframeFilter?: TimeframeFilter }) {
     const { searchParams } = useSearchParamsTable();
 
     return (
         <div className="flex gap-4 items-center">
-            {timeframe && (
-                <SelectInput
-                    optionList={[
-                        { content: "Overall", value: TIMEFRAME_TYPE.overall },
-                        { content: "This Day", value: TIMEFRAME_TYPE.day },
-                        { content: "This Week", value: TIMEFRAME_TYPE.week },
-                        { content: "This Month", value: TIMEFRAME_TYPE.month },
-                        { content: "This Year", value: TIMEFRAME_TYPE.year },
-                    ]}
-                    name="timeframe"
-                    className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
-                    defaultValue={searchParams.timeframe}
-                />
+            {timeframeFilter && (
+                <>
+                    <TimeframeInputs
+                        startDate={timeframeFilter.startDate}
+                        endDate={timeframeFilter.endDate}
+                        handleStartDateChange={timeframeFilter.handleStartDateChange}
+                        handleEndDateChange={timeframeFilter.handleEndDateChange}
+                    />
+                </>
             )}
+
             <SelectInput
                 optionList={[
                     { content: "All Types", value: "" },
@@ -70,6 +67,7 @@ export function TransactionExtraFilters({ timeframe = false }: { timeframe?: boo
 }
 
 function TransactionHistory() {
+    const timeframeFilter = useTimeframeFilter();
     const data = useLoaderData();
     const navigate = useNavigateDefault();
 
@@ -86,16 +84,20 @@ function TransactionHistory() {
     return (
         <>
             <PageHeader primaryText="History Ledger" secondaryText="Comprehensive view of all historical transactions">
-                <Button
-                    size="small"
-                    variant="white-black"
-                    leftIcon={{ icon: FileDownloadOutlinedIcon, size: "medium", variant: "black" }}
-                >
-                    Export
-                </Button>
+                <div>
+                    <TimeframeSelect
+                        timeframe={timeframeFilter.timeframe}
+                        handleTimeframeChange={timeframeFilter.handleTimeframeChange}
+                    />
+                </div>
             </PageHeader>
 
-            <Table pagination={true} filterView={true} extraFilters={<TransactionExtraFilters timeframe={true} />}>
+            <Table
+                pagination={true}
+                filterView={true}
+                extraFilters={<TransactionExtraFilters timeframeFilter={timeframeFilter} />}
+                isExternalFilterChanged={timeframeFilter.isTimeframeChanged}
+            >
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="ID" />

@@ -33,13 +33,7 @@ import {
     type ReportTypes,
 } from "./analyticsRequests";
 import type { MaterialIcon } from "../types/common";
-import {
-    buildDayRangeParam,
-    buildParamString,
-    TIMEFRAME_MAP,
-    type ParamArgs,
-    type TIMEFRAME_RESULT,
-} from "./dateService";
+import { buildDayRangeParam, buildParamString, getStartEndHour, type ParamArgs } from "./dateService";
 
 // Custom Hooks
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
@@ -77,13 +71,13 @@ export const getTransactions =
         const user = TokenStore.getUser();
 
         const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
-        const { query, omitted } = extractQueryToObject(request, ["page", "timeframe"]);
-        const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "overall"] as TIMEFRAME_RESULT;
+        const { query } = extractQueryToObject(request, ["page", "timeframe"]);
+        const startEndHour = getStartEndHour(query.startDate, query.endDate);
 
         const paramsObject: Record<string, string | string[]> = {
             ...dayRangeParam,
             ...query,
-            ...dateRangeOption,
+            ...startEndHour,
         };
 
         // Limit the view of frontline to their own transactions
@@ -176,11 +170,12 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
 
 // POST: Fetches analytics
 export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
+    console.log(JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()));
     try {
         // Main Fetch Request
         const res = await apiJson("/transaction/analytics", {
             method: "POST",
-            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST),
+            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()),
         });
 
         await ensureOk(res, "Failed to query dashboard");
@@ -215,7 +210,7 @@ export const getTransactionSummary = async ({ request }: ActionFunctionArgs) => 
         // Main Fetch Request
         const res = await apiJson("/transaction/analytics", {
             method: "POST",
-            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST),
+            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST()),
         });
 
         await ensureOk(res, "Failed to query transaction summary");

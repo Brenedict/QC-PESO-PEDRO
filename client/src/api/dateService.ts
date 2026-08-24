@@ -1,20 +1,48 @@
-export const TODAY_PARAM = buildDayRangeParam(new Date());
-export const WEEK_PARAM = buildWeekRangeParam(new Date());
-export const MONTH_PARAM = buildMonthRangeParam(new Date());
-export const YEAR_PARAM = buildYearRangeParam(new Date());
-
 export type ParamArgs = string[][] | Record<string, string | string[]> | string | URLSearchParams;
 export type TIMEFRAME_RESULT = { startDate: string; endDate: string };
 
-export const TIMEFRAME_MAP: Record<string, TIMEFRAME_RESULT | undefined> = {
-    day: TODAY_PARAM,
-    week: WEEK_PARAM,
-    month: MONTH_PARAM,
-    year: YEAR_PARAM,
-    overall: undefined,
-} as const;
+export const getStartEndHour = (startDate?: string, endDate?: string) => {
+    const result: Record<string, string> = {};
 
-export const TIMEFRAME_TYPE = Object.fromEntries(Object.keys(TIMEFRAME_MAP).map((key) => [key, key]));
+    if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        result.startDate = start.toISOString();
+    }
+    if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(0, 0, 0, 0);
+        result.endDate = end.toISOString();
+    }
+
+    return result;
+};
+
+export const getDateParams = () => {
+    const todayParam = buildDayRangeParam(new Date());
+    const weekParam = buildWeekRangeParam(new Date());
+    const monthParam = buildMonthRangeParam(new Date());
+    const yearParam = buildYearRangeParam(new Date());
+
+    return { todayParam, weekParam, monthParam, yearParam };
+};
+
+export function getTimeframeRange(timeframe: string | undefined) {
+    const now = new Date();
+
+    switch (timeframe) {
+        case "day":
+            return buildDayRangeParam(now);
+        case "week":
+            return buildWeekRangeParam(now);
+        case "month":
+            return buildMonthRangeParam(now);
+        case "year":
+            return buildYearRangeParam(now);
+        default:
+            return undefined;
+    }
+}
 
 export function buildDayRangeParam(date: Date, startHour = 0, endHour = 23) {
     const year = date.getFullYear();

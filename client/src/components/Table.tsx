@@ -77,37 +77,39 @@ function PaginationButtons({
 
 function FilterSection() {
     const { searchParams, setSearchParams } = useSearchParamsTable();
-    const { filterView, extraFilters } = useTable();
-
+    const { filterView, extraFilters, isExternalFilterChanged } = useTable();
     const [isChanged, setIsChanged] = useState(false);
 
-    useEffect(() => {
-        const init = async () => setIsChanged(false);
-        init();
-    }, [searchParams]);
-
     if (!filterView) return null;
+
+    const externalFilterChanged = isExternalFilterChanged?.() ?? false;
+    const hasChanges = isChanged || externalFilterChanged;
 
     const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const formElement = e.currentTarget;
-        if (!formElement) return;
-
-        const formData = new FormData(formElement);
+        const formData = new FormData(e.currentTarget);
         const params = Object.fromEntries(formData);
 
-        setSearchParams({ ...params, page: 1 });
+        setSearchParams({
+            ...params,
+            page: 1,
+        });
+
+        setIsChanged(false);
     };
 
     const handleChange = (e: ChangeEvent<HTMLFormElement>) => {
-        const formElement = e.currentTarget as HTMLFormElement;
-        const formData = new FormData(formElement);
+        const formData = new FormData(e.currentTarget);
+
         const currentParams = Object.fromEntries(formData) as Record<string, string>;
 
-        const changed = Object.keys(currentParams).some(
-            (key) => currentParams[key] !== (searchParams as Record<string, string>)[key]
-        );
+        const changed = Object.entries(currentParams).some(([key, value]) => {
+            const searchValue = (searchParams as Record<string, string | undefined>)[key] ?? "";
+
+            return value !== searchValue;
+        });
+
         setIsChanged(changed);
     };
 
@@ -118,23 +120,30 @@ function FilterSection() {
                 className="flex justify-between items-center w-full"
                 onSubmit={handleSubmit}
                 onChange={handleChange}
+                id="tableFilter"
             >
                 <div className="flex items-center gap-4 grow">
                     <SearchInput
                         name="search"
-                        placeholder="Search by applicant, ID, or keywords..."
+                        placeholder="Search by keywords..."
                         className="rounded-xl w-full"
-                        defaultValue={searchParams.search}
+                        defaultValue={searchParams.search ?? ""}
                     />
+
                     {extraFilters}
                 </div>
+
                 <Button
                     size="normal"
                     className="min-w-60! ml-20 text-description"
                     variant="navy"
-                    leftIcon={{ icon: FilterAltOutlinedIcon, variant: "white", size: "bigMedium" }}
+                    leftIcon={{
+                        icon: FilterAltOutlinedIcon,
+                        variant: "white",
+                        size: "bigMedium",
+                    }}
                     type="submit"
-                    disabled={!isChanged}
+                    disabled={!hasChanges}
                 >
                     Apply Filters
                 </Button>
@@ -204,7 +213,7 @@ interface TableProps extends TableContextValue {
 
 function Table({ children, items = 10, ...tableContext }: TableProps) {
     // Pagination hook
-    const { page } = useSearchParamsTable({}, tableContext.pageKey);
+    const { page, setSearchParams } = useSearchParamsTable({}, tableContext.pageKey);
 
     const childrenArray = Children.toArray(children);
     const header = childrenArray[0];
@@ -213,15 +222,30 @@ function Table({ children, items = 10, ...tableContext }: TableProps) {
     let viewRows = rows;
     let paginationSection: ReactNode = null;
 
+    // Limit page from range 1 to pageNumbers
+    const pageNumbers = Math.ceil(rows.length / items);
+    const clampedPage = Math.min(Math.max(page, 1), Math.max(pageNumbers, 1));
+
+    // Runs when page changes
+    useEffect(() => {
+        if (page !== clampedPage) {
+            setSearchParams({
+                [tableContext.pageKey ?? "page"]: clampedPage,
+            });
+        }
+    }, [page, clampedPage, setSearchParams, tableContext.pageKey]);
+
     if (tableContext.pagination) {
-        const start = (page - 1) * items;
-        const end = page * items;
+        const start = (clampedPage - 1) * items;
+        const end = clampedPage * items;
 
         viewRows = rows.slice(start, end);
+
         const lastIndex = Math.min(end, rows.length);
 
-        const paginationText = `Showing ${viewRows.length > 0 ? `${start + 1} to ${lastIndex}` : "0"} out of ${rows.length}`;
-        const pageNumbers = Math.ceil(rows.length / items);
+        const paginationText = `Showing ${
+            viewRows.length > 0 ? `${start + 1} to ${lastIndex}` : "0"
+        } out of ${rows.length}`;
 
         paginationSection = <PaginationSection pageNumbers={pageNumbers} paginationText={paginationText} />;
     }

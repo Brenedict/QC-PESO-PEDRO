@@ -257,7 +257,6 @@ function buildShiftDayPool(scatteredPastDays: number, todayWeight: number): Date
 }
 
 // Shift logs
-
 function buildShiftLog(userId: number, day: Date): ShiftLogUncheckedCreateInput {
     const today = getMostRecentBusinessDay(new Date());
     const isToday = sameCalendarDay(day, today) && sameCalendarDay(today, new Date());
@@ -267,19 +266,25 @@ function buildShiftLog(userId: number, day: Date): ShiftLogUncheckedCreateInput 
     // 35% of today's shifts stay ongoing.
     const stillOngoing = isToday && Math.random() < 0.35;
 
-    const timeOut = stillOngoing
-        ? null
-        : randomBusinessDateTime(day, Math.min(timeIn.getHours() + 3, END_HOUR - 1), END_HOUR);
-
     const status: ESSStatus = stillOngoing
         ? "ONGOING"
         : randomItem(["APPROVED", "APPROVED", "APPROVED", "PENDING", "REVISION"] as ESSStatus[]);
+
+    const isCompleted = status !== "ONGOING" && status !== "PENDING";
+
+    const timeOut =
+        status === "ONGOING"
+            ? null
+            : randomBusinessDateTime(day, Math.min(timeIn.getHours() + 3, END_HOUR - 1), END_HOUR);
+
+    const lastVerifiedAt = isCompleted && timeOut ? randomDateBetween(timeOut, new Date()) : null;
 
     return {
         userId,
         status,
         timeIn,
         timeOut,
+        lastVerifiedAt,
         generalRemarks: null,
         adminRemarks: null,
         environmentTags: [randomItem(environmentTags)],

@@ -77,10 +77,10 @@ function CardGroup({ ids = [], analytics }: CardGroupProps) {
                             className="w-full"
                             title={DASHBOARD_CARD_MAP?.[id].title}
                             specialIcon={DASHBOARD_CARD_MAP?.[id].specialIcon}
-                            total={dataValue?.current?.count ?? "N/A"}
-                            male={dataValue?.current?.grouped?.MALE ?? "N/A"}
-                            female={dataValue?.current?.grouped?.FEMALE ?? "N/A"}
-                            previous={dataValue?.previous?.count ?? "N/A"}
+                            total={dataValue?.current?.count ?? 0}
+                            male={dataValue?.current?.grouped?.MALE ?? 0}
+                            female={dataValue?.current?.grouped?.FEMALE ?? 0}
+                            previous={dataValue?.previous?.count ?? 0}
                             onClick={() => navigate(ROUTES.dashboard.preview(id))}
                         />
                     );
@@ -92,21 +92,21 @@ function CardGroup({ ids = [], analytics }: CardGroupProps) {
 
 function DailyTransactions() {
     const { analytics } = useLoaderData();
-    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 0, 5) as string[];
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST(), 0, 5) as string[];
 
     return <CardGroup ids={ids} analytics={analytics} />;
 }
 
 function ApplicantsDemographics() {
     const { analytics } = useLoaderData();
-    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 5, 9) as string[];
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST(), 5, 9) as string[];
 
     return <CardGroup ids={ids} analytics={analytics} />;
 }
 
 function EmploymentOutcomes() {
     const { analytics } = useLoaderData();
-    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST, 9, 13) as string[];
+    const ids = getQueryIds(DASHBOARD_OVERVIEW_REQUEST(), 9, 13) as string[];
 
     return <CardGroup ids={ids} analytics={analytics} />;
 }

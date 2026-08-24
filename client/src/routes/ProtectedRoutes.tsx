@@ -27,7 +27,7 @@ import {
 import { PopupTransactionDetails } from "../components/popups/DashboardPopups";
 import { PopupReportPreview } from "../components/popups/ReportPopups";
 import { PopupViewHistory } from "../components/popups/MonitoringPopups";
-import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
+import { PopupEndShiftReview, PopupShiftViewTransactionDetails } from "../components/popups/EndShiftPopups";
 
 // Test Data
 import { shiftRecords } from "../data/shiftRecords";
@@ -53,7 +53,6 @@ import {
 import { primaryAuthLoader, requireAccess } from "../api/authService";
 import { getAnalytics } from "../api/analyticsService";
 import { getShiftDetailsOverview, getShifts, patchReviewShift } from "../api/shiftService";
-import { PopupShiftViewTransactionDetails } from "../components/popups/ShiftPopups";
 
 export const protectedRoutes: RouteObject[] = [
     {

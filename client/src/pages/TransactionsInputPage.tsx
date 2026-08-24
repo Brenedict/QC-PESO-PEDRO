@@ -312,7 +312,7 @@ function TransactionsLedger() {
                     Today's Ledger
                 </Text>
             </Card.Header>
-            <Table noCardStyle={true} pagination={true}>
+            <Table noCardStyle={true} pagination={true} filterView={true} extraFilters={<TransactionExtraFilters />}>
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="Date/Time" />

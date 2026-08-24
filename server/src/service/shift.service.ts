@@ -9,7 +9,9 @@ import prisma from "../config/prisma.config";
 export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs, startDate?: Date, endDate?: Date) {
         return ShiftModel.getShiftLogs({
+            ...args,
             where: {
+                ...(args?.where ?? {}),
                 ...(startDate || endDate
                     ? {
                           timeIn: {
@@ -18,10 +20,7 @@ export default {
                           },
                       }
                     : {}),
-                ...args?.where,
             },
-
-            ...args,
         });
     },
     async getStatusCount(status: ESSStatus, startDate?: Date, endDate?: Date) {

@@ -69,6 +69,10 @@ export const ensureOk = async (res: Response, message: string) => {
         throw redirect(ROUTES.auth.root);
     }
 
+    if (res.status === 400) {
+        throw res;
+    }
+
     let errorMessage = `${message} (${res.status})`;
 
     try {

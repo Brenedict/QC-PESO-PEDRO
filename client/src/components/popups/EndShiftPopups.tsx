@@ -20,10 +20,15 @@ import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 
 // Test Data
 import { mockShiftData } from "../../data/endShiftReview";
-import { ESSStatus, type EnvironmentTag, type User } from "@qcpesopedro/shared/prisma/browser";
+import { ESSStatus, type EnvironmentTag, type Transaction, type User } from "@qcpesopedro/shared/prisma/browser";
 import { formatCapitalize } from "../../utils/text";
 import { formatLongMonthYear } from "../../utils/time";
 import { ShiftLogScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
+import { ActionButton, ColumnText, DateTime } from "../TableCells";
+import { decode } from "../../utils/hashids";
+import { useSearchParamsTable } from "../../hooks/table";
+import Table from "../Table";
+import Status from "../Status";
 
 export function PopupEndShiftReview() {
     const navigate = useNavigateDefault();
@@ -84,6 +89,8 @@ function ReviewHeaderSection({ handleClose }: { handleClose: () => void }) {
 }
 
 function DailySummarySection() {
+    const { shiftId } = useParams();
+    const navigate = useNavigateDefault();
     const data = useLoaderData();
 
     const sources: Array<{ label: string; total: number; m: number; f: number }> = [
@@ -122,12 +129,18 @@ function DailySummarySection() {
         { label: "Mismatched Skills", total: data?.pending ?? "N/A", highlight: true },
     ];
 
+    const handleDetails = (id: string) => () => {
+        navigate(ROUTES.endshift.details(id), true);
+    };
+
     return (
         <Card dropShadow={false} className="w-full">
-            <Card.Header variant="off-white" className="py-4!">
+            <Card.Header variant="off-white" className="py-4! flex justify-between">
                 <Text weight="bold" size="small" variant="dark-blue">
                     DAILY SUMMARY
                 </Text>
+
+                <ActionButton handleClick={handleDetails} id={String(decode(shiftId))} text="Details" />
             </Card.Header>
             <Card.Body variant="white" className="pt-0!">
                 <div className="flex justify-between items-end border-b border-off-white-border pb-4 mb-5 mt-2">
@@ -293,5 +306,60 @@ function ReviewFooterSection({ isFormValid }: { isFormValid: boolean }) {
                 Approve Shift
             </PopupButton>
         </Dialog.Footer>
+    );
+}
+
+export function PopupShiftViewTransactionDetails() {
+    const pageKey = "subpage";
+
+    const { shiftId } = useParams();
+    const navigate = useNavigateDefault();
+    const data = useLoaderData();
+
+    const closeAction = () => {
+        const params = new URLSearchParams(location.search);
+        params.delete(pageKey);
+
+        const route = ROUTES.endshift.review(decode(shiftId!) as string);
+        const search = params.toString();
+
+        navigate(search ? `${route}?${search}` : route);
+    };
+
+    return (
+        <Dialog dropShadow={true} onClose={closeAction}>
+            <Dialog.Header variant="white" onRightAction={closeAction}>
+                <Text size="normal" weight="bold">
+                    {`Shift Transactions: ${data?.shift?.user?.fullName ?? "N/A"}`}
+                </Text>
+            </Dialog.Header>
+            <Table noCardStyle={true} pagination={true} items={5} pageKey={pageKey}>
+                {/* Header row */}
+                <Table.Row>
+                    <Table.Header text="Date/Time" />
+                    <Table.Header text="Applicant Name" />
+                    <Table.Header text="Type" />
+                    <Table.Header text="Outcome" />
+                </Table.Row>
+
+                {/* Data rows */}
+                {data?.shift?.transactions?.map((transaction: Transaction) => (
+                    <Table.Row key={transaction.id}>
+                        <Table.Data>
+                            <DateTime dateTime={new Date(transaction.createdAt)} />
+                        </Table.Data>
+                        <Table.Data>
+                            <ColumnText>{transaction.applicantFullName}</ColumnText>
+                        </Table.Data>
+                        <Table.Data>
+                            <Status type="type" variant={transaction.transactionType} />
+                        </Table.Data>
+                        <Table.Data>
+                            <Status type="outcome" variant={transaction.transactionOutcome} />
+                        </Table.Data>
+                    </Table.Row>
+                ))}
+            </Table>
+        </Dialog>
     );
 }

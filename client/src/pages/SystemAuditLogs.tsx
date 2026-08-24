@@ -6,7 +6,7 @@ import PageHeader from "../components/PageHeader";
 import Table from "../components/Table";
 import { Text } from "../components/Text";
 import { ColumnDesc, ColumnDescItalic, DateTime, Identifier } from "../components/TableCells";
-import { GeneralInput, SelectInput } from "../components/Input";
+import { GeneralInput, LeftLabeledInput, SelectInput } from "../components/Input";
 
 // Test Data
 import type { AuditLogRecord } from "../data/auditLogs";
@@ -36,20 +36,14 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
     const extraFilters = (
         <div className="flex gap-4 items-center">
             {/* Start Date */}
-            <div className="flex items-center gap-2">
-                <Text size="description" variant="grayish-blue" weight="medium">
-                    From:
-                </Text>
+            <LeftLabeledInput label="From:">
                 <GeneralInput type="date" placeholder="Start Date" className="w-36! h-9.5! px-2! py-0! rounded-xl!" />
-            </div>
+            </LeftLabeledInput>
 
             {/* End Date */}
-            <div className="flex items-center gap-2">
-                <Text size="description" variant="grayish-blue" weight="medium">
-                    To:
-                </Text>
+            <LeftLabeledInput label="To:">
                 <GeneralInput type="date" placeholder="End Date" className="w-36! h-9.5! px-2! py-0! rounded-xl!" />
-            </div>
+            </LeftLabeledInput>
 
             {/* Action Filter */}
             <SelectInput
