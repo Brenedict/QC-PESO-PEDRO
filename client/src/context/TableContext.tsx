@@ -2,6 +2,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 
 export interface TableContextValue {
+    pageKey?: string;
     pagination?: boolean;
     filterView?: boolean;
     extraFilters?: ReactNode;

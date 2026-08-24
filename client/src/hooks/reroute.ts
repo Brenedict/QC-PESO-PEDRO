@@ -48,6 +48,7 @@ export const ROUTES = {
     endshift: {
         root: BASE_ROUTES.endshift,
         review: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${encode(shiftId)}/review`,
+        details: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${encode(shiftId)}/details`,
     },
     monitoring: {
         root: BASE_ROUTES.monitoring,

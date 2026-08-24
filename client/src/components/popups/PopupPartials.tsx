@@ -9,6 +9,7 @@ import Icon from "../Icon";
 
 // Types
 import type { ColorVariant, MaterialIcon, SizeVariant } from "../../types/common";
+import { formatCapitalize } from "../../utils/text";
 
 export function GrayMiniCard({
     descriptionText,
@@ -71,11 +72,23 @@ export function LabeledSection({ label, children }: { label: string; children: R
 }
 
 export function ContextBadge({
+    clickable = true,
     children,
     defaultChecked = false,
     ...props
-}: { children: ReactNode } & InputHTMLAttributes<HTMLInputElement>) {
+}: { children: ReactNode; clickable?: boolean } & InputHTMLAttributes<HTMLInputElement>) {
     const [selected, setSelected] = useState(defaultChecked);
+
+    if (!clickable) {
+        return (
+            <label
+                className={`block w-fit px-3 py-1 text-small-description rounded-3xl select-none bg-off-white text-grayish-blue border border-off-white-border font-medium    }`}
+            >
+                <input type="checkbox" name="context" hidden defaultChecked={defaultChecked} {...props} />
+                {formatCapitalize(children as string)}
+            </label>
+        );
+    }
 
     return (
         <label

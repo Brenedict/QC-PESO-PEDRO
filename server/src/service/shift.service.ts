@@ -2,7 +2,7 @@ import type { Demographic, ESSStatus, Outcome, ShiftLog, TransactionType } from 
 import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
 import TransactionModel from "../models/transaction.model";
-import type { ShiftLogFindManyArgs } from "@qcpesopedro/shared/prisma/models";
+import type { ShiftLogFindManyArgs, ShiftLogWhereInput } from "@qcpesopedro/shared/prisma/models";
 import { calcAvgShiftApproval } from "@qcpesopedro/shared/prisma/sql";
 import prisma from "../config/prisma.config";
 
@@ -10,27 +10,14 @@ export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs, startDate?: Date, endDate?: Date) {
         return ShiftModel.getShiftLogs({
             where: {
-                OR: [
-                    // All pending
-                    { status: "PENDING" },
-
-                    // All non-pending limited by date range
-                    {
-                        AND: [
-                            { status: { not: "PENDING" } },
-                            {
-                                ...(startDate || endDate
-                                    ? {
-                                          timeIn: {
-                                              ...(startDate ? { gte: startDate } : {}),
-                                              ...(endDate ? { lte: endDate } : {}),
-                                          },
-                                      }
-                                    : {}),
-                            },
-                        ],
-                    },
-                ],
+                ...(startDate || endDate
+                    ? {
+                          timeIn: {
+                              ...(startDate ? { gte: startDate } : {}),
+                              ...(endDate ? { lte: endDate } : {}),
+                          },
+                      }
+                    : {}),
                 ...args?.where,
             },
 
@@ -64,14 +51,14 @@ export default {
         return DateUtil.formatInterval(averageSecondsNum);
     },
 
-    async getShiftOverview(startDate?: Date, endDate?: Date) {
+    async getShiftOverview(startDate?: Date, endDate?: Date, where?: ShiftLogWhereInput) {
         const [shifts, pending, approved, revision, rejected, average] = await Promise.all([
             this.getShiftLogs(
-                { include: { user: true, _count: { select: { transactions: true } } } },
+                { include: { user: true, _count: { select: { transactions: true } } }, where },
                 startDate,
                 endDate
             ),
-            this.getStatusCount("PENDING"), // pending is not affected by date range
+            this.getStatusCount("PENDING", startDate, endDate),
             this.getStatusCount("APPROVED", startDate, endDate),
             this.getStatusCount("REVISION", startDate, endDate),
             this.getStatusCount("REJECTED", startDate, endDate),
@@ -105,14 +92,24 @@ export default {
 async function getShiftSources(shiftId: number) {
     // Sources
     const typeGroups = await TransactionModel.groupBy({
-        by: ["transactionType"],
+        by: ["transactionType", "applicantSex"],
         where: { shiftLogId: shiftId },
         _count: true,
     });
-    const countByType = (type: TransactionType) => typeGroups.find((g) => g.transactionType === type)?._count ?? 0;
-    const walkins = countByType("WALK_IN_REFERRAL");
-    const online = countByType("ONLINE_REFERRAL");
-    const inhouse = countByType("IN_HOUSE_RECRUITMENT");
+
+    const getStatsByType = (type: TransactionType) => {
+        const groups = typeGroups.filter((g) => g.transactionType === type);
+
+        const male = groups.find((g) => g.applicantSex === "MALE")?._count ?? 0;
+        const female = groups.find((g) => g.applicantSex === "FEMALE")?._count ?? 0;
+        const total = groups.reduce((sum, g) => sum + ((g._count as number | undefined) ?? 0), 0);
+
+        return { total, male, female };
+    };
+
+    const walkins = getStatsByType("WALK_IN_REFERRAL");
+    const online = getStatsByType("ONLINE_REFERRAL");
+    const inhouse = getStatsByType("IN_HOUSE_RECRUITMENT");
 
     return { walkins, online, inhouse };
 }

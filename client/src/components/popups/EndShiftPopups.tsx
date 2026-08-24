@@ -1,6 +1,6 @@
 // General Imports
 import { useState } from "react";
-import { Form, useParams } from "react-router";
+import { Form, useLoaderData, useParams } from "react-router";
 
 // Components
 import { Dialog } from "../Dialog";
@@ -20,13 +20,18 @@ import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 
 // Test Data
 import { mockShiftData } from "../../data/endShiftReview";
+import { ESSStatus, type EnvironmentTag, type User } from "@qcpesopedro/shared/prisma/browser";
+import { formatCapitalize } from "../../utils/text";
+import { formatLongMonthYear } from "../../utils/time";
+import { ShiftLogScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
 
 export function PopupEndShiftReview() {
     const navigate = useNavigateDefault();
+
     const { shiftId } = useParams();
     const handleClose = () => navigate(ROUTES.endshift.root, true);
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 
@@ -55,17 +60,23 @@ export function PopupEndShiftReview() {
 }
 
 function ReviewHeaderSection({ handleClose }: { handleClose: () => void }) {
+    const data = useLoaderData();
+
+    const user = data?.shift?.user as User | undefined;
+
     return (
         <Dialog.Header toggleRightIcon={true} onRightAction={handleClose}>
             <div className="flex flex-col gap-1 w-full">
                 <div className="flex items-center gap-2">
                     <Icon icon={PersonOutlineOutlinedIcon} variant="primary-blue" size="bigMedium" />
                     <Text weight="bold" size="medium" variant="dark-blue">
-                        {mockShiftData.employeeName}
+                        {data?.shift?.user?.fullName ?? "N/A"}
                     </Text>
                 </div>
                 <Text size="description" variant="grayish-blue">
-                    {mockShiftData.role} • {mockShiftData.shift} • {mockShiftData.date}
+                    {user?.fullName ? formatCapitalize(user?.fullName) : "N/A"} •{" "}
+                    {user?.role ? formatCapitalize(user?.role) : "N/A"} •{" "}
+                    {data?.shift?.timeOut ? formatLongMonthYear(new Date(data.shift.timeOut)) : "N/A"}
                 </Text>
             </div>
         </Dialog.Header>
@@ -73,6 +84,44 @@ function ReviewHeaderSection({ handleClose }: { handleClose: () => void }) {
 }
 
 function DailySummarySection() {
+    const data = useLoaderData();
+
+    const sources: Array<{ label: string; total: number; m: number; f: number }> = [
+        {
+            label: "Walk-ins",
+            total: data?.walkins?.total ?? "N/A",
+            m: data?.walkins?.male ?? "N/A",
+            f: data?.walkins?.male ?? "N/A",
+        },
+        {
+            label: "Online Referrals",
+            total: data?.online?.total ?? "N/A",
+            m: data?.online?.male ?? "N/A",
+            f: data?.online?.male ?? "N/A",
+        },
+        {
+            label: "In-house Referrals",
+            total: data?.inhouse?.total ?? "N/A",
+            m: data?.inhouse?.male ?? "N/A",
+            f: data?.inhouse?.male ?? "N/A",
+        },
+    ];
+
+    const demographics: Array<{ label: string; total: number }> = [
+        { label: "First Time Job Seekers", total: data?.firstTime ?? "N/A" },
+        { label: "PWD", total: data?.pwd ?? "N/A" },
+        { label: "Senior Citizens", total: data?.senior ?? "N/A" },
+        { label: "Young Workers", total: data?.youngWorker ?? "N/A" },
+        { label: "Work Immersion", total: data?.workImmersion ?? "N/A" },
+    ];
+
+    const outcomes: Array<{ label: string; total: number; highlight: boolean }> = [
+        { label: "Successful Referrals", total: data?.success ?? "N/A", highlight: false },
+        { label: "Pending Applications", total: data?.pending ?? "N/A", highlight: false },
+        { label: "None", total: data?.none ?? "N/A", highlight: false },
+        { label: "Mismatched Skills", total: data?.pending ?? "N/A", highlight: true },
+    ];
+
     return (
         <Card dropShadow={false} className="w-full">
             <Card.Header variant="off-white" className="py-4!">
@@ -86,44 +135,61 @@ function DailySummarySection() {
                         Total Transactions
                     </Text>
                     <span className="text-4xl text-primary-blue font-black tracking-tight leading-none">
-                        {mockShiftData.totalTransactions}
+                        {data?.total ?? "N/A"}
                     </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-10">
                     {/* Sources */}
-                    <div className="flex flex-col gap-3">
-                        <Text size="small" weight="bold" variant="grayish-blue" className="mb-1">
-                            SOURCES
-                        </Text>
-                        {mockShiftData.sources.map((src) => (
-                            <div key={src.label} className="flex justify-between items-center">
-                                <Text size="description" variant="dark-blue">
-                                    {src.label}
-                                </Text>
-                                <div className="flex items-center gap-4">
-                                    <Text size="description" weight="bold" align="right">
-                                        {src.total}
+                    <div className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-3">
+                            <Text size="small" weight="bold" variant="grayish-blue" className="mb-1">
+                                SOURCES
+                            </Text>
+                            {sources.map((src) => (
+                                <div key={src.label} className="flex justify-between items-center">
+                                    <Text size="description" variant="dark-blue">
+                                        {src.label}
                                     </Text>
-                                    <div className="flex gap-2 w-16 justify-end">
-                                        <Text
-                                            size="small"
-                                            variant="primary-blue"
-                                            svg={{ icon: MaleIcon, position: "left", gap: "none", size: "small" }}
-                                        >
-                                            {src.m}
+                                    <div className="flex items-center gap-4">
+                                        <Text size="description" weight="bold" align="right">
+                                            {src.total}
                                         </Text>
-                                        <Text
-                                            size="small"
-                                            variant="red"
-                                            svg={{ icon: FemaleIcon, position: "left", gap: "none", size: "small" }}
-                                        >
-                                            {src.f}
-                                        </Text>
+                                        <div className="flex gap-2 w-16 justify-end">
+                                            <Text
+                                                size="small"
+                                                variant="primary-blue"
+                                                svg={{ icon: MaleIcon, position: "left", gap: "none", size: "small" }}
+                                            >
+                                                {src.m}
+                                            </Text>
+                                            <Text
+                                                size="small"
+                                                variant="red"
+                                                svg={{ icon: FemaleIcon, position: "left", gap: "none", size: "small" }}
+                                            >
+                                                {src.f}
+                                            </Text>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <Text size="small" weight="bold" variant="grayish-blue" className="mb-1">
+                                OUTCOMES
+                            </Text>
+                            {outcomes.map((out) => (
+                                <div key={out.label} className="flex justify-between items-center">
+                                    <Text size="description" variant={out.highlight ? "red" : "dark-blue"}>
+                                        {out.label}
+                                    </Text>
+                                    <Text size="description" weight="bold" align="right">
+                                        {out.total}
+                                    </Text>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Demographics and Outcomes */}
@@ -132,29 +198,13 @@ function DailySummarySection() {
                             <Text size="small" weight="bold" variant="grayish-blue" className="mb-1">
                                 DEMOGRAPHICS
                             </Text>
-                            {mockShiftData.demographics.map((demo) => (
+                            {demographics.map((demo) => (
                                 <div key={demo.label} className="flex justify-between items-center">
                                     <Text size="description" variant="dark-blue">
                                         {demo.label}
                                     </Text>
                                     <Text size="description" weight="bold" align="right">
                                         {demo.total}
-                                    </Text>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="flex flex-col gap-3">
-                            <Text size="small" weight="bold" variant="grayish-blue" className="mb-1">
-                                OUTCOMES
-                            </Text>
-                            {mockShiftData.outcomes.map((out) => (
-                                <div key={out.label} className="flex justify-between items-center">
-                                    <Text size="description" variant={out.highlight ? "red" : "dark-blue"}>
-                                        {out.label}
-                                    </Text>
-                                    <Text size="description" weight="bold" align="right">
-                                        {out.total}
                                     </Text>
                                 </div>
                             ))}
@@ -167,19 +217,23 @@ function DailySummarySection() {
 }
 
 function EndShiftEnvironmentSection() {
+    const data = useLoaderData();
+
     return (
         <Card dropShadow={false} className="w-full">
             <Card.Body variant="white" className="flex flex-col gap-5 h-full">
                 <LabeledSection label="END SHIFT ENVIRONMENT">
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {mockShiftData.environmentTags.map((tag) => (
-                            <ContextBadge key={tag}>{tag}</ContextBadge>
+                        {data?.shift?.environmentTags?.map((tag: EnvironmentTag) => (
+                            <ContextBadge key={tag} clickable={false}>
+                                {tag}
+                            </ContextBadge>
                         ))}
                     </div>
                 </LabeledSection>
                 <LabeledSection label="EMPLOYEE REMARKS">
                     <Text size="description" variant="grayish-blue" className="italic mt-1">
-                        "{mockShiftData.employeeRemarks}"
+                        "{data?.shift?.generalRemarks ?? "N/A"}"
                     </Text>
                 </LabeledSection>
             </Card.Body>
@@ -193,7 +247,7 @@ function AdminRemarksSection() {
             <Card.Body variant="white" className="h-full">
                 <TextAreaInput
                     id="adminRemarks"
-                    name="adminRemarks"
+                    name={ShiftLogScalarFieldEnum.adminRemarks}
                     label="ADMIN REMARKS"
                     placeholder="Enter reason for revision or rejection, or general notes..."
                     className="h-28 text-sm"
@@ -212,8 +266,8 @@ function ReviewFooterSection({ isFormValid }: { isFormValid: boolean }) {
                 variant="white-red"
                 type="submit"
                 form="endShiftReviewForm"
-                name="reviewAction"
-                value="reject"
+                name={ShiftLogScalarFieldEnum.status}
+                value={ESSStatus.REJECTED}
                 disabled={!isFormValid}
             >
                 Reject Submission
@@ -222,8 +276,8 @@ function ReviewFooterSection({ isFormValid }: { isFormValid: boolean }) {
                 variant="white-black"
                 type="submit"
                 form="endShiftReviewForm"
-                name="reviewAction"
-                value="revision"
+                name={ShiftLogScalarFieldEnum.status}
+                value={ESSStatus.REVISION}
                 disabled={!isFormValid}
             >
                 Needs Revision
@@ -232,8 +286,8 @@ function ReviewFooterSection({ isFormValid }: { isFormValid: boolean }) {
                 variant="blue"
                 type="submit"
                 form="endShiftReviewForm"
-                name="reviewAction"
-                value="approve"
+                name={ShiftLogScalarFieldEnum.status}
+                value={ESSStatus.APPROVED}
                 disabled={!isFormValid}
             >
                 Approve Shift

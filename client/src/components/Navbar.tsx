@@ -106,7 +106,7 @@ function NavBody({ userType }: { userType?: Role }) {
 
 function NavFooter() {
     const location = useLocation();
-    const redirectPath = `${location.pathname}/log-out`;
+    const redirectPath = `${location.pathname}${location.pathname.at(-1) === "/" ? "log-out" : "/log-out"}`;
     return (
         <div className="p-4">
             <NavButton linkType="logout" to={redirectPath} isLogout />

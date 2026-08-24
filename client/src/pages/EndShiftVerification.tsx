@@ -1,5 +1,5 @@
 // General Imports
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -19,6 +19,10 @@ import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 
 // Materials UI Icon
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import { ESSStatus, type Shift, type ShiftLog, type User } from "@qcpesopedro/shared/prisma/browser";
+import { SelectInput } from "../components/Input";
+import { TIMEFRAME_TYPE } from "../api/dateService";
+import { useSearchParamsTable } from "../hooks/table";
 
 // Define the props
 interface EndShiftVerificationProps {
@@ -57,12 +61,53 @@ function EmployeeCell({ name }: { name: string }) {
 }
 
 // Main Page
-function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
+function EndShiftVerification() {
+    const { searchParams } = useSearchParamsTable();
+    const data = useLoaderData();
     const navigate = useNavigateDefault();
 
     const handleReview = (id: string) => () => {
-        navigate(ROUTES.endshift.review(id));
+        navigate(ROUTES.endshift.review(id), true);
     };
+
+    const handleDetails = (id: string) => () => {
+        navigate(ROUTES.endshift.details(id), true);
+    };
+
+    const getDayPeriod = (date: Date) => {
+        const hour = date.getHours();
+        return hour < 12 ? "Morning" : "Afternoon";
+    };
+
+    const extraFilters = (
+        <div className="flex gap-4 items-center">
+            <SelectInput
+                optionList={[
+                    { content: "Overall", value: TIMEFRAME_TYPE.overall },
+                    { content: "This Day", value: "" },
+                    { content: "This Week", value: TIMEFRAME_TYPE.week },
+                    { content: "This Month", value: TIMEFRAME_TYPE.month },
+                    { content: "This Year", value: TIMEFRAME_TYPE.year },
+                ]}
+                name="timeframe"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.timeframe ?? ""}
+            />
+            <SelectInput
+                optionList={[
+                    { content: "All Status", value: "" },
+                    { content: "Ongoing", value: ESSStatus.ONGOING },
+                    { content: "Pending", value: ESSStatus.PENDING },
+                    { content: "Needs Revision", value: ESSStatus.REVISION },
+                    { content: "Rejected", value: ESSStatus.REJECTED },
+                    { content: "Approved", value: ESSStatus.APPROVED },
+                ]}
+                name="status"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.outcome}
+            />
+        </div>
+    );
 
     return (
         <div className="flex flex-col w-full relative">
@@ -80,14 +125,14 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
             </PageHeader>
 
             <div className="flex flex-col md:flex-row gap-4 mb-8 w-full">
-                <StatCard title="Pending" value="5" />
-                <StatCard title="Approved Today" value="18" />
-                <StatCard title="Needs Revision" value="2" />
-                <StatCard title="Rejected" value="1" valueVariant="red" />
-                <StatCard title="Avg Approval Time" value="12m" valueVariant="primary-blue" />
+                <StatCard title="Pending" value={data?.pending ?? "N/A"} />
+                <StatCard title="Approved" value={data?.approved ?? "N/A"} />
+                <StatCard title="Needs Revision" value={data?.revision ?? "N/A"} />
+                <StatCard title="Rejected" value={data?.rejected ?? "N/A"} valueVariant="red" />
+                <StatCard title="Avg Approval Time" value={data?.average ?? "N/A"} valueVariant="primary-blue" />
             </div>
 
-            <Table pagination={true} filterView={true}>
+            <Table pagination={true} filterView={true} extraFilters={extraFilters}>
                 <Table.Row>
                     <Table.Header text="EMPLOYEE" />
                     <Table.Header text="SHIFT" />
@@ -98,29 +143,34 @@ function EndShiftVerification({ shiftData }: EndShiftVerificationProps) {
                 </Table.Row>
 
                 {/*shiftData prop*/}
-                {shiftData.map((row) => (
-                    <Table.Row key={row.id}>
+                {data?.shifts.map((shift: ShiftLog & { user: User; _count: { transactions: number } }) => (
+                    <Table.Row key={shift.id}>
                         <Table.Data>
-                            <EmployeeCell name={row.name} />
+                            <EmployeeCell name={shift.user.fullName ?? "N/A"} />
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="grayish-blue" align="center">
-                                {row.shift}
+                                {shift?.timeIn ? getDayPeriod(new Date(shift.timeIn)) : "N/A"}
                             </Text>
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="dark-blue" weight="bold" align="center">
-                                {row.trans}
+                                {shift?._count.transactions ?? "N/A"}
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <DateTime dateTime={row.dateTime} />
+                            <DateTime dateTime={shift?.timeOut ? new Date(shift.timeOut) : null} />
                         </Table.Data>
                         <Table.Data>
-                            <Status type="verification" variant={row.status} />
+                            <Status type="verification" variant={shift?.status ?? "PENDING"} />
                         </Table.Data>
                         <Table.Data>
-                            <ActionButton handleClick={handleReview} id={row.id} text="Review" />
+                            <div className="flex gap-3">
+                                <ActionButton handleClick={handleDetails} id={String(shift.id)} text="Details" />
+                                {shift?.status === "PENDING" && (
+                                    <ActionButton handleClick={handleReview} id={String(shift.id)} text="Review" />
+                                )}
+                            </div>
                         </Table.Data>
                     </Table.Row>
                 ))}

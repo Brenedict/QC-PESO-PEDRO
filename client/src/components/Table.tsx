@@ -1,5 +1,13 @@
 // General Imports
-import { Children, type MouseEventHandler, type ReactNode } from "react";
+import React, {
+    Children,
+    useEffect,
+    useState,
+    type ChangeEvent,
+    type MouseEventHandler,
+    type ReactNode,
+    type SubmitEvent,
+} from "react";
 import { Form } from "react-router";
 
 // Components
@@ -71,9 +79,16 @@ function FilterSection() {
     const { searchParams, setSearchParams } = useSearchParamsTable();
     const { filterView, extraFilters } = useTable();
 
+    const [isChanged, setIsChanged] = useState(false);
+
+    useEffect(() => {
+        const init = async () => setIsChanged(false);
+        init();
+    }, [searchParams]);
+
     if (!filterView) return null;
 
-    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const formElement = e.currentTarget;
@@ -85,9 +100,25 @@ function FilterSection() {
         setSearchParams({ ...params, page: 1 });
     };
 
+    const handleChange = (e: ChangeEvent<HTMLFormElement>) => {
+        const formElement = e.currentTarget as HTMLFormElement;
+        const formData = new FormData(formElement);
+        const currentParams = Object.fromEntries(formData) as Record<string, string>;
+
+        const changed = Object.keys(currentParams).some(
+            (key) => currentParams[key] !== (searchParams as Record<string, string>)[key]
+        );
+        setIsChanged(changed);
+    };
+
     return (
         <Card.Header variant="white">
-            <Form method="POST" className="flex justify-between items-center w-full" onSubmit={handleSubmit}>
+            <Form
+                method="POST"
+                className="flex justify-between items-center w-full"
+                onSubmit={handleSubmit}
+                onChange={handleChange}
+            >
                 <div className="flex items-center gap-4 grow">
                     <SearchInput
                         name="search"
@@ -103,6 +134,7 @@ function FilterSection() {
                     variant="navy"
                     leftIcon={{ icon: FilterAltOutlinedIcon, variant: "white", size: "bigMedium" }}
                     type="submit"
+                    disabled={!isChanged}
                 >
                     Apply Filters
                 </Button>
@@ -118,7 +150,8 @@ interface PaginationSectionProps {
 }
 
 function PaginationSection({ pageNumbers, paginationText, windowSize = 5 }: PaginationSectionProps) {
-    const { page, handleSetPage } = useSearchParamsTable();
+    const { pageKey } = useTable();
+    const { page, handleSetPage } = useSearchParamsTable({}, pageKey);
     const { pagination } = useTable();
 
     if (!pagination) return null;
@@ -171,7 +204,7 @@ interface TableProps extends TableContextValue {
 
 function Table({ children, items = 10, ...tableContext }: TableProps) {
     // Pagination hook
-    const { page } = useSearchParamsTable();
+    const { page } = useSearchParamsTable({}, tableContext.pageKey);
 
     const childrenArray = Children.toArray(children);
     const header = childrenArray[0];

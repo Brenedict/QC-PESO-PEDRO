@@ -43,6 +43,7 @@ import {
     type TimeSeriesConfig,
 } from "../api/chartService.ts";
 import { formatTime } from "../utils/time.ts";
+import { useAuth } from "../context/AuthContext.tsx";
 
 type CardId = keyof typeof DASHBOARD_CARD_MAP;
 
@@ -76,10 +77,10 @@ function CardGroup({ ids = [], analytics }: CardGroupProps) {
                             className="w-full"
                             title={DASHBOARD_CARD_MAP?.[id].title}
                             specialIcon={DASHBOARD_CARD_MAP?.[id].specialIcon}
-                            total={dataValue?.current?.count ?? 0}
-                            male={dataValue?.current?.grouped?.MALE ?? 0}
-                            female={dataValue?.current?.grouped?.FEMALE ?? 0}
-                            previous={dataValue?.previous?.count ?? 0}
+                            total={dataValue?.current?.count ?? "N/A"}
+                            male={dataValue?.current?.grouped?.MALE ?? "N/A"}
+                            female={dataValue?.current?.grouped?.FEMALE ?? "N/A"}
+                            previous={dataValue?.previous?.count ?? "N/A"}
                             onClick={() => navigate(ROUTES.dashboard.preview(id))}
                         />
                     );
@@ -187,6 +188,7 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 export function Overview({ pending, approved, revision }: EndShiftProps) {
     const navigate = useNavigateDefault();
     const { role } = useUserGlobal();
+    const { user } = useAuth();
     const { analytics, recent } = useLoaderData();
 
     const referralSeries: TimeSeriesConfig[] = [
@@ -281,7 +283,10 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
 
             <br className="block mb-14" />
 
-            <RecentActivity items={recentActivity} onViewAll={() => navigate(ROUTES.history.root)} />
+            <RecentActivity
+                items={recentActivity}
+                onViewAll={user?.role !== "FRONTLINE" ? () => navigate(ROUTES.history.root) : undefined}
+            />
 
             {/* Popup Uses */}
             <Outlet />

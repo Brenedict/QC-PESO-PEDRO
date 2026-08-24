@@ -3,38 +3,47 @@ import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
 import ShiftService from "../service/shift.service";
 import {
+    ShiftDetailsQuerySchema,
     ShiftFormEndSchema,
     ShiftFormVerifySchema,
     ShiftQuerySchema,
+    type ShiftDetailsQueryType,
     type ShiftFormEndType,
     type ShiftFormVerifyType,
     type ShiftQueryType,
 } from "@qcpesopedro/shared/schema/shift";
 import ShiftModel from "../models/shift.model";
 import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
-import { requireAccessLevel, verifyShift } from "../middlewares/authorized.middleware";
+import { requireAccessLevel } from "../middlewares/authorized.middleware";
 
 export default {
     getShifts: [
         jwtAccessAuth,
         validateSchema("query", ShiftQuerySchema),
         async (req: Request, res: Response) => {
-            const { startDate, endDate } = req.query as unknown as ShiftQueryType;
-            const data = await ShiftService.getShiftOverview(startDate, endDate);
+            const { startDate, endDate, status, search } = req.query as unknown as ShiftQueryType;
+            const data = await ShiftService.getShiftOverview(startDate, endDate, {
+                status,
+                user: { fullName: { contains: search, mode: "insensitive" } },
+            });
             return res.json(data);
         },
     ],
 
     getShift: [
         jwtAccessAuth,
+        validateSchema("query", ShiftDetailsQuerySchema),
         async (req: Request, res: Response) => {
-            const { overview } = req.query;
+            const { overview, transactions } = req.query as unknown as ShiftDetailsQueryType;
             const { shiftId } = req.params;
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
             const details = overview ? await ShiftService.getShiftDetails(Number(shiftId)) : {};
-            const shift = await ShiftModel.getShiftLogById(Number(shiftId), { user: true });
+            const shift = await ShiftModel.getShiftLogById(Number(shiftId), {
+                user: true,
+                transactions: Boolean(transactions),
+            });
 
             return res.json({ ...details, shift });
         },

@@ -52,6 +52,8 @@ import {
 
 import { primaryAuthLoader, requireAccess } from "../api/authService";
 import { getAnalytics } from "../api/analyticsService";
+import { getShiftDetailsOverview, getShifts, patchReviewShift } from "../api/shiftService";
+import { PopupShiftViewTransactionDetails } from "../components/popups/ShiftPopups";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -178,15 +180,19 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "end-shift",
-                        element: <EndShiftVerification shiftData={shiftRecords} />,
-                        loader: requireAccess(AccessLevel.ADMIN),
+                        element: <EndShiftVerification />,
+                        loader: requireAccess(AccessLevel.ADMIN, getShifts),
                         children: [
                             {
                                 path: ":shiftId/review",
                                 element: <PopupEndShiftReview />,
-                                action: async () => {
-                                    return redirect(ROUTES.endshift.root);
-                                },
+                                action: patchReviewShift,
+                                loader: getShiftDetailsOverview(true),
+                            },
+                            {
+                                path: ":shiftId/details",
+                                element: <PopupShiftViewTransactionDetails />,
+                                loader: getShiftDetailsOverview(false),
                             },
                             ...shiftPopups(ROUTES.endshift.root),
                         ],

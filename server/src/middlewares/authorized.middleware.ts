@@ -25,7 +25,7 @@ export function requireAccessLevel(minAccessLevel: AccessLevel) {
     };
 }
 
-export async function verifyShift(req: Request, res: Response, next: NextFunction) {
+export async function verifyFinishedShift(req: Request, res: Response, next: NextFunction) {
     const requestor = req.user as User | undefined;
 
     if (!requestor) {
@@ -38,6 +38,16 @@ export async function verifyShift(req: Request, res: Response, next: NextFunctio
         return res.status(409).json({ message: "User has already finished shift this day" });
     }
 
+    next();
+}
+
+export async function verifyUnfinishedShift(req: Request, res: Response, next: NextFunction) {
+    const requestor = req.user as User | undefined;
+
+    if (!requestor) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
     // Has unfinished shift last time?
     const unfinishedShift = await UserService.getMostRecentUnfinishedShift(requestor.id);
     if (unfinishedShift && !ShiftService.isTodayShift(unfinishedShift)) {
@@ -45,6 +55,5 @@ export async function verifyShift(req: Request, res: Response, next: NextFunctio
             message: "Please resolve unfinished shift it before starting a new one.",
         });
     }
-
     next();
 }

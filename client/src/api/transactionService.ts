@@ -33,10 +33,17 @@ import {
     type ReportTypes,
 } from "./analyticsRequests";
 import type { MaterialIcon } from "../types/common";
-import { buildDayRangeParam, buildParamString, TIMEFRAME_MAP, type TIMEFRAME_RESULT } from "./dateService";
+import {
+    buildDayRangeParam,
+    buildParamString,
+    TIMEFRAME_MAP,
+    type ParamArgs,
+    type TIMEFRAME_RESULT,
+} from "./dateService";
 
 // Custom Hooks
 import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+import TokenStore from "./tokenStore";
 
 // ------------------------- MAPS -------------------------------------------------------
 export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
@@ -67,11 +74,24 @@ export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
 export const getTransactions =
     (daily: boolean) =>
     async ({ request }: ActionFunctionArgs) => {
+        const user = TokenStore.getUser();
+
         const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
         const { query, omitted } = extractQueryToObject(request, ["page", "timeframe"]);
         const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "overall"] as TIMEFRAME_RESULT;
 
-        const apiParams = buildParamString({ ...dayRangeParam, ...query, ...dateRangeOption });
+        const paramsObject: Record<string, string | string[]> = {
+            ...dayRangeParam,
+            ...query,
+            ...dateRangeOption,
+        };
+
+        // Limit the view of frontline to their own transactions
+        if (user && user.role === "FRONTLINE" && !daily) paramsObject.shiftLogId = String(user.shiftLogId);
+        else paramsObject.include = ["user"]; // include users when user is atleast admin role
+
+        const apiParams = buildParamString(paramsObject as ParamArgs);
+        console.log(apiParams);
 
         try {
             // Main Fetch Request

@@ -100,7 +100,7 @@ describe("Shift Route", () => {
             expect(res.body.average).toBe(expected);
         });
 
-        it("includes transaction count and tied frontlineUser for each shift", async () => {
+        it("includes transaction count user for each shift", async () => {
             const res = await request(app).get("/shift").expect(200);
             expect(res.body.shifts.length).toBeGreaterThan(0);
 
@@ -109,10 +109,10 @@ describe("Shift Route", () => {
                 expect(shift._count.transactions).toBe(count);
 
                 if (shift.userId === null) {
-                    expect(shift.frontlineUser).toBeNull();
+                    expect(shift.user).toBeNull();
                 } else {
                     const frontlineUser = await UserModel.getById(shift.userId);
-                    expect(shift.frontlineUser).not.toBeNull();
+                    expect(shift.user).not.toBeNull();
                     expect(shift.user.id).toBe(frontlineUser?.id);
                 }
             }

@@ -83,6 +83,7 @@ export const TransactionFormDeleteSchema = zfd.formData(TransactionWhereUniqueIn
 
 export const TransactionQuerySchema = withDateRange(
     z.object({
+        shiftLogId: z.coerce.number().positive().optional(),
         page: z.coerce.number().int().positive().optional(),
         limit: z.coerce.number().int().positive().optional(),
         type: TransactionTypeSchema.optional(),

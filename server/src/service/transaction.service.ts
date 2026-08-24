@@ -179,10 +179,11 @@ export default {
     },
 
     parseTransactionQuery(query: TransactionQueryType): TransactionFindManyArgs {
-        const { startDate, endDate, type, outcome, page, limit, search, include } = query;
+        const { shiftLogId, startDate, endDate, type, outcome, page, limit, search, include } = query;
 
         return {
             where: {
+                shiftLogId,
                 transactionType: type as TransactionType | undefined,
                 transactionOutcome: outcome as Outcome | undefined,
                 createdAt:
@@ -197,6 +198,9 @@ export default {
                     OR: [
                         { applicantFullName: { contains: search as string, mode: "insensitive" } },
                         { txCode: { contains: search as string, mode: "insensitive" } },
+                        ...(include?.includes("user") // If it includes a user add a search to it also
+                            ? [{ user: { fullName: { contains: search as string, mode: "insensitive" } } }]
+                            : []),
                     ],
                 }),
             },

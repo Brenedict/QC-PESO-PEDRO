@@ -1,9 +1,9 @@
 // General Imports
 import { useState } from "react";
-import { Form } from "react-router";
+import { Form, useLoaderData } from "react-router";
 
 // Shared Import
-import { EnvironmentTag } from "@qcpesopedro/shared/prisma/browser";
+import { EnvironmentTag, type Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import { Dialog } from "../Dialog";
@@ -27,7 +27,11 @@ import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import { LogoutOutlined } from "@mui/icons-material";
 
 // Custom Hooks
-import { useNavigateDefault } from "../../hooks/reroute";
+import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import Table from "../Table";
+import { ActionButtons, ColumnText, DateTime } from "../TableCells";
+import Status from "../Status";
+import { useSearchParamsTable } from "../../hooks/table";
 
 export function PopupTimeIn({ root }: { root: string }) {
     const navigate = useNavigateDefault();
@@ -228,6 +232,56 @@ export function PopupSessionEnd({ root }: { root: string }) {
                     </Button>
                 </section>
             </Dialog.Body>
+        </Dialog>
+    );
+}
+
+export function PopupShiftViewTransactionDetails() {
+    const pageKey = "subpage";
+    const { setSearchParams } = useSearchParamsTable({}, pageKey);
+    const navigate = useNavigateDefault();
+    const data = useLoaderData();
+
+    return (
+        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.endshift.root, true)}>
+            <Dialog.Header
+                variant="white"
+                onRightAction={() => {
+                    navigate(ROUTES.endshift.root, true);
+                    setSearchParams({ [pageKey]: "" });
+                }}
+            >
+                <Text size="normal" weight="bold">
+                    {`Shift Transactions: ${data?.shift?.user?.fullName ?? "N/A"}`}
+                </Text>
+            </Dialog.Header>
+            <Table noCardStyle={true} pagination={true} items={5} pageKey={pageKey}>
+                {/* Header row */}
+                <Table.Row>
+                    <Table.Header text="Date/Time" />
+                    <Table.Header text="Applicant Name" />
+                    <Table.Header text="Type" />
+                    <Table.Header text="Outcome" />
+                </Table.Row>
+
+                {/* Data rows */}
+                {data?.shift?.transactions?.map((transaction: Transaction) => (
+                    <Table.Row key={transaction.id}>
+                        <Table.Data>
+                            <DateTime dateTime={new Date(transaction.createdAt)} />
+                        </Table.Data>
+                        <Table.Data>
+                            <ColumnText>{transaction.applicantFullName}</ColumnText>
+                        </Table.Data>
+                        <Table.Data>
+                            <Status type="type" variant={transaction.transactionType} />
+                        </Table.Data>
+                        <Table.Data>
+                            <Status type="outcome" variant={transaction.transactionOutcome} />
+                        </Table.Data>
+                    </Table.Row>
+                ))}
+            </Table>
         </Dialog>
     );
 }

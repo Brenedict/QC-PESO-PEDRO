@@ -1,6 +1,6 @@
 import { UserCreateInput } from "@qcpesopedro/shared/prisma/models";
 
-type UserCreate = UserCreateInput & { id: number };
+export type UserCreate = UserCreateInput & { id: number };
 
 export const mockUser: UserCreate = {
     id: 1,

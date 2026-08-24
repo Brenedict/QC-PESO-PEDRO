@@ -4,7 +4,7 @@ import DateUtil, { TODAY } from "../../src/utils/date.util";
 export const buildMockShiftLog = (userId: number): ShiftLog => ({
     id: 1,
     userId,
-    status: "PENDING",
+    status: "ONGOING",
     timeIn: new Date(),
     timeOut: null,
     generalRemarks: null,
@@ -18,7 +18,7 @@ export const buildMockShiftLogs = (userId: number | null): ShiftLog[] => [
     {
         id: 1,
         userId,
-        status: "PENDING",
+        status: "ONGOING",
         timeIn: TODAY,
         timeOut: null,
         generalRemarks: null,
@@ -42,7 +42,7 @@ export const buildMockShiftLogs = (userId: number | null): ShiftLog[] => [
     {
         id: 3,
         userId,
-        status: "APPROVED",
+        status: "PENDING",
         timeIn: TODAY,
         timeOut: DateUtil.offsetHours(TODAY, 5),
         generalRemarks: null,

@@ -29,7 +29,19 @@ export function Identifier({ children }: { children: ReactNode }) {
     );
 }
 
-export function DateTime({ dateTime }: { dateTime: Date }) {
+export function DateTime({ dateTime }: { dateTime: Date | null }) {
+    if (dateTime === null) {
+        return (
+            <>
+                <div>
+                    <Text size="description" variant="black" align="center" weight="medium">
+                        -
+                    </Text>
+                </div>
+            </>
+        );
+    }
+
     // Date formatting component
     const getRelativeDateTime = () => {
         const now = new Date();

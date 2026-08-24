@@ -9,7 +9,7 @@ import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passpor
 
 // Service
 import AuthService from "../service/auth.service";
-import { verifyShift } from "../middlewares/authorized.middleware";
+import { verifyUnfinishedShift } from "../middlewares/authorized.middleware";
 
 export default {
     loginPost: [
@@ -46,7 +46,6 @@ export default {
 
     protectedGet: [
         jwtAccessAuth,
-        verifyShift,
         (_req: Request, res: Response) => {
             return res.json({ message: "Authentication passed" });
         },

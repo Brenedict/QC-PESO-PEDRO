@@ -3,7 +3,7 @@ import { useLoaderData } from "react-router";
 import { Outlet } from "react-router";
 
 // PEDRO SHARED IMPORTS
-import { Outcome, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/browser";
+import { Outcome, TransactionType, type Transaction, type User } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -31,7 +31,7 @@ export function TransactionExtraFilters({ timeframe = false }: { timeframe?: boo
             {timeframe && (
                 <SelectInput
                     optionList={[
-                        { content: "Overall", value: "" },
+                        { content: "Overall", value: TIMEFRAME_TYPE.overall },
                         { content: "This Day", value: TIMEFRAME_TYPE.day },
                         { content: "This Week", value: TIMEFRAME_TYPE.week },
                         { content: "This Month", value: TIMEFRAME_TYPE.month },
@@ -73,7 +73,7 @@ function TransactionHistory() {
     const data = useLoaderData();
     const navigate = useNavigateDefault();
 
-    const transactions = data.transactions as Transaction[];
+    const transactions = data.transactions as (Transaction & { user?: User })[];
 
     const handleEdit = (id: string) => () => {
         navigate(ROUTES.history.edit(id), true);
@@ -102,6 +102,7 @@ function TransactionHistory() {
                     <Table.Header text="Date/Time" />
                     <Table.Header text="Type" />
                     <Table.Header text="Applicant Name" />
+                    {transactions?.[0]?.user && <Table.Header text="Processed By" />}
                     <Table.Header text="Outcome" />
                     <Table.Header text="Actions" />
                 </Table.Row>
@@ -121,6 +122,11 @@ function TransactionHistory() {
                         <Table.Data>
                             <ColumnText>{transaction.applicantFullName}</ColumnText>
                         </Table.Data>
+                        {transaction.user && (
+                            <Table.Data>
+                                <ColumnText>{transaction.user.fullName}</ColumnText>
+                            </Table.Data>
+                        )}
                         <Table.Data>
                             <Status type="outcome" variant={transaction.transactionOutcome} />
                         </Table.Data>

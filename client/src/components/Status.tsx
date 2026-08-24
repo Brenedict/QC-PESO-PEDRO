@@ -11,13 +11,13 @@ import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 
 // Types
 import type { MaterialIcon, ColorVariant, AlignVariant } from "../types/common.ts";
-import type { Outcome, Status as StatusEnum, TransactionType } from "@qcpesopedro/shared/prisma/enums.ts";
+import type { ESSStatus, Outcome, Status as StatusEnum, TransactionType } from "@qcpesopedro/shared/prisma/enums.ts";
 
 // Available variants for each status type
 type StatusVariantMap = {
     type: TransactionType;
     outcome: Outcome;
-    verification: "pending" | "approved" | "needsrevision" | "rejected";
+    verification: ESSStatus;
     status: StatusEnum;
 };
 
@@ -52,21 +52,22 @@ const statusMap: Record<StatusType, Record<string, StatusConfig>> = {
         IN_HOUSE_RECRUITMENT: { text: "In-house Recruitment", variant: "primary-blue", theme: colorClasses.blue },
     },
     outcome: {
-        NONE: { text: "None", variant: "dark-blue", theme: colorClasses.black },
-        PENDING: { text: "Pending", variant: "grayish-blue", theme: colorClasses.offWhite },
+        NONE: { text: "None", variant: "grayish-blue", theme: colorClasses.offWhite },
+        PENDING: { text: "Pending", variant: "dark-blue", theme: colorClasses.black },
         MISMATCH: { text: "Mismatch", variant: "red", theme: colorClasses.red },
         SUCCESS: { text: "Success", variant: "green", theme: colorClasses.green },
     },
     verification: {
-        pending: { text: "Pending", variant: "grayish-blue", theme: colorClasses.offWhite },
-        approved: { text: "Approved", variant: "green", theme: colorClasses.green, icon: CheckIcon },
-        needsrevision: {
+        ONGOING: { text: "Ongoing", variant: "grayish-blue", theme: colorClasses.offWhite },
+        PENDING: { text: "Pending", variant: "dark-blue", theme: colorClasses.black },
+        APPROVED: { text: "Approved", variant: "green", theme: colorClasses.green, icon: CheckIcon },
+        REVISION: {
             text: "Needs Revision",
             variant: "primary-blue",
             theme: colorClasses.blue,
             icon: ReportProblemOutlinedIcon,
         },
-        rejected: { text: "Rejected", variant: "red", theme: colorClasses.red, icon: CancelOutlinedIcon },
+        REJECTED: { text: "Rejected", variant: "red", theme: colorClasses.red, icon: CancelOutlinedIcon },
     },
     status: {
         ONLINE: { text: "Online", variant: "green", theme: colorClasses.green, icon: WifiIcon },

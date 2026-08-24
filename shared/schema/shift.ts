@@ -6,6 +6,8 @@ import { EnvironmentTagSchema, ESSStatusSchema } from "../zod/schemas";
 export const ShiftQuerySchema = withDateRange(
     z.object({
         ...dateRangeFields,
+        status: ESSStatusSchema.optional(),
+        search: z.string().optional(),
     })
 );
 
@@ -21,12 +23,18 @@ export const ShiftFormEndSchema = zfd.formData(
 
 export const ShiftFormVerifySchema = zfd.formData(
     z.object({
-        status: ESSStatusSchema.optional(),
+        status: ESSStatusSchema,
         adminRemarks: z.string().optional(),
     })
 );
 
+export const ShiftDetailsQuerySchema = z.object({
+    overview: z.preprocess((val) => Boolean(val), z.boolean()),
+    transactions: z.preprocess((val) => Boolean(val), z.boolean()),
+});
+
 export type ShiftQueryType = z.infer<typeof ShiftQuerySchema>;
+export type ShiftDetailsQueryType = z.infer<typeof ShiftDetailsQuerySchema>;
 export type ShiftFormEndType = z.infer<typeof ShiftFormEndSchema>;
 export type ShiftFormEndInput = z.input<typeof ShiftFormEndSchema>;
 export type ShiftFormVerifyType = z.infer<typeof ShiftFormVerifySchema>;

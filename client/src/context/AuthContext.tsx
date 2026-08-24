@@ -2,6 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { logoutService } from "../api/authService";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import { useRouteLoaderData } from "react-router";
+import TokenStore from "../api/tokenStore";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -15,12 +16,14 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const data = useRouteLoaderData("protected") as { user: UserContextType } | undefined;
     const [user, setUser] = useState<UserContextType | null>(data?.user ?? null);
+    TokenStore.setUser(user);
 
     // isAuthenticated is now implied: if we got here, the loader already confirmed it
     const isAuthenticated = !!user;
 
     const logout = async () => {
         await logoutService();
+        TokenStore.setUser(null);
         setUser(null);
     };
 

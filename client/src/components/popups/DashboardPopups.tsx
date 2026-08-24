@@ -28,6 +28,7 @@ import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 
 // Types
 import type { MaterialIcon } from "../../types/common";
+import { useAuth } from "../../context/AuthContext";
 
 function TransactionMiniCard({ label, value }: { label: string; value: number }) {
     return (
@@ -79,6 +80,7 @@ function ChartContainer({ children, ...props }: { children: ReactNode } & ChartL
 export function PopupTransactionDetails() {
     const location = useLocation();
     const id = location.pathname.split("/").at(-1) as string | undefined;
+    const { user } = useAuth();
 
     const data = useLoaderData() as AnalyticsData;
     const navigate = useNavigateDefault();
@@ -128,14 +130,16 @@ export function PopupTransactionDetails() {
                 <div className="flex justify-between mb-4">
                     <LabelText label="Most Active Frontline Staff" />
                     <Link to={ROUTES.history.root}>
-                        <Text
-                            variant="primary-blue"
-                            size="description"
-                            weight="medium"
-                            className="w-max! hover:underline"
-                        >
-                            View Ledger →
-                        </Text>
+                        {user?.role !== "FRONTLINE" && (
+                            <Text
+                                variant="primary-blue"
+                                size="description"
+                                weight="medium"
+                                className="w-max! hover:underline"
+                            >
+                                View Ledger →
+                            </Text>
+                        )}
                     </Link>
                 </div>
                 <Table noCardStyle={true}>
