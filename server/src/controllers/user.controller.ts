@@ -36,7 +36,7 @@ export default {
             }
 
             const shiftLogId =
-                (await UserService.getMostRecentUnfinishedShiftId(user.id)) ||
+                (await UserService.getMostRecentUnfinishedShift(user.id))?.id ||
                 (await ShiftModel.createShift({ data: { userId: user.id } })).id;
 
             const userContextPayload: UserContextType = {

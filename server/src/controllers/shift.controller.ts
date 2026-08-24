@@ -12,7 +12,7 @@ import {
 } from "@qcpesopedro/shared/schema/shift";
 import ShiftModel from "../models/shift.model";
 import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
-import { requireAccessLevel } from "../middlewares/authorized.middleware";
+import { requireAccessLevel, verifyShift } from "../middlewares/authorized.middleware";
 
 export default {
     getShifts: [
@@ -28,10 +28,12 @@ export default {
     getShift: [
         jwtAccessAuth,
         async (req: Request, res: Response) => {
+            const { overview } = req.query;
             const { shiftId } = req.params;
+
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
-            const details = await ShiftService.getShiftDetails(Number(shiftId));
+            const details = overview ? await ShiftService.getShiftDetails(Number(shiftId)) : {};
             const shift = await ShiftModel.getShiftLogById(Number(shiftId), { user: true });
 
             return res.json({ ...details, shift });

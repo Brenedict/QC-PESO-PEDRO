@@ -10,6 +10,7 @@ import { mockUser } from "../fixtures/user.fixture";
 
 // Use the original auth
 jest.unmock("../../src/middlewares/passport.middleware");
+jest.unmock("../../src/middlewares/authorized.middleware");
 
 describe("Auth routes", () => {
     app.use("/auth", authRouter);

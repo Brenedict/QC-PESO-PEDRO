@@ -1,11 +1,11 @@
 // PEDRO SHARED IMPORTS
-import type { Prisma, Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import type { Prisma, Role, User } from "@qcpesopedro/shared/prisma/client";
 
 // Models
 import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
-import type { UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
+import type { ShiftLogWhereInput, UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
 
 export interface UserManagementFilter {
     role?: Role;
@@ -72,18 +72,31 @@ export default {
         return await UserModel.updateUser(userId, updatedUser);
     },
 
-    async getRecentUnfinishedShifts(userId: number) {
+    async getRecentShifts(userId: number, where?: ShiftLogWhereInput) {
         const { startDate, endDate } = DateUtil.buildDayRange(new Date());
 
         return ShiftModel.getShiftLogsByUserId(
             userId,
-            { timeOut: null, timeIn: { gte: startDate, lte: endDate } },
+            { ...where, timeIn: { gte: startDate, lte: endDate } },
             { timeIn: "desc" }
         );
     },
 
-    async getMostRecentUnfinishedShiftId(userId: number) {
-        return (await this.getRecentUnfinishedShifts(userId))?.[0]?.id;
+    async getMostRecentUnfinishedShift(userId: number) {
+        return (await this.getRecentShifts(userId, { timeOut: null, status: "ONGOING" }))?.[0];
+    },
+
+    async hasFinishedShiftToday(userId: number): Promise<boolean> {
+        const { startDate, endDate } = DateUtil.buildDayRange(new Date());
+
+        return (
+            (
+                await ShiftModel.getShiftLogsByUserId(userId, {
+                    status: { not: "ONGOING" },
+                    timeIn: { gte: startDate, lte: endDate },
+                })
+            ).length >= 0
+        );
     },
 
     async getActiveAndInactiveCount() {

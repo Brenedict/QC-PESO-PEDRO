@@ -9,6 +9,7 @@ import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passpor
 
 // Service
 import AuthService from "../service/auth.service";
+import { verifyShift } from "../middlewares/authorized.middleware";
 
 export default {
     loginPost: [
@@ -31,17 +32,21 @@ export default {
         },
     ],
 
-    logoutPost(_req: Request, res: Response) {
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-        });
+    logoutPost(req: Request, res: Response) {
+        const hasRefresh = Boolean(req.cookies?.refreshToken);
+        if (hasRefresh) {
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+            });
+        }
         res.json({ message: "Logged out successfully" });
     },
 
     protectedGet: [
         jwtAccessAuth,
+        verifyShift,
         (_req: Request, res: Response) => {
             return res.json({ message: "Authentication passed" });
         },

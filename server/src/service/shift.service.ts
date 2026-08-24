@@ -1,8 +1,7 @@
-import type { Demographic, ESSStatus, Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import type { Demographic, ESSStatus, Outcome, ShiftLog, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
 import TransactionModel from "../models/transaction.model";
-import { countShiftDemographics } from "@qcpesopedro/shared/prisma/sql";
 import type { ShiftLogFindManyArgs } from "@qcpesopedro/shared/prisma/models";
 import { calcAvgShiftApproval } from "@qcpesopedro/shared/prisma/sql";
 import prisma from "../config/prisma.config";
@@ -11,16 +10,30 @@ export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs, startDate?: Date, endDate?: Date) {
         return ShiftModel.getShiftLogs({
             where: {
-                ...(startDate || endDate
-                    ? {
-                          timeIn: {
-                              ...(startDate ? { gte: startDate } : {}),
-                              ...(endDate ? { lte: endDate } : {}),
-                          },
-                      }
-                    : {}),
+                OR: [
+                    // All pending
+                    { status: "PENDING" },
+
+                    // All non-pending limited by date range
+                    {
+                        AND: [
+                            { status: { not: "PENDING" } },
+                            {
+                                ...(startDate || endDate
+                                    ? {
+                                          timeIn: {
+                                              ...(startDate ? { gte: startDate } : {}),
+                                              ...(endDate ? { lte: endDate } : {}),
+                                          },
+                                      }
+                                    : {}),
+                            },
+                        ],
+                    },
+                ],
                 ...args?.where,
             },
+
             ...args,
         });
     },
@@ -58,7 +71,7 @@ export default {
                 startDate,
                 endDate
             ),
-            this.getStatusCount("PENDING", startDate, endDate),
+            this.getStatusCount("PENDING"), // pending is not affected by date range
             this.getStatusCount("APPROVED", startDate, endDate),
             this.getStatusCount("REVISION", startDate, endDate),
             this.getStatusCount("REJECTED", startDate, endDate),
@@ -80,6 +93,12 @@ export default {
             ...demographics,
             ...outcomes,
         };
+    },
+
+    isTodayShift(shift: ShiftLog) {
+        const shiftIn = new Date(shift.timeIn);
+        const { startDate, endDate } = DateUtil.buildDayRange(new Date()); // today
+        return shiftIn >= startDate && shiftIn <= endDate;
     },
 };
 

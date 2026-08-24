@@ -41,6 +41,9 @@ jest.mock("./src/middlewares/authorized.middleware", () => ({
     requireAccessLevel: () => (_req: Request, _res: Response, next: NextFunction) => {
         next();
     },
+    verifyShift: (_req: Request, _res: Response, next: NextFunction) => {
+        next();
+    },
 }));
 
 jest.mock("./src/middlewares/zod.middleware", () => ({
