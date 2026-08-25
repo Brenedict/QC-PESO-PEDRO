@@ -28,15 +28,25 @@ import { LogoutOutlined } from "@mui/icons-material";
 
 // Custom Hooks
 import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import Table from "../Table";
-import { ActionButtons, ColumnText, DateTime } from "../TableCells";
-import Status from "../Status";
-import { useSearchParamsTable } from "../../hooks/table";
+import { formatShortMonthYear, formatTime, getDayPeriod } from "../../utils/time";
+import { logoutService } from "../../api/authService";
+import { useAuth } from "../../context/AuthContext";
 
 export function PopupTimeIn({ root }: { root: string }) {
+    const { user } = useAuth();
     const navigate = useNavigateDefault();
+    const today = new Date();
+
+    const handleCancelTimeIn = async () => {
+        const success = await logoutService();
+
+        if (success) {
+            navigate(ROUTES.auth.root, true);
+        }
+    };
+
     return (
-        <Dialog dropShadow={true} className="border-0!" onClose={() => navigate(root, true)}>
+        <Dialog dropShadow={true} className="border-0!" onClose={handleCancelTimeIn}>
             <Dialog.Header variant="primary-blue" className="flex flex-col" toggleRightIcon={false}>
                 <div className="flex justify-center mt-3">
                     <Icon
@@ -60,21 +70,28 @@ export function PopupTimeIn({ root }: { root: string }) {
             <Dialog.Body>
                 <Form method="post" id="timeInForm">
                     {/* Time-In Data Input Holders */}
-                    <GeneralInput hidden={true} name="date" type="date" defaultValue={""}></GeneralInput>
-                    <GeneralInput hidden={true} name="time" type="time" defaultValue={""}></GeneralInput>
-                    <GeneralInput hidden={true} name="shift" type="text" defaultValue={"Morning Shift"}></GeneralInput>
                     <GeneralInput
                         hidden={true}
-                        name="assignedOffice"
+                        name="userId"
+                        type="number"
+                        defaultValue={user?.id ?? NaN}
+                    ></GeneralInput>
+                    <GeneralInput
+                        hidden={true}
+                        name="timeIn"
                         type="text"
-                        defaultValue={"Quezon City Hall (PESO)"}
+                        defaultValue={today.toLocaleString()}
                     ></GeneralInput>
                 </Form>
                 <section className="flex flex-col justify-center gap-6 max-w-md">
                     <div className="grid grid-cols-2 gap-3">
-                        <GrayMiniCard descriptionText="DATE" valueText="Jul 20, 2026" />
-                        <GrayMiniCard descriptionText="LIVE TIME" valueText="02:17 PM" variant="primary-blue" />
-                        <GrayMiniCard descriptionText="SHIFT" valueText="Morning Shift" />
+                        <GrayMiniCard descriptionText="DATE" valueText={formatShortMonthYear(today)} />
+                        <GrayMiniCard
+                            descriptionText="LIVE TIME"
+                            valueText={formatTime(today)}
+                            variant="primary-blue"
+                        />
+                        <GrayMiniCard descriptionText="SHIFT" valueText={getDayPeriod(today, true)} />
                         <GrayMiniCard
                             descriptionText="ASSIGNED OFFICE"
                             valueText="Quezon City Hall (PESO)"
@@ -87,11 +104,12 @@ export function PopupTimeIn({ root }: { root: string }) {
                 <PopupButton
                     leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
                     variant="white"
-                    onClick={() => navigate(root, true)}
+                    onClick={handleCancelTimeIn}
+                    type="button"
                 >
                     Cancel Time In
                 </PopupButton>
-                <PopupButton variant="blue" onClick={() => navigate(root, true)}>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
                     Time In Now
                 </PopupButton>
             </Dialog.Footer>
@@ -151,6 +169,8 @@ export function PopupLogout({ root }: { root: string }) {
 }
 
 export function PopupEndshiftSummary({ root }: { root: string }) {
+    const { total, pending } = useLoaderData();
+
     const navigate = useNavigateDefault();
     return (
         <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
@@ -167,25 +187,35 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
                             descriptionText="Total Transactions"
                             descriptionSize="description"
                             valueSize="bigger"
-                            valueText="42"
+                            valueText={total ?? "N/A"}
                             weight="bold"
                         />
                         <GrayMiniCard
                             descriptionText="Pending"
                             descriptionSize="description"
                             valueSize="bigger"
-                            valueText="3"
+                            valueText={pending ?? "N/A"}
                             weight="bold"
                         />
                     </div>
                     <LabeledSection label="Context Tags">
                         <div className="flex flex-wrap gap-2 max-w-120">
-                            <ContextBadge value={EnvironmentTag.SLOW_INTERNET}>Slow Internet</ContextBadge>
-                            <ContextBadge value={EnvironmentTag.HEAVY_RAIN}>Heavy Rain</ContextBadge>
-                            <ContextBadge value={EnvironmentTag.BROKEN_EQUIPMENT}>Broken Equipment</ContextBadge>
-                            <ContextBadge value={EnvironmentTag.APPLICANT_ISSUES}>Applicant Issues</ContextBadge>
-                            <ContextBadge value={EnvironmentTag.FEELING_UNWELL}>Feeling Unwell</ContextBadge>
-                            <ContextBadge value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM}>
+                            <ContextBadge value={EnvironmentTag.SLOW_INTERNET} name="environmentTags">
+                                Slow Internet
+                            </ContextBadge>
+                            <ContextBadge value={EnvironmentTag.HEAVY_RAIN} name="environmentTags">
+                                Heavy Rain
+                            </ContextBadge>
+                            <ContextBadge value={EnvironmentTag.BROKEN_EQUIPMENT} name="environmentTags">
+                                Broken Equipment
+                            </ContextBadge>
+                            <ContextBadge value={EnvironmentTag.APPLICANT_ISSUES} name="environmentTags">
+                                Applicant Issues
+                            </ContextBadge>
+                            <ContextBadge value={EnvironmentTag.FEELING_UNWELL} name="environmentTags">
+                                Feeling Unwell
+                            </ContextBadge>
+                            <ContextBadge value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM} name="environmentTags">
                                 Broken Software System
                             </ContextBadge>
                         </div>
@@ -193,17 +223,17 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
 
                     <TextAreaInput
                         label="Optional Remarks"
-                        name="time"
+                        name="generalRemarks"
                         defaultValue={""}
                         placeholder="Problems, or any other concern during the shift..."
-                    ></TextAreaInput>
+                    />
                 </Form>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white" onClick={() => navigate(root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" type="submit" form="timeInForm" onClick={() => navigate(root, true)}>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
                     Submit & End Shift
                 </PopupButton>
             </Dialog.Footer>

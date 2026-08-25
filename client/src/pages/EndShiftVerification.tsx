@@ -24,6 +24,7 @@ import { SelectInput } from "../components/Input";
 import { useSearchParamsTable } from "../hooks/table";
 import { useTimeframeFilter } from "../hooks/useTimeFrameFilter";
 import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
+import { getDayPeriod } from "../utils/time";
 
 // Define the props
 interface EndShiftVerificationProps {
@@ -70,11 +71,6 @@ function EndShiftVerification() {
 
     const handleReview = (id: string) => () => {
         navigate(ROUTES.endshift.review(id), true);
-    };
-
-    const getDayPeriod = (date: Date) => {
-        const hour = date.getHours();
-        return hour < 12 ? "Morning" : "Afternoon";
     };
 
     const extraFilters = (
@@ -160,8 +156,12 @@ function EndShiftVerification() {
                         </Table.Data>
                         <Table.Data>
                             <div className="flex gap-3">
-                                {shift?.status === "PENDING" ? (
-                                    <ActionButton handleClick={handleReview} id={String(shift.id)} text="Review" />
+                                {shift?.status !== "ONGOING" ? (
+                                    <ActionButton
+                                        handleClick={handleReview}
+                                        id={String(shift.id)}
+                                        text={shift?.status === "PENDING" ? "Review" : "Edit"}
+                                    />
                                 ) : (
                                     <Text weight="bold"> -</Text>
                                 )}

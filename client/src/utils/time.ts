@@ -1,3 +1,8 @@
+export function getDayPeriod(date: Date, addShift: boolean = false) {
+    const hour = date.getHours();
+    return (hour < 12 ? "Morning" : "Afternoon") + (addShift ? " Shift" : "");
+}
+
 export function getDateTimeNow() {
     const date = new Date(); // Get time now
 

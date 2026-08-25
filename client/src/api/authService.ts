@@ -1,8 +1,8 @@
 // General Imports
-import { redirect } from "react-router";
+import { redirect, type LoaderFunctionArgs } from "react-router";
 
 // PEDRO SHARED IMPORTS
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 
 // API Services
 import { apiFetch } from "./httpClient";
@@ -24,6 +24,7 @@ export const primaryAuthLoader = async () => {
         throw redirect(ROUTES.auth.root);
     }
     const user = await getUserContextLoader();
+    TokenStore.setUser(user);
     return { user };
 };
 
@@ -54,6 +55,15 @@ export const logoutService = async (): Promise<boolean> => {
         console.error("Logout network error:", err);
         return false;
     }
+};
+
+export const logoutAction = async () => {
+    const success = await logoutService();
+
+    if (success) {
+        return redirect(ROUTES.auth.root);
+    }
+    return null;
 };
 
 export const requireAccess = (minLevel: AccessLevel, loaderFn?: Function) => {

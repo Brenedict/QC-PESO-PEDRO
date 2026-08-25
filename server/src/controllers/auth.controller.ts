@@ -9,7 +9,7 @@ import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passpor
 
 // Service
 import AuthService from "../service/auth.service";
-import { verifyUnfinishedShift } from "../middlewares/authorized.middleware";
+import { requireTimeIn } from "../middlewares/authorized.middleware";
 
 export default {
     loginPost: [

@@ -5,6 +5,7 @@ import TransactionModel from "../models/transaction.model";
 import type { ShiftLogFindManyArgs, ShiftLogWhereInput } from "@qcpesopedro/shared/prisma/models";
 import { calcAvgShiftApproval } from "@qcpesopedro/shared/prisma/sql";
 import prisma from "../config/prisma.config";
+import type { ShiftDetailsQueryType } from "@qcpesopedro/shared/schema/shift";
 
 export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs, startDate?: Date, endDate?: Date) {
@@ -12,28 +13,14 @@ export default {
             ...args,
             where: {
                 ...(args?.where ?? {}),
-                ...(startDate || endDate
-                    ? {
-                          timeIn: {
-                              ...(startDate ? { gte: startDate } : {}),
-                              ...(endDate ? { lte: endDate } : {}),
-                          },
-                      }
-                    : {}),
+                ...buildShiftDateRange(startDate, endDate),
             },
         });
     },
     async getStatusCount(status: ESSStatus, startDate?: Date, endDate?: Date) {
         return ShiftModel.count({
             where: {
-                ...(startDate || endDate
-                    ? {
-                          timeIn: {
-                              ...(startDate ? { gte: startDate } : {}),
-                              ...(endDate ? { lte: endDate } : {}),
-                          },
-                      }
-                    : {}),
+                ...buildShiftDateRange(startDate, endDate),
                 status,
             },
         });
@@ -66,12 +53,16 @@ export default {
         return { pending, approved, revision, rejected, average, shifts };
     },
 
-    async getShiftDetails(shiftId: number) {
-        const total = await TransactionModel.count({ where: { shiftLogId: shiftId } });
+    async getShiftDetails(shiftId: number, query: ShiftDetailsQueryType) {
+        const { overview } = query;
 
-        const sources = await getShiftSources(shiftId);
-        const demographics = await getShiftDemographics(shiftId);
-        const outcomes = await getShiftOutcomes(shiftId);
+        const total = overview?.includes("total")
+            ? await TransactionModel.count({ where: { shiftLogId: shiftId } })
+            : undefined;
+
+        const sources = await getShiftSources(shiftId, query);
+        const demographics = await getShiftDemographics(shiftId, query);
+        const outcomes = await getShiftOutcomes(shiftId, query);
 
         return {
             total,
@@ -88,7 +79,32 @@ export default {
     },
 };
 
-async function getShiftSources(shiftId: number) {
+function buildShiftDateRange(startDate?: Date, endDate?: Date): ShiftLogWhereInput {
+    return {
+        ...(startDate || endDate
+            ? {
+                  OR: [
+                      {
+                          timeIn: {
+                              ...(startDate ? { gte: startDate } : {}),
+                              ...(endDate ? { lte: endDate } : {}),
+                          },
+                      },
+                      {
+                          timeOut: {
+                              ...(startDate ? { gte: startDate } : {}),
+                              ...(endDate ? { lte: endDate } : {}),
+                          },
+                      },
+                  ],
+              }
+            : {}),
+    };
+}
+
+async function getShiftSources(shiftId: number, query: ShiftDetailsQueryType) {
+    if (!query.analytics) return {};
+
     // Sources
     const typeGroups = await TransactionModel.groupBy({
         by: ["transactionType", "applicantSex"],
@@ -98,7 +114,6 @@ async function getShiftSources(shiftId: number) {
 
     const getStatsByType = (type: TransactionType) => {
         const groups = typeGroups.filter((g) => g.transactionType === type);
-
         const male = groups.find((g) => g.applicantSex === "MALE")?._count ?? 0;
         const female = groups.find((g) => g.applicantSex === "FEMALE")?._count ?? 0;
         const total = groups.reduce((sum, g) => sum + ((g._count as number | undefined) ?? 0), 0);
@@ -113,7 +128,9 @@ async function getShiftSources(shiftId: number) {
     return { walkins, online, inhouse };
 }
 
-async function getShiftDemographics(shiftId: number) {
+async function getShiftDemographics(shiftId: number, query: ShiftDetailsQueryType) {
+    if (!query.analytics) return {};
+
     // Demographics
     const demoGroups = await TransactionModel.groupBy({
         by: ["demographics"],
@@ -131,7 +148,11 @@ async function getShiftDemographics(shiftId: number) {
     return { firstTime, pwd, senior, youngWorker, workImmersion };
 }
 
-async function getShiftOutcomes(shiftId: number) {
+async function getShiftOutcomes(shiftId: number, query: ShiftDetailsQueryType) {
+    const { overview } = query;
+
+    if (!overview || overview.length <= 0) return {};
+
     // Outcomes
     const outcomeGroups = await TransactionModel.groupBy({
         by: ["transactionOutcome"],
@@ -140,10 +161,11 @@ async function getShiftOutcomes(shiftId: number) {
     });
     const countByOutcome = (outcome: Outcome) =>
         outcomeGroups.find((g) => g.transactionOutcome === outcome)?._count ?? 0;
-    const none = countByOutcome("NONE");
-    const pending = countByOutcome("PENDING");
-    const mismatch = countByOutcome("MISMATCH");
-    const success = countByOutcome("SUCCESS");
+
+    const none = overview.includes("none") ? countByOutcome("NONE") : undefined;
+    const pending = overview.includes("pending") ? countByOutcome("PENDING") : undefined;
+    const mismatch = overview.includes("mismatch") ? countByOutcome("MISMATCH") : undefined;
+    const success = overview.includes("success") ? countByOutcome("SUCCESS") : undefined;
 
     return { none, pending, mismatch, success };
 }

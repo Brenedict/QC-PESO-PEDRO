@@ -2,7 +2,7 @@
 import type { Request, Response } from "express";
 
 // PEDRO SHARED IMPORTS
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 import {
     TransactionAnalyticsQuerySchema,
     TransactionFormCreateSchema,

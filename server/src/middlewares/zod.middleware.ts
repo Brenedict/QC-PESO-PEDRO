@@ -8,7 +8,7 @@ export const validateSchema =
             const result = schema.safeParse(req[type]);
 
             if (!result.success) {
-                return res.status(400).json({ error: z.treeifyError(result.error) });
+                return res.status(400).json({ error: z.prettifyError(result.error) });
             }
 
             req[type] = result.data;

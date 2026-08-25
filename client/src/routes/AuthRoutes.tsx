@@ -48,6 +48,7 @@ export const authRoutes: RouteObject[] = [
                 TokenStore.setAccessToken(data.accessToken);
                 return redirect(ROUTES.dashboard.root);
             }
+
             alert("Invalid credentials");
             return null;
         },

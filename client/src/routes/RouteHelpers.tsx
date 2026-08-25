@@ -6,11 +6,12 @@ import { PopupViewEditTransaction, PopupDeleteTransaction } from "../components/
 import { PopupTimeIn, PopupLogout, PopupEndshiftSummary, PopupSessionEnd } from "../components/popups/ShiftPopups";
 
 // API Services
-import { logoutService } from "../api/authService";
+import { logoutAction } from "../api/authService";
 import { deleteTransaction, getTransactionById, updateTransaction } from "../api/transactionService";
 
 // Custom Hooks
-import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+import { type transactionRootPage } from "../hooks/reroute";
+import { getShiftDetailsOverview, patchEndShift, timeInShift } from "../api/shiftService";
 
 // Transaction edit/delete routes shared across sections
 export const transactionsEditAndDelete = (root: transactionRootPage) => [
@@ -33,12 +34,13 @@ export const shiftPopups = (root: string) => [
     {
         path: "time-in",
         element: <PopupTimeIn root={root} />,
-        action: async () => redirect(root),
+        action: timeInShift,
     },
     {
         path: "end-shift-confirmation",
         element: <PopupEndshiftSummary root={root} />,
-        action: async () => redirect("/auth"),
+        action: patchEndShift,
+        loader: getShiftDetailsOverview({ overview: ["total", "pending"] }, true),
     },
     {
         path: "session-end",
@@ -47,11 +49,6 @@ export const shiftPopups = (root: string) => [
     {
         path: "log-out",
         element: <PopupLogout root={root} />,
-        action: async () => {
-            const success = await logoutService();
-            if (success) {
-                return redirect(ROUTES.auth.root);
-            }
-        },
+        action: logoutAction,
     },
 ];

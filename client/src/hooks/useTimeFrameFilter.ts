@@ -20,8 +20,8 @@ export function useTimeframeFilter(defaultTimeframe: Timeframe = "overall") {
     const { searchParams } = useSearchParamsTable();
 
     const [timeframe, setTimeframe] = useState<Timeframe>((searchParams.timeframe ?? defaultTimeframe) as Timeframe);
-    const [startDate, setStartDate] = useState(() => searchParams.startDate ?? getTimeframeRange(timeframe)?.startDate);
-    const [endDate, setEndDate] = useState(() => searchParams.endDate ?? getTimeframeRange(timeframe)?.endDate);
+    const [startDate, setStartDate] = useState(() => searchParams.startDate ?? "");
+    const [endDate, setEndDate] = useState(() => searchParams.endDate ?? "");
 
     const handleTimeframeChange = useCallback((newTimeframe: string) => {
         const timeframe = newTimeframe as Timeframe;

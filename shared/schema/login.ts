@@ -21,7 +21,7 @@ export const UserContextSchema = zfd.formData(
         shift: true,
     }).extend({
         id: z.number(),
-        shiftLogId: z.number(),
+        shiftLogId: z.number().optional(),
         role: RoleSchema,
     })
 );

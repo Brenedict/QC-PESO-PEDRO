@@ -36,7 +36,7 @@ interface SelectProp extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 interface GeneralInputProp extends LabelProp, InputProp {
-    type: "text" | "email" | "number" | "time" | "date";
+    type: "text" | "email" | "number" | "time" | "date" | "datetime-local";
     hidden?: boolean;
 }
 

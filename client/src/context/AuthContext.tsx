@@ -16,7 +16,6 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const data = useRouteLoaderData("protected") as { user: UserContextType } | undefined;
     const [user, setUser] = useState<UserContextType | null>(data?.user ?? null);
-    TokenStore.setUser(user);
 
     // isAuthenticated is now implied: if we got here, the loader already confirmed it
     const isAuthenticated = !!user;

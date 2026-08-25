@@ -5,16 +5,18 @@ import ShiftService from "../service/shift.service";
 import {
     ShiftDetailsQuerySchema,
     ShiftFormEndSchema,
+    ShiftFormCreateSchema,
     ShiftFormVerifySchema,
     ShiftQuerySchema,
     type ShiftDetailsQueryType,
     type ShiftFormEndType,
+    type ShiftFormCreateType,
     type ShiftFormVerifyType,
     type ShiftQueryType,
 } from "@qcpesopedro/shared/schema/shift";
 import ShiftModel from "../models/shift.model";
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
-import { requireAccessLevel } from "../middlewares/authorized.middleware";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
+import { requireAccessLevel, requireTimeIn } from "../middlewares/authorized.middleware";
 
 export default {
     getShifts: [
@@ -34,18 +36,42 @@ export default {
         jwtAccessAuth,
         validateSchema("query", ShiftDetailsQuerySchema),
         async (req: Request, res: Response) => {
-            const { overview, transactions } = req.query as unknown as ShiftDetailsQueryType;
+            const query = req.query as unknown as ShiftDetailsQueryType;
             const { shiftId } = req.params;
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
-            const details = overview ? await ShiftService.getShiftDetails(Number(shiftId)) : {};
-            const shift = await ShiftModel.getShiftLogById(Number(shiftId), {
-                user: true,
-                transactions: Boolean(transactions),
-            });
+            const details =
+                query?.overview?.length && query.overview.length > 0
+                    ? await ShiftService.getShiftDetails(Number(shiftId), query)
+                    : {};
+
+            const { include } = query;
+
+            const shift = include?.includes("shift")
+                ? await ShiftModel.getShiftLogById(Number(shiftId), {
+                      user: !!include?.includes("user"),
+                      transactions: !!include?.includes("transactions"),
+                  })
+                : undefined;
 
             return res.json({ ...details, shift });
+        },
+    ],
+
+    createShift: [
+        jwtAccessAuth,
+        validateSchema("body", ShiftFormCreateSchema),
+        async (req: Request, res: Response) => {
+            const { timeIn, userId } = req.body as unknown as ShiftFormCreateType;
+
+            await ShiftModel.createShift({
+                data: {
+                    timeIn,
+                    userId,
+                },
+            });
+            return res.status(200).json({ message: "Shift created" });
         },
     ],
 
@@ -85,6 +111,14 @@ export default {
                 adminRemarks,
             });
             return res.sendStatus(204);
+        },
+    ],
+
+    getShiftStatus: [
+        jwtAccessAuth,
+        requireTimeIn,
+        async (_req: Request, res: Response) => {
+            return res.json({ message: "Shift status check passed" });
         },
     ],
 };

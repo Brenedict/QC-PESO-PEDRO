@@ -3,17 +3,27 @@ import { redirect, type LoaderFunctionArgs } from "react-router";
 export type ParamArgs = string[][] | Record<string, string | string[]> | string | URLSearchParams;
 export type TIMEFRAME_RESULT = { startDate: string; endDate: string };
 
+const parseLocalDate = (dateString: string) => {
+    const [year, month, day] = dateString.split("-").map(Number);
+
+    return new Date(year, month - 1, day);
+};
+
+// Turn startDate and endDate params into philippine time
 export const getStartEndHour = (startDate?: string, endDate?: string) => {
     const result: Record<string, string> = {};
 
     if (startDate) {
-        const start = new Date(startDate);
+        const start = parseLocalDate(startDate);
         start.setHours(0, 0, 0, 0);
+
         result.startDate = start.toISOString();
     }
+
     if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(0, 0, 0, 0);
+        const end = parseLocalDate(endDate);
+        end.setHours(23, 59, 59, 999);
+
         result.endDate = end.toISOString();
     }
 

@@ -1,6 +1,6 @@
 // General Imports
 import { redirect, type RouteObject } from "react-router";
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -30,7 +30,6 @@ import { PopupViewHistory } from "../components/popups/MonitoringPopups";
 import { PopupEndShiftReview, PopupShiftViewTransactionDetails } from "../components/popups/EndShiftPopups";
 
 // Test Data
-import { shiftRecords } from "../data/shiftRecords";
 import { employeeSessions } from "../data/employeeSessions";
 import { auditLogData } from "../data/auditLogs";
 
@@ -52,7 +51,7 @@ import {
 
 import { primaryAuthLoader, requireAccess } from "../api/authService";
 import { getAnalytics } from "../api/analyticsService";
-import { getShiftDetailsOverview, getShifts, patchReviewShift } from "../api/shiftService";
+import { getShiftDetailsOverview, getShifts, patchReviewShift, shiftStatusLoader } from "../api/shiftService";
 import { todayRedirectLoader } from "../api/dateService";
 
 export const protectedRoutes: RouteObject[] = [
@@ -74,6 +73,7 @@ export const protectedRoutes: RouteObject[] = [
             {
                 path: "",
                 element: <DashboardLayout />,
+                loader: shiftStatusLoader,
                 children: [
                     {
                         path: "",
@@ -187,12 +187,16 @@ export const protectedRoutes: RouteObject[] = [
                                 path: ":shiftId/review",
                                 element: <PopupEndShiftReview />,
                                 action: patchReviewShift,
-                                loader: getShiftDetailsOverview(true),
+                                loader: getShiftDetailsOverview({
+                                    overview: ["none", "mismatch", "pending", "success", "total"],
+                                    analytics: true,
+                                    include: ["shift", "user"],
+                                }),
                             },
                             {
                                 path: ":shiftId/details",
                                 element: <PopupShiftViewTransactionDetails />,
-                                loader: getShiftDetailsOverview(false),
+                                loader: getShiftDetailsOverview({ include: ["shift", "user", "transactions"] }),
                             },
                             ...shiftPopups(ROUTES.endshift.root),
                         ],

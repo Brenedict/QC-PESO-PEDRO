@@ -9,7 +9,7 @@ import {
     type UserQueryType,
 } from "@qcpesopedro/shared/schema/users";
 import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 
 // Middlewares
@@ -35,9 +35,7 @@ export default {
                 return res.status(404).json({ message: "User not found" });
             }
 
-            const shiftLogId =
-                (await UserService.getMostRecentUnfinishedShift(user.id))?.id ||
-                (await ShiftModel.createShift({ data: { userId: user.id } })).id;
+            const shiftLogId = (await UserService.getMostRecentUnfinishedShift(user.id))?.id;
 
             const userContextPayload: UserContextType = {
                 id: user.id,

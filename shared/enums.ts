@@ -4,3 +4,8 @@ export enum AccessLevel {
     ADMIN = 2,
     SUPERADMIN = 3,
 }
+
+export enum ShiftStatus {
+    TIMEIN = 1,
+    UNFINISHED = 2,
+}

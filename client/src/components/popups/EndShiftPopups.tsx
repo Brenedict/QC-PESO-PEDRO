@@ -237,16 +237,22 @@ function EndShiftEnvironmentSection() {
             <Card.Body variant="white" className="flex flex-col gap-5 h-full">
                 <LabeledSection label="END SHIFT ENVIRONMENT">
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {data?.shift?.environmentTags?.map((tag: EnvironmentTag) => (
-                            <ContextBadge key={tag} clickable={false}>
-                                {tag}
+                        {data?.shift?.environmentTags?.length > 0 ? (
+                            data.shift.environmentTags.map((tag: EnvironmentTag) => (
+                                <ContextBadge key={tag} clickable={false}>
+                                    {tag}
+                                </ContextBadge>
+                            ))
+                        ) : (
+                            <ContextBadge key="none" clickable={false}>
+                                None
                             </ContextBadge>
-                        ))}
+                        )}
                     </div>
                 </LabeledSection>
                 <LabeledSection label="EMPLOYEE REMARKS">
                     <Text size="description" variant="grayish-blue" className="italic mt-1">
-                        "{data?.shift?.generalRemarks ?? "N/A"}"
+                        "{data?.shift?.generalRemarks?.length > 0 || "N/A"}"
                     </Text>
                 </LabeledSection>
             </Card.Body>
@@ -255,6 +261,8 @@ function EndShiftEnvironmentSection() {
 }
 
 function AdminRemarksSection() {
+    const data = useLoaderData();
+
     return (
         <Card dropShadow={false} className="w-full">
             <Card.Body variant="white" className="h-full">
@@ -265,6 +273,7 @@ function AdminRemarksSection() {
                     placeholder="Enter reason for revision or rejection, or general notes..."
                     className="h-28 text-sm"
                     required
+                    defaultValue={data?.shift?.adminRemarks ?? ""}
                     isRequired={true}
                 />
             </Card.Body>

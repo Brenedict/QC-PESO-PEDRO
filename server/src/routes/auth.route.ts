@@ -13,4 +13,5 @@ router.post("/logout", controller.logoutPost);
 
 // Protected Route
 router.get("/protected", controller.protectedGet);
+
 export default router;

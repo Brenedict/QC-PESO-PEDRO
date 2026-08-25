@@ -11,6 +11,21 @@ export const ShiftQuerySchema = withDateRange(
     })
 );
 
+export const ShiftFormCreateSchema = zfd.formData(
+    z.object({
+        userId: zfd.numeric(z.number().int().positive()),
+
+        timeIn: zfd.text(
+            z
+                .string()
+                .transform((value) => new Date(value))
+                .refine((date) => !Number.isNaN(date.getTime()), {
+                    message: "Invalid date",
+                })
+        ),
+    })
+);
+
 export const ShiftFormEndSchema = zfd.formData(
     z.object({
         generalRemarks: z.string().optional(),
@@ -29,12 +44,20 @@ export const ShiftFormVerifySchema = zfd.formData(
 );
 
 export const ShiftDetailsQuerySchema = z.object({
-    overview: z.preprocess((val) => Boolean(val), z.boolean()),
-    transactions: z.preprocess((val) => Boolean(val), z.boolean()),
+    overview: z.preprocess(
+        (val) => (Array.isArray(val) ? val : [val]),
+        z.array(z.enum(["total", "none", "pending", "mismatch", "success"])).optional()
+    ),
+    analytics: z.preprocess((val) => Boolean(val), z.boolean().optional()),
+    include: z.preprocess(
+        (val) => (Array.isArray(val) ? val : [val]),
+        z.array(z.enum(["shift", "user", "transactions"])).optional()
+    ),
 });
 
 export type ShiftQueryType = z.infer<typeof ShiftQuerySchema>;
 export type ShiftDetailsQueryType = z.infer<typeof ShiftDetailsQuerySchema>;
+export type ShiftFormCreateType = z.infer<typeof ShiftFormCreateSchema>;
 export type ShiftFormEndType = z.infer<typeof ShiftFormEndSchema>;
 export type ShiftFormEndInput = z.input<typeof ShiftFormEndSchema>;
 export type ShiftFormVerifyType = z.infer<typeof ShiftFormVerifySchema>;
