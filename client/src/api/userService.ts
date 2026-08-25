@@ -154,7 +154,7 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
 };
 
 // Change password fetch but this one is used for the /reset-password
-export const changePasswordPatch = async (formData: FormData, resetToken: string): Promise<boolean | null> => {
+export const changePasswordPatch = async (formData: FormData, resetToken: string): Promise<number | null> => {
     try {
         const payload = validateForm(formData, UserFormChangePasswordSchema, "Invalid password credentials");
 
@@ -164,7 +164,7 @@ export const changePasswordPatch = async (formData: FormData, resetToken: string
         });
 
         // Returns to root directory and queries
-        return response.ok;
+        return response.status;
     } catch (err) {
         console.error(err);
         return null;
@@ -190,12 +190,16 @@ export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
 
         const result = await response.json();
 
-        if (response.status == 422) {
-            return redirect(`${ROUTES.profile.changePassword}?passwordError=${result.message}`);
+        if (response.status == 422 && result.code == "INCORRECT_PASSWORD") {
+            return redirect(`${ROUTES.profile.changePassword}?INCORRECT_PASSWORD=${result.message}`);
+        }
+
+        if (response.status == 422 && result.code == "DUPLICATE_PASSWORD") {
+            return redirect(`${ROUTES.profile.changePassword}?DUPLICATE_PASSWORD=${result.message}`);
         }
 
         // Returns to root directory and queries
-        return response.ok;
+        return redirect(`${ROUTES.profile.root}?passwordChangeStatus=${result.message}`);
     } catch (err) {
         console.error(err);
         return null;

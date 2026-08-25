@@ -1,25 +1,22 @@
 // General Imports
 import { Form, Link } from "react-router";
+import { useState } from "react";
 
 // Components
 import Button from "../components/Button";
 import { Text } from "../components/Text";
 import { Card } from "../components/Card";
 import Icon from "../components/Icon";
+import { GeneralInput } from "../components/Input";
 
 // Material UI Icons
 import EmailIcon from "@mui/icons-material/Email";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { GeneralInput } from "../components/Input";
-import { useState } from "react";
-import { apiJson, ensureOk } from "../api/actionService";
+import { ROUTES } from "../hooks/reroute";
 
 export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void }) {
-    const navigate = useNavigateDefault();
-
     const [isSuccessful, setIsSuccessful] = useState(false);
     const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -35,10 +32,10 @@ export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTM
     };
 
     return (
-        <main className="flex flex-col justify-center items-center h-screen">
+        <main className="flex flex-col justify-center items-center h-screen w-screen">
             <Card className="max-w-[980px]">
                 {!isSuccessful ? (
-                    <Card.Body className="flex flex-col gap-6">
+                    <Card.Body className="flex flex-col gap-6 p-10">
                         <div className="flex justify-center gap-3">
                             <Icon icon={EmailIcon} size="iconHero" variant="dark-blue" />
                             <Text size="giant" weight="bold" variant="dark-blue" align="center" className="">
@@ -62,9 +59,14 @@ export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTM
 
                             <br className="block mb-4" />
 
-                            <Button variant="blue" size="normal" className="w-full!" disabled={!isFormValid}>
-                                Send Link
-                            </Button>
+                            <div className="flex gap-4">
+                                <Button variant="opaque-blue" size="normal" className="w-full!">
+                                    <Link to={ROUTES.auth.root}>Return to Login</Link>
+                                </Button>
+                                <Button variant="blue" size="normal" className="w-full!" disabled={!isFormValid}>
+                                    Send Link
+                                </Button>
+                            </div>
                         </form>
                     </Card.Body>
                 ) : (

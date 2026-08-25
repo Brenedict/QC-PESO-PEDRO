@@ -61,4 +61,18 @@ export default {
                 return `${year}`;
         }
     },
+
+    formatResetLinkDurationEmail(durationStr: string): string {
+        const value = parseInt(durationStr, 10) || 15;
+        const unit = durationStr.slice(-1).toLowerCase();
+
+        const unitMap: Record<string, string> = {
+            s: "seconds",
+            m: "minutes",
+            h: "hours",
+            d: "days",
+        };
+
+        return `${value} ${unitMap[unit] || "minutes"}`;
+    },
 };

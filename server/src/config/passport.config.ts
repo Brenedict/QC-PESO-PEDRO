@@ -25,7 +25,7 @@ const verifyFunction: VerifyFunction = async (email, password, done) => {
 
         if (!user) return done(null, false, { message: "Email not found" });
 
-        const match = await HashUtil.comparePassword(password, user.password); // Temporary (must use bcrypt)
+        const match = await HashUtil.comparePassword(password, user.password);
         if (!match) return done(null, false, { message: "Password Incorrect" });
 
         return done(null, user);

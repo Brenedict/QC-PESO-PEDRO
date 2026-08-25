@@ -10,9 +10,13 @@ import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passpor
 // Service
 import AuthService from "../service/auth.service";
 import UserService from "../service/user.service";
+import EmailService from "../service/email.service";
 import { requireValidResetToken } from "../middlewares/authorized.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
 import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
+
+// Utils
+import HashUtil from "../utils/hash.util";
 
 export default {
     loginPost: [
@@ -44,13 +48,34 @@ export default {
         res.json({ message: "Logged out successfully" });
     },
 
+    protectedGet: [
+        jwtAccessAuth,
+        (_req: Request, res: Response) => {
+            return res.json({ message: "Authentication passed" });
+        },
+    ],
+
     async forgotPasswordPatch(req: Request, res: Response) {
         const { email } = req.body;
         const user = await UserService.emailExist(email);
 
         // Prevents sending email when user email doesn't exist in database
         if (user) {
-            AuthService.sendOTPEmail(user);
+            // '5m' is a fallback here in case the .env is missing the SMTP_EXPIRATION_OFFSET
+            const smtpExpirationOffset = process.env.SMTP_EXPIRATION_OFFSET || "5m"; // Defines how long reset token lasts
+
+            // Generates hashed token for reset password URL query (e.g. /reset-password?token=209NF903H)
+            const hashedToken = await HashUtil.generateRandomHashedToken();
+            const emailSent = await EmailService.sendOTPEmail(
+                user.firstName,
+                user.email,
+                hashedToken,
+                smtpExpirationOffset
+            );
+
+            if (emailSent) {
+                const updatedUser = await AuthService.createResetToken(user.id, hashedToken, smtpExpirationOffset);
+            }
         }
 
         /*
@@ -63,8 +88,6 @@ export default {
     protectedResetPasswordGet: [
         requireValidResetToken,
         async (req: Request, res: Response) => {
-            const currentTimestampTz = new Date();
-
             const { id, email, resetTokenExpiresAt } = req.user as User;
             const [name, domain] = email.split("@");
 
@@ -73,16 +96,6 @@ export default {
             // Fallback check if email still exist
             if (!name || !domain) {
                 return res.status(401).json({ message: "Email is missing from user" });
-            }
-
-            // Checks if resetToken already expired
-            if (resetTokenExpiresAt && currentTimestampTz >= resetTokenExpiresAt) {
-                await AuthService.clearResetToken(id);
-
-                return res.json({
-                    email: returnMaskedEmail,
-                    isTokenExpired: true,
-                });
             }
 
             // Checks if resetToken already expired
@@ -107,9 +120,15 @@ export default {
         requireValidResetToken,
         validateSchema(UserFormChangePasswordSchema),
         async (req: Request, res: Response) => {
-            console.log("ENDPOINT REACHED");
-            const { _currentPassword, newPassword, _confirmPassword } = req.body;
+            const { newPassword, _confirmPassword } = req.body;
             const user = req.user as User;
+
+            // Checks if inputted newPassword is a duplicate of the stored user password
+            const passwordDuplicate = await HashUtil.comparePassword(newPassword, user.password);
+
+            if (passwordDuplicate) {
+                return res.status(422).json({ message: "Old Password Can't Be New Password" });
+            }
 
             const result = UserService.changePassword(user.id, newPassword);
 
@@ -117,16 +136,12 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
+            // Clear reset token to render reset link as null
             AuthService.clearResetToken(user.id);
 
-            return res.status(200).send();
-        },
-    ],
+            EmailService.sendPasswordChangeEmail(user.firstName, user.email, user.updatedAt);
 
-    protectedGet: [
-        jwtAccessAuth,
-        (_req: Request, res: Response) => {
-            return res.json({ message: "Authentication passed" });
+            return res.status(200).send();
         },
     ],
 };

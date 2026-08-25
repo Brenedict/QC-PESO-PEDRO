@@ -49,6 +49,8 @@ function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
                     name="firstName"
                     placeholder="John"
                     defaultValue={user?.firstName}
+                    required
+                    isRequired={true}
                 />
                 <GeneralInput
                     type="text"
@@ -57,6 +59,8 @@ function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
                     name="lastName"
                     placeholder="Doe"
                     defaultValue={user?.lastName}
+                    required
+                    isRequired={true}
                 />
             </div>
             <GeneralInput
@@ -401,27 +405,19 @@ export function PopupResetUser() {
 }
 
 export function PopupChangePassword() {
+    const navigate = useNavigateDefault();
+
+    // User Global Context
     const { id } = useUserGlobal();
     if (!id) return null;
 
+    // Checks URL for error notif queries
     const [searchParams, setSearchParams] = useSearchParams();
     const [currentPasswordError, setCurrentPasswordError] = useState<string>("");
 
-    useEffect(() => {
-        const errorKey = searchParams.get("passwordError");
+    const [newPasswordError, setNewPasswordError] = useState("");
 
-        if (errorKey) {
-            setCurrentPasswordError(errorKey);
-
-            // Clean up error from URL so it doesn't persist on page refresh
-            const newParams = new URLSearchParams(searchParams);
-            newParams.delete("passwordError");
-            setSearchParams(newParams, { replace: true });
-        }
-    }, [searchParams, setSearchParams]);
-
-    const navigate = useNavigateDefault();
-    const [passwordError, setPasswordError] = useState("");
+    // Form Validation Checker
     const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
@@ -434,11 +430,34 @@ export function PopupChangePassword() {
 
         if (newPassword !== confirmPassword) {
             e.preventDefault();
-            setPasswordError("New password do not match.");
+            setNewPasswordError("New password do not match.");
         } else {
-            setPasswordError("");
+            setNewPasswordError("");
         }
     };
+
+    useEffect(() => {
+        const incorrectPassword = searchParams.get("INCORRECT_PASSWORD");
+        const duplicatePassword = searchParams.get("DUPLICATE_PASSWORD");
+
+        if (incorrectPassword) {
+            setCurrentPasswordError(incorrectPassword);
+
+            // Clean up error from URL so it doesn't persist on page refresh
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("INCORRECT_PASSWORD");
+            setSearchParams(newParams, { replace: true });
+        }
+
+        if (duplicatePassword) {
+            setNewPasswordError(duplicatePassword);
+
+            // Clean up error from URL so it doesn't persist on page refresh
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("DUPLICATE_PASSWORD");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.profile.root, true)}>
@@ -480,7 +499,7 @@ export function PopupChangePassword() {
                         label="New password"
                         placeholder="Enter your new password"
                         isRequired={true}
-                        onChange={() => setPasswordError("")}
+                        onChange={() => setNewPasswordError("")}
                     />
 
                     <PasswordInput
@@ -489,8 +508,8 @@ export function PopupChangePassword() {
                         label="Confirm new password"
                         placeholder="Confirm your new password"
                         isRequired={true}
-                        error={passwordError}
-                        onChange={() => setPasswordError("")}
+                        error={newPasswordError}
+                        onChange={() => setNewPasswordError("")}
                     />
                 </Form>
             </Dialog.Body>

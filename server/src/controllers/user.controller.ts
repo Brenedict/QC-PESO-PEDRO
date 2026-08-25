@@ -21,9 +21,11 @@ import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
 
 // Service
+import EmailService from "../service/email.service";
 import UserService from "../service/user.service";
+
+// Utils
 import HashUtil from "../utils/hash.util";
-import bcrypt from "bcryptjs";
 
 export default {
     getCurrentUser: [
@@ -43,6 +45,7 @@ export default {
             const userContextPayload: UserContextType = {
                 id: user.id,
                 email: user.email,
+                shift: user.shift,
                 username: user.username,
                 role: user.role,
                 status: user.status,
@@ -181,22 +184,30 @@ export default {
             if (!user) {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
-            console.log(user);
 
             const { currentPassword, newPassword, _confirmPassword } = req.body;
 
+            // Checks if inputted password matches stored user password
             const passwordMatches = await HashUtil.comparePassword(currentPassword, user.password);
 
-            const directMatch = await bcrypt.compare("benedict28", user.password);
-            console.log("Direct bcrypt match test ('benedict28'):", directMatch);
-
             if (!passwordMatches) {
-                return res.status(422).json({ message: "Incorrect password" });
+                return res.status(422).json({ code: "INCORRECT_PASSWORD", message: "Incorrect password" });
+            }
+
+            // Checks if inputted newPassword is a duplicate of the stored user password
+            const passwordDuplicate = await HashUtil.comparePassword(newPassword, user.password);
+
+            if (passwordDuplicate) {
+                return res
+                    .status(422)
+                    .json({ code: "DUPLICATE_PASSWORD", message: "Old Password Can't Be New Password" });
             }
 
             const result = UserService.changePassword(user.id, newPassword);
 
-            return res.status(200).json({ message: "Password Changed Successfuly" });
+            EmailService.sendPasswordChangeEmail(user.firstName, user.email, user.updatedAt);
+
+            return res.status(200).json({ message: "Password Changed Successfully" });
         },
     ],
 };

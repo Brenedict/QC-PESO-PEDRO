@@ -4,10 +4,7 @@ import type { Request, Response, NextFunction } from "express";
 
 export const validateSchema = (schema: z.ZodType) => (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log("VALIDATING SCHEMA");
         const result = schema.safeParse(req.body);
-
-        console.log(result);
 
         if (!result.success) {
             return res.status(400).json(z.treeifyError(result.error));

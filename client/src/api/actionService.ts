@@ -68,11 +68,6 @@ export const ensureOk = async (res: Response, message: string) => {
         return res;
     }
 
-    // Backup check for 401 Unauthorized response to redirect to login page
-    if (res.status === 401) {
-        throw redirect(ROUTES.auth.root);
-    }
-
     let errorMessage = `${message} (${res.status})`;
 
     try {

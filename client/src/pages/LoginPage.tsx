@@ -1,6 +1,6 @@
 // General Imports
-import { useState } from "react";
-import { Form, Link } from "react-router";
+import { useEffect, useState } from "react";
+import { Form, Link, useSearchParams } from "react-router";
 import PesoLogo from "../assets/peso.jpg";
 
 // Components
@@ -15,6 +15,7 @@ import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import CasesOutlinedIcon from "@mui/icons-material/CasesOutlined";
 import { ROUTES } from "../hooks/reroute";
+import { NotificationPopup } from "../components/popups/NotificationPopups";
 
 function HeroIcons({ className }: React.HTMLAttributes<HTMLDivElement>) {
     return (
@@ -115,9 +116,6 @@ function LoginForm({ className }: React.HTMLAttributes<HTMLFormElement>) {
             <br className="block mb-30" />
 
             <div className="flex justify-between mb-6">
-                <ChoiceItem inputVariant="checkbox" stylized={false} disabled>
-                    Remember me
-                </ChoiceItem>
                 <Link to={ROUTES.forgotPassword.root} className="hover:underline ">
                     <Text weight="medium" variant="primary-blue" size="description">
                         Forgot your password?
@@ -147,10 +145,42 @@ function RightSection() {
 }
 
 function LoginPage() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [loginNotif, setloginNotif] = useState<string>("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParams.get("NOTIF");
+
+        if (statusKey) {
+            setloginNotif(statusKey);
+            setNotifModalOpen(true);
+
+            // Clean up query param from URL
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("passwordChangeStatus");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setloginNotif(""); // Reset string state on close
+    };
+
     return (
         <main className="flex flex-col md:flex-row min-h-screen ">
             <LeftSection className="order-2 md:order-1" />
             <RightSection />
+
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={loginNotif}
+                    icon="warning"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
         </main>
     );
 }

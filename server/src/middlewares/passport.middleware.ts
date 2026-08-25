@@ -18,7 +18,7 @@ export const localAuth = (req: Request, res: Response, next: NextFunction) => {
 
             if (!user) {
                 const fallbackMessage = "Invalid email or password";
-                return res.status(401).json({ error: info?.message || fallbackMessage });
+                return res.status(401).json({ message: info?.message || fallbackMessage });
             }
 
             req.user = user;
