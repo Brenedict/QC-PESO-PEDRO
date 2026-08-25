@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useSearchParamsTable } from "../hooks/table";
 import { getTimeframeRange } from "../api/dateService";
 
@@ -19,18 +19,11 @@ function toDateInputValue(value: string | Date) {
 export function useTimeframeFilter(defaultTimeframe: Timeframe = "overall") {
     const { searchParams } = useSearchParamsTable();
 
-    const initialTimeframe = (searchParams.timeframe ?? defaultTimeframe) as Timeframe;
-    const initialRange = getTimeframeRange(initialTimeframe);
+    const [timeframe, setTimeframe] = useState<Timeframe>((searchParams.timeframe ?? defaultTimeframe) as Timeframe);
+    const [startDate, setStartDate] = useState(() => searchParams.startDate ?? getTimeframeRange(timeframe)?.startDate);
+    const [endDate, setEndDate] = useState(() => searchParams.endDate ?? getTimeframeRange(timeframe)?.endDate);
 
-    const [timeframe, setTimeframe] = useState<Timeframe>(initialTimeframe);
-    const [startDate, setStartDate] = useState(
-        searchParams.startDate ?? (initialRange ? toDateInputValue(initialRange.startDate) : "")
-    );
-    const [endDate, setEndDate] = useState(
-        searchParams.endDate ?? (initialRange ? toDateInputValue(initialRange.endDate) : "")
-    );
-
-    const handleTimeframeChange = (newTimeframe: string) => {
+    const handleTimeframeChange = useCallback((newTimeframe: string) => {
         const timeframe = newTimeframe as Timeframe;
 
         if (timeframe === "custom") {
@@ -50,25 +43,31 @@ export function useTimeframeFilter(defaultTimeframe: Timeframe = "overall") {
         setTimeframe(timeframe);
         setStartDate(toDateInputValue(range.startDate));
         setEndDate(toDateInputValue(range.endDate));
-    };
+    }, []);
 
-    const handleStartDateChange = (value: string) => {
-        if (endDate && value > endDate) {
-            return;
-        }
+    const handleStartDateChange = useCallback(
+        (value: string) => {
+            if (endDate && value > endDate) {
+                return;
+            }
 
-        setTimeframe("custom");
-        setStartDate(value);
-    };
+            setTimeframe("custom");
+            setStartDate(value);
+        },
+        [endDate]
+    );
 
-    const handleEndDateChange = (value: string) => {
-        if (startDate && value < startDate) {
-            return;
-        }
+    const handleEndDateChange = useCallback(
+        (value: string) => {
+            if (startDate && value < startDate) {
+                return;
+            }
 
-        setTimeframe("custom");
-        setEndDate(value);
-    };
+            setTimeframe("custom");
+            setEndDate(value);
+        },
+        [startDate]
+    );
 
     const isTimeframeChanged = useCallback(() => {
         return startDate !== (searchParams.startDate ?? "") || endDate !== (searchParams.endDate ?? "");

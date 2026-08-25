@@ -14,10 +14,9 @@ import { ShiftFormVerifySchema } from "@qcpesopedro/shared/schema/shift";
 
 // GET: Fetches all shifts
 export const getShifts = async ({ request }: ActionFunctionArgs) => {
-    const { query, omitted } = extractQueryToObject(request, ["page", "timeframe"]);
-    const dateRangeOption = query.timeframe === "overall" ? getTimeframeRange(omitted?.timeframe ?? "day") : {};
+    const { query } = extractQueryToObject(request, ["page", "timeframe"]);
     const startEndHour = getStartEndHour(query.startDate, query.endDate);
-    const apiParams = buildParamString({ ...query, ...dateRangeOption, ...startEndHour });
+    const apiParams = buildParamString({ ...query, ...startEndHour });
 
     console.log(apiParams);
 

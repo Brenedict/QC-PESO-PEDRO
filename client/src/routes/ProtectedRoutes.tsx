@@ -53,6 +53,7 @@ import {
 import { primaryAuthLoader, requireAccess } from "../api/authService";
 import { getAnalytics } from "../api/analyticsService";
 import { getShiftDetailsOverview, getShifts, patchReviewShift } from "../api/shiftService";
+import { todayRedirectLoader } from "../api/dateService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -180,7 +181,7 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "end-shift",
                         element: <EndShiftVerification />,
-                        loader: requireAccess(AccessLevel.ADMIN, getShifts),
+                        loader: requireAccess(AccessLevel.ADMIN, todayRedirectLoader(getShifts)),
                         children: [
                             {
                                 path: ":shiftId/review",

@@ -19,6 +19,7 @@ export function TimeframeSelect({ timeframe, handleTimeframeChange }: TimeframeS
                 className="w-48! h-9.5! px-3! py-0! rounded-xl! bg-white"
                 value={timeframe}
                 onChange={(e) => handleTimeframeChange(e.target.value)}
+                form="tableFilter"
             />
         </LeftLabeledInput>
     );

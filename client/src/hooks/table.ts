@@ -21,7 +21,10 @@ function createParamSetter(setSearchParams: SetURLSearchParams, pageKey: string 
             for (const [key, value] of Object.entries(params)) {
                 const stringValue = value?.toString() ?? "";
 
-                const isDefault = (key === pageKey && stringValue === "1") || stringValue.trim() === "";
+                const isDefault =
+                    (key === pageKey && stringValue === "1") ||
+                    (key === "timeframe" && stringValue !== "overall") ||
+                    stringValue.trim() === "";
 
                 if (isDefault) {
                     next.delete(key);

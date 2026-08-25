@@ -1,3 +1,5 @@
+import { redirect, type LoaderFunctionArgs } from "react-router";
+
 export type ParamArgs = string[][] | Record<string, string | string[]> | string | URLSearchParams;
 export type TIMEFRAME_RESULT = { startDate: string; endDate: string };
 
@@ -116,3 +118,37 @@ export function buildParamString(init?: ParamArgs) {
     }
     return params.toString();
 }
+
+export function dateRangeRedirect(path: string, startDate: Date, endDate: Date) {
+    const params = new URLSearchParams();
+    const formatDate = (d: Date) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+    params.set("startDate", formatDate(startDate));
+    params.set("endDate", formatDate(endDate));
+    return redirect(`${path}?${params.toString()}`);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+export const todayRedirectLoader = (loaderFn?: Function) => async (args: LoaderFunctionArgs) => {
+    const url = new URL(args.request.url);
+
+    const timeframe = url.searchParams.get("timeframe");
+    const startDate = url.searchParams.get("startDate");
+    const endDate = url.searchParams.get("endDate");
+
+    if (timeframe === "overall") {
+        return loaderFn ? await loaderFn(args) : null;
+    }
+
+    if (!startDate || !endDate) {
+        const today = new Date();
+
+        return dateRangeRedirect(url.pathname, today, today);
+    }
+
+    return loaderFn ? await loaderFn(args) : null;
+};
