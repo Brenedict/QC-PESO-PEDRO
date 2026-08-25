@@ -2,7 +2,11 @@ import type { Demographic, ESSStatus, Outcome, ShiftLog, TransactionType } from 
 import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
 import TransactionModel from "../models/transaction.model";
-import type { ShiftLogFindManyArgs, ShiftLogWhereInput } from "@qcpesopedro/shared/prisma/models";
+import type {
+    ShiftLogFindManyArgs,
+    ShiftLogOrderByWithRelationInput,
+    ShiftLogWhereInput,
+} from "@qcpesopedro/shared/prisma/models";
 import { calcAvgShiftApproval } from "@qcpesopedro/shared/prisma/sql";
 import prisma from "../config/prisma.config";
 import type { ShiftDetailsQueryType } from "@qcpesopedro/shared/schema/shift";
@@ -37,10 +41,15 @@ export default {
         return DateUtil.formatInterval(averageSecondsNum);
     },
 
-    async getShiftOverview(startDate?: Date, endDate?: Date, where?: ShiftLogWhereInput) {
+    async getShiftOverview(
+        startDate?: Date,
+        endDate?: Date,
+        where?: ShiftLogWhereInput,
+        orderBy?: ShiftLogOrderByWithRelationInput
+    ) {
         const [shifts, pending, approved, revision, rejected, average] = await Promise.all([
             this.getShiftLogs(
-                { include: { user: true, _count: { select: { transactions: true } } }, where },
+                { include: { user: true, _count: { select: { transactions: true } } }, where, orderBy },
                 startDate,
                 endDate
             ),

@@ -17,6 +17,7 @@ import {
 import ShiftModel from "../models/shift.model";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 import { requireAccessLevel, requireTimeIn } from "../middlewares/authorized.middleware";
+import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
 
 export default {
     getShifts: [
@@ -24,10 +25,15 @@ export default {
         validateSchema("query", ShiftQuerySchema),
         async (req: Request, res: Response) => {
             const { startDate, endDate, status, search } = req.query as unknown as ShiftQueryType;
-            const data = await ShiftService.getShiftOverview(startDate, endDate, {
-                status,
-                user: { fullName: { contains: search, mode: "insensitive" } },
-            });
+            const data = await ShiftService.getShiftOverview(
+                startDate,
+                endDate,
+                {
+                    status,
+                    user: { fullName: { contains: search, mode: "insensitive" } },
+                },
+                [{ timeIn: "desc" }, { timeOut: "desc" }] as ShiftLogOrderByWithRelationInput
+            );
             return res.json(data);
         },
     ],

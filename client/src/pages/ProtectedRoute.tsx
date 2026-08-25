@@ -1,5 +1,5 @@
 // General Imports
-import { Outlet, useRouteLoaderData } from "react-router";
+import { Outlet, useNavigation, useRouteLoaderData } from "react-router";
 
 // API Services
 import type { primaryAuthLoader } from "../api/authService";
@@ -26,7 +26,6 @@ export function ProtectedRoute() {
         onSearchChange: () => {},
         onNotifClick: () => {},
     };
-
     return (
         <UserGlobalProvider value={userGlobalContext}>
             <Outlet />
