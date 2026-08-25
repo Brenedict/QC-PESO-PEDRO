@@ -80,9 +80,16 @@ export const getTransactions =
             ...startEndHour,
         };
 
-        // Limit the view of frontline to their own transactions
-        if (user && user.role === "FRONTLINE" && !daily) paramsObject.shiftLogId = String(user.shiftLogId);
-        else paramsObject.include = ["user"]; // include users when user is atleast admin role
+        if (user) {
+            if (daily) paramsObject.shiftLogId = String(user.shiftLogId); // Sa applicant form dapat sa current shift lang
+
+            if (user.role === "FRONTLINE" && !daily) {
+                paramsObject.userId = String(user.id); // Kapag history sa current user lang (Frontline)
+            }
+            if (user.role !== "FRONTLINE") {
+                paramsObject.include = ["user"]; // View history, include users when user is atleast admin role
+            }
+        }
 
         const apiParams = buildParamString(paramsObject as ParamArgs);
         console.log(apiParams);

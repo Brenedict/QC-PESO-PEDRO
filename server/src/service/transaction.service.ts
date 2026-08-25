@@ -179,10 +179,11 @@ export default {
     },
 
     parseTransactionQuery(query: TransactionQueryType): TransactionFindManyArgs {
-        const { shiftLogId, startDate, endDate, type, outcome, page, limit, search, include } = query;
+        const { shiftLogId, userId, startDate, endDate, type, outcome, page, limit, search, include } = query;
 
         return {
             where: {
+                userId,
                 shiftLogId,
                 transactionType: type as TransactionType | undefined,
                 transactionOutcome: outcome as Outcome | undefined,

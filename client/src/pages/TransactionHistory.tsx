@@ -22,6 +22,7 @@ import { useSearchParamsTable } from "../hooks/table";
 import { SelectInput } from "../components/Input";
 import { useTimeframeFilter, type TimeframeFilter } from "../hooks/useTimeFrameFilter";
 import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
+import { useAuth } from "../context/AuthContext";
 
 export function TransactionExtraFilters({ timeframeFilter }: { timeframeFilter?: TimeframeFilter }) {
     const { searchParams } = useSearchParamsTable();
@@ -67,6 +68,7 @@ export function TransactionExtraFilters({ timeframeFilter }: { timeframeFilter?:
 }
 
 function TransactionHistory() {
+    const { user } = useAuth();
     const timeframeFilter = useTimeframeFilter();
     const data = useLoaderData();
     const navigate = useNavigateDefault();
@@ -106,7 +108,7 @@ function TransactionHistory() {
                     <Table.Header text="Applicant Name" />
                     {transactions?.[0]?.user && <Table.Header text="Processed By" />}
                     <Table.Header text="Outcome" />
-                    <Table.Header text="Actions" />
+                    {user?.role !== "FRONTLINE" && <Table.Header text="Actions" />}
                 </Table.Row>
 
                 {/* Data rows */}
@@ -132,25 +134,27 @@ function TransactionHistory() {
                         <Table.Data>
                             <Status type="outcome" variant={transaction.transactionOutcome} />
                         </Table.Data>
-                        <Table.Data>
-                            <ActionButtons
-                                id={transaction.txCode}
-                                actions={[
-                                    {
-                                        color: "black",
-                                        icon: BorderColorOutlinedIcon,
-                                        handleClick: handleEdit,
-                                        text: "Edit",
-                                    },
-                                    {
-                                        color: "red",
-                                        icon: PersonRemoveOutlinedIcon,
-                                        handleClick: handleDelete,
-                                        text: "Delete",
-                                    },
-                                ]}
-                            />
-                        </Table.Data>
+                        {user?.role !== "FRONTLINE" && (
+                            <Table.Data>
+                                <ActionButtons
+                                    id={transaction.txCode}
+                                    actions={[
+                                        {
+                                            color: "black",
+                                            icon: BorderColorOutlinedIcon,
+                                            handleClick: handleEdit,
+                                            text: "Edit",
+                                        },
+                                        {
+                                            color: "red",
+                                            icon: PersonRemoveOutlinedIcon,
+                                            handleClick: handleDelete,
+                                            text: "Delete",
+                                        },
+                                    ]}
+                                />
+                            </Table.Data>
+                        )}
                     </Table.Row>
                 ))}
             </Table>
