@@ -26,7 +26,7 @@ export function PopupEndShiftReview() {
     const { shiftId } = useParams();
     const handleClose = () => navigate(ROUTES.endshift.root, true);
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 

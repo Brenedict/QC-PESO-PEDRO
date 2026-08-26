@@ -52,6 +52,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 app.use("/api/v1/user", userRoutes);
+
 app.use(errorMiddleware.notFoundError);
 app.use(errorMiddleware.internalError);
 

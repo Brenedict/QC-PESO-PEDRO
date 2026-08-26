@@ -12,6 +12,8 @@ export const mockUser: User = {
     lastName: "Doe",
     createdAt: new Date(),
     updatedAt: new Date(),
+    resetToken: "null",
+    resetTokenExpiresAt: new Date(),
 };
 
 export const mockFrontlineUser: User = {
@@ -26,6 +28,8 @@ export const mockFrontlineUser: User = {
     lastName: "Bin",
     createdAt: new Date(),
     updatedAt: new Date(),
+    resetToken: "null",
+    resetTokenExpiresAt: new Date(),
 };
 
 export const mockAdminUser: User = {
@@ -40,6 +44,8 @@ export const mockAdminUser: User = {
     lastName: "Pab",
     createdAt: new Date(),
     updatedAt: new Date(),
+    resetToken: "null",
+    resetTokenExpiresAt: new Date(),
 };
 
 export const mockSuperAdminUser: User = {
@@ -54,4 +60,6 @@ export const mockSuperAdminUser: User = {
     lastName: "Dav",
     createdAt: new Date(),
     updatedAt: new Date(),
+    resetToken: "null",
+    resetTokenExpiresAt: new Date(),
 };

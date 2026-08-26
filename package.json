@@ -17,7 +17,8 @@
         "gen:prisma": "npm run gen:prisma -w server/",
         "seed:prisma": "npm run seed:prisma -w server/",
         "gensql:prisma": "npm run gensql:prisma -w server/",
-        "create:prisma": "npm run create:prisma -w server/"
+        "create:prisma": "npm run create:prisma -w server/",
+        "studio:prisma": "npm run studio:prisma -w server/"
     },
     "devDependencies": {
         "concurrently": "^8.2.2"

@@ -126,7 +126,7 @@ model Transaction {
     applicantLastName String @db.VarChar(256)
 
     // Para mag span yung search sa full name string
-    applicantFullName String? @db.VarChar(256)
+    applicantFullName String? @default(dbgenerated()) @db.VarChar(256) 
 
     applicantSex       Sex
     transactionOutcome Outcome         @default(NONE)
@@ -181,6 +181,9 @@ model User {
 
     createdAt DateTime @default(now()) @db.Timestamptz(0)
     updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(0)
+
+    resetToken String? @unique
+    resetTokenExpiresAt DateTime?
 
     auditLogs    AuditLog[]
     accountLogs  AccountLog[]

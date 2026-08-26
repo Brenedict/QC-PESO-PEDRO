@@ -1,8 +1,12 @@
 // General Imports
-import { type ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 
 // PEDRO SHARED IMPORTS
-import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
+import {
+    UserFormChangePasswordSchema,
+    UserFormCreateSchema,
+    UserFormUpdateSchema,
+} from "@qcpesopedro/shared/schema/users";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
@@ -117,6 +121,7 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         const { userId } = params;
         const decodedId = Number(decode(userId));
         const formData = await request.formData();
+
         const actionType = formData.get("manageAction");
 
         if (actionType === "deactivate") {
@@ -145,5 +150,58 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.userManagement.root);
+    }
+};
+
+// Change password fetch but this one is used for the /reset-password
+export const changePasswordPatch = async (formData: FormData, resetToken: string): Promise<number | null> => {
+    try {
+        const payload = validateForm(formData, UserFormChangePasswordSchema, "Invalid password credentials");
+
+        const response = await apiJson(`/auth/change-password?token=${resetToken}`, {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        });
+
+        // Returns to root directory and queries
+        return response.status;
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
+};
+
+// Change password fetch but this one is used for the /profile/change-password
+export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
+    try {
+        const formData = await request.formData();
+
+        const userId = parseInt(formData.get("id") as string);
+
+        // Removes id to fit UserFormChangePasswordSchema
+        formData.delete("id");
+
+        const payload = validateForm(formData, UserFormChangePasswordSchema, "Invalid password credentials");
+
+        const response = await apiJson(`/user/${userId}/change-password`, {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (response.status == 422 && result.code == "INCORRECT_PASSWORD") {
+            return redirect(`${ROUTES.profile.changePassword}?INCORRECT_PASSWORD=${result.message}`);
+        }
+
+        if (response.status == 422 && result.code == "DUPLICATE_PASSWORD") {
+            return redirect(`${ROUTES.profile.changePassword}?DUPLICATE_PASSWORD=${result.message}`);
+        }
+
+        // Returns to root directory and queries
+        return redirect(`${ROUTES.profile.root}?passwordChangeStatus=${result.message}`);
+    } catch (err) {
+        console.error(err);
+        return null;
     }
 };

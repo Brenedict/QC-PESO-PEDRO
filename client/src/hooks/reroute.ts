@@ -6,6 +6,7 @@ import { encode } from "../utils/hashids";
 
 const BASE_ROUTES = {
     auth: "/auth",
+    forgotPassword: "/forgot-password",
     dashboard: "/",
     profile: "/profile",
     history: "/history",
@@ -26,12 +27,16 @@ export const ROUTES = {
     auth: {
         root: BASE_ROUTES.auth,
     },
+    forgotPassword: {
+        root: BASE_ROUTES.forgotPassword,
+    },
     dashboard: {
         root: BASE_ROUTES.dashboard,
         preview: (type: string) => `${BASE_ROUTES.dashboard}/${type}`,
     },
     profile: {
         root: BASE_ROUTES.profile,
+        changePassword: `${BASE_ROUTES.profile}/change-password`,
     },
     history: {
         root: BASE_ROUTES.history,

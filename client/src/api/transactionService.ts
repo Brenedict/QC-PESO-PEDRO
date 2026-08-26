@@ -72,7 +72,7 @@ export const getTransactions =
         const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "overall"] as TIMEFRAME_RESULT;
 
         const apiParams = buildParamString({ ...dayRangeParam, ...query, ...dateRangeOption });
-        console.log(apiParams);
+        // console.log(apiParams);
 
         try {
             // Main Fetch Request
@@ -108,7 +108,7 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
 export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => {
     const dayRangeParam = buildDayRangeParam(new Date());
     const apiParams = buildParamString({ ...dayRangeParam, include: ["user"], limit: "4" });
-    console.log(`/transaction?${apiParams}`);
+    // console.log(`/transaction?${apiParams}`);
 
     try {
         // Main Fetch Request

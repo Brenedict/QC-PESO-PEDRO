@@ -18,7 +18,6 @@ export const UserContextSchema = zfd.formData(
         shiftLogs: true,
         accountLogs: true,
         transactions: true,
-        shift: true,
     }).extend({
         id: z.number(),
         shiftLogId: z.number(),

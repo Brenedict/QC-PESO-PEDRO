@@ -18,6 +18,8 @@ export function ProtectedRoute() {
     // Global context gathered from `/user/me`
     const userGlobalContext: UserGlobalContextValue = {
         id: user.id,
+        email: user.email,
+        shift: user.shift,
         status: user.status ?? "ONLINE",
         hasNotif: false,
         firstName: user.firstName,

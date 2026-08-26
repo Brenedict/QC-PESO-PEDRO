@@ -94,7 +94,7 @@ export function PopupTimeIn({ root }: { root: string }) {
 export function PopupLogout({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 

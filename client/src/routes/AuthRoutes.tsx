@@ -1,20 +1,24 @@
 // General Imports
-import { redirect, type RouteObject } from "react-router";
+import { redirect, useSearchParams, type ActionFunctionArgs, type RouteObject } from "react-router";
 
 // PEDRO SHARED IMPORTS
 import { LoginSchema } from "@qcpesopedro/shared/schema/login";
 
 // Components
 import LoginPage from "../pages/LoginPage";
+import { ForgotPassword } from "../pages/ForgotPassword";
+import { ResetPassword } from "../pages/ResetPassword";
 import SystemErrorPage from "../pages/SystemErrorPage";
 
 // API Services
-import { checkAuthService } from "../api/authService";
+import { checkAuthService, checkResetToken, handleForgotPassword } from "../api/authService";
 import { apiFetch } from "../api/httpClient";
 import TokenStore from "../api/tokenStore";
 
 // Custom Hooks
 import { ROUTES } from "../hooks/reroute";
+
+import { changePasswordPatch } from "../api/userService";
 
 export const authRoutes: RouteObject[] = [
     {
@@ -48,15 +52,34 @@ export const authRoutes: RouteObject[] = [
                 TokenStore.setAccessToken(data.accessToken);
                 return redirect(ROUTES.dashboard.root);
             }
-            alert("Invalid credentials");
+
+            if (res.status === 401) {
+                const data: { message: string } = await res.json();
+
+                return redirect(`${ROUTES.auth.root}?NOTIF=${data.message}`);
+            }
+
             return null;
         },
         loader: async () => {
-            const success = await checkAuthService();
-            if (success) {
-                return redirect(ROUTES.dashboard.root);
+            try {
+                const success = await checkAuthService();
+                if (success) {
+                    return redirect(ROUTES.dashboard.root);
+                }
+                return null;
+            } catch (err) {
+                return null;
             }
-            return null;
         },
+    },
+    {
+        path: "forgot-password",
+        element: <ForgotPassword onSubmit={handleForgotPassword} />,
+    },
+    {
+        path: "reset-password",
+        element: <ResetPassword onSubmit={changePasswordPatch} />,
+        loader: checkResetToken,
     },
 ];

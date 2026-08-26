@@ -38,15 +38,19 @@ export const redirectWithQuery = (request: Request, path: string) => {
     return redirect(`${path}?${query}`);
 };
 
-export const handleErrRedirect = (err: unknown, request: Request, path: string) => {
+export const handleErrRedirect = (err: unknown, request: Request, path: string, withQuery: boolean = true) => {
     // 2nd Line of Defense on Unauthorized URL Access
     // Catches 401 (Hard URL redirect). Prevents page loader from infinite loading.
     if (err instanceof Response) throw err;
 
     console.error(err);
 
-    // Returns to root directory + queries
-    return redirectWithQuery(request, path);
+    if (withQuery) {
+        // Returns to root directory + queries
+        return redirectWithQuery(request, path);
+    }
+
+    return redirect(path);
 };
 export const apiJson = async (route: string, options: RequestInit = {}) => {
     return apiFetch(route, {
@@ -62,11 +66,6 @@ export const apiJson = async (route: string, options: RequestInit = {}) => {
 export const ensureOk = async (res: Response, message: string) => {
     if (res.ok) {
         return res;
-    }
-
-    // Backup check for 401 Unauthorized response to redirect to login page
-    if (res.status === 401) {
-        throw redirect(ROUTES.auth.root);
     }
 
     let errorMessage = `${message} (${res.status})`;
