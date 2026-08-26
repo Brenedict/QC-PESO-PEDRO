@@ -1,3 +1,5 @@
+// General Imports
+
 // PEDRO SHARED IMPORTS
 import type { Prisma, Role, User } from "@qcpesopedro/shared/prisma/client";
 
@@ -7,6 +9,9 @@ import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
 import type { ShiftLogWhereInput, UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
 
+// Utils
+import HashUtil from "../utils/hash.util";
+
 export interface UserManagementFilter {
     role?: Role;
     status?: "ACTIVE" | "INACTIVE";
@@ -15,8 +20,8 @@ export interface UserManagementFilter {
 
 export default {
     generateTemporaryPassword(firstName: string, lastName: string): string {
-        const isoDate = new Date().toISOString().split("T")[0];
-        const temporaryPassword = `QCPESO-${firstName.toUpperCase().split(" ").join("")}-${lastName.toUpperCase().split(" ").join("")}-${isoDate}`;
+        const localeDate = new Date().toLocaleDateString("sv-SE");
+        const temporaryPassword = `QCPESO-${firstName.toUpperCase().split(" ").join("")}-${lastName.toUpperCase().split(" ").join("")}-${localeDate}`;
 
         return temporaryPassword;
     },
@@ -56,17 +61,28 @@ export default {
 
     async createUser(user: User): Promise<User | null> {
         const generatedTemporaryPassword = this.generateTemporaryPassword(user.firstName, user.lastName);
+        const hashedPassword = await HashUtil.hashPassword(generatedTemporaryPassword);
 
-        user.password = generatedTemporaryPassword;
+        user.password = hashedPassword;
 
         return await UserModel.createUser(user);
     },
 
     async resetPassword(userId: number, user: User): Promise<User | null> {
         const generatedTemporaryPassword = this.generateTemporaryPassword(user.firstName, user.lastName);
+        const hashedPassword = await HashUtil.hashPassword(generatedTemporaryPassword);
 
         const updatedUser = {
-            password: generatedTemporaryPassword,
+            password: hashedPassword,
+        } as User;
+
+        return await UserModel.updateUser(userId, updatedUser);
+    },
+
+    async changePassword(userId: number, newPassword: string): Promise<User | null> {
+        const hashedPassword = await HashUtil.hashPassword(newPassword);
+        const updatedUser = {
+            password: hashedPassword,
         } as User;
 
         return await UserModel.updateUser(userId, updatedUser);

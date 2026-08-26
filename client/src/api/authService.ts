@@ -1,16 +1,17 @@
 // General Imports
-import { redirect, type LoaderFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs } from "react-router";
 
 // PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/enums";
+import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
 import { apiFetch } from "./httpClient";
 import TokenStore from "./tokenStore";
+import { apiJson, ensureOk, handleErrRedirect } from "./actionService";
 
 // Custom Hooks
 import { ROUTES } from "../hooks/reroute";
-import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // Auth helpers
 
@@ -24,6 +25,7 @@ export const primaryAuthLoader = async () => {
         throw redirect(ROUTES.auth.root);
     }
     const user = await getUserContextLoader();
+    console.log("loadded user.......................");
     TokenStore.setUser(user);
     return { user };
 };
@@ -102,6 +104,60 @@ export const getUserContextLoader = async () => {
     } catch (err) {
         console.error(err);
         await logoutService();
+        return null;
+    }
+};
+
+export const checkResetToken = async ({ request }: ActionFunctionArgs) => {
+    try {
+        // Create URL object for query extraction
+        const url = new URL(request.url);
+
+        // Extract the 'token' query parameter
+        const token = url.searchParams.get("token") ?? "";
+
+        // Initial check for token length, prevents wasteful query on fake tokens
+        if (token.trim().length === 0 || token.trim().length <= 63) {
+            throw redirect(ROUTES.auth.root);
+        }
+
+        const res = await apiJson(`/auth/protected/reset-password?token=${token}`, { method: "GET" });
+
+        const result: { isTokenExpired: boolean; email: string; message: string } = await res.json();
+
+        // If (Expired/Invalid Token) handle as business logic instead of throwing an error
+        if (res.status >= 400 && res.status < 500) {
+            return {
+                isTokenExpired: true,
+                email: "",
+                message: result.message,
+            };
+        }
+
+        // Only responsible for 500 status codes
+        await ensureOk(res, "Failed to authenticate reset token");
+
+        return result;
+    } catch (err) {
+        return handleErrRedirect(err, request, ROUTES.auth.root, false);
+    }
+};
+
+export const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>): Promise<boolean | null> => {
+    try {
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+
+        e.preventDefault(); // Stop full page reload
+
+        const response = await apiJson("/auth/forgot-password", {
+            method: "PATCH",
+            body: JSON.stringify({ email }),
+        });
+
+        return response.ok;
+    } catch (err) {
+        console.error(err);
         return null;
     }
 };

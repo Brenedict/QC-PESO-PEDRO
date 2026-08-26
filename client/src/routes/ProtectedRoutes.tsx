@@ -1,5 +1,5 @@
 // General Imports
-import { redirect, type RouteObject } from "react-router";
+import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 
 // Pages
@@ -15,6 +15,8 @@ import SystemAuditLogs from "../pages/SystemAuditLogs";
 import UserManagement from "../pages/UserManagement";
 import Reports from "../pages/Reports";
 import SystemErrorPage from "../pages/SystemErrorPage";
+import { PopupChangePassword } from "../components/popups/UserPopups";
+import { changePasswordAction } from "../api/userService";
 
 // Components
 import {
@@ -175,8 +177,15 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "profile",
                         element: <ProfilePage />,
-                        children: [...shiftPopups(ROUTES.profile.root)],
-                        loader: requireAccess(AccessLevel.FRONTLINE),
+                        children: [
+                            {
+                                path: "change-password",
+                                element: <PopupChangePassword />,
+                                loader: requireAccess(AccessLevel.FRONTLINE),
+                                action: changePasswordAction,
+                            },
+                            ...shiftPopups(ROUTES.profile.root),
+                        ],
                     },
                     {
                         path: "end-shift",

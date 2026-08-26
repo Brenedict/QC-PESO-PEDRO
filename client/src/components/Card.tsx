@@ -17,7 +17,7 @@ export type ReducedColorVariant = Extract<
 >;
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-    children: ReactNode;
+    children?: ReactNode;
     variant?: ReducedColorVariant;
     bordered?: true | false;
     className?: string;

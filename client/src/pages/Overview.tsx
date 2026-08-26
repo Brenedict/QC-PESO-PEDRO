@@ -111,16 +111,15 @@ function EmploymentOutcomes() {
     return <CardGroup ids={ids} analytics={analytics} />;
 }
 
-function EmploymentEvents() {
-    return null;
-    // return (
-    //     <CardGroup>
-    //         <JobFairParticipants {...jobFairData} />
-    //         <AccreditationCard {...accreditationData} />
-    //         <WHIPCard {...WHIPData} />
-    //     </CardGroup>
-    // );
-}
+// function EmploymentEvents() {
+//     return (
+//         <CardGroup>
+//             <JobFairParticipants {...jobFairData} />
+//             <AccreditationCard {...accreditationData} />
+//             <WHIPCard {...WHIPData} />
+//         </CardGroup>
+//     );
+// }
 
 function EndShiftValue({ title, children }: { title: string; children: ReactNode }) {
     return (

@@ -17,6 +17,9 @@ import prisma from "../src/config/prisma.config";
 // Service
 import TransactionService from "../src/service/transaction.service";
 
+// Util
+import HashUtil from "../src/utils/hash.util";
+
 // Config
 const START_HOUR = 8;
 const END_HOUR = 17;
@@ -225,11 +228,11 @@ const userSpecs: SeedUserSpec[] = [
     },
 ];
 
-function buildUserDummy(spec: SeedUserSpec): UserUncheckedCreateInput {
+async function buildUserDummy(spec: SeedUserSpec): Promise<UserUncheckedCreateInput> {
     return {
         username: spec.username,
         email: spec.email,
-        password: "password123",
+        password: await HashUtil.hashPassword("password123"),
         role: spec.role,
         status: "ONLINE",
         shift: spec.shift,
@@ -337,7 +340,8 @@ async function main() {
         // 1. Seed users.
         const createdUsers = [];
         for (const spec of userSpecs) {
-            const user = await prisma.user.create({ data: buildUserDummy(spec) });
+            const dummyUserData = await buildUserDummy(spec);
+            const user = await prisma.user.create({ data: dummyUserData });
             createdUsers.push(user);
         }
 

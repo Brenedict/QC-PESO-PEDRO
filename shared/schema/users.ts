@@ -4,7 +4,6 @@ import z from "zod";
 import "../zod/schemas";
 import {
     RoleSchema,
-    StatusSchema,
     UserUncheckedCreateInputObjectZodSchema,
     UserUncheckedUpdateInputObjectZodSchema,
 } from "../zod/schemas";
@@ -39,6 +38,17 @@ export const UserQuerySchema = z.object({
     role: RoleSchema.optional(),
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
 });
+
+export const UserFormChangePasswordSchema = zfd
+    .formData({
+        currentPassword: z.string().min(8).optional(),
+        newPassword: z.string().min(8),
+        confirmPassword: z.string().min(8),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    });
 
 export type UserFormUpdateType = z.infer<typeof UserFormUpdateSchema>;
 export type UserQueryType = z.infer<typeof UserQuerySchema>;

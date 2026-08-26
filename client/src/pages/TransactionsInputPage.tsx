@@ -43,6 +43,7 @@ interface FormRow1Props {
 export function FormRow1({ applicantFirstName, applicantLastName }: FormRow1Props) {
     const { user } = useAuth();
 
+    console.log("transactoin user", user);
     return (
         <section className="grid grid-cols-2 gap-6">
             <GeneralInput

@@ -66,6 +66,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/shift", shiftRoutes);
+
 app.use(errorMiddleware.notFoundError);
 app.use(errorMiddleware.internalError);
 

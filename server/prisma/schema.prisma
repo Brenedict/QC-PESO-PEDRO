@@ -122,7 +122,11 @@ model Transaction {
     applicantFirstName String @db.VarChar(256)
 
     /// @zod.trim().min(1, "Application last name cannot be empty")
-    applicantLastName  String          @db.VarChar(256)
+    applicantLastName String @db.VarChar(256)
+
+    // Para mag span yung search sa full name string
+    applicantFullName String? @default(dbgenerated()) @db.VarChar(256)
+
     applicantSex       Sex
     transactionOutcome Outcome         @default(NONE)
     createdAt          DateTime        @default(now()) @db.Timestamptz(0)
@@ -130,7 +134,6 @@ model Transaction {
     remarks            String?
     demographics       Demographic[]
     txCode             String          @unique
-    applicantFullName  String?         @default(dbgenerated("(((\"applicantFirstName\")::text || ' '::text) || (\"applicantLastName\")::text)")) @db.VarChar(256)
     updatedAt          DateTime        @default(now()) @db.Timestamptz(0)
 
     @@index([applicantFullName])
@@ -187,12 +190,15 @@ model User {
 
     createdAt         DateTime      @default(now()) @db.Timestamptz(0)
     updatedAt         DateTime      @default(now()) @updatedAt @db.Timestamptz(0)
-    fullName          String?       @default(dbgenerated("(((\"firstName\")::text || ' '::text) || (\"lastName\")::text)")) @db.VarChar(256)
+    fullName          String?       @default(dbgenerated()) @db.VarChar(256)
     accountLogs       AccountLog[]
     auditLogs         AuditLog[]
     shiftLogs         ShiftLog[]    @relation("UserShiftLogs")
     verifiedShiftLogs ShiftLog[]    @relation("VerifiedShiftLogs")
     transactions      Transaction[]
+
+    resetToken          String?   @unique
+    resetTokenExpiresAt DateTime?
 
     @@index([fullName])
     @@index([role, status])

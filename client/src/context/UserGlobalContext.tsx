@@ -2,11 +2,13 @@
 import { createContext, useContext, type ReactNode } from "react";
 
 // PEDRO SHARED IMPORTS
-import type { Role } from "@qcpesopedro/shared/prisma/enums";
+import type { Role, Shift, Status } from "@qcpesopedro/shared/prisma/enums";
 
 export interface UserGlobalContextValue {
     id: number;
-    status: "DISABLED" | "ONLINE" | "OFFLINE" | "LOGGED_OUT";
+    email: string;
+    shift: Shift;
+    status: Status;
     hasNotif: boolean;
     firstName: string;
     lastName: string;
