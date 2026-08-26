@@ -49,12 +49,16 @@ export const apiFetch = async (route: string, options: FetchOptions = {}): Promi
 };
 
 export const ignoreQueries = (queries: string[]): ShouldRevalidateFunction => {
-    return ({ currentUrl, nextUrl }) => {
+    return ({ currentUrl, nextUrl, formMethod, defaultShouldRevalidate }) => {
+        // always revalidate (run loader) when we submit a form
+        if (formMethod && formMethod.toUpperCase() !== "GET") {
+            return defaultShouldRevalidate;
+        }
+
         const getParamsWithoutIgnored = (url: URL) => {
             const params = [...url.searchParams.entries()]
                 .filter(([key]) => !queries.includes(key))
                 .sort(([a], [b]) => a.localeCompare(b));
-
             return JSON.stringify(params);
         };
 

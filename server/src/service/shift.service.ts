@@ -96,8 +96,8 @@ export default {
 
     isTodayShift(shift: ShiftLog) {
         const shiftIn = new Date(shift.timeIn);
-        const { startDate, endDate } = DateUtil.buildDayRange(new Date()); // today
-        return shiftIn >= startDate && shiftIn <= endDate;
+        const { startDate } = DateUtil.buildDayRange(new Date()); // today
+        return shiftIn >= startDate;
     },
 };
 

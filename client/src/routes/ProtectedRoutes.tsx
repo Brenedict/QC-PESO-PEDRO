@@ -192,6 +192,7 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "end-shift",
                         element: <EndShiftVerification />,
+                        shouldRevalidate: ignoreQueries(["page"]),
                         loader: requireAccess(
                             AccessLevel.ADMIN,
                             todayRedirectLoader(
@@ -222,6 +223,7 @@ export const protectedRoutes: RouteObject[] = [
                         element: <TransactionHistory />,
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
                         loader: requireAccess(AccessLevel.FRONTLINE, getTransactions(false)),
+                        shouldRevalidate: ignoreQueries(["page"]),
                     },
                     {
                         path: "monitoring",

@@ -89,17 +89,25 @@ export default {
     },
 
     async getMostRecentUnfinishedShift(userId: number) {
-        return (await ShiftModel.getShiftLogsByUserId(userId, undefined, { timeIn: "desc" }, undefined, 1))?.[0];
+        return (
+            await ShiftModel.getShiftLogsByUserId(
+                userId,
+                { status: "ONGOING", timeOut: null },
+                { timeIn: "desc" },
+                undefined,
+                1
+            )
+        )?.[0];
     },
 
     async hasFinishedShiftToday(userId: number): Promise<boolean> {
-        const { startDate, endDate } = DateUtil.buildDayRange(new Date());
+        const { startDate } = DateUtil.buildDayRange(new Date());
 
         const shifts = await ShiftModel.count({
             where: {
                 userId,
                 status: { not: "ONGOING" },
-                timeIn: { gte: startDate, lte: endDate },
+                timeIn: { gte: startDate },
             },
         });
         return shifts > 0;

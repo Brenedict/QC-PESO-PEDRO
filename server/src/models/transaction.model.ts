@@ -39,11 +39,17 @@ export default {
     },
 
     async updateTransactionById(id: number, transaction: TransactionUpdateType) {
-        return prisma.transaction.update({ where: { id }, data: transaction as TransactionUncheckedUpdateInput });
+        return prisma.transaction.update({
+            where: { id },
+            data: { ...transaction, updatedAt: new Date() } as TransactionUncheckedUpdateInput,
+        });
     },
 
     async updateTransactionByTxCode(txCode: string, transaction: TransactionUpdateType) {
-        return prisma.transaction.update({ where: { txCode }, data: transaction as TransactionUncheckedUpdateInput });
+        return prisma.transaction.update({
+            where: { txCode },
+            data: { ...transaction, updatedAt: new Date() } as TransactionUncheckedUpdateInput,
+        });
     },
 
     async deleteTransactionById(id: number) {

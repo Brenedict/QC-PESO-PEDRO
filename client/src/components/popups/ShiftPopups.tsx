@@ -1,6 +1,6 @@
 // General Imports
 import { useState } from "react";
-import { Form, useLoaderData } from "react-router";
+import { Form, useLoaderData, type HTMLFormMethod } from "react-router";
 
 // Shared Import
 import { EnvironmentTag, type Transaction } from "@qcpesopedro/shared/prisma/browser";
@@ -40,9 +40,15 @@ const handleCancelTimeIn = (navigate: (route: string, keepQuery?: boolean) => vo
     }
 };
 
-function EndShiftForm({ id = "timeInForm", total, pending }: { id?: string; total?: number; pending?: number }) {
+interface EndShiftFormProps {
+    method?: HTMLFormMethod;
+    id?: string;
+    total?: number;
+    pending?: number;
+}
+function EndShiftForm({ method = "patch", id = "timeInForm", total, pending }: EndShiftFormProps) {
     return (
-        <Form method="post" id={id} className="flex flex-col gap-6">
+        <Form method={method} id={id} className="flex flex-col gap-6">
             {/* Time-In Data Input Holders */}
             <div className="flex gap-4">
                 <GrayMiniCard

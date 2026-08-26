@@ -115,7 +115,7 @@ export const patchEndShift =
                 throw error;
             }
 
-            return res.json();
+            return redirectWithQuery(request, redirect);
         } catch (err) {
             return handleErrRedirect(err, request, ROUTES.auth.root);
         }

@@ -10,7 +10,7 @@ import PageHeader from "../components/PageHeader";
 import Button from "../components/Button";
 import Table from "../components/Table";
 import Status from "../components/Status";
-import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
+import { ActionButtons, ColumnText, DateTime, Identifier, TextAndDateTime } from "../components/TableCells";
 
 // Material UI Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
@@ -128,7 +128,10 @@ function TransactionHistory() {
                         </Table.Data>
                         {transaction.user && (
                             <Table.Data>
-                                <ColumnText>{transaction.user.fullName}</ColumnText>
+                                <TextAndDateTime
+                                    dateTime={new Date(transaction.updatedAt)}
+                                    text={transaction.user.fullName ?? "N/A"}
+                                />
                             </Table.Data>
                         )}
                         <Table.Data>
