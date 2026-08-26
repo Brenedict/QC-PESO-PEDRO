@@ -9,7 +9,7 @@ import Table from "../components/Table";
 import Profile from "../components/Profile";
 import Status from "../components/Status";
 import Button from "../components/Button";
-import { ActionButton, ColumnText, DateTime } from "../components/TableCells";
+import { ActionButton, ColumnText, DateTime, TextAndDateTime } from "../components/TableCells";
 
 // Sample Data
 import type { ShiftRecord } from "../data/shiftRecords";
@@ -156,7 +156,14 @@ function EndShiftVerification() {
                             </Table.Data>
 
                             <Table.Data>
-                                <ColumnText>{shift?.verifier?.fullName ?? "-"}</ColumnText>
+                                {shift?.verifier ? (
+                                    <TextAndDateTime
+                                        text={shift?.verifier?.fullName ?? "N/A"}
+                                        dateTime={shift?.lastVerifiedAt ? new Date(shift.lastVerifiedAt) : new Date()}
+                                    />
+                                ) : (
+                                    <ColumnText>-</ColumnText>
+                                )}
                             </Table.Data>
 
                             <Table.Data>

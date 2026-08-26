@@ -69,3 +69,35 @@ export function formatDuration(start: Date, end: Date): string {
 
     return `${hours}h ${paddedMinutes}m`;
 }
+
+// Date formatting component
+export const formatRelativeDateTime = (dateTime: Date, keepDate = false) => {
+    const now = new Date();
+    const target = new Date(dateTime);
+
+    const isToday = target.toDateString() === now.toDateString();
+
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = target.toDateString() === yesterday.toDateString();
+
+    const timeString = formatTime(target);
+
+    if (isToday) {
+        return `Today, ${timeString}`;
+    }
+    if (isYesterday) {
+        return `Yesterday, ${timeString}`;
+    }
+
+    if (keepDate) {
+        const dateString = dateTime.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        });
+
+        return `${dateString}, ${timeString}`;
+    }
+
+    return timeString;
+};
