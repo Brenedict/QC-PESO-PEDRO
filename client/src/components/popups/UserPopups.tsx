@@ -114,7 +114,7 @@ function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
 }
 export function PopupAddUser() {
     const navigate = useNavigateDefault();
-    const isoDate = new Date().toISOString().split("T")[0];
+    const dateString = new Date().toLocaleDateString("sv-SE");
 
     // Form Validation
     const [isFormValid, setIsFormValid] = useState(false);
@@ -145,7 +145,7 @@ export function PopupAddUser() {
                             Example:
                         </Text>
                     }
-                >{`QCPESO-JOHNBENEDICT-DOE-${isoDate}`}</PopupNotice>
+                >{`QCPESO-JOHNBENEDICT-DOE-${dateString}`}</PopupNotice>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>

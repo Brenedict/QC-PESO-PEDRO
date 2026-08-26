@@ -17,8 +17,8 @@ export interface UserManagementFilter {
 
 export default {
     generateTemporaryPassword(firstName: string, lastName: string): string {
-        const isoDate = new Date().toISOString().split("T")[0];
-        const temporaryPassword = `QCPESO-${firstName.toUpperCase().split(" ").join("")}-${lastName.toUpperCase().split(" ").join("")}-${isoDate}`;
+        const localeDate = new Date().toLocaleDateString("sv-SE");
+        const temporaryPassword = `QCPESO-${firstName.toUpperCase().split(" ").join("")}-${lastName.toUpperCase().split(" ").join("")}-${localeDate}`;
 
         return temporaryPassword;
     },

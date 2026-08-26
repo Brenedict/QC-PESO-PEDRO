@@ -4,7 +4,7 @@ import { useState } from "react";
 
 // Components
 import { GeneralInput, PasswordInput } from "../components/Input";
-import Button from "../components/Button";
+import Button, { baseStyle, sizeStyles, variantStyles } from "../components/Button";
 import { Text } from "../components/Text";
 import { Card } from "../components/Card";
 import Icon from "../components/Icon";
@@ -37,12 +37,19 @@ function ExpiredTokenView() {
                 </div>
 
                 <div className="flex gap-4">
-                    <Button variant="opaque-blue" size="normal" className="w-full!">
-                        <Link to={ROUTES.auth.root}>Return to Login</Link>
-                    </Button>
-                    <Button variant="blue" size="normal" className="w-full!">
-                        <Link to={ROUTES.forgotPassword.root}>Request New Reset Link</Link>
-                    </Button>
+                    <Link
+                        className={`${baseStyle} ${sizeStyles.normal} ${variantStyles["opaque-blue"]} w-full!`}
+                        to={ROUTES.auth.root}
+                    >
+                        Return to Login
+                    </Link>
+
+                    <Link
+                        className={`${baseStyle} ${sizeStyles.normal} ${variantStyles.blue} w-full!`}
+                        to={ROUTES.forgotPassword.root}
+                    >
+                        Request New Reset Link
+                    </Link>
                 </div>
             </Card.Body>
         </Card>
@@ -57,6 +64,11 @@ function PasswordResetView({
     // Email From Loader
     const { email } = useLoaderData();
 
+    // Form Validation Logic
+    const [isSuccessful, setIsSuccessful] = useState(false);
+    const [passwordError, setPasswordError] = useState("");
+    const [isFormValid, setIsFormValid] = useState(false);
+
     // Token from URL Query
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
@@ -64,11 +76,6 @@ function PasswordResetView({
     if (!token) {
         return null;
     }
-
-    // Form Validation Logic
-    const [isSuccessful, setIsSuccessful] = useState(false);
-    const [passwordError, setPasswordError] = useState("");
-    const [isFormValid, setIsFormValid] = useState(false);
 
     const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
@@ -164,9 +171,12 @@ function PasswordResetView({
                         <Text size="medium" variant="grayish-blue" weight="normal" className="mt-2">
                             Your password has been updated. You can now log in using your new credentials.
                         </Text>
-                        <Button variant="blue" size="normal" className="w-full!">
-                            <Link to={ROUTES.auth.root}>Return to Login</Link>
-                        </Button>
+                        <Link
+                            className={`${baseStyle} ${sizeStyles.normal} ${variantStyles["opaque-blue"]} w-full!`}
+                            to={ROUTES.auth.root}
+                        >
+                            Return to Login
+                        </Link>
                     </Card.Body>
                 )}
             </Card>

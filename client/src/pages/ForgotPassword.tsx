@@ -3,7 +3,7 @@ import { Form, Link } from "react-router";
 import { useState } from "react";
 
 // Components
-import Button from "../components/Button";
+import Button, { baseStyle, sizeStyles, variantStyles } from "../components/Button";
 import { Text } from "../components/Text";
 import { Card } from "../components/Card";
 import Icon from "../components/Icon";
@@ -46,7 +46,7 @@ export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTM
                             Enter the official government email address associated with your account. If a matching
                             record is found in our system, we will send you a secure link to reset your password.
                         </Text>
-                        <form onChange={handleFormChange} onSubmit={handleSubmit}>
+                        <Form onChange={handleFormChange} onSubmit={handleSubmit}>
                             <GeneralInput
                                 type="email"
                                 name="email"
@@ -60,14 +60,17 @@ export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTM
                             <br className="block mb-4" />
 
                             <div className="flex gap-4">
-                                <Button variant="opaque-blue" size="normal" className="w-full!">
-                                    <Link to={ROUTES.auth.root}>Return to Login</Link>
-                                </Button>
+                                <Link
+                                    className={`${baseStyle} ${sizeStyles.normal} ${variantStyles["opaque-blue"]} w-full!`}
+                                    to={ROUTES.auth.root}
+                                >
+                                    Return to Login
+                                </Link>
                                 <Button variant="blue" size="normal" className="w-full!" disabled={!isFormValid}>
                                     Send Link
                                 </Button>
                             </div>
-                        </form>
+                        </Form>
                     </Card.Body>
                 ) : (
                     <Card.Body className="flex flex-col gap-6">
@@ -84,9 +87,12 @@ export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTM
                             email address was entered correctly.
                         </Text>
 
-                        <Button variant="blue" size="normal" className="w-full!">
-                            <Link to={ROUTES.auth.root}>Return to Login</Link>
-                        </Button>
+                        <Link
+                            className={`${baseStyle} ${sizeStyles.normal} ${variantStyles.blue} w-full!`}
+                            to={ROUTES.auth.root}
+                        >
+                            Return to Login
+                        </Link>
                     </Card.Body>
                 )}
             </Card>
