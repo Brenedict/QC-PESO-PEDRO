@@ -1,7 +1,8 @@
+import type { ShiftLog } from "@qcpesopedro/shared/prisma/browser";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 
-// Simple in‑memory token store
-class TokenStore {
+// Simple in‑memory store
+class InMemoryStore {
     private accessToken: string | null = null;
     private user: UserContextType | null = null;
 
@@ -13,8 +14,14 @@ class TokenStore {
         this.user = user;
     };
 
+    public setUserShiftLog = (shiftLog?: ShiftLog) => {
+        if (this.user) {
+            this.user.shiftLog = shiftLog;
+        }
+    };
+
     public getAccessToken = () => this.accessToken;
     public getUser = () => this.user;
 }
 
-export default new TokenStore();
+export default new InMemoryStore();

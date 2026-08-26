@@ -7,7 +7,7 @@ import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
 import { apiFetch } from "./httpClient";
-import TokenStore from "./tokenStore";
+import InMemoryStore from "./inMemoryStore";
 import { apiJson, ensureOk, handleErrRedirect } from "./actionService";
 
 // Custom Hooks
@@ -25,7 +25,7 @@ export const primaryAuthLoader = async () => {
         throw redirect(ROUTES.auth.root);
     }
     const user = await getUserContextLoader();
-    TokenStore.setUser(user);
+    InMemoryStore.setUser(user);
     return { user };
 };
 
@@ -48,7 +48,7 @@ export const logoutService = async (): Promise<boolean> => {
         });
 
         if (res.ok) {
-            TokenStore.setAccessToken(null);
+            InMemoryStore.setAccessToken(null);
         }
 
         return res.ok;

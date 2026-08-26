@@ -12,4 +12,6 @@ WHERE "status" = 'APPROVED'
   AND "timeIn" >= $1
   AND "timeIn" <= $2
   AND "timeOut" IS NOT NULL
-  AND "lastVerifiedAt" IS NOT NULL;
+  AND "lastVerifiedAt" IS NOT NULL
+  AND "lastVerifiedAt" >= "timeOut";
+

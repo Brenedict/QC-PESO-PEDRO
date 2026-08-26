@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { getUserContextLoader, logoutService } from "../api/authService";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import { useRouteLoaderData } from "react-router";
-import TokenStore from "../api/tokenStore";
+import InMemoryStore from "../api/inMemoryStore";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = async () => {
         await logoutService();
-        TokenStore.setUser(null);
+        InMemoryStore.setUser(null);
         setUser(null);
     };
 
@@ -33,5 +33,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+
+    const userInMemory = InMemoryStore.getUser();
+    if (ctx?.user && ctx.user.shiftLog?.id !== userInMemory?.shiftLog?.id) {
+        return {
+            ...ctx,
+            user: {
+                ...ctx.user,
+                shiftLog: userInMemory?.shiftLog ?? null,
+            },
+        };
+    }
+
     return ctx;
 };

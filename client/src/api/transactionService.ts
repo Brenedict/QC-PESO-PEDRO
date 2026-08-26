@@ -37,8 +37,7 @@ import { buildDayRangeParam, buildParamString, getStartEndHour, type ParamArgs }
 
 // Custom Hooks
 import { ROUTES, type transactionRootPage } from "../hooks/useNavigateDefault";
-import TokenStore from "./tokenStore";
-import { getUserShiftLogId } from "./shiftService";
+import InMemoryStore from "./inMemoryStore";
 
 // ------------------------- MAPS -------------------------------------------------------
 export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
@@ -80,12 +79,12 @@ export const getTransactions =
         };
 
         try {
-            const user = TokenStore.getUser();
+            const user = InMemoryStore.getUser();
 
             if (user) {
                 if (daily) {
                     // Sa applicant form dapat sa current shift lang
-                    const { shiftLogId } = await getUserShiftLogId({ request } as LoaderFunctionArgs);
+                    const { id: shiftLogId } = user.shiftLog ?? {};
                     paramsObject.shiftLogId = String(shiftLogId);
                 }
 

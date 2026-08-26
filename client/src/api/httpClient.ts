@@ -1,6 +1,6 @@
 // API Services
 import type { ShouldRevalidateFunction } from "react-router";
-import TokenStore from "./tokenStore";
+import InMemoryStore from "./inMemoryStore";
 
 export type FetchOptions = RequestInit & { retry?: boolean };
 
@@ -11,7 +11,7 @@ export const getApiUrl = (route: string): string => {
 };
 
 const addAuthHeader = (headers: HeadersInit = {}): HeadersInit => {
-    const token = TokenStore.getAccessToken();
+    const token = InMemoryStore.getAccessToken();
     if (token) {
         return {
             ...headers,
@@ -39,7 +39,7 @@ export const apiFetch = async (route: string, options: FetchOptions = {}): Promi
 
         if (refreshRes.ok) {
             const { accessToken } = await refreshRes.json();
-            TokenStore.setAccessToken(accessToken);
+            InMemoryStore.setAccessToken(accessToken);
             // retry original request with new token
             return await apiFetch(route, { ...rest, retry: false });
         }

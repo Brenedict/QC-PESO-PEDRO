@@ -1,7 +1,13 @@
 // General Imports
 import { zfd } from "zod-form-data";
 import z from "zod";
-import { RoleSchema, UserUncheckedCreateInputObjectZodSchema } from "../zod/schemas";
+import {
+    RoleSchema,
+    ShiftLogInputSchema,
+    ShiftLogModelSchema,
+    ShiftLogUncheckedCreateInputObjectSchema,
+    UserUncheckedCreateInputObjectZodSchema,
+} from "../zod/schemas";
 
 export const LoginSchema = zfd.formData({
     email: z.email().trim().min(1, "Email cannot be empty"),
@@ -20,6 +26,7 @@ export const UserContextSchema = zfd.formData(
         transactions: true,
     }).extend({
         id: z.number(),
+        shiftLog: ShiftLogUncheckedCreateInputObjectSchema.optional(),
         role: RoleSchema,
     })
 );

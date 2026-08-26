@@ -33,7 +33,6 @@ import { createTransaction } from "../api/transactionService";
 
 // Contexts
 import { useAuth } from "../context/AuthContext";
-import useShiftLogId from "../hooks/useShiftLogId";
 
 interface FormRow1Props {
     txCode?: string;
@@ -43,7 +42,6 @@ interface FormRow1Props {
 
 export function FormRow1({ applicantFirstName, applicantLastName }: FormRow1Props) {
     const { user } = useAuth();
-    const shiftLogId = useShiftLogId();
 
     return (
         <section className="grid grid-cols-2 gap-6">
@@ -51,13 +49,13 @@ export function FormRow1({ applicantFirstName, applicantLastName }: FormRow1Prop
                 name={TransactionScalarFieldEnum.userId}
                 type="number"
                 hidden={true}
-                defaultValue={user?.id}
+                defaultValue={user?.id ?? ""}
             />
             <GeneralInput
                 name={TransactionScalarFieldEnum.shiftLogId}
                 type="number"
                 hidden={true}
-                defaultValue={shiftLogId ?? ""}
+                defaultValue={user?.shiftLog?.id ?? ""}
             />
 
             <GeneralInput

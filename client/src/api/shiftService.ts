@@ -18,10 +18,10 @@ import {
     type ShiftDetailsQueryType,
     type ShiftQueryIncludeType,
 } from "@qcpesopedro/shared/schema/shift";
-import TokenStore from "./tokenStore";
 import { logoutAction, logoutService } from "./authService";
 import { apiFetch } from "./httpClient";
 import { ShiftStatus } from "@qcpesopedro/shared/enums";
+import InMemoryStore from "./inMemoryStore";
 
 // GET: Fetches all shifts
 export const getShifts =
@@ -51,7 +51,7 @@ export const getShiftDetailsOverview =
     async ({ params, request }: LoaderFunctionArgs) => {
         const apiParams = buildParamString(query as Record<string, string | string[]>);
         try {
-            const { shiftLogId: userShiftId } = await getUserShiftLogId({ request } as LoaderFunctionArgs);
+            const { id: userShiftId } = InMemoryStore.getUser()?.shiftLog ?? {};
             if (!userShiftId) throw Error("Failed to end shift log.");
 
             const shiftId = decode(params.shiftId);
@@ -94,7 +94,7 @@ export const patchEndShift =
     async ({ request }: ActionFunctionArgs) => {
         const error = new Error("Failed to end shift.");
         try {
-            const { shiftLogId: userShiftId } = await getUserShiftLogId({ request } as LoaderFunctionArgs);
+            const { id: userShiftId } = InMemoryStore.getUser()?.shiftLog ?? {};
             if (!userShiftId) throw error;
 
             const formData = await request.formData();
@@ -103,6 +103,8 @@ export const patchEndShift =
             // Main Fetch Request
             const res = await apiJson(`/shift/${userShiftId}/end`, { method: "PATCH", body: JSON.stringify(shift) });
             await ensureOk(res, "Failed to end shift");
+
+            InMemoryStore.setUserShiftLog(undefined);
 
             if (!redirect) {
                 // Logout of user
@@ -168,23 +170,14 @@ export const timeInShift = async ({ request }: ActionFunctionArgs) => {
         // Main Fetch Request
         const res = await apiJson("/shift", { method: "POST", body: JSON.stringify(shift) });
         await ensureOk(res, "Failed to create shift");
+
+        const { shiftLog } = await res.json();
+
+        InMemoryStore.setUserShiftLog(shiftLog);
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.endshift.root);
     }
 
     const root = getParentPath(request, "time-in");
     return redirect(root);
-};
-
-export const getUserShiftLogId = async ({ request }: LoaderFunctionArgs) => {
-    try {
-        // Main Fetch Request
-        const res = await apiJson("/shift/me", { method: "GET" });
-
-        await ensureOk(res, "Failed to retrieve user shift log id");
-
-        return res.json();
-    } catch (err) {
-        return handleErrRedirect(err, request, ROUTES.auth.root);
-    }
 };

@@ -1,5 +1,5 @@
 // General Imports
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import type {
     TransactionAnalyticsFilterType,
     TransactionAnalyticsQueryInput,
@@ -8,7 +8,7 @@ import { getDateParams } from "./dateService";
 
 // API Services
 import { getOverviewAnalytics, getRecentTransactions } from "../api/transactionService";
-import TokenStore from "./tokenStore";
+import InMemoryStore from "./inMemoryStore";
 import { getShifts } from "./shiftService";
 
 export interface DateRangeData {
@@ -306,7 +306,7 @@ export const extractGroupedFromData = (data: AnalyticsData, sourceKey: string) =
 };
 
 export const getAnalytics = async (args: LoaderFunctionArgs) => {
-    const user = TokenStore.getUser();
+    const user = InMemoryStore.getUser();
 
     const analytics = await getOverviewAnalytics(args);
     const recent = await getRecentTransactions(args);

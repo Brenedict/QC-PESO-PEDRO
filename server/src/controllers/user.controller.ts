@@ -40,6 +40,7 @@ export default {
                 return res.status(404).json({ message: "User not found" });
             }
 
+            const shiftLog = await UserService.getMostRecentUnfinishedShift(user.id);
             const userContextPayload: UserContextType = {
                 id: user.id,
                 email: user.email,
@@ -49,6 +50,7 @@ export default {
                 status: user.status,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                shiftLog,
             };
 
             return res.json(userContextPayload);

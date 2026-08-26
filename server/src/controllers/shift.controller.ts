@@ -74,13 +74,13 @@ export default {
         async (req: Request, res: Response) => {
             const { timeIn, userId } = req.body as unknown as ShiftFormCreateType;
 
-            await ShiftModel.createShift({
+            const shiftLog = await ShiftModel.createShift({
                 data: {
                     timeIn,
                     userId,
                 },
             });
-            return res.status(200).json({ message: "Shift created" });
+            return res.status(200).json({ shiftLog, message: "Shift created" });
         },
     ],
 
@@ -129,21 +129,6 @@ export default {
         requireUnfinishedShift,
         async (_req: Request, res: Response) => {
             return res.json({ message: "Shift status check passed" });
-        },
-    ],
-
-    getUserCurrentShift: [
-        jwtAccessAuth,
-        requireAccessLevel(AccessLevel.FRONTLINE),
-        async (req: Request, res: Response) => {
-            const user = req.user as User;
-
-            if (!user) {
-                return res.status(404).json({ message: "User not found" });
-            }
-
-            const shiftLogId = (await UserService.getMostRecentUnfinishedShift(user.id))?.id;
-            return res.json({ shiftLogId });
         },
     ],
 };

@@ -6,7 +6,6 @@ import type { primaryAuthLoader } from "../api/authService";
 
 // Contexts
 import { UserGlobalProvider, type UserGlobalContextValue } from "../context/UserGlobalContext";
-import TokenStore from "../api/tokenStore";
 
 export function ProtectedRoute() {
     const data = useRouteLoaderData<typeof primaryAuthLoader>("protected");
