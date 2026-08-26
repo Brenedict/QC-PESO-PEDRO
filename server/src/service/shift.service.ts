@@ -9,7 +9,8 @@ import type {
 } from "@qcpesopedro/shared/prisma/models";
 import { calcAvgShiftApproval } from "@qcpesopedro/shared/prisma/sql";
 import prisma from "../config/prisma.config";
-import type { ShiftDetailsQueryType } from "@qcpesopedro/shared/schema/shift";
+import type { ShiftDetailsQueryType, ShiftQueryIncludeType } from "@qcpesopedro/shared/schema/shift";
+import { resolve } from "dns";
 
 export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs, startDate?: Date, endDate?: Date) {
@@ -45,19 +46,27 @@ export default {
         startDate?: Date,
         endDate?: Date,
         where?: ShiftLogWhereInput,
-        orderBy?: ShiftLogOrderByWithRelationInput
+        orderBy?: ShiftLogOrderByWithRelationInput,
+        include?: ShiftQueryIncludeType[]
     ) {
+        const resolveInclude = <T>(key: ShiftQueryIncludeType, resolvedValue: T) => {
+            return include?.includes(key) ? resolvedValue : Promise.resolve(undefined);
+        };
+
         const [shifts, pending, approved, revision, rejected, average] = await Promise.all([
-            this.getShiftLogs(
-                { include: { user: true, _count: { select: { transactions: true } } }, where, orderBy },
-                startDate,
-                endDate
+            resolveInclude(
+                "shifts",
+                this.getShiftLogs(
+                    { include: { user: true, _count: { select: { transactions: true } } }, where, orderBy },
+                    startDate,
+                    endDate
+                )
             ),
-            this.getStatusCount("PENDING", startDate, endDate),
-            this.getStatusCount("APPROVED", startDate, endDate),
-            this.getStatusCount("REVISION", startDate, endDate),
-            this.getStatusCount("REJECTED", startDate, endDate),
-            this.getAvgApproval(startDate, endDate),
+            resolveInclude("pending", this.getStatusCount("PENDING", startDate, endDate)),
+            resolveInclude("approved", this.getStatusCount("APPROVED", startDate, endDate)),
+            resolveInclude("revision", this.getStatusCount("REVISION", startDate, endDate)),
+            resolveInclude("rejected", this.getStatusCount("REJECTED", startDate, endDate)),
+            resolveInclude("average", this.getAvgApproval(startDate, endDate)),
         ]);
         return { pending, approved, revision, rejected, average, shifts };
     },

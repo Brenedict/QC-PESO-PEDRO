@@ -24,7 +24,7 @@ export default {
         jwtAccessAuth,
         validateSchema("query", ShiftQuerySchema),
         async (req: Request, res: Response) => {
-            const { startDate, endDate, status, search } = req.query as unknown as ShiftQueryType;
+            const { startDate, endDate, status, search, include } = req.query as unknown as ShiftQueryType;
             const data = await ShiftService.getShiftOverview(
                 startDate,
                 endDate,
@@ -32,7 +32,8 @@ export default {
                     status,
                     user: { fullName: { contains: search, mode: "insensitive" } },
                 },
-                [{ timeIn: "desc" }, { timeOut: "desc" }] as ShiftLogOrderByWithRelationInput
+                [{ timeIn: "desc" }, { timeOut: "desc" }] as ShiftLogOrderByWithRelationInput,
+                include
             );
             return res.json(data);
         },

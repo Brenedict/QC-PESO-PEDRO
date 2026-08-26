@@ -25,6 +25,7 @@ import { useSearchParamsTable } from "../hooks/table";
 import { useTimeframeFilter } from "../hooks/useTimeFrameFilter";
 import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 import { getDayPeriod } from "../utils/time";
+import { capitalizeWords } from "../utils/text";
 
 // Define the props
 interface EndShiftVerificationProps {
@@ -140,7 +141,7 @@ function EndShiftVerification() {
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="grayish-blue" align="center">
-                                {shift?.timeIn ? getDayPeriod(new Date(shift.timeIn)) : "N/A"}
+                                {shift?.user?.shift ? capitalizeWords(shift.user.shift) : "N/A"}
                             </Text>
                         </Table.Data>
                         <Table.Data>

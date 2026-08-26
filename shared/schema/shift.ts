@@ -3,10 +3,13 @@ import { zfd } from "zod-form-data";
 import { dateRangeFields, withDateRange } from "./date";
 import { EnvironmentTagSchema, ESSStatusSchema } from "../zod/schemas";
 
+export const ShiftIncludeQuerySchema = z.enum(["shifts", "pending", "approved", "revision", "rejected", "average"]);
+
 export const ShiftQuerySchema = withDateRange(
     z.object({
         ...dateRangeFields,
         status: ESSStatusSchema.optional(),
+        include: z.preprocess((val) => (Array.isArray(val) ? val : [val]), z.array(ShiftIncludeQuerySchema).optional()),
         search: z.string().optional(),
     })
 );
@@ -55,6 +58,7 @@ export const ShiftDetailsQuerySchema = z.object({
     ),
 });
 
+export type ShiftQueryIncludeType = z.infer<typeof ShiftIncludeQuerySchema>;
 export type ShiftQueryType = z.infer<typeof ShiftQuerySchema>;
 export type ShiftDetailsQueryType = z.infer<typeof ShiftDetailsQuerySchema>;
 export type ShiftFormCreateType = z.infer<typeof ShiftFormCreateSchema>;

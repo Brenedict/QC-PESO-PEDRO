@@ -14,7 +14,7 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 
 // API Services
-import { extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
+import { extractGroupedFromData, type AnalyticsData } from "../../api/analyticsService";
 import { DASHBOARD_CARD_MAP } from "../../api/transactionService";
 import {
     buildCategoryChartData,

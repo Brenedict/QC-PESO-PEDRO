@@ -31,7 +31,7 @@ import {
     TRANSACTION_REPORT_REQUEST,
     TRANSACTION_SUMMARY_REQUEST,
     type ReportTypes,
-} from "./analyticsRequests";
+} from "./analyticsService";
 import type { MaterialIcon } from "../types/common";
 import { buildDayRangeParam, buildParamString, getStartEndHour, type ParamArgs } from "./dateService";
 

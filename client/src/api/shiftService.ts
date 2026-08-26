@@ -16,30 +16,33 @@ import {
     ShiftFormEndSchema,
     ShiftFormVerifySchema,
     type ShiftDetailsQueryType,
+    type ShiftQueryIncludeType,
 } from "@qcpesopedro/shared/schema/shift";
 import TokenStore from "./tokenStore";
 import { logoutAction, logoutService } from "./authService";
 import { apiFetch } from "./httpClient";
 
 // GET: Fetches all shifts
-export const getShifts = async ({ request }: LoaderFunctionArgs) => {
-    const { query } = extractQueryToObject(request, ["page", "timeframe"]);
-    const startEndHour = getStartEndHour(query.startDate, query.endDate);
-    const apiParams = buildParamString({ ...query, ...startEndHour });
+export const getShifts =
+    (include: ShiftQueryIncludeType[]) =>
+    async ({ request }: LoaderFunctionArgs) => {
+        const { query } = extractQueryToObject(request, ["page", "timeframe"]);
+        const startEndHour = getStartEndHour(query.startDate, query.endDate);
+        const apiParams = buildParamString({ ...query, ...startEndHour, include });
 
-    console.log(apiParams);
+        console.log(apiParams);
 
-    try {
-        // Main Fetch Request
-        const res = await apiJson(`/shift?${apiParams}`, { method: "GET" });
+        try {
+            // Main Fetch Request
+            const res = await apiJson(`/shift?${apiParams}`, { method: "GET" });
 
-        await ensureOk(res, "Failed to retrieve shifts");
+            await ensureOk(res, "Failed to retrieve shifts");
 
-        return res.json();
-    } catch (err) {
-        return handleErrRedirect(err, request, ROUTES.endshift.root);
-    }
-};
+            return res.json();
+        } catch (err) {
+            return handleErrRedirect(err, request, ROUTES.endshift.root);
+        }
+    };
 
 // GET: Fetches one shift
 export const getShiftDetailsOverview =

@@ -57,8 +57,8 @@ export const TransactionFormCreateSchema = zfd.formData(
         shiftLogId: true,
         userId: true,
     }).extend({
-        shiftLogId: zfd.numeric(TransactionUncheckedCreateInputObjectZodSchema.shape.shiftLogId),
-        userId: zfd.numeric(TransactionUncheckedCreateInputObjectZodSchema.shape.userId),
+        shiftLogId: z.coerce.number().int().positive(),
+        userId: z.coerce.number().int().positive(),
     })
 );
 
@@ -70,8 +70,8 @@ export const TransactionFormUpdateSchema = zfd.formData(
         shiftLogId: true,
         userId: true,
     }).extend({
-        shiftLogId: zfd.numeric(TransactionUncheckedUpdateInputObjectZodSchema.shape.shiftLogId),
-        userId: zfd.numeric(TransactionUncheckedUpdateInputObjectZodSchema.shape.userId),
+        shiftLogId: z.coerce.number().int().positive(),
+        userId: z.coerce.number().int().positive(),
         demographics: z.preprocess(
             (val) => (val == null ? [] : Array.isArray(val) ? val : [val]),
             z.array(DemographicSchema).optional()

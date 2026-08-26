@@ -79,7 +79,7 @@ export const protectedRoutes: RouteObject[] = [
                 children: [
                     {
                         path: "",
-                        element: <Overview pending={5} approved={18} revision={2} />,
+                        element: <Overview />,
                         loader: requireAccess(AccessLevel.FRONTLINE, getAnalytics),
                         children: [
                             {
@@ -190,7 +190,12 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "end-shift",
                         element: <EndShiftVerification />,
-                        loader: requireAccess(AccessLevel.ADMIN, todayRedirectLoader(getShifts)),
+                        loader: requireAccess(
+                            AccessLevel.ADMIN,
+                            todayRedirectLoader(
+                                getShifts(["shifts", "approved", "pending", "rejected", "revision", "average"])
+                            )
+                        ),
                         children: [
                             {
                                 path: ":shiftId/review",

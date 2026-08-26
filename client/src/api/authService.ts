@@ -25,7 +25,6 @@ export const primaryAuthLoader = async () => {
         throw redirect(ROUTES.auth.root);
     }
     const user = await getUserContextLoader();
-    console.log("loadded user.......................");
     TokenStore.setUser(user);
     return { user };
 };

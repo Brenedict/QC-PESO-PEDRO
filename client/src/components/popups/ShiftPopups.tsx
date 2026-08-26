@@ -31,6 +31,7 @@ import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
 import { formatShortMonthYear, formatTime, getDayPeriod } from "../../utils/time";
 import { logoutService } from "../../api/authService";
 import { useAuth } from "../../context/AuthContext";
+import { capitalizeWords } from "../../utils/text";
 
 export function PopupTimeIn({ root }: { root: string }) {
     const { user } = useAuth();
@@ -91,7 +92,10 @@ export function PopupTimeIn({ root }: { root: string }) {
                             valueText={formatTime(today)}
                             variant="primary-blue"
                         />
-                        <GrayMiniCard descriptionText="SHIFT" valueText={getDayPeriod(today, true)} />
+                        <GrayMiniCard
+                            descriptionText="SHIFT"
+                            valueText={user?.shift ? capitalizeWords(user.shift) : "N/A"}
+                        />
                         <GrayMiniCard
                             descriptionText="ASSIGNED OFFICE"
                             valueText="Quezon City Hall (PESO)"

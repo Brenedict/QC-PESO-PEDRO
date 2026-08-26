@@ -35,7 +35,7 @@ import {
     getQueryIds,
     type AnalyticsData,
     type DateRangeData,
-} from "../api/analyticsRequests.ts";
+} from "../api/analyticsService";
 import {
     buildCategoryChartData,
     buildTimeSeriesChartData,
@@ -136,13 +136,10 @@ function VerticalDivider() {
     return <div className="h-full w-0.5 bg-dark-blue border-0" />;
 }
 
-interface EndShiftProps {
-    pending: number;
-    approved: number;
-    revision: number;
-}
+function EndShiftVerification() {
+    const navigate = useNavigateDefault();
+    const { overview } = useLoaderData();
 
-function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
     return (
         <Card>
             <Card.Body className="bg-white p-5! flex justify-between">
@@ -165,16 +162,19 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
                 </section>
                 {/*Middle Part*/}
                 <section className="w-fit flex gap-4">
-                    <EndShiftValue title="pending">{pending}</EndShiftValue>
+                    <EndShiftValue title="pending">{overview?.pending ?? "N/A"}</EndShiftValue>
                     <VerticalDivider />
-                    <EndShiftValue title="approved">{approved}</EndShiftValue>
+                    <EndShiftValue title="approved">{overview?.approved ?? "N/A"}</EndShiftValue>
                     <VerticalDivider />
-                    <EndShiftValue title="revision">{revision}</EndShiftValue>
+                    <EndShiftValue title="revision">{overview?.revision ?? "N/A"}</EndShiftValue>
                 </section>
 
                 {/*Right Part*/}
                 <section className="flex justify-end items-center">
-                    <Button leftIcon={{ icon: SearchOutlinedIcon, variant: "white", align: "left", size: "big" }}>
+                    <Button
+                        leftIcon={{ icon: SearchOutlinedIcon, variant: "white", align: "left", size: "big" }}
+                        onClick={() => navigate(ROUTES.endshift.root)}
+                    >
                         View All
                     </Button>
                 </section>
@@ -184,7 +184,7 @@ function EndShiftVerification({ pending, approved, revision }: EndShiftProps) {
 }
 
 // Main Overview Component
-export function Overview({ pending, approved, revision }: EndShiftProps) {
+export function Overview() {
     const navigate = useNavigateDefault();
     const { role } = useUserGlobal();
     const { user } = useAuth();
@@ -220,14 +220,13 @@ export function Overview({ pending, approved, revision }: EndShiftProps) {
                     size="small"
                     variant="white-black"
                     leftIcon={{ icon: SsidChartOutlinedIcon, size: "medium", variant: "primary-blue" }}
+                    onClick={() => navigate(ROUTES.reports.root)}
                 >
                     Generate Report
                 </Button>
             </PageHeader>
 
-            {(role === "ADMIN" || role === "SUPERADMIN") && (
-                <EndShiftVerification {...{ pending, approved, revision }} />
-            )}
+            {(role === "ADMIN" || role === "SUPERADMIN") && <EndShiftVerification />}
 
             <OverviewSection>
                 <Text size="medium" weight="bold" variant="primary-blue">
