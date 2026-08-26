@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useSearchParamsTable } from "../hooks/table";
+import useSearchParamsTable from "../hooks/useSearchParamsTable";
 import { getTimeframeRange } from "../api/dateService";
 
 export type Timeframe = "overall" | "day" | "week" | "month" | "year" | "custom";
@@ -16,7 +16,7 @@ function toDateInputValue(value: string | Date) {
     ].join("-");
 }
 
-export function useTimeframeFilter(defaultTimeframe: Timeframe = "overall") {
+function useTimeframeFilter(defaultTimeframe: Timeframe = "overall") {
     const { searchParams } = useSearchParamsTable();
 
     const [timeframe, setTimeframe] = useState<Timeframe>((searchParams.timeframe ?? defaultTimeframe) as Timeframe);
@@ -83,3 +83,5 @@ export function useTimeframeFilter(defaultTimeframe: Timeframe = "overall") {
         isTimeframeChanged,
     };
 }
+
+export default useTimeframeFilter;

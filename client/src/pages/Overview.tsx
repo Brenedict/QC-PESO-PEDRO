@@ -26,7 +26,7 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DASHBOARD_CARD_MAP, RECENT_TRANSACTION_MAP } from "../api/transactionService.ts";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
 // Context
 import { useUserGlobal } from "../context/UserGlobalContext.tsx";

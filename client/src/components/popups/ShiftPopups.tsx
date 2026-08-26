@@ -27,27 +27,79 @@ import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import { LogoutOutlined } from "@mui/icons-material";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 import { formatShortMonthYear, formatTime, getDayPeriod } from "../../utils/time";
 import { logoutService } from "../../api/authService";
 import { useAuth } from "../../context/AuthContext";
 import { capitalizeWords } from "../../utils/text";
+const handleCancelTimeIn = (navigate: (route: string, keepQuery?: boolean) => void) => async () => {
+    const success = await logoutService();
 
-export function PopupTimeIn({ root }: { root: string }) {
+    if (success) {
+        navigate(ROUTES.auth.root, true);
+    }
+};
+
+function EndShiftForm({ id = "timeInForm", total, pending }: { id?: string; total?: number; pending?: number }) {
+    return (
+        <Form method="post" id={id} className="flex flex-col gap-6">
+            {/* Time-In Data Input Holders */}
+            <div className="flex gap-4">
+                <GrayMiniCard
+                    descriptionText="Total Transactions"
+                    descriptionSize="description"
+                    valueSize="bigger"
+                    valueText={total ?? "N/A"}
+                    weight="bold"
+                />
+                <GrayMiniCard
+                    descriptionText="Pending"
+                    descriptionSize="description"
+                    valueSize="bigger"
+                    valueText={pending ?? "N/A"}
+                    weight="bold"
+                />
+            </div>
+            <LabeledSection label="Context Tags">
+                <div className="flex flex-wrap gap-2 max-w-120">
+                    <ContextBadge value={EnvironmentTag.SLOW_INTERNET} name="environmentTags">
+                        Slow Internet
+                    </ContextBadge>
+                    <ContextBadge value={EnvironmentTag.HEAVY_RAIN} name="environmentTags">
+                        Heavy Rain
+                    </ContextBadge>
+                    <ContextBadge value={EnvironmentTag.BROKEN_EQUIPMENT} name="environmentTags">
+                        Broken Equipment
+                    </ContextBadge>
+                    <ContextBadge value={EnvironmentTag.APPLICANT_ISSUES} name="environmentTags">
+                        Applicant Issues
+                    </ContextBadge>
+                    <ContextBadge value={EnvironmentTag.FEELING_UNWELL} name="environmentTags">
+                        Feeling Unwell
+                    </ContextBadge>
+                    <ContextBadge value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM} name="environmentTags">
+                        Broken Software System
+                    </ContextBadge>
+                </div>
+            </LabeledSection>
+
+            <TextAreaInput
+                label="Optional Remarks"
+                name="generalRemarks"
+                defaultValue={""}
+                placeholder="Problems, or any other concern during the shift..."
+            />
+        </Form>
+    );
+}
+
+export function PopupTimeIn() {
     const { user } = useAuth();
     const navigate = useNavigateDefault();
     const today = new Date();
 
-    const handleCancelTimeIn = async () => {
-        const success = await logoutService();
-
-        if (success) {
-            navigate(ROUTES.auth.root, true);
-        }
-    };
-
     return (
-        <Dialog dropShadow={true} className="border-0!" onClose={handleCancelTimeIn}>
+        <Dialog dropShadow={true} className="border-0!" onClose={handleCancelTimeIn(navigate)}>
             <Dialog.Header variant="primary-blue" className="flex flex-col" toggleRightIcon={false}>
                 <div className="flex justify-center mt-3">
                     <Icon
@@ -108,7 +160,7 @@ export function PopupTimeIn({ root }: { root: string }) {
                 <PopupButton
                     leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
                     variant="white"
-                    onClick={handleCancelTimeIn}
+                    onClick={handleCancelTimeIn(navigate)}
                     type="button"
                 >
                     Cancel Time In
@@ -184,54 +236,7 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
                 </Text>
             </Dialog.Header>
             <Dialog.Body>
-                <Form method="post" id="timeInForm" className="flex flex-col gap-6">
-                    {/* Time-In Data Input Holders */}
-                    <div className="flex gap-4">
-                        <GrayMiniCard
-                            descriptionText="Total Transactions"
-                            descriptionSize="description"
-                            valueSize="bigger"
-                            valueText={total ?? "N/A"}
-                            weight="bold"
-                        />
-                        <GrayMiniCard
-                            descriptionText="Pending"
-                            descriptionSize="description"
-                            valueSize="bigger"
-                            valueText={pending ?? "N/A"}
-                            weight="bold"
-                        />
-                    </div>
-                    <LabeledSection label="Context Tags">
-                        <div className="flex flex-wrap gap-2 max-w-120">
-                            <ContextBadge value={EnvironmentTag.SLOW_INTERNET} name="environmentTags">
-                                Slow Internet
-                            </ContextBadge>
-                            <ContextBadge value={EnvironmentTag.HEAVY_RAIN} name="environmentTags">
-                                Heavy Rain
-                            </ContextBadge>
-                            <ContextBadge value={EnvironmentTag.BROKEN_EQUIPMENT} name="environmentTags">
-                                Broken Equipment
-                            </ContextBadge>
-                            <ContextBadge value={EnvironmentTag.APPLICANT_ISSUES} name="environmentTags">
-                                Applicant Issues
-                            </ContextBadge>
-                            <ContextBadge value={EnvironmentTag.FEELING_UNWELL} name="environmentTags">
-                                Feeling Unwell
-                            </ContextBadge>
-                            <ContextBadge value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM} name="environmentTags">
-                                Broken Software System
-                            </ContextBadge>
-                        </div>
-                    </LabeledSection>
-
-                    <TextAreaInput
-                        label="Optional Remarks"
-                        name="generalRemarks"
-                        defaultValue={""}
-                        placeholder="Problems, or any other concern during the shift..."
-                    />
-                </Form>
+                <EndShiftForm total={total} pending={pending} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white" onClick={() => navigate(root, true)}>
@@ -266,6 +271,35 @@ export function PopupSessionEnd({ root }: { root: string }) {
                     </Button>
                 </section>
             </Dialog.Body>
+        </Dialog>
+    );
+}
+
+export function PopupUnfinishedShift() {
+    const { total, pending } = useLoaderData();
+    const navigate = useNavigateDefault();
+
+    return (
+        <Dialog dropShadow={true} onClose={handleCancelTimeIn(navigate)}>
+            <Dialog.Body className="px-6! py-8!">
+                <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
+                <PopupHeader>You have an unfinished shift last time</PopupHeader>
+                <PopupDescription>To keep your shift recorded, please submit it </PopupDescription>
+                <EndShiftForm total={total} pending={pending} />
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <PopupButton
+                    leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
+                    variant="white"
+                    onClick={handleCancelTimeIn(navigate)}
+                    type="button"
+                >
+                    Log Out
+                </PopupButton>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
+                    Submit Shift
+                </PopupButton>
+            </Dialog.Footer>
         </Dialog>
     );
 }

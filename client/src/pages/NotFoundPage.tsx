@@ -10,7 +10,7 @@ import FolderOffOutlinedIcon from "@mui/icons-material/FolderOffOutlined";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 
 // Custom Hooks
-import { useNavigateDefault, ROUTES } from "../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
 function NotFoundVisual() {
     return <FolderOffOutlinedIcon sx={{ fontSize: 120 }} className="text-slate-300 drop-shadow-sm" />;

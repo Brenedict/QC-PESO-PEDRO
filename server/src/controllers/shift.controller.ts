@@ -16,8 +16,10 @@ import {
 } from "@qcpesopedro/shared/schema/shift";
 import ShiftModel from "../models/shift.model";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
-import { requireAccessLevel, requireTimeIn } from "../middlewares/authorized.middleware";
+import { requireAccessLevel, requireUnfinishedShift } from "../middlewares/authorized.middleware";
 import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
+import UserService from "../service/user.service";
+import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 export default {
     getShifts: [
@@ -124,9 +126,24 @@ export default {
 
     getShiftStatus: [
         jwtAccessAuth,
-        requireTimeIn,
+        requireUnfinishedShift,
         async (_req: Request, res: Response) => {
             return res.json({ message: "Shift status check passed" });
+        },
+    ],
+
+    getUserCurrentShift: [
+        jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
+        async (req: Request, res: Response) => {
+            const user = req.user as User;
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            const shiftLogId = (await UserService.getMostRecentUnfinishedShift(user.id))?.id;
+            return res.json({ shiftLogId });
         },
     ],
 };

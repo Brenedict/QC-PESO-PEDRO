@@ -6,7 +6,7 @@ import z from "zod";
 import { apiFetch } from "./httpClient";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 const JSON_HEADERS = {
     "Content-Type": "application/json",

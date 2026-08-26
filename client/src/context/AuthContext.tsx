@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { logoutService } from "../api/authService";
+import { getUserContextLoader, logoutService } from "../api/authService";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import { useRouteLoaderData } from "react-router";
 import TokenStore from "../api/tokenStore";

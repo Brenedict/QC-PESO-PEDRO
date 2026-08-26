@@ -15,7 +15,7 @@ import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNone
 import NotificationImportantOutlinedIcon from "@mui/icons-material/NotificationImportantOutlined";
 
 // Custom Hooks
-import { useNavigateDefault } from "../hooks/reroute";
+import useNavigateDefault from "../hooks/useNavigateDefault";
 
 // Contexts
 import { useUserGlobal } from "../context/UserGlobalContext.tsx";

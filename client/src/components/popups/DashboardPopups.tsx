@@ -24,7 +24,7 @@ import {
 } from "../../api/chartService";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 
 // Types
 import type { MaterialIcon } from "../../types/common";

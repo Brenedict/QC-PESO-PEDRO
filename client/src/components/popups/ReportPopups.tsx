@@ -13,7 +13,7 @@ import Table from "../Table";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 
 // Utils
 import { formatDDMMYYYY, formatLongMonthYear } from "../../utils/time";

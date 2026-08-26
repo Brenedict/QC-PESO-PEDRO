@@ -1,5 +1,5 @@
 // General Imports
-import { type ActionFunctionArgs } from "react-router";
+import { type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 
 //
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
@@ -36,8 +36,9 @@ import type { MaterialIcon } from "../types/common";
 import { buildDayRangeParam, buildParamString, getStartEndHour, type ParamArgs } from "./dateService";
 
 // Custom Hooks
-import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+import { ROUTES, type transactionRootPage } from "../hooks/useNavigateDefault";
 import TokenStore from "./tokenStore";
+import { getUserShiftLogId } from "./shiftService";
 
 // ------------------------- MAPS -------------------------------------------------------
 export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
@@ -67,9 +68,7 @@ export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
 // GET: Fetches all transactions
 export const getTransactions =
     (daily: boolean) =>
-    async ({ request }: ActionFunctionArgs) => {
-        const user = TokenStore.getUser();
-
+    async ({ request }: LoaderFunctionArgs) => {
         const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
         const { query } = extractQueryToObject(request, ["page", "timeframe"]);
         const startEndHour = getStartEndHour(query.startDate, query.endDate);
@@ -80,21 +79,26 @@ export const getTransactions =
             ...startEndHour,
         };
 
-        if (user) {
-            if (daily) paramsObject.shiftLogId = String(user.shiftLogId); // Sa applicant form dapat sa current shift lang
-
-            if (user.role === "FRONTLINE" && !daily) {
-                paramsObject.userId = String(user.id); // Kapag history sa current user lang (Frontline)
-            }
-            if (user.role !== "FRONTLINE") {
-                paramsObject.include = ["user"]; // View history, include users when user is atleast admin role
-            }
-        }
-
-        const apiParams = buildParamString(paramsObject as ParamArgs);
-        console.log(apiParams);
-
         try {
+            const user = TokenStore.getUser();
+
+            if (user) {
+                if (daily) {
+                    // Sa applicant form dapat sa current shift lang
+                    const { shiftLogId } = await getUserShiftLogId({ request } as LoaderFunctionArgs);
+                    paramsObject.shiftLogId = String(shiftLogId);
+                }
+
+                if (user.role === "FRONTLINE" && !daily) {
+                    paramsObject.userId = String(user.id); // Kapag history sa current user lang (Frontline)
+                }
+                if (user.role !== "FRONTLINE") {
+                    paramsObject.include = ["user"]; // View history, include users when user is atleast admin role
+                }
+            }
+
+            const apiParams = buildParamString(paramsObject as ParamArgs);
+
             // Main Fetch Request
             const res = await apiJson(`/transaction?${apiParams}`, { method: "GET" });
 

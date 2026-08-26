@@ -16,7 +16,7 @@ import FemaleIcon from "@mui/icons-material/Female";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 
 // Test Data
 import { mockShiftData } from "../../data/endShiftReview";
@@ -26,7 +26,6 @@ import { formatLongMonthYear } from "../../utils/time";
 import { ShiftLogScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
 import { ActionButton, ColumnText, DateTime } from "../TableCells";
 import { decode } from "../../utils/hashids";
-import { useSearchParamsTable } from "../../hooks/table";
 import Table from "../Table";
 import Status from "../Status";
 import { useAuth } from "../../context/AuthContext";

@@ -16,7 +16,7 @@ import { apiFetch } from "../api/httpClient";
 import TokenStore from "../api/tokenStore";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 import { changePasswordPatch } from "../api/userService";
 

@@ -17,10 +17,10 @@ import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
 // Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { useSearchParamsTable } from "../hooks/table";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
+import useSearchParamsTable from "../hooks/useSearchParamsTable";
 import { SelectInput } from "../components/Input";
-import { useTimeframeFilter, type TimeframeFilter } from "../hooks/useTimeFrameFilter";
+import useTimeframeFilter, { type TimeframeFilter } from "../hooks/useTimeFrameFilter";
 import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 import { useAuth } from "../context/AuthContext";
 

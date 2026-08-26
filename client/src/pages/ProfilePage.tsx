@@ -1,6 +1,6 @@
 // General Imports
 import { Outlet, useSearchParams } from "react-router";
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
 // Components
 import { Text } from "../components/Text";

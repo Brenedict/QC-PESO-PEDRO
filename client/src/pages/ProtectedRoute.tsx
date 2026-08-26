@@ -1,18 +1,19 @@
 // General Imports
-import { Outlet, useNavigation, useRouteLoaderData } from "react-router";
+import { Outlet, useRouteLoaderData } from "react-router";
 
 // API Services
 import type { primaryAuthLoader } from "../api/authService";
 
 // Contexts
 import { UserGlobalProvider, type UserGlobalContextValue } from "../context/UserGlobalContext";
+import TokenStore from "../api/tokenStore";
 
 export function ProtectedRoute() {
     const data = useRouteLoaderData<typeof primaryAuthLoader>("protected");
     const user = data?.user;
 
-    if (!data?.user) {
-        return null;
+    if (!user) {
+        throw new Error("User not found");
     }
 
     // Global context gathered from `/user/me`

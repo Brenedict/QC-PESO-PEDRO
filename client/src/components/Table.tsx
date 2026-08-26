@@ -27,7 +27,7 @@ import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRig
 import { TableProvider, useTable, type TableContextValue } from "../context/TableContext";
 
 // Custom Hooks
-import { useSearchParamsTable } from "../hooks/table";
+import useSearchParamsTable from "../hooks/useSearchParamsTable";
 
 function Row({ children }: { children: ReactNode }) {
     return <tr>{children}</tr>;

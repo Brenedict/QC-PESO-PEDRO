@@ -4,12 +4,12 @@ import controller from "../controllers/shift.controller";
 const router = express.Router();
 
 // Shift Status Route
+router.get("/me", controller.getUserCurrentShift);
 router.get("/status", controller.getShiftStatus);
-
-router.post("/", controller.createShift);
-
 router.get("/:shiftId", controller.getShift);
 router.get("/", controller.getShifts);
+
+router.post("/", controller.createShift);
 
 router.patch("/:shiftId/end", controller.patchShiftEnd);
 router.patch("/:shiftId/verify", controller.patchShiftVerify);

@@ -1,5 +1,5 @@
 // General Imports
-import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, type RouteObject } from "react-router";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 
 // Pages
@@ -42,7 +42,7 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 
 // Helper function
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 import {
     createTransaction,
     getDetailsAnalytics,
@@ -55,6 +55,7 @@ import { primaryAuthLoader, requireAccess } from "../api/authService";
 import { getAnalytics } from "../api/analyticsService";
 import { getShiftDetailsOverview, getShifts, patchReviewShift, shiftStatusLoader } from "../api/shiftService";
 import { todayRedirectLoader } from "../api/dateService";
+import { ignoreQueries } from "../api/httpClient";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -70,6 +71,7 @@ export const protectedRoutes: RouteObject[] = [
             If the user is not authenticated, they will be redirected to '/auth'.
         */
         loader: primaryAuthLoader,
+
         errorElement: <SystemErrorPage />,
         children: [
             {

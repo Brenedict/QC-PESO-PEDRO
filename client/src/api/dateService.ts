@@ -144,6 +144,7 @@ export function dateRangeRedirect(path: string, startDate: Date, endDate: Date) 
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const todayRedirectLoader = (loaderFn?: Function) => async (args: LoaderFunctionArgs) => {
+    console.log("loader is loaded again");
     const url = new URL(args.request.url);
 
     const timeframe = url.searchParams.get("timeframe");

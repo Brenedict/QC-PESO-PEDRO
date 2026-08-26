@@ -23,7 +23,7 @@ import {
 import { decode } from "../utils/hashids";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 import { buildParamString } from "./dateService";
 
 // POST: User Creation Method

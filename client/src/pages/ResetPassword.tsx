@@ -15,7 +15,7 @@ import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDiss
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 function ExpiredTokenView() {
     const { message } = useLoaderData();

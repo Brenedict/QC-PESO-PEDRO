@@ -30,9 +30,10 @@ export default {
         userId: number,
         where?: ShiftLogWhereInput,
         orderBy?: ShiftLogOrderByWithRelationInput,
-        select?: ShiftLogSelectScalar
+        select?: ShiftLogSelectScalar,
+        take?: number
     ) {
-        return prisma.shiftLog.findMany({ where: { userId, ...where }, orderBy, select });
+        return prisma.shiftLog.findMany({ where: { userId, ...where }, orderBy, select, take });
     },
 
     async createShift(args: ShiftLogCreateArgs) {

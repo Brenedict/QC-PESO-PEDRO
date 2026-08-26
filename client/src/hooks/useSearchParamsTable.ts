@@ -42,7 +42,7 @@ function createParamSetter(setSearchParams: SetURLSearchParams, pageKey: string 
 
 // Pinagsama ko na pala dito both search tiyaka page para isahang hook nalang
 // Since connected rin naman sila
-export function useSearchParamsTable(defaultExtraParams?: SearchParamsType, pageKey: string = "page"): TableHookReturn {
+function useSearchParamsTable(defaultExtraParams?: SearchParamsType, pageKey: string = "page"): TableHookReturn {
     const [searchParams, setSearchParams] = useSearchParams(
         Object.fromEntries(Object.entries({ ...defaultExtraParams, [pageKey]: "1" }).map(([k, v]) => [k, String(v)]))
     );
@@ -64,3 +64,5 @@ export function useSearchParamsTable(defaultExtraParams?: SearchParamsType, page
         setSearchParams: setSearchParamsFn,
     };
 }
+
+export default useSearchParamsTable;

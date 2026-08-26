@@ -5,6 +5,7 @@ import { AccessLevel } from "@qcpesopedro/shared/enums";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 import UserService from "../service/user.service";
 import { ShiftStatus } from "@qcpesopedro/shared/enums";
+import ShiftService from "../service/shift.service";
 
 // Models
 import UserModel from "../models/user.model";
@@ -27,7 +28,6 @@ export function requireAccessLevel(minAccessLevel: AccessLevel) {
     };
 }
 
-// TODO: Add at login?
 export async function verifyFinishedShift(req: Request, res: Response, next: NextFunction) {
     const requestor = req.user as User | undefined;
 
@@ -44,16 +44,24 @@ export async function verifyFinishedShift(req: Request, res: Response, next: Nex
     next();
 }
 
-// TODO: Add at dashboard? Show that user has needs to time in or resolve unfinished shift
-export async function requireTimeIn(req: Request, res: Response, next: NextFunction) {
+export async function requireUnfinishedShift(req: Request, res: Response, next: NextFunction) {
     const requestor = req.user as User | undefined;
 
     if (!requestor) {
         return res.status(404).json({ message: "User not found" });
     }
 
-    // Require time-in if they dont have shift yet
     const unfinishedShift = await UserService.getMostRecentUnfinishedShift(requestor.id);
+
+    //Has unfinished shift last time?
+    if (unfinishedShift && !ShiftService.isTodayShift(unfinishedShift)) {
+        return res.status(409).json({
+            shiftStatus: ShiftStatus.UNFINISHED,
+            message: "Please resolve unfinished shift  before starting a new one.",
+        });
+    }
+
+    // Require time-in if they dont have shift yet
     if (!unfinishedShift) {
         return res.status(409).json({
             shiftStatus: ShiftStatus.TIMEIN, // Need time in
@@ -61,14 +69,6 @@ export async function requireTimeIn(req: Request, res: Response, next: NextFunct
         });
     }
 
-    // Has unfinished shift last time?
-    // if (unfinishedShift && !ShiftService.isTodayShift(unfinishedShift)) {
-    //     return res.status(409).json({
-    //         shiftStatus: ShiftStatus.UNFINISHED,
-    //         message: "Please resolve unfinished shift it before starting a new one.",
-    //     });
-    // }
-    //
     next();
 }
 

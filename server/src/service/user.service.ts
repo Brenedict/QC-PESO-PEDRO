@@ -88,18 +88,8 @@ export default {
         return await UserModel.updateUser(userId, updatedUser);
     },
 
-    async getRecentShifts(userId: number, where?: ShiftLogWhereInput) {
-        const { startDate, endDate } = DateUtil.buildDayRange(new Date());
-
-        return ShiftModel.getShiftLogsByUserId(
-            userId,
-            { ...where, timeIn: { gte: startDate, lte: endDate } },
-            { timeIn: "desc" }
-        );
-    },
-
     async getMostRecentUnfinishedShift(userId: number) {
-        return (await this.getRecentShifts(userId, { timeOut: null, status: "ONGOING" }))?.[0];
+        return (await ShiftModel.getShiftLogsByUserId(userId, undefined, { timeIn: "desc" }, undefined, 1))?.[0];
     },
 
     async hasFinishedShiftToday(userId: number): Promise<boolean> {

@@ -83,7 +83,7 @@ export const ROUTES = {
 
 export type transactionRootPage = "history" | "entry";
 
-export function useNavigateDefault() {
+function useNavigateDefault() {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -94,3 +94,5 @@ export function useNavigateDefault() {
         navigate(route, { state: { backgroundLocation: location } });
     };
 }
+
+export default useNavigateDefault;

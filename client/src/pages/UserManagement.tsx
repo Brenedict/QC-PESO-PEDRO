@@ -25,11 +25,11 @@ import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
 // Contexts
 import { useUserGlobal } from "../context/UserGlobalContext.tsx";
-import { useSearchParamsTable } from "../hooks/table.ts";
+import useSearchParamsTable from "../hooks/useSearchParamsTable.ts";
 import type { User } from "@qcpesopedro/shared/prisma/browser.ts";
 import { useAuth } from "../context/AuthContext.tsx";
 

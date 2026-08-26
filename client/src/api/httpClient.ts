@@ -1,4 +1,5 @@
 // API Services
+import type { ShouldRevalidateFunction } from "react-router";
 import TokenStore from "./tokenStore";
 
 export type FetchOptions = RequestInit & { retry?: boolean };
@@ -45,4 +46,22 @@ export const apiFetch = async (route: string, options: FetchOptions = {}): Promi
     }
 
     return res;
+};
+
+export const ignoreQueries = (queries: string[]): ShouldRevalidateFunction => {
+    return ({ currentUrl, nextUrl }) => {
+        const getParamsWithoutIgnored = (url: URL) => {
+            const params = [...url.searchParams.entries()]
+                .filter(([key]) => !queries.includes(key))
+                .sort(([a], [b]) => a.localeCompare(b));
+
+            return JSON.stringify(params);
+        };
+
+        const current = getParamsWithoutIgnored(currentUrl);
+        const next = getParamsWithoutIgnored(nextUrl);
+
+        // false = don't revalidate when only ignored queries changed
+        return current !== next;
+    };
 };

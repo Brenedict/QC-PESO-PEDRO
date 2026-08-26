@@ -9,7 +9,7 @@ import {
     redirectWithQuery,
     validateForm,
 } from "./actionService";
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 import { decode } from "../utils/hashids";
 import {
     ShiftFormCreateSchema,
@@ -21,6 +21,7 @@ import {
 import TokenStore from "./tokenStore";
 import { logoutAction, logoutService } from "./authService";
 import { apiFetch } from "./httpClient";
+import { ShiftStatus } from "@qcpesopedro/shared/enums";
 
 // GET: Fetches all shifts
 export const getShifts =
@@ -50,7 +51,9 @@ export const getShiftDetailsOverview =
     async ({ params, request }: LoaderFunctionArgs) => {
         const apiParams = buildParamString(query as Record<string, string | string[]>);
         try {
-            const userShiftId = TokenStore.getUser()?.shiftLogId;
+            const { shiftLogId: userShiftId } = await getUserShiftLogId({ request } as LoaderFunctionArgs);
+            if (!userShiftId) throw Error("Failed to end shift log.");
+
             const shiftId = decode(params.shiftId);
 
             // Main Fetch Request
@@ -86,47 +89,67 @@ export const patchReviewShift = async ({ params, request }: ActionFunctionArgs) 
 };
 
 // PATCH: Review shift (Frontline and above)
-export const patchEndShift = async ({ request }: ActionFunctionArgs) => {
-    const error = new Error("Failed to end shift.");
-    try {
-        const userShiftId = TokenStore.getUser()?.shiftLogId;
-        if (!userShiftId) throw error;
+export const patchEndShift =
+    (redirect?: string) =>
+    async ({ request }: ActionFunctionArgs) => {
+        const error = new Error("Failed to end shift.");
+        try {
+            const { shiftLogId: userShiftId } = await getUserShiftLogId({ request } as LoaderFunctionArgs);
+            if (!userShiftId) throw error;
 
-        const formData = await request.formData();
-        const shift = validateForm(formData, ShiftFormEndSchema, "Invalid shift end data");
+            const formData = await request.formData();
+            const shift = validateForm(formData, ShiftFormEndSchema, "Invalid shift end data");
 
-        // Main Fetch Request
-        const res = await apiJson(`/shift/${userShiftId}/end`, { method: "PATCH", body: JSON.stringify(shift) });
-        await ensureOk(res, "Failed to end shift");
+            // Main Fetch Request
+            const res = await apiJson(`/shift/${userShiftId}/end`, { method: "PATCH", body: JSON.stringify(shift) });
+            await ensureOk(res, "Failed to end shift");
 
-        // Logout of user
-        const logOutRes = await logoutAction();
+            if (!redirect) {
+                // Logout of user
+                const logOutRes = await logoutAction();
 
-        if (logOutRes) {
-            return logOutRes;
+                if (logOutRes) {
+                    return logOutRes;
+                }
+
+                throw error;
+            }
+
+            return res.json();
+        } catch (err) {
+            return handleErrRedirect(err, request, ROUTES.auth.root);
         }
-
-        throw error;
-    } catch (err) {
-        return handleErrRedirect(err, request, ROUTES.auth.root);
-    }
-};
+    };
 
 // GET: Loader for shift time in
 export const shiftStatusLoader = async ({ request }: LoaderFunctionArgs) => {
-    console.log("loader");
-    const res = await apiFetch("/shift/status");
-
     const { pathname } = new URL(request.url);
 
-    if (pathname.endsWith("/time-in")) {
+    const shiftStatusRoutes = {
+        [ShiftStatus.TIMEIN]: "time-in",
+        [ShiftStatus.UNFINISHED]: "unfinished-shift",
+    } as const;
+
+    const allowedPaths = Object.values(shiftStatusRoutes);
+
+    // Don't redirect again if already on one of these pages
+    if (allowedPaths.some((path) => pathname.endsWith(`/${path}`))) {
         return null;
     }
 
-    if (res.status === 409) {
-        const basePath = pathname.endsWith("/") ? pathname : `${pathname}/`;
+    const res = await apiJson("/shift/status", { method: "GET" });
 
-        throw redirect(`${basePath}time-in`);
+    if (res.status === 409) {
+        const body = await res.json();
+        const shiftStatus = parseInt(body.shiftStatus);
+
+        const route = shiftStatusRoutes[shiftStatus as ShiftStatus];
+
+        if (route) {
+            const basePath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
+            throw redirect(`${basePath}/${route}`);
+        }
     }
 
     if (!res.ok) {
@@ -151,4 +174,17 @@ export const timeInShift = async ({ request }: ActionFunctionArgs) => {
 
     const root = getParentPath(request, "time-in");
     return redirect(root);
+};
+
+export const getUserShiftLogId = async ({ request }: LoaderFunctionArgs) => {
+    try {
+        // Main Fetch Request
+        const res = await apiJson("/shift/me", { method: "GET" });
+
+        await ensureOk(res, "Failed to retrieve user shift log id");
+
+        return res.json();
+    } catch (err) {
+        return handleErrRedirect(err, request, ROUTES.auth.root);
+    }
 };
