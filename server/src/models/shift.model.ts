@@ -7,6 +7,7 @@ import type {
     ShiftLogInclude,
     ShiftLogOrderByWithRelationInput,
     ShiftLogSelectScalar,
+    ShiftLogUncheckedUpdateInput,
     ShiftLogUncheckedUpdateManyInput,
     ShiftLogUpdateArgs,
     ShiftLogWhereInput,
@@ -42,7 +43,7 @@ export default {
         return prisma.shiftLog.createManyAndReturn(args);
     },
 
-    async updateShiftById(id: number, data: ShiftLogUncheckedUpdateManyInput) {
+    async updateShiftById(id: number, data: ShiftLogUncheckedUpdateInput) {
         return prisma.shiftLog.update({ where: { id }, data });
     },
 

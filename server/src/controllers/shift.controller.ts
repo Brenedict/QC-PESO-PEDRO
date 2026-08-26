@@ -108,7 +108,7 @@ export default {
         validateSchema("body", ShiftFormVerifySchema),
         async (req: Request, res: Response) => {
             const { shiftId } = req.params;
-            const { status, adminRemarks } = req.body as unknown as ShiftFormVerifyType;
+            const { status, adminRemarks, verifierId } = req.body as unknown as ShiftFormVerifyType;
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
@@ -116,6 +116,7 @@ export default {
                 lastVerifiedAt: new Date(),
                 status,
                 adminRemarks,
+                verifierId,
             });
             return res.sendStatus(204);
         },

@@ -15,12 +15,15 @@ import { requireValidResetToken } from "../middlewares/authorized.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
 import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
 
+import { verifyFinishedShift } from "../middlewares/authorized.middleware";
+
 // Utils
 import HashUtil from "../utils/hash.util";
 
 export default {
     loginPost: [
         localAuth,
+        verifyFinishedShift,
         async (req: Request, res: Response) => {
             const user = req.user as User;
             const { accessToken, refreshToken } = AuthService.generateTokens(user);

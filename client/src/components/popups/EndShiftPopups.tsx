@@ -29,11 +29,12 @@ import { decode } from "../../utils/hashids";
 import { useSearchParamsTable } from "../../hooks/table";
 import Table from "../Table";
 import Status from "../Status";
+import { useAuth } from "../../context/AuthContext";
 
 export function PopupEndShiftReview() {
     const navigate = useNavigateDefault();
 
-    const { shiftId } = useParams();
+    const { user } = useAuth();
     const handleClose = () => navigate(ROUTES.endshift.root, true);
     const [isFormValid, setIsFormValid] = useState(false);
     const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -47,7 +48,7 @@ export function PopupEndShiftReview() {
             <Dialog.Body className="p-6! flex flex-col gap-6 max-h-[75vh] overflow-y-auto">
                 {/* Added onChange handler here */}
                 <Form method="post" id="endShiftReviewForm" className="flex flex-col gap-5" onChange={handleFormChange}>
-                    <GeneralInput hidden={true} name="id" type="text" defaultValue={shiftId || ""} />
+                    <GeneralInput hidden={true} name="verifierId" type="text" defaultValue={user?.id || ""} />
 
                     <DailySummarySection />
 

@@ -9,7 +9,7 @@ import Table from "../components/Table";
 import Profile from "../components/Profile";
 import Status from "../components/Status";
 import Button from "../components/Button";
-import { ActionButton, DateTime } from "../components/TableCells";
+import { ActionButton, ColumnText, DateTime } from "../components/TableCells";
 
 // Sample Data
 import type { ShiftRecord } from "../data/shiftRecords";
@@ -129,47 +129,55 @@ function EndShiftVerification() {
                     <Table.Header text="SHIFT" />
                     <Table.Header text="TRANSACTIONS" />
                     <Table.Header text="SUBMITTED" />
+                    <Table.Header text="VERIFIED BY" />
                     <Table.Header text="STATUS" />
                     <Table.Header text="ACTION" />
                 </Table.Row>
 
                 {/*shiftData prop*/}
-                {data?.shifts.map((shift: ShiftLog & { user: User; _count: { transactions: number } }) => (
-                    <Table.Row key={shift.id}>
-                        <Table.Data>
-                            <EmployeeCell name={shift.user.fullName ?? "N/A"} />
-                        </Table.Data>
-                        <Table.Data>
-                            <Text size="description" variant="grayish-blue" align="center">
-                                {shift?.user?.shift ? capitalizeWords(shift.user.shift) : "N/A"}
-                            </Text>
-                        </Table.Data>
-                        <Table.Data>
-                            <Text size="description" variant="dark-blue" weight="bold" align="center">
-                                {shift?._count.transactions ?? "N/A"}
-                            </Text>
-                        </Table.Data>
-                        <Table.Data>
-                            <DateTime dateTime={shift?.timeOut ? new Date(shift.timeOut) : null} />
-                        </Table.Data>
-                        <Table.Data>
-                            <Status type="verification" variant={shift?.status ?? "PENDING"} />
-                        </Table.Data>
-                        <Table.Data>
-                            <div className="flex gap-3">
-                                {shift?.status !== "ONGOING" ? (
-                                    <ActionButton
-                                        handleClick={handleReview}
-                                        id={String(shift.id)}
-                                        text={shift?.status === "PENDING" ? "Review" : "Edit"}
-                                    />
-                                ) : (
-                                    <Text weight="bold"> -</Text>
-                                )}
-                            </div>
-                        </Table.Data>
-                    </Table.Row>
-                ))}
+                {data?.shifts.map(
+                    (shift: ShiftLog & { user: User; verifier: User; _count: { transactions: number } }) => (
+                        <Table.Row key={shift.id}>
+                            <Table.Data>
+                                <EmployeeCell name={shift.user.fullName ?? "N/A"} />
+                            </Table.Data>
+                            <Table.Data>
+                                <Text size="description" variant="grayish-blue" align="center">
+                                    {shift?.user?.shift ? capitalizeWords(shift.user.shift) : "N/A"}
+                                </Text>
+                            </Table.Data>
+                            <Table.Data>
+                                <Text size="description" variant="dark-blue" weight="bold" align="center">
+                                    {shift?._count.transactions ?? "N/A"}
+                                </Text>
+                            </Table.Data>
+                            <Table.Data>
+                                <DateTime dateTime={shift?.timeOut ? new Date(shift.timeOut) : null} />
+                            </Table.Data>
+
+                            <Table.Data>
+                                <ColumnText>{shift?.verifier?.fullName ?? "-"}</ColumnText>
+                            </Table.Data>
+
+                            <Table.Data>
+                                <Status type="verification" variant={shift?.status ?? "PENDING"} />
+                            </Table.Data>
+                            <Table.Data>
+                                <div className="flex gap-3">
+                                    {shift?.status !== "ONGOING" ? (
+                                        <ActionButton
+                                            handleClick={handleReview}
+                                            id={String(shift.id)}
+                                            text={shift?.status === "PENDING" ? "Review" : "Edit"}
+                                        />
+                                    ) : (
+                                        <Text weight="bold"> -</Text>
+                                    )}
+                                </div>
+                            </Table.Data>
+                        </Table.Row>
+                    )
+                )}
             </Table>
 
             {/* Popup Uses */}

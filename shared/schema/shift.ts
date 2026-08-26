@@ -17,7 +17,6 @@ export const ShiftQuerySchema = withDateRange(
 export const ShiftFormCreateSchema = zfd.formData(
     z.object({
         userId: zfd.numeric(z.number().int().positive()),
-
         timeIn: zfd.text(
             z
                 .string()
@@ -43,6 +42,7 @@ export const ShiftFormVerifySchema = zfd.formData(
     z.object({
         status: ESSStatusSchema,
         adminRemarks: z.string().optional(),
+        verifierId: z.coerce.number().int().positive(),
     })
 );
 

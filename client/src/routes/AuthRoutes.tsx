@@ -59,6 +59,12 @@ export const authRoutes: RouteObject[] = [
                 return redirect(`${ROUTES.auth.root}?NOTIF=${data.message}`);
             }
 
+            if (res.status === 409) {
+                const data: { message: string } = await res.json();
+
+                return redirect(`${ROUTES.auth.root}?NOTIF=${data.message}`);
+            }
+
             return null;
         },
         loader: async () => {

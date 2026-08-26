@@ -105,14 +105,14 @@ export default {
     async hasFinishedShiftToday(userId: number): Promise<boolean> {
         const { startDate, endDate } = DateUtil.buildDayRange(new Date());
 
-        return (
-            (
-                await ShiftModel.getShiftLogsByUserId(userId, {
-                    status: { not: "ONGOING" },
-                    timeIn: { gte: startDate, lte: endDate },
-                })
-            ).length >= 0
-        );
+        const shifts = await ShiftModel.count({
+            where: {
+                userId,
+                status: { not: "ONGOING" },
+                timeIn: { gte: startDate, lte: endDate },
+            },
+        });
+        return shifts > 0;
     },
 
     async getActiveAndInactiveCount() {

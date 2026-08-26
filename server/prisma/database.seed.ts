@@ -260,13 +260,12 @@ function buildShiftDayPool(scatteredPastDays: number, todayWeight: number): Date
 }
 
 // Shift logs
-function buildShiftLog(userId: number, day: Date): ShiftLogUncheckedCreateInput {
+function buildShiftLog(userId: number, day: Date, verifierId?: number): ShiftLogUncheckedCreateInput {
     const today = getMostRecentBusinessDay(new Date());
     const isToday = sameCalendarDay(day, today) && sameCalendarDay(today, new Date());
 
     const timeIn = randomBusinessDateTime(day, START_HOUR, START_HOUR + 1);
 
-    // 35% of today's shifts stay ongoing.
     const stillOngoing = isToday && Math.random() < 0.35;
 
     const status: ESSStatus = stillOngoing
@@ -288,6 +287,7 @@ function buildShiftLog(userId: number, day: Date): ShiftLogUncheckedCreateInput 
         timeIn,
         timeOut,
         lastVerifiedAt,
+        verifierId: isCompleted ? verifierId : null,
         generalRemarks: null,
         adminRemarks: null,
         environmentTags: [randomItem(environmentTags)],
@@ -359,7 +359,13 @@ async function main() {
             const shiftCount = randomInt(2, 4);
             for (let s = 0; s < shiftCount; s++) {
                 const day = randomItem(shiftDayPool);
-                const shiftLog = await prisma.shiftLog.create({ data: buildShiftLog(user.id, day) });
+                const adminUsers = createdUsers.filter((user) => user.role === "ADMIN" || user.role === "SUPERADMIN");
+
+                const verifier = randomItem(adminUsers);
+
+                const shiftLog = await prisma.shiftLog.create({
+                    data: buildShiftLog(user.id, day, verifier.id),
+                });
                 shiftLogCount++;
 
                 const isToday = sameCalendarDay(day, today) && sameCalendarDay(today, new Date());

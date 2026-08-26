@@ -57,7 +57,11 @@ export default {
             resolveInclude(
                 "shifts",
                 this.getShiftLogs(
-                    { include: { user: true, _count: { select: { transactions: true } } }, where, orderBy },
+                    {
+                        include: { user: true, verifier: true, _count: { select: { transactions: true } } },
+                        where,
+                        orderBy,
+                    },
                     startDate,
                     endDate
                 )

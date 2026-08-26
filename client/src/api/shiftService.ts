@@ -73,7 +73,6 @@ export const patchReviewShift = async ({ params, request }: ActionFunctionArgs) 
 
         const formData = await request.formData();
         const shift = validateForm(formData, ShiftFormVerifySchema, "Invalid shift verify data");
-        console.log(shift);
 
         // Main Fetch Request
         const res = await apiJson(`/shift/${shiftId}/verify`, { method: "PATCH", body: JSON.stringify(shift) });
