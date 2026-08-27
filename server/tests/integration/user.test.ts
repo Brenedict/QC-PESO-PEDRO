@@ -49,20 +49,6 @@ describe("User Routes", () => {
                 firstName: mockFrontlineUser.firstName,
                 lastName: mockFrontlineUser.lastName,
             });
-            expect(res.body).toHaveProperty("shiftLogId");
-            expect(typeof res.body.shiftLogId).toBe("number");
-        });
-
-        it("creates a new shift when the user has no unfinished shift", async () => {
-            setCurrentAuthUser(mockFrontlineUser);
-
-            const before = await ShiftModel.count({ where: { userId: mockFrontlineUser.id } });
-            expect(before).toBe(0);
-
-            const res = await request(app).get("/user/me").expect(200);
-            const after = await ShiftModel.getShiftLogs({ where: { userId: mockFrontlineUser.id } });
-            expect(after).toHaveLength(1);
-            expect(res.body.shiftLogId).toBe(after[0].id);
         });
 
         it("reuses the existing unfinished shift instead of creating a new one", async () => {
@@ -74,7 +60,7 @@ describe("User Routes", () => {
 
             const res = await request(app).get("/user/me").expect(200);
 
-            expect(res.body.shiftLogId).toBe(existingShift.id);
+            expect(res.body.shiftLog.id).toBe(existingShift.id);
 
             const shiftCount = await ShiftModel.count({ where: { userId: mockFrontlineUser.id } });
             expect(shiftCount).toBe(1);

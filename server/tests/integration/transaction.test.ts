@@ -41,7 +41,7 @@ import { TOMORROW, YESTERDAY } from "../../src/utils/date.util";
 // Use actual schema validator
 jest.unmock("../../src/middlewares/zod.middleware");
 
-const transformMockedDate = (transaction: TransactionCreateType): TransactionCreateType => {
+const transformMockedDate = (transaction: TransactionCreateType | Transaction) => {
     const newTransaction = { ...transaction };
     if (newTransaction.createdAt) newTransaction.createdAt = expect.any(String) as unknown as Date;
     if (newTransaction.updatedAt) newTransaction.updatedAt = expect.any(String) as unknown as Date;
@@ -727,6 +727,8 @@ describe("Transaction Route", () => {
         it("updates a transaction by id", async () => {
             const formData: TransactionUpdateType = {
                 remarks: "Hello this is an edit testing",
+                userId: mockedUser.id,
+                shiftLogId: mockedUser.id,
             };
 
             const patchRes = await request(app).patch("/transaction/1").send(formData).expect(200);
@@ -743,6 +745,8 @@ describe("Transaction Route", () => {
 
             const formData: TransactionUpdateType = {
                 remarks: "Hello this is an edit testing",
+                shiftLogId: mockedShiftLog.id,
+                userId: mockedUser.id,
             };
 
             const patchRes = await request(app).patch(`/transaction/${txCode}`).send(formData).expect(200);
@@ -755,6 +759,8 @@ describe("Transaction Route", () => {
         it("returns status 404 when transaction id is not found", async () => {
             const formData: TransactionUncheckedUpdateInput = {
                 remarks: "Hello this is an edit testing",
+                shiftLogId: mockedShiftLog.id,
+                userId: mockedUser.id,
             };
             await request(app).patch(`/transaction/999`).send(formData).expect(404);
         });

@@ -73,7 +73,7 @@ function EndShiftForm({ method = "patch", id = "timeInForm", total, pending }: E
                 />
             </div>
             <LabeledSection label="Context Tags">
-                <div className="flex flex-wrap gap-2 max-w-120">
+                <div className="flex flex-wrap gap-2 max-w-200">
                     <ContextBadge
                         value={EnvironmentTag.SLOW_INTERNET}
                         name={ShiftLogScalarFieldEnum.environmentTags}
@@ -135,7 +135,7 @@ export function PopupTimeIn() {
     const today = new Date();
 
     return (
-        <Dialog dropShadow={true} className="border-0!" onClose={handleCancelTimeIn(navigate)}>
+        <Dialog dropShadow={true} className="border-0!" onClose={() => {}}>
             <Dialog.Header variant="primary-blue" className="flex flex-col" toggleRightIcon={false}>
                 <div className="flex justify-center mt-3">
                     <Icon
@@ -272,6 +272,7 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
                 </Text>
             </Dialog.Header>
             <Dialog.Body>
+                <PopupDescription>Review your shift details before submitting and ending your shift.</PopupDescription>
                 <EndShiftForm total={total} pending={pending} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
@@ -280,6 +281,38 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
                 </PopupButton>
                 <PopupButton variant="blue" type="submit" form="timeInForm">
                     Submit & End Shift
+                </PopupButton>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupRevisionSummary({ root }: { root: string }) {
+    const { total, pending } = useLoaderData();
+    const revisionShift = InMemoryStore.getRevisionShift();
+
+    const navigate = useNavigateDefault();
+    return (
+        <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
+            <Dialog.Header onRightAction={() => navigate(root, true)}>
+                <Text size="medium" weight="bold">
+                    Shift Revision Summary (
+                    {revisionShift?.timeOut ? formatRelativeDateTime(new Date(revisionShift?.timeOut), true) : "N/A"})
+                </Text>
+            </Dialog.Header>
+            <Dialog.Body>
+                <PopupDescription>
+                    Review your revised shift details before submitting. You will return to your current shift
+                    afterward.
+                </PopupDescription>
+                <EndShiftForm total={total} pending={pending} />
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <PopupButton variant="white" onClick={() => navigate(root, true)}>
+                    Cancel
+                </PopupButton>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
+                    Submit Revision
                 </PopupButton>
             </Dialog.Footer>
         </Dialog>
@@ -317,14 +350,14 @@ export function PopupUnfinishedShift() {
     const navigate = useNavigateDefault();
 
     return (
-        <Dialog dropShadow={true} onClose={handleCancelTimeIn(navigate)}>
+        <Dialog dropShadow={true} onClose={() => {}}>
             <Dialog.Body className="px-6! py-8!">
                 <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
                 <PopupHeader>
                     You have an unfinished shift (
                     {user?.shiftLog?.timeIn ? formatRelativeDateTime(new Date(user.shiftLog.timeIn), true) : "N/A"})
                 </PopupHeader>
-                <PopupDescription>To keep your shift data recorded and saved, please submit it</PopupDescription>
+                <PopupDescription>Please submit it to ensure your shift record is saved.</PopupDescription>
                 <EndShiftForm total={total} pending={pending} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
@@ -349,14 +382,17 @@ export function PopupReviseShift() {
     const navigate = useNavigateDefault();
 
     return (
-        <Dialog dropShadow={true} onClose={handleCancelTimeIn(navigate)}>
+        <Dialog dropShadow={true} onClose={() => {}}>
             <Dialog.Body className="px-6! py-8!">
                 <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
                 <PopupHeader>
-                    You have a shift that needs to be revised (
-                    {revisionShift?.timeIn ? formatRelativeDateTime(new Date(revisionShift.timeIn), true) : "N/A"})
+                    Your shift requires revision (
+                    {revisionShift?.timeOut ? formatRelativeDateTime(new Date(revisionShift.timeOut), true) : "N/A"})
                 </PopupHeader>
-                <PopupDescription>To keep your shift data recorded and saved, please resubmit it</PopupDescription>
+                <PopupDescription>
+                    Your shift requires revision. Review the remarks and make the necessary corrections before
+                    resubmitting.
+                </PopupDescription>
                 <GeneralInput
                     label={`Reason for Revision (${revisionShift?.user?.fullName ?? "N/A"})`}
                     type="text"

@@ -13,6 +13,7 @@ import type {
     UserDeleteManyArgs,
     UserFindManyArgs,
     UserGroupByArgs,
+    UserUncheckedUpdateInput,
 } from "@qcpesopedro/shared/prisma/models";
 
 export default {
@@ -58,7 +59,7 @@ export default {
         return prisma.user.findMany(args);
     },
 
-    async updateUser(userId: number, user: User): Promise<User | null> {
+    async updateUser(userId: number, user: UserUncheckedUpdateInput): Promise<User | null> {
         return prisma.user.update({
             where: {
                 id: userId,

@@ -105,9 +105,10 @@ export const patchEndShift =
             await ensureOk(res, "Failed to end shift");
 
             InMemoryStore.setUserShiftLog(undefined);
+            InMemoryStore.setUserIsRevising(false);
+            // InMemoryStore.setRevisionShift(null); // Remove the temporary revision shift in-memory data
 
-            // If the user is not revising, log them out
-            if (!redirect && !InMemoryStore.getUser()?.isRevising) {
+            if (!redirect) {
                 // Logout of user
                 const logOutRes = await logoutAction();
 
@@ -142,7 +143,7 @@ export const patchReviseShift =
             if (!revisionShift) throw error;
 
             InMemoryStore.setUserShiftLog(revisionShift); // Set current user shift to the revision shift
-            InMemoryStore.setRevisionShift(null); // Remove the temporary revision shift in-memory data
+            InMemoryStore.setUserIsRevising(true);
 
             return redirectWithQuery(request, redirect);
         } catch (err) {

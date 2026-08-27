@@ -28,6 +28,10 @@ export default {
             const user = req.user as User;
             const { accessToken, refreshToken } = AuthService.generateTokens(user);
             AuthService.sendRefreshCookie(res, refreshToken);
+
+            // reset revising mode
+            await UserService.updateUser(user.id, { isRevising: false });
+
             res.json({ message: "Login successful", accessToken });
         },
     ],

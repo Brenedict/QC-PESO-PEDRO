@@ -7,7 +7,7 @@ import type { Prisma, Role, User } from "@qcpesopedro/shared/prisma/client";
 import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
-import type { ShiftLogWhereInput, UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
+import type { ShiftLogWhereInput, UserFindManyArgs, UserUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
 
 // Utils
 import HashUtil from "../utils/hash.util";
@@ -55,7 +55,7 @@ export default {
         return await UserModel.getByEmail(email);
     },
 
-    async updateUser(userId: number, user: User): Promise<User | null> {
+    async updateUser(userId: number, user: UserUncheckedUpdateInput): Promise<User | null> {
         return await UserModel.updateUser(userId, user);
     },
 

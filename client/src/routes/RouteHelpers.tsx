@@ -10,6 +10,7 @@ import {
     PopupSessionEnd,
     PopupUnfinishedShift,
     PopupReviseShift,
+    PopupRevisionSummary,
 } from "../components/popups/ShiftPopups";
 
 // API Services
@@ -57,6 +58,12 @@ export const shiftPopups = (root: string) => [
     {
         path: "end-shift-confirmation",
         element: <PopupEndshiftSummary root={root} />,
+        action: patchEndShift(),
+        loader: getShiftDetailsOverview({ overview: ["total", "pending"] }, true),
+    },
+    {
+        path: "submit-revision",
+        element: <PopupRevisionSummary root={root} />,
         action: patchEndShift(root),
         loader: getShiftDetailsOverview({ overview: ["total", "pending"] }, true),
     },

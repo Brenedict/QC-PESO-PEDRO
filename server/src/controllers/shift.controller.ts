@@ -136,12 +136,8 @@ export default {
             const { shiftId } = req.params;
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
-            const revisionShift = await ShiftModel.updateShiftById(Number(shiftId), {
-                status: "ONGOING",
-                timeOut: null,
-            });
-
-            if (!revisionShift.userId) return res.status(404).json({ error: "User who owns the shift is not found" });
+            const revisionShift = await ShiftModel.getShiftLogById(Number(shiftId));
+            if (!revisionShift?.userId) return res.status(404).json({ error: "User who owns the shift is not found" });
 
             await UserModel.updateUser(revisionShift.userId, { isRevising: true });
 

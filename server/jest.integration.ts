@@ -41,7 +41,15 @@ jest.mock("./src/middlewares/authorized.middleware", () => ({
     requireAccessLevel: () => (_req: Request, _res: Response, next: NextFunction) => {
         next();
     },
-    verifyShift: (_req: Request, _res: Response, next: NextFunction) => {
+    verifyFinishedShift(_req: Request, _res: Response, next: NextFunction) {
+        next();
+    },
+
+    resolveShiftConflicts(_req: Request, _res: Response, next: NextFunction) {
+        next();
+    },
+
+    requireValidResetToken(_req: Request, _res: Response, next: NextFunction) {
         next();
     },
 }));

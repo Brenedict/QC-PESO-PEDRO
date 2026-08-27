@@ -1,6 +1,7 @@
-import { Demographic, Outcome, Sex, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import { Demographic, Outcome, Sex, Transaction, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import { TransactionCreateType } from "@qcpesopedro/shared/schema/transactions";
 import DateUtil, { TODAY } from "../../src/utils/date.util";
+import { TransactionUncheckedCreateInput } from "@qcpesopedro/shared/prisma/models";
 
 export const buildMockTransaction = (userId: number, shiftLogId: number) => {
     return {
@@ -25,8 +26,8 @@ export const buildMockTransactions = (
     return [
         {
             id: 1,
-            userId,
-            shiftLogId,
+            userId: Number(userId),
+            shiftLogId: Number(shiftLogId),
             applicantFirstName: "John",
             applicantLastName: "Doe",
             applicantSex: Sex.MALE,
@@ -38,8 +39,8 @@ export const buildMockTransactions = (
         },
         {
             id: 2,
-            userId,
-            shiftLogId,
+            userId: Number(userId),
+            shiftLogId: Number(shiftLogId),
             applicantFirstName: "Jane",
             applicantLastName: "Smith",
             applicantSex: Sex.FEMALE,
@@ -51,8 +52,8 @@ export const buildMockTransactions = (
         },
         {
             id: 3,
-            userId,
-            shiftLogId,
+            userId: Number(userId),
+            shiftLogId: Number(shiftLogId),
             applicantFirstName: "Bob",
             applicantLastName: "Johnson",
             applicantSex: Sex.MALE,
@@ -64,8 +65,8 @@ export const buildMockTransactions = (
         },
         {
             id: 4,
-            userId,
-            shiftLogId,
+            userId: Number(userId),
+            shiftLogId: Number(shiftLogId),
             applicantFirstName: "Mike",
             applicantLastName: "Wazowski",
             applicantSex: Sex.MALE,
@@ -77,8 +78,8 @@ export const buildMockTransactions = (
         },
         {
             id: 5,
-            userId,
-            shiftLogId,
+            userId: Number(userId),
+            shiftLogId: Number(shiftLogId),
             applicantFirstName: "Peter",
             applicantLastName: "Mosley",
             applicantSex: Sex.FEMALE,
@@ -90,8 +91,8 @@ export const buildMockTransactions = (
         },
         {
             id: 6,
-            userId,
-            shiftLogId,
+            userId: Number(userId),
+            shiftLogId: Number(shiftLogId),
             applicantFirstName: "Shrek",
             applicantLastName: "Yo",
             applicantSex: Sex.MALE,
@@ -118,7 +119,7 @@ const getGroupValues = (transaction: TransactionCreateType, groupBy: GroupByType
 };
 
 export const getTransactionsInRange = (
-    transactions: TransactionCreateType[],
+    transactions: (TransactionCreateType | Transaction)[],
     startDate?: Date | string,
     endDate?: Date | string
 ) => {
@@ -137,7 +138,7 @@ export const getTransactionsInRange = (
     });
 };
 
-export const getExpectedGrouped = (transactions: TransactionCreateType[], groupBy: GroupByTypes) => {
+export const getExpectedGrouped = (transactions: (TransactionCreateType | Transaction)[], groupBy: GroupByTypes) => {
     return transactions.reduce(
         (result, transaction) => {
             const value = transaction[groupBy] as string;
@@ -150,7 +151,7 @@ export const getExpectedGrouped = (transactions: TransactionCreateType[], groupB
 };
 
 export const getExpectedBreakdown = (
-    transactions: TransactionCreateType[],
+    transactions: (TransactionCreateType | Transaction)[],
     breakdown: Breakdown,
     startDate?: Date | string,
     endDate?: Date | string
@@ -169,7 +170,7 @@ export const getExpectedBreakdown = (
 };
 
 export const getExpectedGroupedBreakdown = (
-    transactions: TransactionCreateType[],
+    transactions: (TransactionCreateType | Transaction)[],
     breakdown: Breakdown,
     groupBy: GroupByTypes,
     startDate?: Date | string,

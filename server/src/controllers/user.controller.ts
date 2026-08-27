@@ -40,7 +40,10 @@ export default {
                 return res.status(404).json({ message: "User not found" });
             }
 
-            const shiftLog = await UserService.getEarliestUnfinishedShift(user.id);
+            const shiftLog = user.isRevising
+                ? await UserService.getEarliestRevisionShift(user.id)
+                : await UserService.getEarliestUnfinishedShift(user.id);
+
             const userContextPayload: UserContextType = {
                 id: user.id,
                 email: user.email,

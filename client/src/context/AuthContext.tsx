@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useSyncExternalStore, type ReactNode } from "react";
 import { getUserContextLoader, logoutService } from "../api/authService";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import { useRouteLoaderData } from "react-router";
@@ -9,6 +9,7 @@ interface AuthContextType {
     loading: boolean;
     user: UserContextType | null;
     logout: () => Promise<void>;
+    setUser: React.Dispatch<React.SetStateAction<UserContextType | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -17,8 +18,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const data = useRouteLoaderData("protected") as { user: UserContextType } | undefined;
     const [user, setUser] = useState<UserContextType | null>(data?.user ?? null);
 
-    // isAuthenticated is now implied: if we got here, the loader already confirmed it
     const isAuthenticated = !!user;
+    // isAuthenticated is now implied: if we got here, the loader already confirmed it
 
     const logout = async () => {
         await logoutService();
@@ -26,24 +27,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
     };
 
-    return <AuthContext value={{ isAuthenticated, loading: false, user, logout }}>{children}</AuthContext>;
+    return <AuthContext value={{ isAuthenticated, loading: false, user, logout, setUser }}>{children}</AuthContext>;
 };
 
 /* eslint-disable react-refresh/only-export-components */
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+    const user = useSyncExternalStore(InMemoryStore.subscribe, InMemoryStore.getUser);
 
-    const userInMemory = InMemoryStore.getUser();
-    if (ctx?.user && userInMemory?.shiftLog && ctx.user.shiftLog?.id !== userInMemory?.shiftLog?.id) {
-        return {
-            ...ctx,
-            user: {
-                ...ctx.user,
-                shiftLog: userInMemory?.shiftLog ?? null,
-            },
-        };
-    }
-
-    return ctx;
+    return { ...ctx, user };
 };

@@ -20,7 +20,6 @@ import { buildMockTransactions } from "../fixtures/transaction.fixture";
 import TransactionService from "../../src/service/transaction.service";
 import { mockAdminUser, mockFrontlineUser } from "../fixtures/user.fixture";
 import { User } from "@qcpesopedro/shared/prisma/client";
-import UserService from "../../src/service/user.service";
 import authRoute from "../../src/routes/auth.route";
 
 jest.unmock("../../src/middlewares/zod.middleware");
@@ -36,9 +35,22 @@ const mockShiftDates = (shift: ShiftLog) => {
 const mockUserDates = (user: User) => {
     if (user.createdAt) user.createdAt = expect.anything();
     if (user.updatedAt) user.updatedAt = expect.anything();
+    if (user.resetTokenExpiresAt) user.resetTokenExpiresAt = expect.anything();
 
     return user;
 };
+
+// GET /shift only resolves the fields you opt into via `include`.
+const SHIFT_LIST_INCLUDE =
+    "include=shifts&include=pending&include=approved&include=revision&include=rejected&include=average";
+
+// GET /shift/:shiftId only embeds the shift (and its user) when explicitly included.
+const SHIFT_DETAIL_INCLUDE = "include=shift&include=user";
+
+// Sources/demographics are gated by `analytics=true`; total/outcomes are gated by
+// specific `overview` values rather than a single `overview=true` boolean.
+const FULL_OVERVIEW_QUERY =
+    "analytics=true&overview=total&overview=none&overview=pending&overview=mismatch&overview=success";
 
 describe("Shift Route", () => {
     let mockedShiftLogs: ShiftLog[];
@@ -62,14 +74,14 @@ describe("Shift Route", () => {
 
     describe("GET /shift", () => {
         it("returns every shift", async () => {
-            const res = await request(app).get("/shift").expect(200);
+            const res = await request(app).get(`/shift?${SHIFT_LIST_INCLUDE}`).expect(200);
 
             expect(mockedShiftLogs.length).toBeGreaterThan(0);
             expect(res.body.shifts).toHaveLength(mockedShiftLogs.length);
         });
 
         it("counts each ESS status exactly", async () => {
-            const res = await request(app).get("/shift").expect(200);
+            const res = await request(app).get(`/shift?${SHIFT_LIST_INCLUDE}`).expect(200);
 
             const countBy = (status: string) => mockedShiftLogs.filter((s) => s.status === status).length;
 
@@ -80,7 +92,7 @@ describe("Shift Route", () => {
         });
 
         it("returns and formats the average approval interval", async () => {
-            const res = await request(app).get("/shift").expect(200);
+            const res = await request(app).get(`/shift?${SHIFT_LIST_INCLUDE}`).expect(200);
 
             const approved = mockedShiftLogs.filter(
                 (s) => s.status === "APPROVED" && s.timeOut !== null && s.lastVerifiedAt !== null
@@ -101,7 +113,7 @@ describe("Shift Route", () => {
         });
 
         it("includes transaction count user for each shift", async () => {
-            const res = await request(app).get("/shift").expect(200);
+            const res = await request(app).get(`/shift?${SHIFT_LIST_INCLUDE}`).expect(200);
             expect(res.body.shifts.length).toBeGreaterThan(0);
 
             for (const shift of res.body.shifts) {
@@ -120,8 +132,8 @@ describe("Shift Route", () => {
 
         it("returns shifts whose timeIn falls within a date range", async () => {
             const { startDate, endDate } = DateUtil.buildDayRange(TODAY);
-            const todayQuery = `?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-            const shiftToday = `/shift${todayQuery}`;
+            const todayQuery = `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+            const shiftToday = `/shift?${SHIFT_LIST_INCLUDE}${todayQuery}`;
 
             const res = await request(app).get(shiftToday).expect(200);
 
@@ -134,8 +146,8 @@ describe("Shift Route", () => {
 
         it("returns no shifts for a day that doesn't have any shifts (except pending)", async () => {
             const { startDate, endDate } = DateUtil.buildDayRange(DateUtil.offsetDays(TODAY, -1));
-            const yesterdayQuery = `?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-            const shiftYesterday = `/shift${yesterdayQuery}`;
+            const yesterdayQuery = `&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+            const shiftYesterday = `/shift?${SHIFT_LIST_INCLUDE}${yesterdayQuery}`;
 
             const res = await request(app).get(shiftYesterday).expect(200);
 
@@ -159,25 +171,33 @@ describe("Shift Route", () => {
         });
 
         it("returns shift details and its user", async () => {
-            const res = await request(app).get(`/shift/${mockedShiftLogs[0].id}`).expect(200);
+            const res = await request(app).get(`/shift/${mockedShiftLogs[0].id}?${SHIFT_DETAIL_INCLUDE}`).expect(200);
             expect(res.body.shift).toMatchObject(mockShiftDates(mockedShiftLogs[0]));
             expect(res.body.shift.user.id).toBe(adminUser?.id);
         });
 
-        it("returns no other details when overview is not set", async () => {
-            const res = await request(app).get(`/shift/${mockedShiftLogs[0].id}`).expect(200);
+        it("returns no other details when overview and analytics are not set", async () => {
+            const res = await request(app).get(`/shift/${mockedShiftLogs[0].id}?${SHIFT_DETAIL_INCLUDE}`).expect(200);
             expect(res.body).toStrictEqual({
                 shift: { ...mockShiftDates(mockedShiftLogs[0]), user: mockUserDates(adminUser!) },
             });
         });
 
         it("returns shift sources", async () => {
-            const res = await request(app).get(`/shift/${mockedShiftLogs[0].id}`).query({ overview: true }).expect(200);
-            const [walkins, online, inhouse] = countByField("transactionType", [
-                "WALK_IN_REFERRAL",
-                "ONLINE_REFERRAL",
-                "IN_HOUSE_RECRUITMENT",
-            ] as TransactionType[]);
+            const res = await request(app)
+                .get(`/shift/${mockedShiftLogs[0].id}?${SHIFT_DETAIL_INCLUDE}&${FULL_OVERVIEW_QUERY}`)
+                .expect(200);
+
+            const getStatsByType = (type: TransactionType) => {
+                const relevant = transactions.filter((t) => t.transactionType === type);
+                const male = relevant.filter((t) => t.applicantSex === "MALE").length;
+                const female = relevant.filter((t) => t.applicantSex === "FEMALE").length;
+                return { total: relevant.length, male, female };
+            };
+
+            const walkins = getStatsByType("WALK_IN_REFERRAL");
+            const online = getStatsByType("ONLINE_REFERRAL");
+            const inhouse = getStatsByType("IN_HOUSE_RECRUITMENT");
 
             expect(res.body).toMatchObject({
                 total: transactions.length,
@@ -188,7 +208,9 @@ describe("Shift Route", () => {
         });
 
         it("returns shift demographics", async () => {
-            const res = await request(app).get(`/shift/${mockedShiftLogs[0].id}`).query({ overview: true }).expect(200);
+            const res = await request(app)
+                .get(`/shift/${mockedShiftLogs[0].id}?${SHIFT_DETAIL_INCLUDE}&${FULL_OVERVIEW_QUERY}`)
+                .expect(200);
             const countByDemo = (demo: Demographic) => transactions.filter((t) => t.demographics.includes(demo)).length;
             const [firstTime, pwd, senior, youngWorker, workImmersion] = (
                 [
@@ -210,7 +232,9 @@ describe("Shift Route", () => {
         });
 
         it("returns shift outcomes", async () => {
-            const res = await request(app).get(`/shift/${mockedShiftLogs[0].id}`).query({ overview: true }).expect(200);
+            const res = await request(app)
+                .get(`/shift/${mockedShiftLogs[0].id}?${SHIFT_DETAIL_INCLUDE}&${FULL_OVERVIEW_QUERY}`)
+                .expect(200);
             const [none, mismatch, pending, success] = countByField("transactionOutcome", [
                 "NONE",
                 "MISMATCH",
@@ -227,16 +251,18 @@ describe("Shift Route", () => {
         });
     });
 
-    describe("PATCH /shift/:shiftId", () => {
-        it("correctly ends a shift when the frontlineUser has atleast FRONLINE access", async () => {
+    describe("PATCH /shift/:shiftId/end", () => {
+        it("correctly ends a shift when the user has atleast FRONTLINE access", async () => {
             const generalRemarks = "This is a test remark";
             const environmentTags = ["APPLICANT_ISSUES", "BROKEN_EQUIPMENT"] as EnvironmentTag[];
 
             setCurrentAuthUser(mockFrontlineUser);
-            await request(app)
+            const res = await request(app)
                 .patch(`/shift/${mockedShiftLogs[0].id}/end`)
                 .send({ generalRemarks, environmentTags })
-                .expect(204);
+                .expect(200);
+
+            expect(res.body.message).toBe("Shift successfully ended");
 
             const shift = await ShiftModel.getShiftLogById(mockedShiftLogs[0].id);
             expect(shift?.timeOut).not.toBe(null);
@@ -245,21 +271,35 @@ describe("Shift Route", () => {
             expect(shift?.environmentTags).toEqual(environmentTags);
         });
 
+        it("clears isRevising on the shift's user when ending a shift", async () => {
+            const frontlineShift = mockedShiftLogs.find((s) => s.userId === frontlineUser!.id)!;
+
+            await UserModel.updateUser(frontlineUser!.id, { isRevising: true });
+
+            setCurrentAuthUser(mockFrontlineUser);
+            await request(app).patch(`/shift/${frontlineShift.id}/end`).send({ generalRemarks: "done" }).expect(200);
+
+            const updatedUser = await UserModel.getById(frontlineUser!.id);
+            expect(updatedUser?.isRevising).toBe(false);
+        });
+
         it("returns status 400 bad request when body is invalid", (done) => {
             request(app)
                 .patch(`/shift/${mockedShiftLogs[0].id}/end`)
                 .send({ environmentTags: ["INVALID_TAG"] })
                 .expect(400, done);
         });
+    });
 
-        it("correctly update verification of a shift when the frontlineUser has atleast ADMIN access", async () => {
+    describe("PATCH /shift/:shiftId/verify", () => {
+        it("correctly updates verification of a shift when the user has atleast ADMIN access", async () => {
             const status: ESSStatus = "APPROVED";
             const adminRemarks = "This is a test remark";
 
             setCurrentAuthUser(mockAdminUser);
             await request(app)
                 .patch(`/shift/${mockedShiftLogs[0].id}/verify`)
-                .send({ status, adminRemarks })
+                .send({ status, adminRemarks, verifierId: adminUser!.id })
                 .expect(204);
 
             const shift = await ShiftModel.getShiftLogById(mockedShiftLogs[0].id);
@@ -274,31 +314,23 @@ describe("Shift Route", () => {
         });
     });
 
-    describe("GET /auth/protected (verify shift middleware)", () => {
-        it("returns 409 if finished shift today", (done) => {
-            jest.spyOn(UserService, "hasFinishedShiftToday").mockResolvedValue(true);
-            request(app).get("/auth/protected").expect(409, done);
+    describe("PATCH /shift/:shiftId/revise", () => {
+        it("flags the shift's user as revising and returns the revision shift", async () => {
+            await UserModel.updateUser(adminUser!.id, { isRevising: false });
+
+            setCurrentAuthUser(mockAdminUser);
+            const res = await request(app).patch(`/shift/${mockedShiftLogs[0].id}/revise`).expect(200);
+
+            expect(res.body.message).toBe("Please revise this shift");
+            expect(res.body.revisionShift).toMatchObject(mockShiftDates(mockedShiftLogs[0]));
+
+            const updatedUser = await UserModel.getById(adminUser!.id);
+            expect(updatedUser?.isRevising).toBe(true);
         });
 
-        it("returns 422 if unfinished shift is not today", (done) => {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-
-            jest.spyOn(UserService, "hasFinishedShiftToday").mockResolvedValue(false);
-            jest.spyOn(UserService, "getMostRecentUnfinishedShift").mockResolvedValue({
-                id: 123,
-                timeIn: yesterday, // time-in is yesterday
-                status: "ONGOING",
-                timeOut: null,
-                lastVerifiedAt: null,
-                userId: mockFrontlineUser.id,
-                generalRemarks: null,
-                adminRemarks: null,
-                verifierId: null,
-                environmentTags: [],
-            });
-
-            request(app).get("/auth/protected").expect(422, done);
+        it("returns status 403 forbidden when user is not ADMIN but tries to flag a revision", (done) => {
+            setCurrentAuthUser(mockFrontlineUser);
+            request(app).patch(`/shift/${mockedShiftLogs[0].id}/revise`).expect(403, done);
         });
     });
 });

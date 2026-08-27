@@ -134,7 +134,11 @@ function RightSection() {
                 variant={user?.isRevising === true ? "blue" : "red"}
                 size="small"
                 className="px-4 py-2 rounded-xl"
-                onClick={() => navigate(`${window.location.pathname}/end-shift-confirmation`)}
+                onClick={() =>
+                    navigate(
+                        `${window.location.pathname}/${user?.isRevising === true ? "submit-revision" : "end-shift-confirmation"}`
+                    )
+                }
             >
                 {user?.isRevising === true ? "Submit Revision" : "End Shift"}
             </Button>

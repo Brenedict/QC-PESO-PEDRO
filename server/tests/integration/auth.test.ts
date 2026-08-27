@@ -5,6 +5,9 @@ import prisma from "../../src/config/prisma.config";
 import { app } from "../../jest.integration";
 import { jest, beforeEach, expect, describe, it } from "@jest/globals";
 
+// Utils
+import HashUtil from "../../src/utils/hash.util";
+
 // Fixture
 import { mockUser } from "../fixtures/user.fixture";
 
@@ -16,10 +19,11 @@ describe("Auth routes", () => {
     app.use("/auth", authRouter);
 
     beforeEach(async () => {
-        await prisma.$transaction([prisma.user.deleteMany(), prisma.user.create({ data: mockUser })]);
+        const hashedUser = { ...mockUser, password: await HashUtil.hashPassword(mockUser.password) };
+        await prisma.$transaction([prisma.user.deleteMany(), prisma.user.create({ data: hashedUser })]);
     });
 
-    describe("POST /auth/login", () => {
+    describe("POST /autkh/login", () => {
         it("returns access token & sets refresh cookie", async () => {
             const res = await request(app)
                 .post("/auth/login")
