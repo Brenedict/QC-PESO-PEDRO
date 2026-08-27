@@ -16,10 +16,10 @@ import {
 } from "@qcpesopedro/shared/schema/shift";
 import ShiftModel from "../models/shift.model";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
-import { requireAccessLevel, requireUnfinishedShift } from "../middlewares/authorized.middleware";
+import { requireAccessLevel, resolveShiftConflicts } from "../middlewares/authorized.middleware";
 import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
-import UserService from "../service/user.service";
-import type { User } from "@qcpesopedro/shared/prisma/browser";
+import { ShiftLogUncheckedUpdateInputObjectSchema } from "@qcpesopedro/shared/zod/schemas";
+import UserModel from "../models/user.model";
 
 export default {
     getShifts: [
@@ -94,13 +94,18 @@ export default {
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
-            await ShiftModel.updateShiftById(Number(shiftId), {
+            const shift = await ShiftModel.updateShiftById(Number(shiftId), {
                 timeOut: new Date(),
                 status: "PENDING",
                 generalRemarks,
                 environmentTags,
             });
-            return res.sendStatus(204);
+
+            if (!shift.userId) return res.status(404).json({ error: "User who owns the shift is not found" });
+
+            await UserModel.updateUser(shift.userId, { isRevising: false });
+
+            return res.status(200).json({ message: "Shift successfully ended", shift });
         },
     ],
 
@@ -124,9 +129,29 @@ export default {
         },
     ],
 
+    patchShiftRevise: [
+        jwtAccessAuth,
+        requireAccessLevel(AccessLevel.ADMIN),
+        async (req: Request, res: Response) => {
+            const { shiftId } = req.params;
+            if (!shiftId) return res.status(404).json({ error: "Shift not found" });
+
+            const revisionShift = await ShiftModel.updateShiftById(Number(shiftId), {
+                status: "ONGOING",
+                timeOut: null,
+            });
+
+            if (!revisionShift.userId) return res.status(404).json({ error: "User who owns the shift is not found" });
+
+            await UserModel.updateUser(revisionShift.userId, { isRevising: true });
+
+            return res.status(200).json({ message: "Please revise this shift", revisionShift });
+        },
+    ],
+
     getShiftStatus: [
         jwtAccessAuth,
-        requireUnfinishedShift,
+        resolveShiftConflicts,
         async (_req: Request, res: Response) => {
             return res.json({ message: "Shift status check passed" });
         },

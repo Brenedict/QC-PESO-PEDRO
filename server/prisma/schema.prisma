@@ -200,6 +200,9 @@ model User {
     resetToken          String?   @unique
     resetTokenExpiresAt DateTime?
 
+    // check if user is currently revising a shift
+    isRevising Boolean @default(false)
+
     @@index([fullName])
     @@index([role, status])
     @@index([createdAt(sort: Desc)])

@@ -88,15 +88,23 @@ export default {
         return await UserModel.updateUser(userId, updatedUser);
     },
 
-    async getMostRecentUnfinishedShift(userId: number) {
+    async getEarliestUnfinishedShift(userId: number) {
         return (
             await ShiftModel.getShiftLogsByUserId(
                 userId,
                 { status: "ONGOING", timeOut: null },
-                { timeIn: "desc" },
+                { timeIn: "asc" },
                 undefined,
                 1
             )
+        )?.[0];
+    },
+
+    async getEarliestRevisionShift(userId: number) {
+        return (
+            await ShiftModel.getShiftLogsByUserId(userId, { status: "REVISION" }, { timeOut: "asc" }, undefined, 1, {
+                user: true,
+            })
         )?.[0];
     },
 

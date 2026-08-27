@@ -44,16 +44,21 @@ export async function verifyFinishedShift(req: Request, res: Response, next: Nex
     next();
 }
 
-export async function requireUnfinishedShift(req: Request, res: Response, next: NextFunction) {
+export async function resolveShiftConflicts(req: Request, res: Response, next: NextFunction) {
     const requestor = req.user as User | undefined;
 
     if (!requestor) {
         return res.status(404).json({ message: "User not found" });
     }
 
-    const unfinishedShift = await UserService.getMostRecentUnfinishedShift(requestor.id);
+    if (requestor.isRevising) {
+        return next();
+    }
+
+    const unfinishedShift = await UserService.getEarliestUnfinishedShift(requestor.id);
 
     //Has unfinished shift last time?
+    // skip if requestor is currently revising past shift
     if (unfinishedShift && !ShiftService.isTodayShift(unfinishedShift)) {
         return res.status(409).json({
             shiftStatus: ShiftStatus.UNFINISHED,
@@ -66,6 +71,17 @@ export async function requireUnfinishedShift(req: Request, res: Response, next: 
         return res.status(409).json({
             shiftStatus: ShiftStatus.TIMEIN, // Need time in
             message: "Please create another time in",
+        });
+    }
+
+    const revisionShift = await UserService.getEarliestRevisionShift(requestor.id);
+
+    // Require user to revise the needs revision shifts
+    if (revisionShift) {
+        return res.status(409).json({
+            revisionShift,
+            shiftStatus: ShiftStatus.REVISION,
+            message: "Please revise your shifts",
         });
     }
 

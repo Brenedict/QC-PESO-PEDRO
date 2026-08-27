@@ -12,5 +12,6 @@ router.post("/", controller.createShift);
 
 router.patch("/:shiftId/end", controller.patchShiftEnd);
 router.patch("/:shiftId/verify", controller.patchShiftVerify);
+router.patch("/:shiftId/revise", controller.patchShiftRevise);
 
 export default router;

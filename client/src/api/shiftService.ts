@@ -106,7 +106,8 @@ export const patchEndShift =
 
             InMemoryStore.setUserShiftLog(undefined);
 
-            if (!redirect) {
+            // If the user is not revising, log them out
+            if (!redirect && !InMemoryStore.getUser()?.isRevising) {
                 // Logout of user
                 const logOutRes = await logoutAction();
 
@@ -123,6 +124,32 @@ export const patchEndShift =
         }
     };
 
+// PATCH: Review shift (Frontline and above)
+export const patchReviseShift =
+    (redirect: string) =>
+    async ({ request }: ActionFunctionArgs) => {
+        const error = new Error("Failed to revise shift.");
+        try {
+            const { id: revisionShiftId } = InMemoryStore.getRevisionShift() ?? {};
+            if (!revisionShiftId) throw error;
+
+            // Main Fetch Request
+            const res = await apiJson(`/shift/${revisionShiftId}/revise`, { method: "PATCH" });
+            await ensureOk(res, "Failed to revise shift");
+
+            const { revisionShift } = await res.json();
+
+            if (!revisionShift) throw error;
+
+            InMemoryStore.setUserShiftLog(revisionShift); // Set current user shift to the revision shift
+            InMemoryStore.setRevisionShift(null); // Remove the temporary revision shift in-memory data
+
+            return redirectWithQuery(request, redirect);
+        } catch (err) {
+            return handleErrRedirect(err, request, ROUTES.auth.root);
+        }
+    };
+
 // GET: Loader for shift time in
 export const shiftStatusLoader = async ({ request }: LoaderFunctionArgs) => {
     const { pathname } = new URL(request.url);
@@ -130,6 +157,7 @@ export const shiftStatusLoader = async ({ request }: LoaderFunctionArgs) => {
     const shiftStatusRoutes = {
         [ShiftStatus.TIMEIN]: "time-in",
         [ShiftStatus.UNFINISHED]: "unfinished-shift",
+        [ShiftStatus.REVISION]: "revision",
     } as const;
 
     const allowedPaths = Object.values(shiftStatusRoutes);
@@ -144,6 +172,10 @@ export const shiftStatusLoader = async ({ request }: LoaderFunctionArgs) => {
     if (res.status === 409) {
         const body = await res.json();
         const shiftStatus = parseInt(body.shiftStatus);
+
+        if (shiftStatus === ShiftStatus.REVISION) {
+            InMemoryStore.setRevisionShift(body.revisionShift);
+        }
 
         const route = shiftStatusRoutes[shiftStatus as ShiftStatus];
 
@@ -175,7 +207,7 @@ export const timeInShift = async ({ request }: ActionFunctionArgs) => {
 
         InMemoryStore.setUserShiftLog(shiftLog);
     } catch (err) {
-        return handleErrRedirect(err, request, ROUTES.endshift.root);
+        return handleErrRedirect(err, request, ROUTES.auth.root);
     }
 
     const root = getParentPath(request, "time-in");

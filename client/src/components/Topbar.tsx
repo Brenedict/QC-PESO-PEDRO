@@ -22,6 +22,7 @@ import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 
 // Utils
 import { getDateTimeNow } from "../utils/time.ts";
+import { useAuth } from "../context/AuthContext.tsx";
 
 function LeftSection() {
     const { onSearchChange } = useUserGlobal();
@@ -105,6 +106,7 @@ function ProfileSection() {
 }
 
 function RightSection() {
+    const { user } = useAuth();
     const { status } = useUserGlobal();
     const navigate = useNavigateDefault();
 
@@ -129,12 +131,12 @@ function RightSection() {
             </div>
 
             <Button
-                variant="red"
+                variant={user?.isRevising === true ? "blue" : "red"}
                 size="small"
                 className="px-4 py-2 rounded-xl"
                 onClick={() => navigate(`${window.location.pathname}/end-shift-confirmation`)}
             >
-                End Shift
+                {user?.isRevising === true ? "Submit Revision" : "End Shift"}
             </Button>
         </section>
     );

@@ -8,4 +8,5 @@ export enum AccessLevel {
 export enum ShiftStatus {
     TIMEIN = 1,
     UNFINISHED = 2,
+    REVISION = 3,
 }

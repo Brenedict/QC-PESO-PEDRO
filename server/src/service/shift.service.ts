@@ -10,7 +10,6 @@ import type {
 import { calcAvgShiftApproval } from "@qcpesopedro/shared/prisma/sql";
 import prisma from "../config/prisma.config";
 import type { ShiftDetailsQueryType, ShiftQueryIncludeType } from "@qcpesopedro/shared/schema/shift";
-import { resolve } from "dns";
 
 export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs, startDate?: Date, endDate?: Date) {

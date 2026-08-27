@@ -35,7 +35,7 @@ export const useAuth = () => {
     if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
 
     const userInMemory = InMemoryStore.getUser();
-    if (ctx?.user && ctx.user.shiftLog?.id !== userInMemory?.shiftLog?.id) {
+    if (ctx?.user && userInMemory?.shiftLog && ctx.user.shiftLog?.id !== userInMemory?.shiftLog?.id) {
         return {
             ...ctx,
             user: {

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Form, useLoaderData, type HTMLFormMethod } from "react-router";
 
 // Shared Import
-import { EnvironmentTag, type Transaction } from "@qcpesopedro/shared/prisma/browser";
+import { EnvironmentTag } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import { Dialog } from "../Dialog";
@@ -28,10 +28,13 @@ import { LogoutOutlined } from "@mui/icons-material";
 
 // Custom Hooks
 import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
-import { formatShortMonthYear, formatTime, getDayPeriod } from "../../utils/time";
+import { formatRelativeDateTime, formatShortMonthYear, formatTime } from "../../utils/time";
 import { logoutService } from "../../api/authService";
 import { useAuth } from "../../context/AuthContext";
 import { capitalizeWords } from "../../utils/text";
+import InMemoryStore from "../../api/inMemoryStore";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
+import { ShiftLogScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
 const handleCancelTimeIn = (navigate: (route: string, keepQuery?: boolean) => void) => async () => {
     const success = await logoutService();
 
@@ -47,6 +50,9 @@ interface EndShiftFormProps {
     pending?: number;
 }
 function EndShiftForm({ method = "patch", id = "timeInForm", total, pending }: EndShiftFormProps) {
+    const { user } = useAuth();
+    const environmentTags = (user?.shiftLog?.environmentTags as EnvironmentTag[]) ?? [];
+
     return (
         <Form method={method} id={id} className="flex flex-col gap-6">
             {/* Time-In Data Input Holders */}
@@ -68,22 +74,46 @@ function EndShiftForm({ method = "patch", id = "timeInForm", total, pending }: E
             </div>
             <LabeledSection label="Context Tags">
                 <div className="flex flex-wrap gap-2 max-w-120">
-                    <ContextBadge value={EnvironmentTag.SLOW_INTERNET} name="environmentTags">
+                    <ContextBadge
+                        value={EnvironmentTag.SLOW_INTERNET}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.SLOW_INTERNET)}
+                    >
                         Slow Internet
                     </ContextBadge>
-                    <ContextBadge value={EnvironmentTag.HEAVY_RAIN} name="environmentTags">
+                    <ContextBadge
+                        value={EnvironmentTag.HEAVY_RAIN}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.HEAVY_RAIN)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
                         Heavy Rain
                     </ContextBadge>
-                    <ContextBadge value={EnvironmentTag.BROKEN_EQUIPMENT} name="environmentTags">
+                    <ContextBadge
+                        value={EnvironmentTag.BROKEN_EQUIPMENT}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.BROKEN_EQUIPMENT)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
                         Broken Equipment
                     </ContextBadge>
-                    <ContextBadge value={EnvironmentTag.APPLICANT_ISSUES} name="environmentTags">
+                    <ContextBadge
+                        value={EnvironmentTag.APPLICANT_ISSUES}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.APPLICANT_ISSUES)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
                         Applicant Issues
                     </ContextBadge>
-                    <ContextBadge value={EnvironmentTag.FEELING_UNWELL} name="environmentTags">
+                    <ContextBadge
+                        value={EnvironmentTag.FEELING_UNWELL}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.FEELING_UNWELL)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
                         Feeling Unwell
                     </ContextBadge>
-                    <ContextBadge value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM} name="environmentTags">
+                    <ContextBadge
+                        value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.BROKEN_SOFTWARE_SYSTEM)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
                         Broken Software System
                     </ContextBadge>
                 </div>
@@ -92,7 +122,7 @@ function EndShiftForm({ method = "patch", id = "timeInForm", total, pending }: E
             <TextAreaInput
                 label="Optional Remarks"
                 name="generalRemarks"
-                defaultValue={""}
+                defaultValue={user?.shiftLog?.generalRemarks ?? ""}
                 placeholder="Problems, or any other concern during the shift..."
             />
         </Form>
@@ -282,6 +312,7 @@ export function PopupSessionEnd({ root }: { root: string }) {
 }
 
 export function PopupUnfinishedShift() {
+    const { user } = useAuth();
     const { total, pending } = useLoaderData();
     const navigate = useNavigateDefault();
 
@@ -289,8 +320,11 @@ export function PopupUnfinishedShift() {
         <Dialog dropShadow={true} onClose={handleCancelTimeIn(navigate)}>
             <Dialog.Body className="px-6! py-8!">
                 <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
-                <PopupHeader>You have an unfinished shift last time</PopupHeader>
-                <PopupDescription>To keep your shift recorded, please submit it </PopupDescription>
+                <PopupHeader>
+                    You have an unfinished shift (
+                    {user?.shiftLog?.timeIn ? formatRelativeDateTime(new Date(user.shiftLog.timeIn), true) : "N/A"})
+                </PopupHeader>
+                <PopupDescription>To keep your shift data recorded and saved, please submit it</PopupDescription>
                 <EndShiftForm total={total} pending={pending} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
@@ -305,6 +339,45 @@ export function PopupUnfinishedShift() {
                 <PopupButton variant="blue" type="submit" form="timeInForm">
                     Submit Shift
                 </PopupButton>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupReviseShift() {
+    const revisionShift = InMemoryStore.getRevisionShift();
+    const navigate = useNavigateDefault();
+
+    return (
+        <Dialog dropShadow={true} onClose={handleCancelTimeIn(navigate)}>
+            <Dialog.Body className="px-6! py-8!">
+                <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
+                <PopupHeader>
+                    You have a shift that needs to be revised (
+                    {revisionShift?.timeIn ? formatRelativeDateTime(new Date(revisionShift.timeIn), true) : "N/A"})
+                </PopupHeader>
+                <PopupDescription>To keep your shift data recorded and saved, please resubmit it</PopupDescription>
+                <GeneralInput
+                    label={`Reason for Revision (${revisionShift?.user?.fullName ?? "N/A"})`}
+                    type="text"
+                    defaultValue={revisionShift?.adminRemarks ?? "The verifier has no remarks."}
+                    disabled
+                />
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <PopupButton
+                    leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
+                    variant="white"
+                    onClick={handleCancelTimeIn(navigate)}
+                    type="button"
+                >
+                    Log Out
+                </PopupButton>
+                <Form method="patch">
+                    <PopupButton variant="blue" type="submit">
+                        Revise Shift
+                    </PopupButton>
+                </Form>
             </Dialog.Footer>
         </Dialog>
     );

@@ -16,6 +16,7 @@ import type {
 
 // Prisma.config
 import prisma from "../config/prisma.config";
+import type { DefaultArgs } from "@prisma/client/runtime/client";
 
 export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs) {
@@ -31,9 +32,22 @@ export default {
         where?: ShiftLogWhereInput,
         orderBy?: ShiftLogOrderByWithRelationInput,
         select?: ShiftLogSelectScalar,
-        take?: number
+        take?: number,
+        include?: ShiftLogInclude<DefaultArgs>
     ) {
-        return prisma.shiftLog.findMany({ where: { userId, ...where }, orderBy, select, take });
+        const query: ShiftLogFindManyArgs = {
+            where: { userId, ...where },
+            orderBy,
+            take,
+        };
+
+        if (select) {
+            query.select = select;
+        } else if (include) {
+            query.include = include;
+        }
+
+        return prisma.shiftLog.findMany(query);
     },
 
     async createShift(args: ShiftLogCreateArgs) {
