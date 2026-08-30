@@ -2,6 +2,7 @@
   Warnings:
 
   - The values [TRANSACTION_CREATE,TRANSACTION_EDIT,TRANSACTION_DELETE,SUBMIT_ESS,TAG_ESS_REJECT,TAG_ESS_REVISION,TAG_ESS_APPROVE,USER_ADD,USER_RESET_PASSWORD,USER_EDIT,USER_PROMOTE,USER_DEMOTE] on the enum `LogAction` will be removed. If these variants are still used in the database, this will fail.
+  - Added the required column `remarks` to the `AuditLog` table without a default value. This is not possible if the table is not empty.
 
 */
 -- AlterEnum
@@ -14,4 +15,5 @@ DROP TYPE "public"."LogAction_old";
 COMMIT;
 
 -- AlterTable
-ALTER TABLE "AuditLog" ALTER COLUMN "affectedRecordId" SET DATA TYPE TEXT;
+ALTER TABLE "AuditLog" ADD COLUMN     "remarks" TEXT NOT NULL,
+ALTER COLUMN "affectedRecordId" SET DATA TYPE TEXT;

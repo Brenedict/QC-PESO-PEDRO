@@ -221,6 +221,7 @@ model AuditLog {
     actionPerformed  LogAction
     affectedRecordId String
     changesDetails   String
+    remarks String
 
     @@index([userId, createdAt(sort: Desc)])
 }

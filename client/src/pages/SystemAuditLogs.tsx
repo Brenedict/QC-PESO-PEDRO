@@ -1,5 +1,8 @@
 // General Imports
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { type AuditLogsResponseType } from "@qcpesopedro/shared/schema/audit";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -10,6 +13,7 @@ import { GeneralInput, LeftLabeledInput, SelectInput } from "../components/Input
 
 // Test Data
 import type { AuditLogRecord } from "../data/auditLogs";
+import { LogAction, Role } from "@qcpesopedro/shared/prisma/enums";
 
 // Define the props
 interface SystemAuditLogsProps {
@@ -31,7 +35,9 @@ function UserCell({ name, role }: { name: string; role: string }) {
 }
 
 // Main Page
-function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
+function SystemAuditLogs() {
+    const auditLogs: AuditLogsResponseType = useLoaderData();
+
     // Extra filter inputs for the Table Filter Section
     const extraFilters = (
         <div className="flex gap-4 items-center">
@@ -75,24 +81,27 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                     <Table.Header text="REMARKS" />
                 </Table.Row>
 
-                {logsData.map((row) => (
+                {auditLogs.map((row) => (
                     <Table.Row key={row.id}>
                         <Table.Data>
-                            <DateTime dateTime={row.dateTime} />
+                            <DateTime dateTime={row.createdAt} />
                         </Table.Data>
                         <Table.Data>
-                            <UserCell name={row.userName} role={row.userRole} />
+                            <UserCell
+                                name={`${row.user?.firstName} ${row.user?.lastName}`}
+                                role={row.user?.role ?? Role.FRONTLINE}
+                            />
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="dark-blue" weight="bold" align="center">
-                                {row.action}
+                                {row.actionPerformed as LogAction}
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <Identifier>{row.recordId}</Identifier>
+                            <Identifier>{row.id}</Identifier>
                         </Table.Data>
                         <Table.Data>
-                            <ColumnDesc>{row.details}</ColumnDesc>
+                            <ColumnDesc>{row.changesDetails}</ColumnDesc>
                         </Table.Data>
                         <Table.Data>
                             <ColumnDescItalic>{row.remarks}</ColumnDescItalic>

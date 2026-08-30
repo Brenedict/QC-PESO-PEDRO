@@ -9,7 +9,7 @@ import {
     type UserQueryType,
     UserFormChangePasswordSchema,
 } from "@qcpesopedro/shared/schema/users";
-import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import { LogAction, type Role, type Status, type User } from "@qcpesopedro/shared/prisma/browser";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 
@@ -20,14 +20,15 @@ import { requireAccessLevel } from "../middlewares/authorized.middleware";
 
 // Models
 import UserModel from "../models/user.model";
-import ShiftModel from "../models/shift.model";
 
 // Service
 import EmailService from "../service/email.service";
 import UserService from "../service/user.service";
+import AuditService from "../service/audit.service";
 
 // Utils
 import HashUtil from "../utils/hash.util";
+import { createAuditLog } from "../middlewares/audit.middleware";
 
 export default {
     getCurrentUser: [
@@ -98,6 +99,7 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
         validateSchema("body", UserFormCreateSchema),
+        createAuditLog(LogAction.USER_CREATED),
         async (req: Request, res: Response) => {
             const user = req.body as User;
             const { email, username } = user;
@@ -110,6 +112,14 @@ export default {
 
             const result = await UserService.createUser(user);
 
+            if (result) {
+                res.locals.auditMetadata = {
+                    user: { id: result.id, name: result.fullName, role: result.role },
+                    affectedRecord: result.id,
+                    changesDetails: result.fullName,
+                };
+            }
+
             return res.json(result);
         },
     ],
@@ -118,6 +128,7 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
         validateSchema("body", UserFormUpdateSchema),
+        createAuditLog(LogAction.USER_EDITED),
         async (req: Request, res: Response) => {
             // Default user check
             const userId = Number(req.params.userId);
@@ -136,6 +147,10 @@ export default {
             }
 
             const result = await UserService.updateUser(userId, userUpdate);
+
+            if (result) {
+                await AuditService.createAuditLogMetadata(res, result);
+            }
 
             return res.status(201).json(result);
         },

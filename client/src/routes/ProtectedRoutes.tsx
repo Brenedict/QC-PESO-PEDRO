@@ -33,10 +33,10 @@ import { PopupEndShiftReview, PopupShiftViewTransactionDetails } from "../compon
 
 // Test Data
 import { employeeSessions } from "../data/employeeSessions";
-import { auditLogData } from "../data/auditLogs";
 
 // API
 import { createUser, getUserById, getUsers, manageUserAction, resetPassword, updateUser } from "../api/userService";
+import { getAuditLogs } from "../api/auditService";
 import { AuthProvider } from "../context/AuthContext";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 
@@ -254,8 +254,8 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "audit-logs",
-                        element: <SystemAuditLogs logsData={auditLogData} />,
-                        loader: requireAccess(AccessLevel.ADMIN),
+                        element: <SystemAuditLogs />,
+                        loader: requireAccess(AccessLevel.ADMIN, getAuditLogs),
                         children: [...shiftPopups(ROUTES.auditLogs.root)],
                     },
                     {
