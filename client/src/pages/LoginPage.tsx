@@ -14,7 +14,7 @@ import Button from "../components/Button";
 import ApartmentOutlinedIcon from "@mui/icons-material/ApartmentOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import CasesOutlinedIcon from "@mui/icons-material/CasesOutlined";
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 import { NotificationPopup } from "../components/popups/NotificationPopups";
 
 function HeroIcons({ className }: React.HTMLAttributes<HTMLDivElement>) {

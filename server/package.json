@@ -13,7 +13,8 @@
         "seed:prisma": "tsx ./prisma/database.seed.ts",
         "gensql:prisma": "prisma generate --sql",
         "create:prisma": "prisma migrate dev --create-only",
-        "studio:prisma": "prisma studio"
+        "studio:prisma": "prisma studio",
+        "pull:prisma": "prisma db pull"
     },
     "keywords": [],
     "author": "",

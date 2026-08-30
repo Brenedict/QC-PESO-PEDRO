@@ -19,7 +19,7 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 import { useUserGlobal } from "../../context/UserGlobalContext";
 
 type PopupUser = {
@@ -358,11 +358,11 @@ function PopupRadio({
     children: ReactNode;
 }) {
     return (
-        <div className="border border-off-white-border bg-off-white p-3 rounded-xl cursor-pointer hover:bg-[#F3FAFC] transition-colors">
+        <label className="border block border-off-white-border bg-off-white p-3 rounded-xl cursor-pointer hover:bg-[#F3FAFC] transition-colors">
             <ChoiceItem inputVariant="radio" name={name} value={value} defaultChecked={defaultChecked}>
                 {children}
             </ChoiceItem>
-        </div>
+        </label>
     );
 }
 

@@ -5,7 +5,10 @@ export interface TableContextValue {
     pagination?: boolean;
     filterView?: boolean;
     extraFilters?: ReactNode;
+    pageKey?: string;
     noCardStyle?: boolean;
+
+    isExternalFilterChanged?: () => boolean;
 }
 
 export const TableContext = createContext<TableContextValue | null>(null);

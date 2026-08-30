@@ -27,7 +27,6 @@ import TransactionModel from "../models/transaction.model";
 import UserModel from "../models/user.model";
 
 // Utils
-import ValidateUtil from "../utils/validate.util";
 import DateUtil from "../utils/date.util";
 
 // Prisma.config
@@ -180,10 +179,12 @@ export default {
     },
 
     parseTransactionQuery(query: TransactionQueryType): TransactionFindManyArgs {
-        const { startDate, endDate, type, outcome, page, limit, search, include } = query;
+        const { shiftLogId, userId, startDate, endDate, type, outcome, page, limit, search, include } = query;
 
         return {
             where: {
+                userId,
+                shiftLogId,
                 transactionType: type as TransactionType | undefined,
                 transactionOutcome: outcome as Outcome | undefined,
                 createdAt:
@@ -198,10 +199,13 @@ export default {
                     OR: [
                         { applicantFullName: { contains: search as string, mode: "insensitive" } },
                         { txCode: { contains: search as string, mode: "insensitive" } },
+                        ...(include?.includes("user") // If it includes a user add a search to it also
+                            ? [{ user: { fullName: { contains: search as string, mode: "insensitive" } } }]
+                            : []),
                     ],
                 }),
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: [{ createdAt: "desc" }, { id: "asc" }],
             include: include?.length ? Object.fromEntries(include.map((key) => [key, true])) : undefined,
             skip: page,
             take: limit,
@@ -314,7 +318,7 @@ async function resolveTransactionQuery(
 }
 
 async function resolveSingleTransactionQuery(args: TransactionGroupByArgs | TransactionCountArgs) {
-    const isGroupByArgs = ValidateUtil.isGroupByArgs(args);
+    const isGroupByArgs = args && "by" in args && args.by?.length > 0;
 
     // return only count when we dont have groupBy
     if (!isGroupByArgs) {
@@ -417,11 +421,8 @@ function formatTransactionBreakdownResult(
             const groupValue = (row as groupByIntervalWithColumn.Result).groupValue ?? "UNKNOWN";
             const count = Number(row.count ?? 0);
 
-            if (!response[bucket]) {
-                response[bucket] = {};
-            }
-
-            response[bucket][groupValue] = count;
+            response[bucket] ??= {};
+            response[bucket][groupValue] = (response[bucket][groupValue] ?? 0) + count;
         }
 
         return response;
@@ -436,7 +437,7 @@ function formatTransactionBreakdownResult(
         const bucket = DateUtil.formatDateBucket(row.bucket, breakdown);
         const count = Number(row.count ?? 0);
 
-        response[bucket] = count;
+        response[bucket] = (response[bucket] ?? 0) + count;
     }
 
     return response;

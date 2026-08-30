@@ -8,7 +8,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 
 // Custom Hooks
-import { useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault from "../../hooks/useNavigateDefault";
 
 export function NotificationPopup({
     onClose,

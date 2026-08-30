@@ -9,6 +9,7 @@ import VisiblityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined";
+import { Text } from "./Text";
 
 interface LabelProp {
     htmlFor?: string;
@@ -35,7 +36,7 @@ interface SelectProp extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 interface GeneralInputProp extends LabelProp, InputProp {
-    type: "text" | "email" | "number" | "time" | "date";
+    type: "text" | "email" | "number" | "time" | "date" | "datetime-local";
     hidden?: boolean;
 }
 
@@ -247,6 +248,17 @@ export function SelectInput({
             </div>
 
             <ErrorMessage error={error} />
+        </div>
+    );
+}
+
+export function LeftLabeledInput({ label, children }: { label: string; children: ReactNode }) {
+    return (
+        <div className="flex items-center gap-2">
+            <Text size="description" variant="grayish-blue" weight="medium">
+                {label}
+            </Text>
+            {children}
         </div>
     );
 }

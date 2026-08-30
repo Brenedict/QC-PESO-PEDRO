@@ -14,7 +14,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 export function ForgotPassword({ onSubmit }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void }) {
     const [isSuccessful, setIsSuccessful] = useState(false);

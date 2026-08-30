@@ -1,5 +1,5 @@
 // General Imports
-import { type ActionFunctionArgs } from "react-router";
+import { type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 
 //
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
@@ -31,12 +31,13 @@ import {
     TRANSACTION_REPORT_REQUEST,
     TRANSACTION_SUMMARY_REQUEST,
     type ReportTypes,
-} from "./analyticsRequests";
+} from "./analyticsService";
 import type { MaterialIcon } from "../types/common";
-import { buildDayRangeParam, buildParamString, TIMEFRAME_MAP, type TIMEFRAME_RESULT } from "./dateService";
+import { buildDayRangeParam, buildParamString, getStartEndHour, type ParamArgs } from "./dateService";
 
 // Custom Hooks
-import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+import { ROUTES, type transactionRootPage } from "../hooks/useNavigateDefault";
+import InMemoryStore from "./inMemoryStore";
 
 // ------------------------- MAPS -------------------------------------------------------
 export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
@@ -66,15 +67,37 @@ export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
 // GET: Fetches all transactions
 export const getTransactions =
     (daily: boolean) =>
-    async ({ request }: ActionFunctionArgs) => {
+    async ({ request }: LoaderFunctionArgs) => {
         const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
-        const { query, omitted } = extractQueryToObject(request, ["page", "timeframe"]);
-        const dateRangeOption = TIMEFRAME_MAP[omitted?.timeframe ?? "overall"] as TIMEFRAME_RESULT;
+        const { query } = extractQueryToObject(request, ["page", "timeframe"]);
+        const startEndHour = getStartEndHour(query.startDate, query.endDate);
 
-        const apiParams = buildParamString({ ...dayRangeParam, ...query, ...dateRangeOption });
-        // console.log(apiParams);
+        const paramsObject: Record<string, string | string[]> = {
+            ...dayRangeParam,
+            ...query,
+            ...startEndHour,
+        };
 
         try {
+            const user = InMemoryStore.getUser();
+
+            if (user) {
+                if (daily) {
+                    // Sa applicant form dapat sa current shift lang
+                    const { id: shiftLogId } = user.shiftLog ?? {};
+                    paramsObject.shiftLogId = String(shiftLogId);
+                }
+
+                if (user.role === "FRONTLINE" && !daily) {
+                    paramsObject.userId = String(user.id); // Kapag history sa current user lang (Frontline)
+                }
+                if (user.role !== "FRONTLINE") {
+                    paramsObject.include = ["user"]; // View history, include users when user is atleast admin role
+                }
+            }
+
+            const apiParams = buildParamString(paramsObject as ParamArgs);
+
             // Main Fetch Request
             const res = await apiJson(`/transaction?${apiParams}`, { method: "GET" });
 
@@ -157,11 +180,12 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
 
 // POST: Fetches analytics
 export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
+    console.log(JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()));
     try {
         // Main Fetch Request
         const res = await apiJson("/transaction/analytics", {
             method: "POST",
-            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST),
+            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()),
         });
 
         await ensureOk(res, "Failed to query dashboard");
@@ -196,7 +220,7 @@ export const getTransactionSummary = async ({ request }: ActionFunctionArgs) => 
         // Main Fetch Request
         const res = await apiJson("/transaction/analytics", {
             method: "POST",
-            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST),
+            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST()),
         });
 
         await ensureOk(res, "Failed to query transaction summary");

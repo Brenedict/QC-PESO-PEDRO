@@ -56,12 +56,12 @@ function DialogContainer({
     children?: ReactNode;
     className?: string;
     dropShadow?: boolean;
-    onClose: () => void;
+    onClose: () => void | Promise<void>;
 }) {
     useEffect(() => {
         const handleEscapeKey = (e: KeyboardEvent) => {
             if (e.key == "Escape") {
-                onClose();
+                void onClose();
             }
         };
 
@@ -72,10 +72,14 @@ function DialogContainer({
         };
     }, [onClose]);
 
+    const handleClick = () => {
+        void onClose();
+    };
+
     return createPortal(
         <div
-            className="flex h-screen w-screen justify-center items-center bg-black-opaque fixed top-0 right-0 z-99999 "
-            onClick={onClose}
+            className="flex h-screen w-screen justify-center items-center bg-black-opaque fixed top-0 right-0 z-999 "
+            onClick={handleClick}
         >
             <section className="min-w-md min-h-fit" onClick={(e) => e.stopPropagation()}>
                 <Card {...props} className={className} dropShadow={dropShadow}>

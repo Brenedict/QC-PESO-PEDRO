@@ -1,18 +1,21 @@
 // General Imports
 
 // PEDRO SHARED IMPORTS
-import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import type { Prisma, Role, User } from "@qcpesopedro/shared/prisma/client";
 
 // Models
 import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
+import DateUtil from "../utils/date.util";
+import type { ShiftLogWhereInput, UserFindManyArgs, UserUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
 
 // Utils
 import HashUtil from "../utils/hash.util";
 
 export interface UserManagementFilter {
-    role?: Role | undefined;
-    status?: Status | undefined;
+    role?: Role;
+    status?: "ACTIVE" | "INACTIVE";
+    search?: string;
 }
 
 export default {
@@ -23,8 +26,21 @@ export default {
         return temporaryPassword;
     },
 
-    async getUsers(filters: UserManagementFilter) {
-        return UserModel.getUsersWithFilters(filters);
+    async getUsers(filters: UserManagementFilter, args?: UserFindManyArgs) {
+        const where: Prisma.UserWhereInput = {};
+
+        if (filters.role) {
+            where.role = filters.role;
+        }
+        if (filters.status) {
+            where.status = filters.status === "ACTIVE" ? "ONLINE" : { not: "ONLINE" };
+        }
+
+        if (filters.search) {
+            where.fullName = { contains: filters.search as string, mode: "insensitive" };
+        }
+
+        return UserModel.getUsers({ where: { ...where, ...args?.where }, ...args });
     },
 
     async ensureUserExist(userId: number): Promise<User | null> {
@@ -39,7 +55,7 @@ export default {
         return await UserModel.getByEmail(email);
     },
 
-    async updateUser(userId: number, user: User): Promise<User | null> {
+    async updateUser(userId: number, user: UserUncheckedUpdateInput): Promise<User | null> {
         return await UserModel.updateUser(userId, user);
     },
 
@@ -72,21 +88,49 @@ export default {
         return await UserModel.updateUser(userId, updatedUser);
     },
 
-    async getRecentUnfinishedShifts(userId: number) {
-        const start = new Date();
-        start.setHours(0, 0, 0, 0);
-
-        const end = new Date();
-        end.setHours(23, 59, 59, 999);
-
-        return ShiftModel.getShiftLogsByUserId(
-            userId,
-            { timeOut: null, timeIn: { gte: start, lte: end } },
-            { timeIn: "desc" }
-        );
+    async getEarliestUnfinishedShift(userId: number) {
+        return (
+            await ShiftModel.getShiftLogsByUserId(
+                userId,
+                { status: "ONGOING", timeOut: null },
+                { timeIn: "asc" },
+                undefined,
+                1
+            )
+        )?.[0];
     },
 
-    async getMostRecentUnfinishedShiftId(userId: number) {
-        return (await this.getRecentUnfinishedShifts(userId))?.[0]?.id;
+    async getEarliestRevisionShift(userId: number) {
+        return (
+            await ShiftModel.getShiftLogsByUserId(userId, { status: "REVISION" }, { timeOut: "asc" }, undefined, 1, {
+                user: true,
+            })
+        )?.[0];
+    },
+
+    async hasFinishedShiftToday(userId: number): Promise<boolean> {
+        const { startDate } = DateUtil.buildDayRange(new Date());
+
+        const shifts = await ShiftModel.count({
+            where: {
+                userId,
+                status: { not: "ONGOING" },
+                timeIn: { gte: startDate },
+            },
+        });
+        return shifts > 0;
+    },
+
+    async getActiveAndInactiveCount() {
+        const overall = await UserModel.groupBy({ by: ["status"] });
+        const active = overall.reduce((total, user) => (user.status === "ONLINE" ? total + 1 : total), 0);
+        const inactive = overall.reduce((total, user) => (user.status !== "ONLINE" ? total + 1 : total), 0);
+
+        return { active, inactive };
+    },
+
+    async getRolesCount() {
+        const overall = await UserModel.groupBy({ by: ["status"] });
+        return overall.length;
     },
 };

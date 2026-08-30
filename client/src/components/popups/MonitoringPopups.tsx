@@ -13,7 +13,7 @@ import { decode } from "../../utils/hashids";
 import { formatDuration, formatMonthDay, formatTime } from "../../utils/time";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 
 // Test data
 import { employeeSessions } from "../../data/employeeSessions";

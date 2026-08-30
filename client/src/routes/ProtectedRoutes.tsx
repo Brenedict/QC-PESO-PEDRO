@@ -1,6 +1,6 @@
 // General Imports
-import { redirect, type ActionFunctionArgs, type RouteObject } from "react-router";
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs, type RouteObject } from "react-router";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 
 // Pages
 import DashboardLayout from "../pages/DashboardLayout";
@@ -29,10 +29,9 @@ import {
 import { PopupTransactionDetails } from "../components/popups/DashboardPopups";
 import { PopupReportPreview } from "../components/popups/ReportPopups";
 import { PopupViewHistory } from "../components/popups/MonitoringPopups";
-import { PopupEndShiftReview } from "../components/popups/EndShiftPopups";
+import { PopupEndShiftReview, PopupShiftViewTransactionDetails } from "../components/popups/EndShiftPopups";
 
 // Test Data
-import { shiftRecords } from "../data/shiftRecords";
 import { employeeSessions } from "../data/employeeSessions";
 import { auditLogData } from "../data/auditLogs";
 
@@ -43,7 +42,7 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 
 // Helper function
 import { transactionsEditAndDelete, shiftPopups } from "./RouteHelpers";
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 import {
     createTransaction,
     getDetailsAnalytics,
@@ -54,6 +53,9 @@ import {
 
 import { primaryAuthLoader, requireAccess } from "../api/authService";
 import { getAnalytics } from "../api/analyticsService";
+import { getShiftDetailsOverview, getShifts, patchReviewShift, shiftStatusLoader } from "../api/shiftService";
+import { todayRedirectLoader } from "../api/dateService";
+import { ignoreQueries } from "../api/httpClient";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -69,15 +71,17 @@ export const protectedRoutes: RouteObject[] = [
             If the user is not authenticated, they will be redirected to '/auth'.
         */
         loader: primaryAuthLoader,
+
         errorElement: <SystemErrorPage />,
         children: [
             {
                 path: "",
                 element: <DashboardLayout />,
+                loader: shiftStatusLoader,
                 children: [
                     {
                         path: "",
-                        element: <Overview pending={5} approved={18} revision={2} />,
+                        element: <Overview />,
                         loader: requireAccess(AccessLevel.FRONTLINE, getAnalytics),
                         children: [
                             {
@@ -187,15 +191,29 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "end-shift",
-                        element: <EndShiftVerification shiftData={shiftRecords} />,
-                        loader: requireAccess(AccessLevel.ADMIN),
+                        element: <EndShiftVerification />,
+                        shouldRevalidate: ignoreQueries(["page"]),
+                        loader: requireAccess(
+                            AccessLevel.ADMIN,
+                            todayRedirectLoader(
+                                getShifts(["shifts", "approved", "pending", "rejected", "revision", "average"])
+                            )
+                        ),
                         children: [
                             {
                                 path: ":shiftId/review",
                                 element: <PopupEndShiftReview />,
-                                action: async () => {
-                                    return redirect(ROUTES.endshift.root);
-                                },
+                                action: patchReviewShift,
+                                loader: getShiftDetailsOverview({
+                                    overview: ["none", "mismatch", "pending", "success", "total"],
+                                    analytics: true,
+                                    include: ["shift", "user"],
+                                }),
+                            },
+                            {
+                                path: ":shiftId/details",
+                                element: <PopupShiftViewTransactionDetails />,
+                                loader: getShiftDetailsOverview({ include: ["shift", "user", "transactions"] }),
                             },
                             ...shiftPopups(ROUTES.endshift.root),
                         ],
@@ -205,6 +223,7 @@ export const protectedRoutes: RouteObject[] = [
                         element: <TransactionHistory />,
                         children: [...transactionsEditAndDelete("history"), ...shiftPopups(ROUTES.history.root)],
                         loader: requireAccess(AccessLevel.FRONTLINE, getTransactions(false)),
+                        shouldRevalidate: ignoreQueries(["page"]),
                     },
                     {
                         path: "monitoring",

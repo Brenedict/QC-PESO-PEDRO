@@ -25,7 +25,7 @@ import { type MaterialIcon } from "../types/common";
 import { type EmployeeSession } from "../data/employeeSessions";
 
 // Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
 const iconClasses = {
     green: { variant: "green", bgVariant: "green-opaque" },

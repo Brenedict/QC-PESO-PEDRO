@@ -6,7 +6,7 @@ import z from "zod";
 import { apiFetch } from "./httpClient";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 const JSON_HEADERS = {
     "Content-Type": "application/json",
@@ -74,10 +74,23 @@ export const ensureOk = async (res: Response, message: string) => {
         const body = await res.json();
 
         if (body?.error) {
-            errorMessage += `: \n${body.error}`;
+            errorMessage += `: \n${JSON.stringify(body.error, null, 2)}`;
         }
     } catch {
         // Skip if response is not a json
+    }
+
+    if (!res.ok) {
+        console.log(errorMessage);
+
+        // Backup check for 401 Unauthorized response to redirect to login page
+        if (res.status === 401) {
+            throw redirect(ROUTES.auth.root);
+        }
+
+        if (res.status === 400) {
+            throw res;
+        }
     }
 
     throw new Error(errorMessage);
@@ -96,4 +109,9 @@ export function validateForm<T extends z.ZodType>(
     }
 
     return result.data;
+}
+
+export function getParentPath(request: Request, childPath: string) {
+    const { pathname } = new URL(request.url);
+    return pathname.replace(new RegExp(`/${childPath}/?$`), "") || "/";
 }

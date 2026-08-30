@@ -17,7 +17,7 @@ import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } fr
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault, type transactionRootPage } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES, type transactionRootPage } from "../../hooks/useNavigateDefault";
 
 // Utils
 import { decode } from "../../utils/hashids";
@@ -84,7 +84,7 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
 
     const decodedId = decode(transactionId);
 
-    // Determines reroute on cancel between transactionEntry & transactionHistory page
+    // Determines useNavigateDefault on cancel between transactionEntry & transactionHistory page
     const returnPageOnClose = root == "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
 
     return (

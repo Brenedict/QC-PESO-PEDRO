@@ -1,15 +1,22 @@
 // General Imports
 import type { Request, Response, NextFunction } from "express";
 // PEDRO SHARED IMPORTS
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
+import UserService from "../service/user.service";
+import { ShiftStatus } from "@qcpesopedro/shared/enums";
+import ShiftService from "../service/shift.service";
 
 // Models
 import UserModel from "../models/user.model";
 
 export function requireAccessLevel(minAccessLevel: AccessLevel) {
     return (req: Request, res: Response, next: NextFunction) => {
-        const requestor = req.user as User;
+        const requestor = req.user as User | undefined;
+
+        if (!requestor) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
         const userLevel = AccessLevel[requestor.role] ?? 0;
 
@@ -19,6 +26,66 @@ export function requireAccessLevel(minAccessLevel: AccessLevel) {
 
         next();
     };
+}
+
+export async function verifyFinishedShift(req: Request, res: Response, next: NextFunction) {
+    const requestor = req.user as User | undefined;
+
+    if (!requestor) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    // Finished  shift today?
+    const finishedShift = await UserService.hasFinishedShiftToday(requestor.id);
+    if (finishedShift) {
+        return res.status(409).json({ message: "User has already finished shift this day" });
+    }
+
+    next();
+}
+
+export async function resolveShiftConflicts(req: Request, res: Response, next: NextFunction) {
+    const requestor = req.user as User | undefined;
+
+    if (!requestor) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    if (requestor.isRevising) {
+        return next();
+    }
+
+    const unfinishedShift = await UserService.getEarliestUnfinishedShift(requestor.id);
+
+    //Has unfinished shift last time?
+    // skip if requestor is currently revising past shift
+    if (unfinishedShift && !ShiftService.isTodayShift(unfinishedShift)) {
+        return res.status(409).json({
+            shiftStatus: ShiftStatus.UNFINISHED,
+            message: "Please resolve unfinished shift  before starting a new one.",
+        });
+    }
+
+    // Require time-in if they dont have shift yet
+    if (!unfinishedShift) {
+        return res.status(409).json({
+            shiftStatus: ShiftStatus.TIMEIN, // Need time in
+            message: "Please create another time in",
+        });
+    }
+
+    const revisionShift = await UserService.getEarliestRevisionShift(requestor.id);
+
+    // Require user to revise the needs revision shifts
+    if (revisionShift) {
+        return res.status(409).json({
+            revisionShift,
+            shiftStatus: ShiftStatus.REVISION,
+            message: "Please revise your shifts",
+        });
+    }
+
+    next();
 }
 
 export async function requireValidResetToken(req: Request, res: Response, next: NextFunction) {

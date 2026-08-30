@@ -13,10 +13,10 @@ import SystemErrorPage from "../pages/SystemErrorPage";
 // API Services
 import { checkAuthService, checkResetToken, handleForgotPassword } from "../api/authService";
 import { apiFetch } from "../api/httpClient";
-import TokenStore from "../api/tokenStore";
+import InMemoryStore from "../api/inMemoryStore";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 import { changePasswordPatch } from "../api/userService";
 
@@ -49,11 +49,17 @@ export const authRoutes: RouteObject[] = [
             if (res.status === 200) {
                 const data = await res.json();
 
-                TokenStore.setAccessToken(data.accessToken);
+                InMemoryStore.setAccessToken(data.accessToken);
                 return redirect(ROUTES.dashboard.root);
             }
 
             if (res.status === 401) {
+                const data: { message: string } = await res.json();
+
+                return redirect(`${ROUTES.auth.root}?NOTIF=${data.message}`);
+            }
+
+            if (res.status === 409) {
                 const data: { message: string } = await res.json();
 
                 return redirect(`${ROUTES.auth.root}?NOTIF=${data.message}`);

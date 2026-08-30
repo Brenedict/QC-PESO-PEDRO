@@ -15,16 +15,23 @@ import { requireValidResetToken } from "../middlewares/authorized.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
 import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
 
+import { verifyFinishedShift } from "../middlewares/authorized.middleware";
+
 // Utils
 import HashUtil from "../utils/hash.util";
 
 export default {
     loginPost: [
         localAuth,
+        verifyFinishedShift,
         async (req: Request, res: Response) => {
             const user = req.user as User;
             const { accessToken, refreshToken } = AuthService.generateTokens(user);
             AuthService.sendRefreshCookie(res, refreshToken);
+
+            // reset revising mode
+            await UserService.updateUser(user.id, { isRevising: false });
+
             res.json({ message: "Login successful", accessToken });
         },
     ],
@@ -39,12 +46,15 @@ export default {
         },
     ],
 
-    logoutPost(_req: Request, res: Response) {
-        res.clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-        });
+    logoutPost(req: Request, res: Response) {
+        const hasRefresh = Boolean(req.cookies?.refreshToken);
+        if (hasRefresh) {
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+            });
+        }
         res.json({ message: "Logged out successfully" });
     },
 
@@ -65,7 +75,7 @@ export default {
             const smtpExpirationOffset = process.env.SMTP_EXPIRATION_OFFSET || "5m"; // Defines how long reset token lasts
 
             // Generates hashed token for reset password URL query (e.g. /reset-password?token=209NF903H)
-            const hashedToken = await HashUtil.generateRandomHashedToken();
+            const hashedToken = HashUtil.generateRandomHashedToken();
             const emailSent = await EmailService.sendOTPEmail(
                 user.firstName,
                 user.email,
@@ -118,7 +128,7 @@ export default {
 
     changePasswordPatch: [
         requireValidResetToken,
-        validateSchema(UserFormChangePasswordSchema),
+        validateSchema("body", UserFormChangePasswordSchema),
         async (req: Request, res: Response) => {
             const { newPassword, _confirmPassword } = req.body;
             const user = req.user as User;
