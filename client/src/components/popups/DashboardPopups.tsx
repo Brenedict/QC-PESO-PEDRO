@@ -130,7 +130,7 @@ export function PopupTransactionDetails() {
                 <div className="flex justify-between mb-4">
                     <LabelText label="Most Active Frontline Staff" />
                     <Link to={ROUTES.history.root}>
-                        {user?.role !== "FRONTLINE" && (
+                        {!user?.hasEndedShift && user?.role !== "FRONTLINE" && (
                             <Text
                                 variant="primary-blue"
                                 size="description"

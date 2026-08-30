@@ -106,9 +106,10 @@ export const patchEndShift =
 
             InMemoryStore.setUserShiftLog(undefined);
             InMemoryStore.setUserIsRevising(false);
-            // InMemoryStore.setRevisionShift(null); // Remove the temporary revision shift in-memory data
+            InMemoryStore.setEndedShift(true);
 
-            if (!redirect) {
+            const userRole = InMemoryStore.getUser()?.role;
+            if (!redirect && userRole !== "SUPERADMIN") {
                 // Logout of user
                 const logOutRes = await logoutAction();
 
@@ -119,7 +120,7 @@ export const patchEndShift =
                 throw error;
             }
 
-            return redirectWithQuery(request, redirect);
+            if (redirect) return redirectWithQuery(request, redirect);
         } catch (err) {
             return handleErrRedirect(err, request, ROUTES.auth.root);
         }

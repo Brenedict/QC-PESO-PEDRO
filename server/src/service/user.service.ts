@@ -121,6 +121,18 @@ export default {
         return shifts > 0;
     },
 
+    async hasShiftToday(userId: number): Promise<boolean> {
+        const { startDate } = DateUtil.buildDayRange(new Date());
+
+        const shifts = await ShiftModel.count({
+            where: {
+                userId,
+                timeIn: { gte: startDate },
+            },
+        });
+        return shifts > 0;
+    },
+
     async getActiveAndInactiveCount() {
         const overall = await UserModel.groupBy({ by: ["status"] });
         const active = overall.reduce((total, user) => (user.status === "ONLINE" ? total + 1 : total), 0);

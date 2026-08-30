@@ -20,6 +20,7 @@ import { requireAccessLevel, resolveShiftConflicts } from "../middlewares/author
 import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
 import { ShiftLogUncheckedUpdateInputObjectSchema } from "@qcpesopedro/shared/zod/schemas";
 import UserModel from "../models/user.model";
+import { ESSStatus, Role, type User } from "@qcpesopedro/shared/prisma/client";
 
 export default {
     getShifts: [
@@ -91,12 +92,15 @@ export default {
         async (req: Request, res: Response) => {
             const { shiftId } = req.params;
             const { generalRemarks, environmentTags } = req.body as unknown as ShiftFormEndType;
+            const { role } = req.user as User;
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
+            const shiftStatus = role === Role.SUPERADMIN ? ESSStatus.APPROVED : ESSStatus.PENDING;
+
             const shift = await ShiftModel.updateShiftById(Number(shiftId), {
                 timeOut: new Date(),
-                status: "PENDING",
+                status: shiftStatus,
                 generalRemarks,
                 environmentTags,
             });

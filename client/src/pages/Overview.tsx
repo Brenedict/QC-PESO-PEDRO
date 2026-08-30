@@ -216,14 +216,16 @@ export function Overview() {
     return (
         <>
             <PageHeader primaryText="Overview" secondaryText="Welcome back. Here's what's happening today.">
-                <Button
-                    size="small"
-                    variant="white-black"
-                    leftIcon={{ icon: SsidChartOutlinedIcon, size: "medium", variant: "primary-blue" }}
-                    onClick={() => navigate(ROUTES.reports.root)}
-                >
-                    Generate Report
-                </Button>
+                {!user?.hasEndedShift && (
+                    <Button
+                        size="small"
+                        variant="white-black"
+                        leftIcon={{ icon: SsidChartOutlinedIcon, size: "medium", variant: "primary-blue" }}
+                        onClick={() => navigate(ROUTES.reports.root)}
+                    >
+                        Generate Report
+                    </Button>
+                )}
             </PageHeader>
 
             {(role === "ADMIN" || role === "SUPERADMIN") && <EndShiftVerification />}

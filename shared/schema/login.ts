@@ -28,6 +28,7 @@ export const UserContextSchema = zfd.formData(
         id: z.number(),
         shiftLog: ShiftLogUncheckedCreateInputObjectSchema.optional(),
         role: RoleSchema,
+        hasEndedShift: z.boolean(),
     })
 );
 
