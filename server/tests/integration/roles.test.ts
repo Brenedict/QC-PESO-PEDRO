@@ -1,6 +1,5 @@
 // General Imports
 import request from "supertest";
-import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 import prisma from "../../src/config/prisma.config";
 import { app, setCurrentAuthUser } from "../../jest.integration";
 import { jest, beforeEach, expect, describe, it } from "@jest/globals";
@@ -29,13 +28,9 @@ jest.unmock("../../src/middlewares/authorized.middleware");
 
 // This only test role-based accessing and does not validate actual requests and responses (i.e. schema request)
 describe("Server Routes - Role Authorization Matrix", () => {
+    // Rinemove ko yung err 500 handler, meron na siya sa error.middleware.ts
     app.use("/user", userRouter);
     app.use("/transaction", transactionRouter);
-
-    app.use((err: ErrorRequestHandler, _req: Request, res: Response, _next: NextFunction) => {
-        console.error("DEBUG INTEGRATION ERROR STACK:", err);
-        res.status(500).json({ error: err.toString() });
-    });
 
     describe("User routes /user", () => {
         beforeEach(async () => {

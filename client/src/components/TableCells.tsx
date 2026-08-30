@@ -9,7 +9,7 @@ import Button from "../components/Button";
 import type { ColorVariant, MaterialIcon, Role } from "../types/common";
 
 // Utils
-import { formatShortMonthYear, formatTime } from "../utils/time";
+import { formatRelativeDateTime, formatShortMonthYear, formatTime } from "../utils/time";
 
 export function ColumnText({ children }: { children: ReactNode }) {
     return (
@@ -29,30 +29,20 @@ export function Identifier({ children }: { children: ReactNode }) {
     );
 }
 
-export function DateTime({ dateTime }: { dateTime: Date }) {
-    // Date formatting component
-    const getRelativeDateTime = () => {
-        const now = new Date();
-        const target = new Date(dateTime);
+export function DateTime({ dateTime }: { dateTime: Date | null }) {
+    if (dateTime === null) {
+        return (
+            <>
+                <div>
+                    <Text size="description" variant="black" align="center" weight="medium">
+                        -
+                    </Text>
+                </div>
+            </>
+        );
+    }
 
-        const isToday = target.toDateString() === now.toDateString();
-
-        const yesterday = new Date(now);
-        yesterday.setDate(now.getDate() - 1);
-        const isYesterday = target.toDateString() === yesterday.toDateString();
-
-        const timeString = formatTime(target);
-
-        if (isToday) {
-            return `Today, ${timeString}`;
-        }
-        if (isYesterday) {
-            return `Yesterday, ${timeString}`;
-        }
-
-        return timeString;
-    };
-
+    const formattedDate = formatRelativeDateTime(dateTime);
     return (
         <>
             <div>
@@ -60,7 +50,7 @@ export function DateTime({ dateTime }: { dateTime: Date }) {
                     {formatShortMonthYear(dateTime)}
                 </Text>
                 <Text size="small" variant="grayish-blue" align="center" weight="normal">
-                    {getRelativeDateTime()}
+                    {formattedDate}
                 </Text>
             </div>
         </>
@@ -122,7 +112,7 @@ export function ActionButton({
     handleClick: (id: string) => React.MouseEventHandler<HTMLButtonElement>;
 }) {
     return (
-        <Button variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
+        <Button type="button" variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
             {text}
         </Button>
     );
@@ -157,5 +147,21 @@ export function ColumnDescItalic({ children }: { children: ReactNode }) {
         <Text size="description" variant="grayish-blue" align="center" className="italic">
             {children}
         </Text>
+    );
+}
+
+export function TextAndDateTime({ text, dateTime }: { text: string; dateTime: Date }) {
+    const formattedDate = formatRelativeDateTime(dateTime, true);
+    return (
+        <>
+            <div>
+                <Text size="description" variant="black" align="center" weight="medium">
+                    {text}
+                </Text>
+                <Text size="small" variant="grayish-blue" align="center" weight="normal">
+                    {formattedDate}
+                </Text>
+            </div>
+        </>
     );
 }

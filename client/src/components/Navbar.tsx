@@ -2,8 +2,8 @@
 import { Role } from "@qcpesopedro/shared/prisma/enums";
 
 // General Imports
-import type { ReactNode } from "react";
-import { NavLink } from "react-router";
+import type { MouseEventHandler, ReactNode } from "react";
+import { NavLink, useLocation } from "react-router";
 
 // Components
 import { Text } from "./Text";
@@ -52,9 +52,17 @@ export type LinkType = keyof typeof linkTypeMap;
 function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to: string; isLogout?: boolean }) {
     const { content, icon: LinkIcon } = linkTypeMap[linkType];
 
+    const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
+        const isActive = location.pathname === to;
+        if (isActive) {
+            e.preventDefault();
+        }
+    };
+
     return (
         <NavLink
             to={to}
+            onClick={handleClick}
             className={({ isActive }) =>
                 `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${
                     isActive
@@ -105,9 +113,11 @@ function NavBody({ userType }: { userType?: Role }) {
 }
 
 function NavFooter() {
+    const location = useLocation();
+    const redirectPath = `${location.pathname}${location.pathname.at(-1) === "/" ? "log-out" : "/log-out"}`;
     return (
         <div className="p-4">
-            <NavButton linkType="logout" to="/log-out" isLogout />
+            <NavButton linkType="logout" to={redirectPath} isLogout />
         </div>
     );
 }

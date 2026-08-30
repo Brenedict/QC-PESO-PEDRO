@@ -1,17 +1,17 @@
 // General Imports
-import { redirect, type ActionFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 
 // PEDRO SHARED IMPORTS
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
 import { apiFetch } from "./httpClient";
-import TokenStore from "./tokenStore";
+import InMemoryStore from "./inMemoryStore";
 import { apiJson, ensureOk, handleErrRedirect } from "./actionService";
 
 // Custom Hooks
-import { ROUTES } from "../hooks/reroute";
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 // Auth helpers
 
@@ -25,6 +25,7 @@ export const primaryAuthLoader = async () => {
         throw redirect(ROUTES.auth.root);
     }
     const user = await getUserContextLoader();
+    InMemoryStore.setUser(user);
     return { user };
 };
 
@@ -47,7 +48,7 @@ export const logoutService = async (): Promise<boolean> => {
         });
 
         if (res.ok) {
-            TokenStore.setAccessToken(null);
+            InMemoryStore.setAccessToken(null);
         }
 
         return res.ok;
@@ -55,6 +56,15 @@ export const logoutService = async (): Promise<boolean> => {
         console.error("Logout network error:", err);
         return false;
     }
+};
+
+export const logoutAction = async () => {
+    const success = await logoutService();
+
+    if (success) {
+        return redirect(ROUTES.auth.root);
+    }
+    return null;
 };
 
 export const requireAccess = (minLevel: AccessLevel, loaderFn?: Function) => {

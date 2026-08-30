@@ -53,6 +53,7 @@ export const ROUTES = {
     endshift: {
         root: BASE_ROUTES.endshift,
         review: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${encode(shiftId)}/review`,
+        details: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${encode(shiftId)}/details`,
     },
     monitoring: {
         root: BASE_ROUTES.monitoring,
@@ -82,7 +83,7 @@ export const ROUTES = {
 
 export type transactionRootPage = "history" | "entry";
 
-export function useNavigateDefault() {
+function useNavigateDefault() {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -93,3 +94,5 @@ export function useNavigateDefault() {
         navigate(route, { state: { backgroundLocation: location } });
     };
 }
+
+export default useNavigateDefault;

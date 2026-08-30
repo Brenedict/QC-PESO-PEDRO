@@ -35,15 +35,21 @@ export default {
             .slice(0, minLen)
             .map((transaction, i) => ({ ...transaction, txCode: txCodes[i] }) as TransactionUncheckedCreateInput);
 
-        return prisma.transaction.createMany({ data });
+        return prisma.transaction.createManyAndReturn({ data });
     },
 
     async updateTransactionById(id: number, transaction: TransactionUpdateType) {
-        return prisma.transaction.update({ where: { id }, data: transaction as TransactionUncheckedUpdateInput });
+        return prisma.transaction.update({
+            where: { id },
+            data: { ...transaction, updatedAt: new Date() } as TransactionUncheckedUpdateInput,
+        });
     },
 
     async updateTransactionByTxCode(txCode: string, transaction: TransactionUpdateType) {
-        return prisma.transaction.update({ where: { txCode }, data: transaction as TransactionUncheckedUpdateInput });
+        return prisma.transaction.update({
+            where: { txCode },
+            data: { ...transaction, updatedAt: new Date() } as TransactionUncheckedUpdateInput,
+        });
     },
 
     async deleteTransactionById(id: number) {
@@ -58,7 +64,7 @@ export default {
         return prisma.transaction.count(args);
     },
 
-    async groupBy(args: TransactionGroupByArgs = { by: ["id"] }) {
+    async groupBy(args: TransactionGroupByArgs) {
         // eslint-disable-next-line
         // @ts-ignore
         return prisma.transaction.groupBy(args);

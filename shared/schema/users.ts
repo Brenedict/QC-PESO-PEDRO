@@ -2,7 +2,11 @@
 import { zfd } from "zod-form-data";
 import z from "zod";
 import "../zod/schemas";
-import { UserUncheckedCreateInputObjectZodSchema, UserUncheckedUpdateInputObjectZodSchema } from "../zod/schemas";
+import {
+    RoleSchema,
+    UserUncheckedCreateInputObjectZodSchema,
+    UserUncheckedUpdateInputObjectZodSchema,
+} from "../zod/schemas";
 
 export const UserFormCreateSchema = zfd.formData(
     UserUncheckedCreateInputObjectZodSchema.omit({
@@ -29,7 +33,11 @@ export const UserFormUpdateSchema = zfd.formData(
     })
 );
 
-export type UserFormUpdateType = z.infer<typeof UserFormUpdateSchema>;
+export const UserQuerySchema = z.object({
+    search: z.string().optional(),
+    role: RoleSchema.optional(),
+    status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+});
 
 export const UserFormChangePasswordSchema = zfd
     .formData({
@@ -41,3 +49,7 @@ export const UserFormChangePasswordSchema = zfd
         message: "Passwords do not match",
         path: ["confirmPassword"],
     });
+
+export type UserFormUpdateType = z.infer<typeof UserFormUpdateSchema>;
+export type UserQueryType = z.infer<typeof UserQuerySchema>;
+export type UserQueryInput = z.input<typeof UserQuerySchema>;

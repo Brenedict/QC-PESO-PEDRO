@@ -7,9 +7,9 @@ import controller from "../controllers/user.controller";
 const router = express.Router();
 
 // GET
-router.get("/", controller.getUsers);
 router.get("/me", controller.getCurrentUser);
 router.get("/:userId", controller.getUserById);
+router.get("/", controller.getUsers);
 
 // POST
 router.post("/", controller.createUser);

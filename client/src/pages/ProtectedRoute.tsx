@@ -11,8 +11,8 @@ export function ProtectedRoute() {
     const data = useRouteLoaderData<typeof primaryAuthLoader>("protected");
     const user = data?.user;
 
-    if (!data?.user) {
-        return null;
+    if (!user) {
+        throw new Error("User not found");
     }
 
     // Global context gathered from `/user/me`
@@ -28,7 +28,6 @@ export function ProtectedRoute() {
         onSearchChange: () => {},
         onNotifClick: () => {},
     };
-
     return (
         <UserGlobalProvider value={userGlobalContext}>
             <Outlet />

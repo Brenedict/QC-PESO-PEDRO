@@ -10,6 +10,7 @@ import "./config/passport.config";
 import authRoutes from "./routes/auth.route";
 import transactionRoutes from "./routes/transaction.route";
 import userRoutes from "./routes/user.route";
+import shiftRoutes from "./routes/shift.route";
 
 // Middlewares
 import handleShutdown from "./middlewares/shutdown.middleware";
@@ -26,6 +27,18 @@ const server = app.listen(port, () => {
 // ----------------- SERVER MIDDLEWARES ------------------------------
 
 // Form and Json submission request config
+
+// Make req.query mutable like body
+app.use((req, _res, next) => {
+    Object.defineProperty(req, "query", {
+        ...Object.getOwnPropertyDescriptor(req, "query"),
+        value: req.query,
+        writable: true,
+    });
+    next();
+});
+
+// Parse HTML Form to Object
 app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS for all routes and origins
@@ -52,6 +65,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/shift", shiftRoutes);
 
 app.use(errorMiddleware.notFoundError);
 app.use(errorMiddleware.internalError);

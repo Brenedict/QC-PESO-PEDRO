@@ -26,7 +26,7 @@ import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
 // Custom Hooks
-import { useNavigateDefault, ROUTES } from "../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
 // API Services
 import { createTransaction } from "../api/transactionService";
@@ -49,13 +49,13 @@ export function FormRow1({ applicantFirstName, applicantLastName }: FormRow1Prop
                 name={TransactionScalarFieldEnum.userId}
                 type="number"
                 hidden={true}
-                defaultValue={user?.id}
+                defaultValue={user?.id ?? ""}
             />
             <GeneralInput
                 name={TransactionScalarFieldEnum.shiftLogId}
                 type="number"
                 hidden={true}
-                defaultValue={user?.shiftLogId}
+                defaultValue={user?.shiftLog?.id ?? ""}
             />
 
             <GeneralInput
@@ -260,6 +260,8 @@ function TransactionsInputForm() {
                         className="text-sm font-semibold text-black"
                         leftIcon={{ icon: CloseRoundedIcon, size: "normal", variant: "black" }}
                         type="reset"
+                        onClick={() => setIsFormValid(false)}
+                        disabled={!isFormValid}
                     >
                         Cancel
                     </Button>

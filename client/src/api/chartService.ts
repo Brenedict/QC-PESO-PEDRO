@@ -2,7 +2,7 @@
 import type { ChartOptions, TooltipItem } from "chart.js";
 
 // API Services
-import type { AnalyticsData, BreakdownData } from "./analyticsRequests";
+import type { AnalyticsData, BreakdownData } from "./analyticsService";
 
 // Types
 import { ChartColorClasses } from "../types/charts";

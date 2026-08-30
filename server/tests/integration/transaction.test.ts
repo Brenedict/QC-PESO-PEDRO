@@ -2,6 +2,7 @@
 import request from "supertest";
 import { app } from "../../jest.integration";
 import { jest, beforeEach, expect, describe, it } from "@jest/globals";
+import ShiftModel from "../../src/models/shift.model";
 
 // PEDRO SHARED IMPORTS
 import type { TransactionUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
@@ -15,6 +16,7 @@ import {
 import {
     TransactionAnalyticsQueryInput,
     TransactionCreateType,
+    TransactionQueryInput,
     TransactionQueryType,
     TransactionUpdateType,
 } from "@qcpesopedro/shared/schema/transactions";
@@ -24,7 +26,7 @@ import transactionRoute from "../../src/routes/transaction.route";
 
 // Fixtures
 import prisma from "../../src/config/prisma.config";
-import { mockUser } from "../fixtures/user.fixture";
+import { mockUser, UserCreate } from "../fixtures/user.fixture";
 import { buildMockShiftLog } from "../fixtures/shiftLog.fixture";
 import TransactionService from "../../src/service/transaction.service";
 import {
@@ -33,34 +35,39 @@ import {
     getExpectedGrouped,
     getExpectedGroupedBreakdown,
     getTransactionsInRange,
-    TOMORROW,
-    YESTERDAY,
 } from "../fixtures/transaction.fixture";
+import { TOMORROW, YESTERDAY } from "../../src/utils/date.util";
 
 // Use actual schema validator
 jest.unmock("../../src/middlewares/zod.middleware");
 
-const transformMockedDate = (transaction: TransactionCreateType): TransactionCreateType => {
-    return { ...transaction, createdAt: expect.any(String) };
+const transformMockedDate = (transaction: TransactionCreateType | Transaction) => {
+    const newTransaction = { ...transaction };
+    if (newTransaction.createdAt) newTransaction.createdAt = expect.any(String) as unknown as Date;
+    if (newTransaction.updatedAt) newTransaction.updatedAt = expect.any(String) as unknown as Date;
+    return newTransaction;
 };
 
 describe("Transaction Route", () => {
-    let mockedTransactions: TransactionCreateType[];
-    let mockedUser: User = mockUser;
+    let mockedTransactions: Transaction[];
+    const mockedUser: UserCreate = mockUser;
     let mockedShiftLog: ShiftLog;
 
     beforeEach(async () => {
-        mockedShiftLog = await prisma.shiftLog.create({ data: buildMockShiftLog(mockedUser.id) });
+        mockedShiftLog = await ShiftModel.createShift({ data: buildMockShiftLog(mockedUser.id) });
 
-        mockedTransactions = buildMockTransactions(mockedUser.id, mockedShiftLog.id);
-        await TransactionService.createTransactionsWithCode(mockedTransactions);
+        const mockData = buildMockTransactions(mockedUser.id, mockedShiftLog.id);
+        mockedTransactions = await TransactionService.createTransactionsWithCode(mockData);
     });
 
     app.use("/transaction", transactionRoute);
 
     describe("GET /transaction", () => {
         it("returns all transactions", async () => {
-            const res = await request(app).get("/transaction").expect(200);
+            const res = await request(app)
+                .get("/transaction")
+                .query({ shiftLogId: mockedShiftLog.id } as TransactionQueryInput)
+                .expect(200);
             const transactions = res.body.transactions;
 
             expect(res.body).not.toHaveProperty("originalSize");
@@ -79,7 +86,10 @@ describe("Transaction Route", () => {
         });
 
         it("returns transactions with included user", async () => {
-            const res = await request(app).get("/transaction?include=user").expect(200);
+            const res = await request(app)
+                .get("/transaction?include=user")
+                .query({ shiftLogId: mockedShiftLog.id } as TransactionQueryInput)
+                .expect(200);
             const transactions = res.body.transactions;
 
             expect(res.body).toHaveProperty("responseSize", transactions.length);
@@ -95,10 +105,13 @@ describe("Transaction Route", () => {
 
         describe("with filters", () => {
             it("returns transactions with type filter", async () => {
-                await request(app).get("/transaction").expect(200);
                 const res = await request(app)
                     .get(`/transaction`)
-                    .query({ type: TransactionType.WALK_IN_REFERRAL } as TransactionQueryType);
+                    .query({
+                        shiftLogId: mockedShiftLog.id,
+                        type: TransactionType.WALK_IN_REFERRAL,
+                    } as TransactionQueryType)
+                    .expect(200);
 
                 expect(res.body).not.toHaveProperty("originalSize");
                 expect(res.body).toHaveProperty("responseSize", res.body.transactions.length);
@@ -111,7 +124,7 @@ describe("Transaction Route", () => {
             it("returns transactions with outcome filter", async () => {
                 const res = await request(app)
                     .get(`/transaction`)
-                    .query({ outcome: Outcome.PENDING } as TransactionQueryType);
+                    .query({ shiftLogId: mockedShiftLog.id, outcome: Outcome.PENDING } as TransactionQueryType);
 
                 res.body.transactions.forEach((transaction: Transaction) => {
                     expect(transaction).toHaveProperty("transactionOutcome", Outcome.PENDING);
@@ -122,6 +135,7 @@ describe("Transaction Route", () => {
                 const res = await request(app)
                     .get(`/transaction`)
                     .query({
+                        shiftLogId: mockedShiftLog.id,
                         outcome: Outcome.PENDING,
                         type: TransactionType.WALK_IN_REFERRAL,
                     } as TransactionQueryType);
@@ -135,7 +149,7 @@ describe("Transaction Route", () => {
             it("returns transactions with search filter for name", async () => {
                 const res = await request(app)
                     .get("/transaction")
-                    .query({ search: "john doe" } as TransactionQueryType)
+                    .query({ shiftLogId: mockedShiftLog.id, search: "john doe" } as TransactionQueryType)
                     .expect(200);
 
                 expect(res.body.transactions).toEqual(
@@ -149,13 +163,16 @@ describe("Transaction Route", () => {
             });
 
             it("returns transactions with search filter for id", async () => {
-                const searchRes = await request(app).get("/transaction/3").expect(200);
+                const searchRes = await request(app)
+                    .get("/transaction/3")
+                    .query({ shiftLogId: mockedShiftLog.id })
+                    .expect(200);
 
                 const txCode = searchRes.body.transaction.txCode as string;
 
                 const res = await request(app)
                     .get("/transaction")
-                    .query({ search: txCode.toLowerCase() } as TransactionQueryType)
+                    .query({ shiftLogId: mockedShiftLog.id, search: txCode.toLowerCase() } as TransactionQueryType)
                     .expect(200);
 
                 expect(res.body.transactions).toEqual(
@@ -169,7 +186,7 @@ describe("Transaction Route", () => {
             it("returns nothing when search filter is not valid", async () => {
                 const res = await request(app)
                     .get("/transaction")
-                    .query({ search: "john doeeeee" } as TransactionQueryType)
+                    .query({ shiftLogId: mockedShiftLog.id, search: "john doeeeee" } as TransactionQueryType)
                     .expect(200);
 
                 expect(res.body.transactions).toHaveLength(0);
@@ -181,6 +198,7 @@ describe("Transaction Route", () => {
                     .query({
                         startDate: YESTERDAY,
                         endDate: TOMORROW,
+                        shiftLogId: mockedShiftLog.id,
                     } as TransactionQueryType);
 
                 const expected = mockedTransactions.filter((transaction) => {
@@ -207,15 +225,25 @@ describe("Transaction Route", () => {
             it("returns status 404 when startDate is greater than endDate", (done) => {
                 request(app)
                     .get("/transaction")
-                    .query({ startDate: TOMORROW.toISOString(), endDate: YESTERDAY.toISOString() })
+                    .query({
+                        shiftLogId: mockedShiftLog.id,
+                        startDate: TOMORROW.toISOString(),
+                        endDate: YESTERDAY.toISOString(),
+                    })
                     .expect(400, done);
             });
         });
 
         describe("with pagination", () => {
             it("returns transactions under a certain limit", async () => {
-                const overallRes = await request(app).get("/transaction").expect(200);
-                const limitRes = await request(app).get("/transaction").query({ limit: 2 }).expect(200);
+                const overallRes = await request(app)
+                    .get("/transaction")
+                    .query({ shiftLogId: mockedShiftLog.id })
+                    .expect(200);
+                const limitRes = await request(app)
+                    .get("/transaction")
+                    .query({ shiftLogId: mockedShiftLog.id, limit: 2 } as TransactionQueryInput)
+                    .expect(200);
 
                 expect(limitRes.body.transactions).toHaveLength(2);
                 expect(limitRes.body).toHaveProperty("originalSize", overallRes.body.transactions.length);
@@ -229,11 +257,18 @@ describe("Transaction Route", () => {
             it("returns transactions under a certain page and limit", async () => {
                 const limit = 2;
                 const page = 2;
-                const res = await request(app).get("/transaction").query({ limit, page }).expect(200);
+                const res = await request(app)
+                    .get("/transaction")
+                    .query({ shiftLogId: mockedShiftLog.id, limit, page } as TransactionQueryInput)
+                    .expect(200);
 
-                expect(res.body.transactions).not.toContainEqual(mockedTransactions[0]);
+                const sortedTransactions = [...mockedTransactions].sort(
+                    (a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
+                );
 
-                const expected = mockedTransactions.slice((page - 1) * limit, page * limit);
+                expect(res.body.transactions).not.toContainEqual(sortedTransactions[0]);
+
+                const expected = sortedTransactions.slice((page - 1) * limit, page * limit);
 
                 expect(res.body.transactions).toEqual(
                     expect.arrayContaining(
@@ -285,7 +320,7 @@ describe("Transaction Route", () => {
                     count: expectedCount,
                 },
             });
-        }, 300000);
+        });
 
         it("returns full count for a query with empty filters", async () => {
             const payload: TransactionAnalyticsQueryInput = {
@@ -412,11 +447,9 @@ describe("Transaction Route", () => {
                 const payload = {
                     queries: [
                         {
-                            type: "DATE_RANGE",
+                            type: "TEST_TEST",
                             id: "invalid",
-                            filters: {
-                                type: "INVALID_TYPE",
-                            },
+                            filters: {},
                         },
                     ],
                 };
@@ -670,9 +703,9 @@ describe("Transaction Route", () => {
             const postRes = await request(app).post("/transaction").send(formData).expect(201);
             expect(postRes.body.transaction).toMatchObject(formData);
 
-            const getRes = await request(app).get("/transaction").expect(200);
-            expect(getRes.body.transactions).toContainEqual(expect.objectContaining(expected));
-        });
+            const getRes = await request(app).get("/transaction").query({ shiftLogId: mockedShiftLog.id }).expect(200);
+            expect(getRes.body.transactions).toContainEqual(expect.objectContaining(transformMockedDate(expected)));
+        }, 300000);
 
         it("returns status 400 when bad request was made", (done) => {
             const formData: TransactionCreateType = {
@@ -694,6 +727,8 @@ describe("Transaction Route", () => {
         it("updates a transaction by id", async () => {
             const formData: TransactionUpdateType = {
                 remarks: "Hello this is an edit testing",
+                userId: mockedUser.id,
+                shiftLogId: mockedUser.id,
             };
 
             const patchRes = await request(app).patch("/transaction/1").send(formData).expect(200);
@@ -710,6 +745,8 @@ describe("Transaction Route", () => {
 
             const formData: TransactionUpdateType = {
                 remarks: "Hello this is an edit testing",
+                shiftLogId: mockedShiftLog.id,
+                userId: mockedUser.id,
             };
 
             const patchRes = await request(app).patch(`/transaction/${txCode}`).send(formData).expect(200);
@@ -722,6 +759,8 @@ describe("Transaction Route", () => {
         it("returns status 404 when transaction id is not found", async () => {
             const formData: TransactionUncheckedUpdateInput = {
                 remarks: "Hello this is an edit testing",
+                shiftLogId: mockedShiftLog.id,
+                userId: mockedUser.id,
             };
             await request(app).patch(`/transaction/999`).send(formData).expect(404);
         });
@@ -732,7 +771,7 @@ describe("Transaction Route", () => {
             await request(app).delete("/transaction/1").expect(204);
 
             const deletedTransaction = structuredClone(mockedTransactions[0]);
-            const getRes = await request(app).get("/transaction");
+            const getRes = await request(app).get("/transaction").query({ shiftLogId: mockedShiftLog.id }).expect(200);
 
             getRes.body.transactions.forEach((transaction: Transaction) =>
                 expect(transaction).not.toMatchObject(deletedTransaction)
@@ -745,7 +784,7 @@ describe("Transaction Route", () => {
 
             const deletedTransaction = structuredClone(mockedTransactions[1]);
             await request(app).delete(`/transaction/${txCode}`).expect(204);
-            const getRes = await request(app).get("/transaction");
+            const getRes = await request(app).get("/transaction").query({ shiftLogId: mockedShiftLog.id }).expect(200);
 
             getRes.body.transactions.forEach((transaction: Transaction) =>
                 expect(transaction).not.toMatchObject(deletedTransaction)

@@ -13,7 +13,7 @@ import Table from "../Table";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
 // Custom Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 
 // Utils
 import { formatDDMMYYYY, formatLongMonthYear } from "../../utils/time";
@@ -115,12 +115,12 @@ export function PopupReportPreview({ type }: { type: string }) {
                     <div className="flex gap-8  mb-8">
                         <ReportMiniCard
                             label="total transactions"
-                            value={data?.total?.count ?? 0}
+                            value={data?.total?.count ?? "N/A"}
                             valueVariant="primary-blue"
                         />
                         <ReportMiniCard
                             label="successful referrals"
-                            value={data?.success?.count ?? 0}
+                            value={data?.success?.count ?? "N/A"}
                             valueVariant="green"
                         />
                     </div>
@@ -135,23 +135,23 @@ export function PopupReportPreview({ type }: { type: string }) {
 
                         <Table.Row>
                             <Table.Data>Walk-In Transactions</Table.Data>
-                            <Table.Data>{data?.walkin?.count ?? 0}</Table.Data>
-                            <Table.Data>{data?.walkin?.grouped?.MALE ?? 0}</Table.Data>
-                            <Table.Data>{data?.walkin?.grouped?.FEMALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.walkin?.count ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.walkin?.grouped?.MALE ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.walkin?.grouped?.FEMALE ?? "N/A"}</Table.Data>
                         </Table.Row>
 
                         <Table.Row>
                             <Table.Data>Online Referrals</Table.Data>
-                            <Table.Data>{data?.online?.count ?? 0}</Table.Data>
-                            <Table.Data>{data?.online?.grouped?.MALE ?? 0}</Table.Data>
-                            <Table.Data>{data?.online?.grouped?.FEMALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.online?.count ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.online?.grouped?.MALE ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.online?.grouped?.FEMALE ?? "N/A"}</Table.Data>
                         </Table.Row>
 
                         <Table.Row>
                             <Table.Data>In-House Referral</Table.Data>
-                            <Table.Data>{data?.inhouse?.count ?? 0}</Table.Data>
-                            <Table.Data>{data?.inhouse?.grouped?.MALE ?? 0}</Table.Data>
-                            <Table.Data>{data?.inhouse?.grouped?.FEMALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.inhouse?.count ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.inhouse?.grouped?.MALE ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.inhouse?.grouped?.FEMALE ?? "N/A"}</Table.Data>
                         </Table.Row>
                     </Table>
                 </PaperContainer>

@@ -11,10 +11,10 @@ import type { MaterialIcon } from "../types/common";
 
 interface StatsCardProps {
     title: string;
-    total: number;
-    male: number;
-    female: number;
-    previous: number;
+    total: number | string;
+    male: number | string;
+    female: number | string;
+    previous: number | string;
     className?: string;
     specialIcon?: MaterialIcon;
     onClick?: React.MouseEventHandler<HTMLDivElement>;

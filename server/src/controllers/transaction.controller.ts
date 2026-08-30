@@ -2,13 +2,15 @@
 import type { Request, Response } from "express";
 
 // PEDRO SHARED IMPORTS
-import { AccessLevel } from "@qcpesopedro/shared/accessLevel";
+import { AccessLevel } from "@qcpesopedro/shared/enums";
 import {
     TransactionAnalyticsQuerySchema,
     TransactionFormCreateSchema,
     TransactionFormUpdateSchema,
     TransactionQuerySchema,
+    type TransactionAnalyticsQueryType,
     type TransactionCreateType,
+    type TransactionQueryType,
     type TransactionUpdateType,
 } from "@qcpesopedro/shared/schema/transactions";
 
@@ -23,18 +25,13 @@ import TransactionModel from "../models/transaction.model";
 // Service
 import TransactionService from "../service/transaction.service";
 
-// Utils
-import ValidateUtil from "../utils/validate.util";
-
 export default {
     getTransactions: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
+        validateSchema("query", TransactionQuerySchema),
         async (req: Request, res: Response) => {
-            const result = ValidateUtil.validateRequestData(TransactionQuerySchema, req.query, res);
-            if (!result.success) return;
-
-            const filters = TransactionService.parseTransactionQuery(result.data);
+            const filters = TransactionService.parseTransactionQuery(req.query as unknown as TransactionQueryType);
             const transactions = await TransactionModel.getTransactions(filters);
 
             interface ResponseType {
@@ -60,11 +57,11 @@ export default {
     postAnalytics: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
+        validateSchema("body", TransactionAnalyticsQuerySchema),
         async (req: Request, res: Response) => {
-            const result = ValidateUtil.validateRequestData(TransactionAnalyticsQuerySchema, req.body, res);
-            if (!result.success) return;
-
-            const query = TransactionService.parseTransactionAnalyticsQuery(result.data);
+            const query = TransactionService.parseTransactionAnalyticsQuery(
+                req.body as unknown as TransactionAnalyticsQueryType
+            );
             const response = await TransactionService.resolveAnalyticsFilter(query);
 
             res.json(response);
@@ -91,7 +88,7 @@ export default {
     postTransaction: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
-        validateSchema(TransactionFormCreateSchema),
+        validateSchema("body", TransactionFormCreateSchema),
         async (req: Request, res: Response) => {
             const transaction = req.body as TransactionCreateType;
             const result = await TransactionService.createTransactionWithCode(transaction);
@@ -102,7 +99,7 @@ export default {
     patchTransaction: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
-        validateSchema(TransactionFormUpdateSchema),
+        validateSchema("body", TransactionFormUpdateSchema),
         async (req: Request, res: Response) => {
             const { transactionId } = req.params;
             const id = transactionId as string;

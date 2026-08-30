@@ -6,10 +6,18 @@ import prisma from "../config/prisma.config";
 
 // Service
 import { type UserManagementFilter } from "../service/user.service";
-import type { UserFindManyArgs } from "@qcpesopedro/shared/prisma/models";
+import type {
+    UserCountArgs,
+    UserCreateInput,
+    UserDeleteArgs,
+    UserDeleteManyArgs,
+    UserFindManyArgs,
+    UserGroupByArgs,
+    UserUncheckedUpdateInput,
+} from "@qcpesopedro/shared/prisma/models";
 
 export default {
-    async createUser(user: User): Promise<User | null> {
+    async createUser(user: User | UserCreateInput): Promise<User | null> {
         return prisma.user.create({
             data: user,
         });
@@ -51,20 +59,7 @@ export default {
         return prisma.user.findMany(args);
     },
 
-    async getUsersWithFilters(filters: UserManagementFilter): Promise<User[] | null> {
-        const where: Prisma.UserWhereInput = {};
-
-        if (filters.role) {
-            where.role = filters.role;
-        }
-        if (filters.status) {
-            where.status = filters.status;
-        }
-
-        return prisma.user.findMany({ where });
-    },
-
-    async updateUser(userId: number, user: User): Promise<User | null> {
+    async updateUser(userId: number, user: UserUncheckedUpdateInput): Promise<User | null> {
         return prisma.user.update({
             where: {
                 id: userId,
@@ -79,5 +74,19 @@ export default {
                 id,
             },
         });
+    },
+
+    async deleteUsers(args?: UserDeleteManyArgs) {
+        return prisma.user.deleteMany(args);
+    },
+
+    async count(args?: UserCountArgs) {
+        return prisma.user.count(args);
+    },
+
+    async groupBy(args: UserGroupByArgs) {
+        // eslint-disable-next-line
+        // @ts-ignore
+        return prisma.user.groupBy(args);
     },
 };

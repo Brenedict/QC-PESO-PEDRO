@@ -18,4 +18,5 @@ router.patch("/change-password", controller.changePasswordPatch);
 
 // Protected Route
 router.get("/protected", controller.protectedGet);
+
 export default router;
