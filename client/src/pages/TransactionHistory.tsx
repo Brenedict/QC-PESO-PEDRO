@@ -11,6 +11,7 @@ import Button from "../components/Button";
 import Table from "../components/Table";
 import Status from "../components/Status";
 import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
+import { SelectInput } from "../components/Input";
 
 // Material UI Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
@@ -20,7 +21,6 @@ import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 // Hooks
 import { ROUTES, useNavigateDefault } from "../hooks/reroute";
 import { useSearchParamsTable } from "../hooks/table";
-import { SelectInput } from "../components/Input";
 import { TIMEFRAME_TYPE } from "../api/dateService";
 
 export function TransactionExtraFilters({ timeframe = false }: { timeframe?: boolean }) {
