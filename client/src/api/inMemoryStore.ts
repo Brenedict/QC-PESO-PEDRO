@@ -62,10 +62,20 @@ class InMemoryStore {
         this.notify();
     };
 
+    public setEndedShift = (ended: boolean) => {
+        if (this.user) {
+            // Create a new object instead of mutating the existing one
+            this.user = {
+                ...this.user,
+                hasEndedShift: ended,
+            };
+
+            this.notify();
+        }
+    };
+
     public getAccessToken = () => this.accessToken;
-
     public getUser = () => this.user;
-
     public getRevisionShift = () => this.revisionShift;
 }
 

@@ -2,7 +2,7 @@
 import { Role } from "@qcpesopedro/shared/prisma/enums";
 
 // General Imports
-import type { MouseEventHandler, ReactNode } from "react";
+import { type MouseEventHandler, type ReactNode } from "react";
 import { NavLink, useLocation } from "react-router";
 
 // Components
@@ -21,6 +21,7 @@ import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import SensorOccupiedOutlinedIcon from "@mui/icons-material/SensorOccupiedOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import { useAuth } from "../context/AuthContext";
 
 function NavHeader({ userFullName, profilePicUrl, children }: { children: ReactNode } & ProfileBaseProps) {
     return (
@@ -49,7 +50,14 @@ const linkTypeMap = {
 // Use keyof typeof to get the keys as a union type
 export type LinkType = keyof typeof linkTypeMap;
 
-function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to: string; isLogout?: boolean }) {
+interface NavButtonProps {
+    linkType: LinkType;
+    to: string;
+    isLogout?: boolean;
+    disabled?: boolean;
+}
+
+function NavButton({ linkType, to, isLogout = false, disabled = false }: NavButtonProps) {
     const { content, icon: LinkIcon } = linkTypeMap[linkType];
 
     const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
@@ -62,7 +70,7 @@ function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to:
     return (
         <NavLink
             to={to}
-            onClick={handleClick}
+            onClick={disabled ? (e) => e.preventDefault() : handleClick}
             className={({ isActive }) =>
                 `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${
                     isActive
@@ -72,8 +80,11 @@ function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to:
                         : !isLogout
                           ? `hover:bg-blue-900`
                           : `hover:bg-red-900`
-                }`
+                } 
+                ${disabled ? "pointer-events-none opacity-50 cursor-not-allowed" : null}
+                `
             }
+            tabIndex={disabled ? -1 : 0}
         >
             <Text
                 size="description"
@@ -88,26 +99,32 @@ function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to:
 }
 
 function NavBody({ userType }: { userType?: Role }) {
+    const { user } = useAuth();
+
     return (
         <div className="py-6 px-4 flex flex-col">
             <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/applicant-form" />
-            <NavButton linkType="transaction_history" to="/history" />
+            <NavButton linkType="transaction_entry" to="/applicant-form" disabled={user?.hasEndedShift} />
+            <NavButton linkType="transaction_history" to="/history" disabled={user?.hasEndedShift} />
             {(userType === "ADMIN" || userType === "SUPERADMIN") && (
                 <>
                     <NavButton linkType="end_shift_verification" to="/end-shift" />
-                    <NavButton linkType="login_monitoring" to="/monitoring" />
+                    <NavButton linkType="login_monitoring" to="/monitoring" disabled={user?.hasEndedShift} />
                     {userType === "SUPERADMIN" && (
                         <>
-                            <NavButton linkType="context_analytics" to="/context-analytics" />
-                            <NavButton linkType="reports" to="/reports" />
+                            <NavButton
+                                linkType="context_analytics"
+                                to="/context-analytics"
+                                disabled={user?.hasEndedShift}
+                            />
+                            <NavButton linkType="reports" to="/reports" disabled={user?.hasEndedShift} />
                         </>
                     )}
-                    <NavButton linkType="audit_logs" to="/audit-logs" />
-                    <NavButton linkType="user_management" to="/user-management" />
+                    <NavButton linkType="audit_logs" to="/audit-logs" disabled={user?.hasEndedShift} />
+                    <NavButton linkType="user_management" to="/user-management" disabled={user?.hasEndedShift} />
                 </>
             )}
-            <NavButton linkType="settings" to="/profile" />
+            <NavButton linkType="settings" to="/profile" disabled={user?.hasEndedShift} />
         </div>
     );
 }

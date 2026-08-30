@@ -171,7 +171,7 @@ function EndShiftVerification() {
                             </Table.Data>
                             <Table.Data>
                                 <div className="flex gap-3">
-                                    {shift?.status !== "ONGOING" ? (
+                                    {shift?.user?.role !== "SUPERADMIN" && shift?.status !== "ONGOING" ? (
                                         <ActionButton
                                             handleClick={handleReview}
                                             id={String(shift.id)}

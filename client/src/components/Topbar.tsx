@@ -1,5 +1,5 @@
 // General Imports
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 // Components
 import Status from "./Status.tsx";
@@ -134,6 +134,7 @@ function RightSection() {
                 variant={user?.isRevising === true ? "blue" : "red"}
                 size="small"
                 className="px-4 py-2 rounded-xl"
+                disabled={user?.hasEndedShift}
                 onClick={() =>
                     navigate(
                         `${window.location.pathname}/${user?.isRevising === true ? "submit-revision" : "end-shift-confirmation"}`

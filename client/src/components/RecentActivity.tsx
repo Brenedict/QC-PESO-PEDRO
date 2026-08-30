@@ -3,6 +3,7 @@ import { Card } from "./Card";
 import { Text } from "./Text";
 import EmptyData from "./EmptyData";
 import Status, { type StatusVariant } from "./Status";
+import { useAuth } from "../context/AuthContext";
 
 // Dot color per status
 const statusDotBg: Record<StatusVariant<"outcome">, string> = {
@@ -69,6 +70,7 @@ export function RecentActivity({
     viewAllLabel = "View All",
     maxVisible = 5,
 }: RecentActivityProps) {
+    const { user } = useAuth();
     const visibleItems = items.slice(0, maxVisible);
 
     return (
@@ -77,7 +79,7 @@ export function RecentActivity({
                 <Text size="normal" weight="bold">
                     {title}
                 </Text>
-                {onViewAll && (
+                {!user?.hasEndedShift && onViewAll && (
                     <button onClick={onViewAll} className="shrink-0">
                         <Text
                             size="description"
