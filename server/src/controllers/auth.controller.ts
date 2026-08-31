@@ -2,20 +2,21 @@
 import type { Request, Response } from "express";
 
 // PEDRO SHARED IMPORTS
-import type { User } from "@qcpesopedro/shared/prisma/client";
+import { type User, LogAction } from "@qcpesopedro/shared/prisma/browser";
+import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
 
 // Middlewares
 import { jwtAccessAuth, jwtRefreshAuth, localAuth } from "../middlewares/passport.middleware";
+import { requireValidResetToken } from "../middlewares/authorized.middleware";
+import { validateSchema } from "../middlewares/zod.middleware";
+import { verifyFinishedShift } from "../middlewares/authorized.middleware";
+import { auditLog } from "../middlewares/audit.middleware";
 
 // Service
 import AuthService from "../service/auth.service";
 import UserService from "../service/user.service";
 import EmailService from "../service/email.service";
-import { requireValidResetToken } from "../middlewares/authorized.middleware";
-import { validateSchema } from "../middlewares/zod.middleware";
-import { UserFormChangePasswordSchema } from "@qcpesopedro/shared/schema/users";
-
-import { verifyFinishedShift } from "../middlewares/authorized.middleware";
+import AuditService from "../service/audit.service";
 
 // Utils
 import HashUtil from "../utils/hash.util";
@@ -65,35 +66,52 @@ export default {
         },
     ],
 
-    async forgotPasswordPatch(req: Request, res: Response) {
-        const { email } = req.body;
-        const user = await UserService.emailExist(email);
+    forgotPasswordPatch: [
+        auditLog,
+        async (req: Request, res: Response) => {
+            const { email } = req.body;
+            const user = await UserService.emailExist(email);
 
-        // Prevents sending email when user email doesn't exist in database
-        if (user) {
-            // '5m' is a fallback here in case the .env is missing the SMTP_EXPIRATION_OFFSET
-            const smtpExpirationOffset = process.env.SMTP_EXPIRATION_OFFSET || "5m"; // Defines how long reset token lasts
+            // Prevents sending email when user email doesn't exist in database
+            if (user) {
+                // '5m' is a fallback here in case the .env is missing the SMTP_EXPIRATION_OFFSET
+                const smtpExpirationOffset = process.env.SMTP_EXPIRATION_OFFSET || "5m"; // Defines how long reset token lasts
 
-            // Generates hashed token for reset password URL query (e.g. /reset-password?token=209NF903H)
-            const hashedToken = HashUtil.generateRandomHashedToken();
-            const emailSent = await EmailService.sendOTPEmail(
-                user.firstName,
-                user.email,
-                hashedToken,
-                smtpExpirationOffset
-            );
+                // Generates hashed token for reset password URL query (e.g. /reset-password?token=209NF903H)
+                const hashedToken = HashUtil.generateRandomHashedToken();
+                const emailSent = await EmailService.sendOTPEmail(
+                    user.firstName,
+                    user.email,
+                    hashedToken,
+                    smtpExpirationOffset
+                );
 
-            if (emailSent) {
-                const updatedUser = await AuthService.createResetToken(user.id, hashedToken, smtpExpirationOffset);
+                if (emailSent) {
+                    const result = await AuthService.createResetToken(user.id, hashedToken, smtpExpirationOffset);
+
+                    if (result) {
+                        await AuditService.createAuditLogMetadata(
+                            res,
+                            LogAction.EMAIL_SENT_RESET_LINK,
+                            result.id,
+                            result.fullName ?? "",
+                            result.role,
+                            "USER",
+                            result.id,
+                            result.email,
+                            `IP: ${req.ip}`
+                        );
+                    }
+                }
             }
-        }
 
-        /*
-            Regardless if the email exists or not status 200 is sent.
-            Prevents unathorized users from bruteforcing which emails exists or not
-        */
-        return res.status(200).send();
-    },
+            /*
+                Regardless if the email exists or not status 200 is sent.
+                Prevents unathorized users from bruteforcing which emails exists or not
+            */
+            return res.status(200).send();
+        },
+    ],
 
     protectedResetPasswordGet: [
         requireValidResetToken,
@@ -129,6 +147,7 @@ export default {
     changePasswordPatch: [
         requireValidResetToken,
         validateSchema("body", UserFormChangePasswordSchema),
+        auditLog,
         async (req: Request, res: Response) => {
             const { newPassword, _confirmPassword } = req.body;
             const user = req.user as User;
@@ -140,7 +159,7 @@ export default {
                 return res.status(422).json({ message: "Old Password Can't Be New Password" });
             }
 
-            const result = UserService.changePassword(user.id, newPassword);
+            const result = await UserService.changePassword(user.id, newPassword);
 
             if (!result) {
                 return res.status(404).json({ message: "User doesn't exist" });
@@ -149,7 +168,23 @@ export default {
             // Clear reset token to render reset link as null
             AuthService.clearResetToken(user.id);
 
-            EmailService.sendPasswordChangeEmail(user.firstName, user.email, user.updatedAt);
+            const emailSent = await EmailService.sendPasswordChangeEmail(user.firstName, user.email, user.updatedAt);
+
+            if (emailSent) {
+                if (result) {
+                    await AuditService.createAuditLogMetadata(
+                        res,
+                        LogAction.EMAIL_SENT_PASSWORD_CHANGE,
+                        result.id,
+                        result.fullName ?? "",
+                        result.role,
+                        "USER",
+                        result.id,
+                        result.email,
+                        `IP: ${req.ip}`
+                    );
+                }
+            }
 
             return res.status(200).send();
         },

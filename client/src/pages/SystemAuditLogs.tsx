@@ -94,11 +94,11 @@ function SystemAuditLogs() {
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="dark-blue" weight="bold" align="center">
-                                {row.actionPerformed as LogAction}
+                                {String(row.actionPerformed).replaceAll("_", " ")}
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <Identifier>{row.id}</Identifier>
+                            <Identifier>{row.affectedRecordId}</Identifier>
                         </Table.Data>
                         <Table.Data>
                             <ColumnDesc>{row.changesDetails}</ColumnDesc>

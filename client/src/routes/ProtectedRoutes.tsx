@@ -56,6 +56,7 @@ import { getAnalytics } from "../api/analyticsService";
 import { getShiftDetailsOverview, getShifts, patchReviewShift, shiftStatusLoader } from "../api/shiftService";
 import { todayRedirectLoader } from "../api/dateService";
 import { ignoreQueries } from "../api/httpClient";
+import { LogAction } from "@qcpesopedro/shared/prisma/enums";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -271,7 +272,7 @@ export const protectedRoutes: RouteObject[] = [
                             {
                                 path: ":userId/edit",
                                 element: <PopupEditUser />,
-                                action: updateUser,
+                                action: updateUser(LogAction.USER_EDITED),
                                 loader: getUserById,
                             },
                             {
@@ -283,13 +284,13 @@ export const protectedRoutes: RouteObject[] = [
                             {
                                 path: ":userId/promote",
                                 element: <PopupUserPriveleges privilegeType="promote" />,
-                                action: updateUser,
+                                action: updateUser(LogAction.USER_PROMOTED),
                                 loader: getUserById,
                             },
                             {
                                 path: ":userId/demote",
                                 element: <PopupUserPriveleges privilegeType="demote" />,
-                                action: updateUser,
+                                action: updateUser(LogAction.USER_DEMOTED),
                                 loader: getUserById,
                             },
                             {

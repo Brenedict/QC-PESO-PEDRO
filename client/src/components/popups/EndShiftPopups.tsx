@@ -19,7 +19,6 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
 
 // Test Data
-import { mockShiftData } from "../../data/endShiftReview";
 import { ESSStatus, type EnvironmentTag, type Transaction, type User } from "@qcpesopedro/shared/prisma/browser";
 import { formatCapitalize } from "../../utils/text";
 import { formatLongMonthYear } from "../../utils/time";

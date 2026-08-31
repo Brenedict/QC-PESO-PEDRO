@@ -1,7 +1,11 @@
+// General Imports
 import type { Request, Response } from "express";
-import { jwtAccessAuth } from "../middlewares/passport.middleware";
-import { validateSchema } from "../middlewares/zod.middleware";
-import ShiftService from "../service/shift.service";
+
+// PEDRO SHARED IMPORTS
+import { AccessLevel } from "@qcpesopedro/shared/enums";
+import { ESSStatus, LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
+import { ShiftLogUncheckedUpdateInputObjectSchema } from "@qcpesopedro/shared/zod/schemas";
+import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
 import {
     ShiftDetailsQuerySchema,
     ShiftFormEndSchema,
@@ -14,12 +18,20 @@ import {
     type ShiftFormVerifyType,
     type ShiftQueryType,
 } from "@qcpesopedro/shared/schema/shift";
+
+// Models
 import ShiftModel from "../models/shift.model";
-import { AccessLevel } from "@qcpesopedro/shared/enums";
+
+// Middlwares
+import { jwtAccessAuth } from "../middlewares/passport.middleware";
+import { validateSchema } from "../middlewares/zod.middleware";
 import { requireAccessLevel, resolveShiftConflicts } from "../middlewares/authorized.middleware";
-import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
-import { ShiftLogUncheckedUpdateInputObjectSchema } from "@qcpesopedro/shared/zod/schemas";
+import { auditLog } from "../middlewares/audit.middleware";
+
+// Services
+import ShiftService from "../service/shift.service";
 import UserModel from "../models/user.model";
+import AuditService from "../service/audit.service";
 
 export default {
     getShifts: [
@@ -80,6 +92,7 @@ export default {
                     userId,
                 },
             });
+
             return res.status(200).json({ shiftLog, message: "Shift created" });
         },
     ],
@@ -88,24 +101,42 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
         validateSchema("body", ShiftFormEndSchema),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const { shiftId } = req.params;
             const { generalRemarks, environmentTags } = req.body as unknown as ShiftFormEndType;
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
-            const shift = await ShiftModel.updateShiftById(Number(shiftId), {
+            const result = await ShiftModel.updateShiftById(Number(shiftId), {
                 timeOut: new Date(),
                 status: "PENDING",
                 generalRemarks,
                 environmentTags,
             });
 
-            if (!shift.userId) return res.status(404).json({ error: "User who owns the shift is not found" });
+            if (!result.userId) return res.status(404).json({ error: "User who owns the shift is not found" });
 
-            await UserModel.updateUser(shift.userId, { isRevising: false });
+            const user = await UserModel.updateUser(result.userId, { isRevising: false });
 
-            return res.status(200).json({ message: "Shift successfully ended", shift });
+            if (result) {
+                await AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.SUBMITTED_END_SHIFT_STATUS,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "SHIFT",
+                    result.id,
+                    user?.fullName ?? "",
+                    result?.adminRemarks ?? ""
+                );
+            }
+
+            return res.status(200).json({ message: "Shift successfully ended", result });
         },
     ],
 
@@ -113,18 +144,48 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
         validateSchema("body", ShiftFormVerifySchema),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const { shiftId } = req.params;
             const { status, adminRemarks, verifierId } = req.body as unknown as ShiftFormVerifyType;
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
-            await ShiftModel.updateShiftById(Number(shiftId), {
+            // Main result following the request
+            const result = await ShiftModel.updateShiftById(Number(shiftId), {
                 lastVerifiedAt: new Date(),
                 status,
                 adminRemarks,
                 verifierId,
             });
+
+            const mapESSStatus: Record<ESSStatus, LogAction> = {
+                REJECTED: LogAction.TAGGED_END_SHIFT_STATUS_REJECTED,
+                REVISION: LogAction.TAGGED_END_SHIFT_STATUS_REVISION,
+                APPROVED: LogAction.TAGGED_END_SHIFT_STATUS_APPROVE,
+
+                // Technically this could never happen
+                ONGOING: LogAction.TAGGED_END_SHIFT_STATUS_REVISION,
+                PENDING: LogAction.TAGGED_END_SHIFT_STATUS_REVISION,
+            };
+
+            if (result) {
+                await AuditService.createAuditLogMetadata(
+                    res,
+                    mapESSStatus[result.status],
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "SHIFT",
+                    result.id,
+                    result.user?.fullName ?? "",
+                    result?.adminRemarks ?? ""
+                );
+            }
+
             return res.sendStatus(204);
         },
     ],
@@ -132,6 +193,7 @@ export default {
     patchShiftRevise: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
+        auditLog,
         async (req: Request, res: Response) => {
             const { shiftId } = req.params;
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
