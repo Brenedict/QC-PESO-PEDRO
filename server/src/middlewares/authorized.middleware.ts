@@ -38,7 +38,7 @@ export async function verifyFinishedShift(req: Request, res: Response, next: Nex
 
     // Finished  shift today?
     const finishedShift = await UserService.hasFinishedShiftToday(requestor.id);
-    if (finishedShift) {
+    if (finishedShift && requestor.role !== "SUPERADMIN") {
         return res.status(409).json({ message: "User has already finished shift this day" });
     }
 
@@ -67,8 +67,10 @@ export async function resolveShiftConflicts(req: Request, res: Response, next: N
         });
     }
 
+    const hasShiftToday = await UserService.hasShiftToday(requestor.id);
+
     // Require time-in if they dont have shift yet
-    if (!unfinishedShift) {
+    if (!hasShiftToday) {
         return res.status(409).json({
             shiftStatus: ShiftStatus.TIMEIN, // Need time in
             message: "Please create another time in",
@@ -76,7 +78,6 @@ export async function resolveShiftConflicts(req: Request, res: Response, next: N
     }
 
     const revisionShift = await UserService.getEarliestRevisionShift(requestor.id);
-
     // Require user to revise the needs revision shifts
     if (revisionShift) {
         return res.status(409).json({

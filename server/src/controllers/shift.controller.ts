@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 
 // PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/enums";
-import { ESSStatus, LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
+import { ESSStatus, LogAction, Role, type User } from "@qcpesopedro/shared/prisma/browser";
 import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
 import {
     ShiftDetailsQuerySchema,
@@ -107,12 +107,15 @@ export default {
 
             const { shiftId } = req.params;
             const { generalRemarks, environmentTags } = req.body as unknown as ShiftFormEndType;
+            const { role } = req.user as User;
 
             if (!shiftId) return res.status(404).json({ error: "Shift not found" });
 
+            const shiftStatus = role === Role.SUPERADMIN ? ESSStatus.APPROVED : ESSStatus.PENDING;
+
             const result = await ShiftModel.updateShiftById(Number(shiftId), {
                 timeOut: new Date(),
-                status: "PENDING",
+                status: shiftStatus,
                 generalRemarks,
                 environmentTags,
             });

@@ -51,13 +51,19 @@ export const getShiftDetailsOverview =
     async ({ params, request }: LoaderFunctionArgs) => {
         const apiParams = buildParamString(query as Record<string, string | string[]>);
         try {
-            const { id: userShiftId } = InMemoryStore.getUser()?.shiftLog ?? {};
-            if (!userShiftId) throw Error("Failed to end shift log.");
+            let shiftUrl = "/shift/";
 
-            const shiftId = decode(params.shiftId);
+            if (useUserShift) {
+                const { id: userShiftId } = InMemoryStore.getUser()?.shiftLog ?? {};
+                if (!userShiftId) throw Error("Failed to end shift log.");
+                shiftUrl = `/shift/${userShiftId}`;
+            } else {
+                const shiftId = decode(params.shiftId);
+                shiftUrl = `/shift/${shiftId}`;
+            }
 
             // Main Fetch Request
-            const res = await apiJson(`/shift/${useUserShift && userShiftId ? userShiftId : shiftId}?${apiParams}`, {
+            const res = await apiJson(`${shiftUrl}?${apiParams}`, {
                 method: "GET",
             });
 
@@ -68,7 +74,6 @@ export const getShiftDetailsOverview =
             return handleErrRedirect(err, request, ROUTES.endshift.root);
         }
     };
-
 // PATCH: Review shift (Admin)
 export const patchReviewShift = async ({ params, request }: ActionFunctionArgs) => {
     try {
@@ -106,9 +111,10 @@ export const patchEndShift =
 
             InMemoryStore.setUserShiftLog(undefined);
             InMemoryStore.setUserIsRevising(false);
-            // InMemoryStore.setRevisionShift(null); // Remove the temporary revision shift in-memory data
+            InMemoryStore.setEndedShift(true);
 
-            if (!redirect) {
+            const userRole = InMemoryStore.getUser()?.role;
+            if (!redirect && userRole !== "SUPERADMIN") {
                 // Logout of user
                 const logOutRes = await logoutAction();
 
@@ -119,7 +125,7 @@ export const patchEndShift =
                 throw error;
             }
 
-            return redirectWithQuery(request, redirect);
+            if (redirect) return redirectWithQuery(request, redirect);
         } catch (err) {
             return handleErrRedirect(err, request, ROUTES.auth.root);
         }

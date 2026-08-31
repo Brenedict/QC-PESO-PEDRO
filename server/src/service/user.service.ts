@@ -7,7 +7,7 @@ import type { Prisma, Role, User } from "@qcpesopedro/shared/prisma/client";
 import UserModel from "../models/user.model";
 import ShiftModel from "../models/shift.model";
 import DateUtil from "../utils/date.util";
-import type { ShiftLogWhereInput, UserFindManyArgs, UserUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
+import type { UserFindManyArgs, UserUncheckedUpdateInput } from "@qcpesopedro/shared/prisma/models";
 
 // Utils
 import HashUtil from "../utils/hash.util";
@@ -115,6 +115,18 @@ export default {
             where: {
                 userId,
                 status: { not: "ONGOING" },
+                timeIn: { gte: startDate },
+            },
+        });
+        return shifts > 0;
+    },
+
+    async hasShiftToday(userId: number): Promise<boolean> {
+        const { startDate } = DateUtil.buildDayRange(new Date());
+
+        const shifts = await ShiftModel.count({
+            where: {
+                userId,
                 timeIn: { gte: startDate },
             },
         });

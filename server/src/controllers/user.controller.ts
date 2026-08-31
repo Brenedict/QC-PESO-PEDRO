@@ -45,6 +45,8 @@ export default {
                 ? await UserService.getEarliestRevisionShift(user.id)
                 : await UserService.getEarliestUnfinishedShift(user.id);
 
+            const hasEndedShift = await UserService.hasFinishedShiftToday(user.id);
+
             const userContextPayload: UserContextType = {
                 id: user.id,
                 email: user.email,
@@ -56,6 +58,7 @@ export default {
                 lastName: user.lastName,
                 isRevising: user.isRevising,
                 shiftLog,
+                hasEndedShift,
             };
 
             return res.json(userContextPayload);
