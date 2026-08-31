@@ -29,6 +29,8 @@ export const AUDIT_MESSAGE_MAP: Record<LogAction, (details: string) => string> =
     USER_EDITED: (details) => `Updated user details: ${details}`,
     USER_PROMOTED: (details) => `Promoted user: ${details}`,
     USER_DEMOTED: (details) => `Demoted user: ${details}`,
+    USER_ACCOUNT_ENABLED: (details) => `Enabled user account: ${details}`,
+    USER_ACCOUNT_DISABLED: (details) => `Disabled user account: ${details}`,
     EMAIL_SENT_RESET_LINK: (details) => `Sent password reset email to: ${details}`,
     EMAIL_SENT_PASSWORD_CHANGE: (details) => `Sent password change email to: ${details}`,
     REPORTS_DOWNLOAD_DAILY: (details) => `Downloaded daily report: ${details}`,

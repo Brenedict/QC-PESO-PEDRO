@@ -2,7 +2,6 @@
 import type { Request, Response } from "express";
 
 // PEDRO SHARED IMPORTS
-
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 import { type AuditLogsResponseType } from "@qcpesopedro/shared/schema/audit";
 
@@ -12,6 +11,7 @@ import { requireAccessLevel } from "../middlewares/authorized.middleware";
 
 // Services
 import AuditService from "../service/audit.service";
+import { validateSchema } from "../middlewares/zod.middleware";
 
 export default {
     getAudits: [

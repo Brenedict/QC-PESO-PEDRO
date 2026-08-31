@@ -4,7 +4,6 @@ import type { Request, Response } from "express";
 // PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 import { ESSStatus, LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
-import { ShiftLogUncheckedUpdateInputObjectSchema } from "@qcpesopedro/shared/zod/schemas";
 import type { ShiftLogOrderByWithRelationInput } from "@qcpesopedro/shared/prisma/models";
 import {
     ShiftDetailsQuerySchema,
@@ -21,6 +20,7 @@ import {
 
 // Models
 import ShiftModel from "../models/shift.model";
+import UserModel from "../models/user.model";
 
 // Middlwares
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
@@ -30,7 +30,6 @@ import { auditLog } from "../middlewares/audit.middleware";
 
 // Services
 import ShiftService from "../service/shift.service";
-import UserModel from "../models/user.model";
 import AuditService from "../service/audit.service";
 
 export default {
@@ -123,7 +122,7 @@ export default {
             const user = await UserModel.updateUser(result.userId, { isRevising: false });
 
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.SUBMITTED_END_SHIFT_STATUS,
                     requestor.id,
@@ -173,7 +172,7 @@ export default {
             };
 
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     mapESSStatus[result.status],
                     requestor.id,

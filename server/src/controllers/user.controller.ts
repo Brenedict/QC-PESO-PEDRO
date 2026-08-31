@@ -101,6 +101,9 @@ export default {
         validateSchema("body", UserFormCreateSchema),
         auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const user = req.body as User;
             const { email, username } = user;
 
@@ -110,14 +113,11 @@ export default {
             if (await UserService.usernameExist(username))
                 return res.status(409).json({ message: "Username already exists" });
 
-            // User Data of the Original Requestor
-            const requestor = req.user as User;
-
             // Main result following the request
             const result = await UserService.createUser(user);
 
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.USER_CREATED,
                     requestor.id,
@@ -139,6 +139,9 @@ export default {
         validateSchema("body", UserFormUpdateSchema),
         auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -150,9 +153,6 @@ export default {
             // Extract user update specification
             const action = req.params.action as LogAction;
 
-            // User Data of the Original Requestor
-            const requestor = req.user as User;
-
             const userUpdate = req.body as User;
 
             if (requestor.role === "ADMIN" && userUpdate.role === "SUPERADMIN") {
@@ -162,10 +162,15 @@ export default {
             // Main result following the request
             const result = await UserService.updateUser(userId, userUpdate);
 
-            const remarks =
-                action == LogAction.USER_PROMOTED || action == LogAction.USER_DEMOTED
-                    ? `${user.role} → ${result?.role}`
-                    : `Updated Fields: [${Object.keys(userUpdate).join(", ")}]`;
+            let remarks;
+
+            if (action == LogAction.USER_PROMOTED || action == LogAction.USER_DEMOTED) {
+                remarks = `${user.role} → ${result?.role}`;
+            } else if (action == LogAction.USER_ACCOUNT_DISABLED || action == LogAction.USER_ACCOUNT_ENABLED) {
+                remarks = "";
+            } else {
+                remarks = `Updated Fields: [${Object.keys(userUpdate).join(", ")}]`;
+            }
 
             if (result) {
                 AuditService.createAuditLogMetadata(
@@ -190,6 +195,9 @@ export default {
         requireAccessLevel(AccessLevel.ADMIN),
         auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -198,14 +206,11 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            // User Data of the Original Requestor
-            const requestor = req.user as User;
-
             // Main result following the request
             const result = await UserModel.deleteById(userId);
 
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.USER_DELETED,
                     requestor.id,
@@ -226,6 +231,9 @@ export default {
         requireAccessLevel(AccessLevel.ADMIN),
         auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -234,14 +242,11 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            // User Data of the Original Requestor
-            const requestor = req.user as User;
-
             // Main result following the request
             const result = await UserService.resetPassword(userId, user);
 
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.USER_PASSWORD_RESET,
                     requestor.id,
@@ -263,6 +268,9 @@ export default {
         validateSchema("body", UserFormChangePasswordSchema),
         auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -289,16 +297,13 @@ export default {
                     .json({ code: "DUPLICATE_PASSWORD", message: "Old Password Can't Be New Password" });
             }
 
-            // User Data of the Original Requestor
-            const requestor = req.user as User;
-
             // Main result following the request
             const result = await UserService.changePassword(user.id, newPassword);
 
             EmailService.sendPasswordChangeEmail(user.firstName, user.email, user.updatedAt);
 
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.USER_PASSWORD_CHANGE,
                     requestor.id,

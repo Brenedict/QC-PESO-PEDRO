@@ -2,8 +2,12 @@
 import { zfd } from "zod-form-data";
 import z from "zod";
 import "../zod/schemas";
-import { AuditLogUncheckedCreateInputObjectZodSchema } from "../zod/schemas";
+import { AuditLogUncheckedCreateInputObjectZodSchema, LogActionSchema } from "../zod/schemas";
+
+// PEDRO SHARED IMPORTS
 import { LogAction } from "@qcpesopedro/shared/prisma/browser";
+
+import { dateRangeFields, withDateRange } from "./date";
 
 export const AuditLogFormCreateSchema = zfd.formData(
     AuditLogUncheckedCreateInputObjectZodSchema.omit({

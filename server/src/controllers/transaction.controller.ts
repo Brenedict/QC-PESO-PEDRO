@@ -94,16 +94,16 @@ export default {
         validateSchema("body", TransactionFormCreateSchema),
         auditLog,
         async (req: Request, res: Response) => {
-            const transaction = req.body as TransactionCreateType;
-
             // User Data of the Original Requestor
             const requestor = req.user as User;
+
+            const transaction = req.body as TransactionCreateType;
 
             // Main result following the request
             const result = await TransactionService.createTransactionWithCode(transaction);
 
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.TRANSACTION_CREATED,
                     requestor.id,
@@ -125,6 +125,9 @@ export default {
         validateSchema("body", TransactionFormUpdateSchema),
         auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const { transactionId } = req.params;
             const id = transactionId as string;
             const { isNumeric, numericId, exists } = await TransactionService.resolveTransactionId(id);
@@ -138,11 +141,8 @@ export default {
                 ? await TransactionModel.updateTransactionById(numericId, transaction)
                 : await TransactionModel.updateTransactionByTxCode(id, transaction);
 
-            // User Data of the Original Requestor
-            const requestor = req.user as User;
-
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.TRANSACTION_EDITED,
                     requestor.id,
@@ -164,6 +164,9 @@ export default {
         requireAccessLevel(AccessLevel.FRONTLINE),
         auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const { transactionId } = req.params;
             const id = transactionId as string;
             const { isNumeric, numericId, exists } = await TransactionService.resolveTransactionId(id);
@@ -179,11 +182,8 @@ export default {
                 result = await TransactionModel.deleteTransactionByTxCode(id);
             }
 
-            // User Data of the Original Requestor
-            const requestor = req.user as User;
-
             if (result) {
-                await AuditService.createAuditLogMetadata(
+                AuditService.createAuditLogMetadata(
                     res,
                     LogAction.TRANSACTION_DELETED,
                     requestor.id,
@@ -196,6 +196,42 @@ export default {
             }
 
             res.status(204).end();
+        },
+    ],
+
+    postReportsDownload: [
+        jwtAccessAuth,
+        requireAccessLevel(AccessLevel.SUPERADMIN),
+        auditLog,
+        async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
+            const type = req.params.type as string;
+
+            const mapType: Record<string, LogAction> = {
+                DAILY: LogAction.REPORTS_DOWNLOAD_DAILY,
+                WEEKLY: LogAction.REPORTS_DOWNLOAD_WEEKLY,
+                MONTHLY: LogAction.REPORTS_DOWNLOAD_MONTHLY,
+                OVERALL: LogAction.REPORTS_DOWNLOAD_OVERALL,
+            };
+
+            if (!type) {
+                return res.status(404).json({ error: "Missing parameter" });
+            }
+            const dateUnitCoverage = type.toUpperCase();
+            AuditService.createAuditLogMetadata(
+                res,
+                mapType[dateUnitCoverage] ?? LogAction.REPORTS_DOWNLOAD_DAILY,
+                requestor.id,
+                requestor?.fullName ?? "",
+                requestor.role,
+                "TRANSACTION",
+                "-",
+                ""
+            );
+
+            res.status(200).end();
         },
     ],
 };

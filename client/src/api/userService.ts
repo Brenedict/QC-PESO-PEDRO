@@ -7,7 +7,7 @@ import {
     UserFormCreateSchema,
     UserFormUpdateSchema,
 } from "@qcpesopedro/shared/schema/users";
-import type { LogAction, User } from "@qcpesopedro/shared/prisma/browser";
+import { LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
 import {
@@ -139,14 +139,14 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         const actionType = formData.get("manageAction");
 
         if (actionType === "deactivate") {
-            const res = await apiJson(`/user/${decodedId}`, {
+            const res = await apiJson(`/user/${decodedId}/${LogAction.USER_ACCOUNT_DISABLED}`, {
                 method: "PATCH",
                 body: JSON.stringify({ status: "DISABLED" }),
             });
 
             await ensureOk(res, "Failed to deactivate user");
         } else if (actionType === "reactivate") {
-            const res = await apiJson(`/user/${decodedId}`, {
+            const res = await apiJson(`/user/${decodedId}/${LogAction.USER_ACCOUNT_ENABLED}`, {
                 method: "PATCH",
                 body: JSON.stringify({ status: "LOGGED_OUT" }),
             });

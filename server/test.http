@@ -1,1 +1,0 @@
-GET http://localhost:3000/api/v1/auth/protected/reset-password?token=d019ef23a2507d6f09ad647190578be26a18bee0ca9133351c86187437433eda
