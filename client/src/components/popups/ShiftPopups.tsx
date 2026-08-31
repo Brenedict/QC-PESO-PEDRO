@@ -35,8 +35,8 @@ import { capitalizeWords } from "../../utils/text";
 import InMemoryStore from "../../api/inMemoryStore";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import { ShiftLogScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
-const handleCancelTimeIn = (navigate: (route: string, keepQuery?: boolean) => void) => async () => {
-    const success = await logoutService();
+const handleCancelTimeIn = (navigate: (route: string, keepQuery?: boolean) => void, reason: string) => async () => {
+    const success = await logoutService({ reason });
 
     if (success) {
         navigate(ROUTES.auth.root, true);
@@ -196,7 +196,7 @@ export function PopupTimeIn() {
                 <PopupButton
                     leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
                     variant="white"
-                    onClick={handleCancelTimeIn(navigate)}
+                    onClick={handleCancelTimeIn(navigate, "Cancelled time-in")}
                     type="button"
                 >
                     Cancel Time In
@@ -227,7 +227,7 @@ export function PopupLogout({ root }: { root: string }) {
                     {/* Time-In Data Input Holders */}
                     <GeneralInput
                         label="Reason for Logout"
-                        name="date"
+                        name="reason"
                         type="text"
                         defaultValue={""}
                         required
@@ -235,7 +235,7 @@ export function PopupLogout({ root }: { root: string }) {
                     ></GeneralInput>
                     <TextAreaInput
                         label="Optional Remarks"
-                        name="time"
+                        name="remarks"
                         defaultValue={""}
                         placeholder="Enter additional details..."
                     ></TextAreaInput>
@@ -364,7 +364,7 @@ export function PopupUnfinishedShift() {
                 <PopupButton
                     leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
                     variant="white"
-                    onClick={handleCancelTimeIn(navigate)}
+                    onClick={handleCancelTimeIn(navigate, "Refused to resolve unfinished shift")}
                     type="button"
                 >
                     Log Out
@@ -404,7 +404,7 @@ export function PopupReviseShift() {
                 <PopupButton
                     leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
                     variant="white"
-                    onClick={handleCancelTimeIn(navigate)}
+                    onClick={handleCancelTimeIn(navigate, "Refused to resolve shift that needs revision")}
                     type="button"
                 >
                     Log Out

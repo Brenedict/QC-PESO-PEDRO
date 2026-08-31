@@ -148,12 +148,15 @@ export function PopupTransactionDetails() {
                         <Table.Header text="processed today" />
                     </Table.Row>
 
-                    {staffs.slice(0, 3).map((staff, i) => (
-                        <Table.Row key={i}>
-                            <Table.Data>{staff[0]}</Table.Data> {/* Name */}
-                            <Table.Data>{staff[1]}</Table.Data> {/* Processed Transactions */}
-                        </Table.Row>
-                    ))}
+                    {staffs
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 3)
+                        .map((staff, i) => (
+                            <Table.Row key={i}>
+                                <Table.Data>{staff[0]}</Table.Data> {/* Name */}
+                                <Table.Data>{staff[1]}</Table.Data> {/* Processed Transactions */}
+                            </Table.Row>
+                        ))}
                 </Table>
             </Dialog.Body>
         </Dialog>

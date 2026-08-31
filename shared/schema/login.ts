@@ -6,8 +6,11 @@ import {
     ShiftLogInputSchema,
     ShiftLogModelSchema,
     ShiftLogUncheckedCreateInputObjectSchema,
+    StatusSchema,
     UserUncheckedCreateInputObjectZodSchema,
 } from "../zod/schemas";
+import { dateRangeFields } from "./date";
+import { withDateRange } from "./date";
 
 export const LoginSchema = zfd.formData({
     email: z.email().trim().min(1, "Email cannot be empty"),
@@ -32,4 +35,22 @@ export const UserContextSchema = zfd.formData(
     })
 );
 
+export const AccountLogQueryOverviewSchema = withDateRange(
+    z.object({
+        ...dateRangeFields,
+        search: z.string().optional(),
+        role: RoleSchema.optional(),
+        status: StatusSchema.optional(),
+    })
+);
+
+export const AccountLogFormUpdateSchema = zfd.formData(
+    z.object({
+        remarks: z.string().optional(),
+        reason: z.string().optional(),
+    })
+);
+
 export type UserContextType = z.infer<typeof UserContextSchema>;
+export type AccountLogQueryOverviewType = z.infer<typeof AccountLogQueryOverviewSchema>;
+export type AccountLogFormUpdateType = z.infer<typeof AccountLogFormUpdateSchema>;

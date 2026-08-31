@@ -19,6 +19,9 @@ import { verifyFinishedShift } from "../middlewares/authorized.middleware";
 
 // Utils
 import HashUtil from "../utils/hash.util";
+import LogModel from "../models/log.model";
+import LogService from "../service/log.service";
+import { AccountLogFormUpdateSchema, type AccountLogFormUpdateType } from "@qcpesopedro/shared/schema/login";
 
 export default {
     loginPost: [
@@ -28,6 +31,8 @@ export default {
             const user = req.user as User;
             const { accessToken, refreshToken } = AuthService.generateTokens(user);
             AuthService.sendRefreshCookie(res, refreshToken);
+
+            await LogService.openAccountLog(user.id);
 
             // reset revising mode
             await UserService.updateUser(user.id, { isRevising: false });
@@ -46,17 +51,28 @@ export default {
         },
     ],
 
-    logoutPost(req: Request, res: Response) {
-        const hasRefresh = Boolean(req.cookies?.refreshToken);
-        if (hasRefresh) {
-            res.clearCookie("refreshToken", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-            });
-        }
-        res.json({ message: "Logged out successfully" });
-    },
+    logoutPost: [
+        jwtAccessAuth,
+        validateSchema("body", AccountLogFormUpdateSchema),
+        async (req: Request, res: Response) => {
+            const hasRefresh = Boolean(req.cookies?.refreshToken);
+            if (hasRefresh) {
+                res.clearCookie("refreshToken", {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                });
+            }
+
+            const user = req.user as User;
+            const { reason, remarks } = req.body as AccountLogFormUpdateType;
+            const accountLog = LogService.closeLatestOpenLog(user.id, reason, remarks);
+
+            if (!accountLog) return res.status(404).json({ message: "Log not found" });
+
+            return res.json({ accountLog, message: "Logged out successfully" });
+        },
+    ],
 
     protectedGet: [
         jwtAccessAuth,
