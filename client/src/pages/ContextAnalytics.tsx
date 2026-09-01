@@ -1,5 +1,6 @@
 // General Imports
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 
 // Components
 import { Card } from "../components/Card";
@@ -82,10 +83,18 @@ function StatCard({
     );
 }
 
-function ContextTipCard({ icon, description }: { icon: MaterialIcon; description: string }) {
+function ContextTipCard({
+    icon,
+    description,
+    variant = "off-white",
+}: {
+    icon: MaterialIcon;
+    description: string;
+    variant?: "white" | "off-white";
+}) {
     return (
         <Card dropShadow={false}>
-            <Card.Body className="flex gap-4 px-4!" variant="off-white">
+            <Card.Body className="flex gap-4 px-4!" variant={variant}>
                 <div>
                     <Icon
                         icon={icon}
@@ -164,8 +173,9 @@ function InsightSection() {
                     divider={false}
                 ></SectionHeader>
 
+                <h1>Last Month</h1>
                 {/* Should probably use map function */}
-                <div className="grid grid-cols-5 gap-3 mb-6">
+                <div className="grid grid-cols-4 gap-3 mb-6">
                     <StatCard
                         value={427}
                         description="Total Transactions"
@@ -191,18 +201,46 @@ function InsightSection() {
                     ></StatCard>
                     <StatCard
                         value={"Slow Internet"}
-                        description="Most Frequent Issue"
+                        description="Most Frequent Tag"
                         invertOrder={true}
                         align="left"
                         dropShadow={false}
                         valueVariant="red"
                     ></StatCard>
+                </div>
+
+                <h1>This Month</h1>
+                <div className="grid grid-cols-4 gap-3 mb-6">
                     <StatCard
-                        value={"Lack of NC II"}
-                        description="Most Common Skill Gap"
+                        value={427}
+                        description="Total Transactions"
                         invertOrder={true}
                         align="left"
                         dropShadow={false}
+                    ></StatCard>
+                    <StatCard
+                        value={"Walk-In"}
+                        description="Primary Source"
+                        subValue={"39%"}
+                        invertOrder={true}
+                        align="left"
+                        dropShadow={false}
+                    ></StatCard>
+                    <StatCard
+                        value={"Successful"}
+                        description="Most Common Outcome"
+                        subValue={"74%"}
+                        invertOrder={true}
+                        align="left"
+                        dropShadow={false}
+                    ></StatCard>
+                    <StatCard
+                        value={"Slow Internet"}
+                        description="Most Frequent Tag"
+                        invertOrder={true}
+                        align="left"
+                        dropShadow={false}
+                        valueVariant="red"
                     ></StatCard>
                 </div>
 
@@ -227,56 +265,32 @@ function Level1Section() {
     return (
         <section>
             <SectionHeader
-                primaryText="Context Analytics"
+                primaryText="Level 1: Transaction Origin"
                 secondaryText="Where did applicants come from?"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
             ></SectionHeader>
-
-            <div className="grid grid-cols-6 gap-3 mb-6">
-                <StatCard value={38} description="Walk-in Referral"></StatCard>
-                <StatCard value={197} description="Online Referral"></StatCard>
-                <StatCard value={175} description="Inhouse Recruitment"></StatCard>
-                <StatCard value={198} description="Partner Agencies"></StatCard>
-                <StatCard value={44} description="Immersion"></StatCard>
-                <StatCard value={216} description="PESO Referral"></StatCard>
-            </div>
-
-            <div className="grid grid-cols-6 gap-6">
-                {/* Doughnut Chart */}
-                <Card className="col-span-2">
-                    <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Applicant Source Distribution</Text>
-                    </Card.Header>
-                    <Card.Body className="h-fit">
-                        <DoughnutChart
-                            options={sampleContextDoughnutOptions}
-                            data={sampleContextDoughnut1Data}
-                            wrapperClassName="relative w-full h-[400px]"
-                        ></DoughnutChart>
-                    </Card.Body>
-                </Card>
-
-                {/* Line Chart */}
-                <Card className="col-span-4">
-                    <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Transaction Summary Preview</Text>
-                    </Card.Header>
-                    <Card.Body>
-                        <LineChart
-                            options={sampleContextLineOptions}
-                            data={sampleContextLineData}
-                            wrapperClassName="relative w-full h-[300px]!"
-                        ></LineChart>
-                    </Card.Body>
-                    <Card.Footer bordered={false} variant="white">
-                        <ContextTipCard
-                            icon={LightbulbOutlinedIcon}
-                            description={
-                                "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
-                            }
-                        />
-                    </Card.Footer>
-                </Card>
+            <div className="grid grid-cols-5 gap-3 mb-6">
+                <h1>Previous Month</h1>
+                <div className="col-span-5 grid grid-cols-3 gap-3">
+                    <StatCard value={38} description="Walk-in Referral"></StatCard>
+                    <StatCard value={197} description="Online Referral"></StatCard>
+                    <StatCard value={175} description="Inhouse Recruitment"></StatCard>
+                </div>
+                <h1>This Month</h1>
+                <div className="col-span-5 grid grid-cols-3 gap-3">
+                    <StatCard value={38} description="Walk-in Referral"></StatCard>
+                    <StatCard value={197} description="Online Referral"></StatCard>
+                    <StatCard value={175} description="Inhouse Recruitment"></StatCard>
+                </div>
+                <div className="col-span-5">
+                    <ContextTipCard
+                        icon={LightbulbOutlinedIcon}
+                        variant="white"
+                        description={
+                            "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
+                        }
+                    />
+                </div>
             </div>
         </section>
     );
@@ -286,15 +300,15 @@ function Level2Section() {
     return (
         <section>
             <SectionHeader
-                primaryText="Context Analytics"
-                secondaryText="Where did applicants come from?"
+                primaryText="Level 2: Transaction Outcome"
+                secondaryText="Quality of transactions and skill gaps"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
             ></SectionHeader>
             <div className="grid grid-cols-6 gap-6">
                 {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Outcomes by Applicant Source</Text>
+                        <Text weight="bold">Last Month: Outcomes by Applicant Source</Text>
                     </Card.Header>
                     <Card.Body>
                         <BarChart
@@ -305,30 +319,28 @@ function Level2Section() {
                     </Card.Body>
                 </Card>
 
-                {/* Progress Chart */}
+                {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Most Common Reasons for Mismatched Skills</Text>
+                        <Text weight="bold">This Month: Outcomes by Applicant Source</Text>
                     </Card.Header>
-                    <Card.Body className="">
-                        <ProgressChart
-                            dataset={[
-                                { item: "Education Mismatch", percentage: 58, barColor: "primary-blue" },
-                                { item: "Lack of NC II Certification", percentage: 21, barColor: "light-blue" },
-                                { item: "No Relevant Experience", percentage: 14, barColor: "purple" },
-                                { item: "Incomplete Resume", percentage: 7, barColor: "yellow" },
-                            ]}
-                        />
+                    <Card.Body>
+                        <BarChart
+                            options={sampleContextBarOptions}
+                            data={sampleContextBarData}
+                            wrapperClassName="relative w-full h-[350px]!"
+                        ></BarChart>
                     </Card.Body>
-                    <Card.Footer bordered={false} variant="white">
-                        <ContextTipCard
-                            icon={LightbulbOutlinedIcon}
-                            description={
-                                "Most pending applications today were caused by incomplete documentary requirements, while the top skill gap remains NC II Certification."
-                            }
-                        />
-                    </Card.Footer>
                 </Card>
+                <div className="col-span-6">
+                    <ContextTipCard
+                        icon={LightbulbOutlinedIcon}
+                        variant="white"
+                        description={
+                            "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
+                        }
+                    />
+                </div>
             </div>
         </section>
     );
@@ -338,68 +350,54 @@ function Level3Section() {
     return (
         <section>
             <SectionHeader
-                primaryText="Operational Environment"
-                secondaryText="The reason productivity changed"
+                primaryText="Level 3: Operational Environment"
+                secondaryText="What is the frequent issues in the working environment?"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
             ></SectionHeader>
             <div className="grid grid-cols-6 gap-6">
-                {/* Doughnut Chart */}
-                <Card className="col-span-2">
+                {/* Bar Chart */}
+                <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Applicant Source Distribution</Text>
-                    </Card.Header>
-                    <Card.Body className="flex flex-col gap-3">
-                        <div className="w-full">
-                            <DoughnutChart
-                                options={sampleContextDoughnutOptions}
-                                data={sampleContextDoughnut2Data}
-                                wrapperClassName="relative w-full h-[300px]!"
-                            ></DoughnutChart>
-                        </div>
-                        <hr className="border-1.2 border-grayish-blue-opaque" />
-                        <Text size="description" weight="bold">
-                            Event Timeline
-                        </Text>
-
-                        {/* Use Map function here */}
-                        <div className="flex flex-col gap-3 overflow-y-auto  h-40">
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                        </div>
-                    </Card.Body>
-                </Card>
-
-                {/* Scatter Chart */}
-                <Card className="col-span-4">
-                    <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Correlation: Operational Issue vs Transactions Processed</Text>
+                        <Text weight="bold">Last Month: Tags Mentioned By Staff</Text>
                     </Card.Header>
                     <Card.Body>
-                        <ScatterChart
-                            options={sampleScatterOptions}
-                            data={sampleScatterData}
-                            wrapperClassName="relative w-full h-[400px]!"
-                        ></ScatterChart>
+                        <BarChart
+                            options={sampleContextBarOptions}
+                            data={sampleContextBarData}
+                            wrapperClassName="relative w-full h-[350px]!"
+                        ></BarChart>
                     </Card.Body>
-                    <Card.Footer bordered={false} variant="white">
-                        <ContextTipCard
-                            icon={LightbulbOutlinedIcon}
-                            description={
-                                "Days with Slow Internet processed approximately 28% fewer applicants. System Downtime completely halts throughput, dropping the average to just 40 transactions."
-                            }
-                        />
-                    </Card.Footer>
                 </Card>
+
+                {/* Bar Chart */}
+                <Card className="col-span-3">
+                    <Card.Header bordered={false} variant="white">
+                        <Text weight="bold">This Month: Tags Mentioned By Staff</Text>
+                    </Card.Header>
+                    <Card.Body>
+                        <BarChart
+                            options={sampleContextBarOptions}
+                            data={sampleContextBarData}
+                            wrapperClassName="relative w-full h-[350px]!"
+                        ></BarChart>
+                    </Card.Body>
+                </Card>
+                <div className="col-span-6">
+                    <ContextTipCard
+                        icon={LightbulbOutlinedIcon}
+                        variant="white"
+                        description={
+                            "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
+                        }
+                    />
+                </div>
             </div>
         </section>
     );
 }
 
 export function ContextAnalytics() {
-    const [generateInsights, setGenerateInsights] = useState(false);
+    const [generateInsights, setGenerateInsights] = useState(true);
     const [tempInsights, setTempInsights] = useState("");
 
     const handleGenerateInsights = async () => {
@@ -441,14 +439,15 @@ export function ContextAnalytics() {
                 </main>
             ) : (
                 <main className="flex flex-col gap-6">
-                    <h1 className="font-bold">This is temporary unformatted ai reply</h1>
-                    <h1>{tempInsights}</h1>
-                    {/* <InsightSection />
+                    {/* <h1 className="font-bold">This is temporary unformatted ai reply</h1>
+                    <h1>{tempInsights}</h1> */}
+                    <InsightSection />
                     <Level1Section />
                     <Level2Section />
-                    <Level3Section /> */}
+                    <Level3Section />
                 </main>
             )}
+            <Outlet />
         </>
     );
 }
