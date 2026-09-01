@@ -28,6 +28,7 @@ import { decode } from "../../utils/hashids";
 import Table from "../Table";
 import Status from "../Status";
 import { useAuth } from "../../context/AuthContext";
+import useTablePage from "../../hooks/useTablePage";
 
 export function PopupEndShiftReview() {
     const navigate = useNavigateDefault();
@@ -318,21 +319,9 @@ function ReviewFooterSection({ isFormValid }: { isFormValid: boolean }) {
 }
 
 export function PopupShiftViewTransactionDetails() {
-    const pageKey = "subpage";
-
     const { shiftId } = useParams();
-    const navigate = useNavigateDefault();
+    const { pageKey, closeAction } = useTablePage("subpage", ROUTES.endshift.review(decode(shiftId!) as string));
     const data = useLoaderData();
-
-    const closeAction = () => {
-        const params = new URLSearchParams(location.search);
-        params.delete(pageKey);
-
-        const route = ROUTES.endshift.review(decode(shiftId!) as string);
-        const search = params.toString();
-
-        navigate(search ? `${route}?${search}` : route);
-    };
 
     return (
         <Dialog dropShadow={true} onClose={closeAction}>

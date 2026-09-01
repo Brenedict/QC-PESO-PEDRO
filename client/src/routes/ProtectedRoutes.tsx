@@ -57,6 +57,7 @@ import { getShiftDetailsOverview, getShifts, patchReviewShift, shiftStatusLoader
 import { todayRedirectLoader } from "../api/dateService";
 import { ignoreQueries } from "../api/httpClient";
 import { LogAction } from "@qcpesopedro/shared/prisma/enums";
+import { getAccountLog, getAccountLogOverview } from "../api/logService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -228,20 +229,13 @@ export const protectedRoutes: RouteObject[] = [
                     },
                     {
                         path: "monitoring",
-                        element: (
-                            <LoginMonitoring
-                                currentlyLogged={12}
-                                totalLogins={18}
-                                totalLogouts={6}
-                                sessionDuration={"8h 12m"}
-                                employeeSessions={employeeSessions}
-                            />
-                        ),
-                        loader: requireAccess(AccessLevel.ADMIN),
+                        element: <LoginMonitoring />,
+                        loader: requireAccess(AccessLevel.ADMIN, todayRedirectLoader(getAccountLogOverview)),
                         children: [
                             {
-                                path: ":shiftId/view-history",
+                                path: ":userId/view-history",
                                 element: <PopupViewHistory />,
+                                loader: getAccountLog,
                             },
                             ...shiftPopups(ROUTES.monitoring.root),
                         ],

@@ -34,9 +34,7 @@ function ProfileSummaryCard() {
     const navigate = useNavigateDefault();
     return (
         <Card className="w-full md:w-1/3 flex flex-col">
-            {" "}
             <Card.Header variant="off-white" bordered={true} className="h-28">
-                {" "}
                 {null}
             </Card.Header>
             <Card.Body className="flex-1 flex flex-col items-center text-center relative pt-0">

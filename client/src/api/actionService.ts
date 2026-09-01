@@ -8,7 +8,7 @@ import { apiFetch } from "./httpClient";
 // Custom Hooks
 import { ROUTES } from "../hooks/useNavigateDefault";
 
-const JSON_HEADERS = {
+export const JSON_HEADERS = {
     "Content-Type": "application/json",
     Accept: "application/json",
 } satisfies HeadersInit;

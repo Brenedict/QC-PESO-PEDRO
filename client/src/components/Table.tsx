@@ -215,7 +215,9 @@ function Table({ children, items = 10, ...tableContext }: TableProps) {
     // Pagination hook
     const { page, setSearchParams } = useSearchParamsTable({}, tableContext.pageKey);
 
-    const childrenArray = Children.toArray(children);
+    const childrenArray = Children.toArray(children).filter(
+        (child) => React.isValidElement(child) && child.type === Row
+    );
     const header = childrenArray[0];
     const rows = childrenArray.slice(1);
 
