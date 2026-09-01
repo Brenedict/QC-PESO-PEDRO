@@ -178,7 +178,7 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
     }
 };
 
-// POST: Fetches analytics
+// POST: Fetches analytics (used by loader)
 export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
     console.log(JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()));
     try {

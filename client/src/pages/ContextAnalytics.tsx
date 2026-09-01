@@ -1,3 +1,6 @@
+// General Imports
+import { useState } from "react";
+
 // Components
 import { Card } from "../components/Card";
 import { Text } from "../components/Text";
@@ -9,6 +12,7 @@ import PageHeader from "../components/PageHeader";
 import type { IconProps } from "../components/Icon";
 import { LineChart } from "../components/LineChart";
 import Icon from "../components/Icon";
+import Button from "../components/Button";
 
 // Icons
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
@@ -28,6 +32,8 @@ import { sampleScatterData, sampleScatterOptions } from "../data/chartsConfigs";
 
 // Types
 import type { MaterialIcon } from "../types/common";
+import { apiJson, ensureOk } from "../api/actionService";
+import { DASHBOARD_OVERVIEW_REQUEST } from "../api/analyticsService";
 
 function StatCard({
     value,
@@ -393,6 +399,35 @@ function Level3Section() {
 }
 
 export function ContextAnalytics() {
+    const [generateInsights, setGenerateInsights] = useState(false);
+    const [tempInsights, setTempInsights] = useState("");
+
+    const handleGenerateInsights = async () => {
+        try {
+            const res = await apiJson(`/insight/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()),
+            });
+
+            await ensureOk(res, "Failed to generate insights");
+
+            const result = await res.json();
+
+            console.log("Insights generated successfully:", result);
+            setTempInsights(result.insight);
+            setGenerateInsights(true);
+
+            return;
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
+    };
+
     return (
         <>
             <PageHeader
@@ -400,13 +435,20 @@ export function ContextAnalytics() {
                 secondaryText="Quality of transactions and skill gaps"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
             />
-
-            <main className="flex flex-col gap-6">
-                <InsightSection />
-                <Level1Section />
-                <Level2Section />
-                <Level3Section />
-            </main>
+            {generateInsights == false ? (
+                <main className="flex flex-col gap-6">
+                    <Button onClick={handleGenerateInsights}>Generate</Button>
+                </main>
+            ) : (
+                <main className="flex flex-col gap-6">
+                    <h1 className="font-bold">This is temporary unformatted ai reply</h1>
+                    <h1>{tempInsights}</h1>
+                    {/* <InsightSection />
+                    <Level1Section />
+                    <Level2Section />
+                    <Level3Section /> */}
+                </main>
+            )}
         </>
     );
 }
