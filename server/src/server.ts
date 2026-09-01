@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.route";
 import transactionRoutes from "./routes/transaction.route";
 import userRoutes from "./routes/user.route";
 import shiftRoutes from "./routes/shift.route";
+import auditRoutes from "./routes/audit.route";
 import logRoutes from "./routes/log.route";
 import insightsRoutes from "./routes/insights.route";
 
@@ -68,6 +69,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/shift", shiftRoutes);
+app.use("/api/v1/audit", auditRoutes);
 app.use("/api/v1/log", logRoutes);
 app.use("/api/v1/insight", insightsRoutes);
 

@@ -10,6 +10,7 @@ import UserModel from "../models/user.model";
 
 // Utils
 import HashUtil from "../utils/hash.util";
+import { Status } from "@qcpesopedro/shared/prisma/enums";
 
 // ------------------- PASSPORT LOCAL STRATEGY -------------------------------------
 
@@ -27,6 +28,8 @@ const verifyFunction: VerifyFunction = async (email, password, done) => {
 
         const match = await HashUtil.comparePassword(password, user.password);
         if (!match) return done(null, false, { message: "Password Incorrect" });
+
+        if (user.status == Status.DISABLED) return done(null, false, { message: "Account is Disabled" });
 
         return done(null, user);
     } catch (err) {

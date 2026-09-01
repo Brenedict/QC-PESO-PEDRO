@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
 
 // PEDRO SHARED IMPORTS
-import type { User } from "@qcpesopedro/shared/prisma/client";
+import { Status, type User } from "@qcpesopedro/shared/prisma/client";
 
 // Service
 import LogService from "../service/log.service";
@@ -44,6 +44,10 @@ const jwtAuth = (type: "access" | "refresh") => (req: Request, res: Response, ne
                 await LogService.closeOpenLogOnExpiredRefresh(req);
             }
             return res.status(401).json({ error: "User is unauthorized" });
+        }
+
+        if (user.status == Status.DISABLED) {
+            return res.status(401).json({ error: "User account is disabled" });
         }
 
         req.user = user;

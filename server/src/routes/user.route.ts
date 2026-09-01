@@ -17,7 +17,7 @@ router.post("/", controller.createUser);
 // PATCH
 router.patch("/:userId/reset-password", controller.resetPassword);
 router.patch("/:userId/change-password", controller.changePassword);
-router.patch("/:userId", controller.patch);
+router.patch("/:userId/:action", controller.patch);
 
 // DELETE
 router.delete("/:userId", controller.delete);
