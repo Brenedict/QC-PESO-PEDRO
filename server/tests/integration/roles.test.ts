@@ -153,7 +153,7 @@ describe("Server Routes - Role Authorization Matrix", () => {
 
                     // Execute request and verify status code
                     // This is only a sample, validateSchema (middleware) is only a mock here
-                    const res = await request(app).patch(`/user/${userFixture.id}`).send({
+                    const res = await request(app).patch(`/user/${userFixture.id}/USER_PASSWORD_CHANGE`).send({
                         username: "nameChange",
                     });
 

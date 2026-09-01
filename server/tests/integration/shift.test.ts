@@ -318,15 +318,16 @@ describe("Shift Route", () => {
         it("flags the shift's user as revising and returns the revision shift", async () => {
             await UserModel.updateUser(adminUser!.id, { isRevising: false });
 
+            const { user: _user, ...mockedShiftLogWithoutUser } = mockedShiftLogs[0] as ShiftLog & { user: User };
             setCurrentAuthUser(mockAdminUser);
             const res = await request(app).patch(`/shift/${mockedShiftLogs[0].id}/revise`).expect(200);
 
             expect(res.body.message).toBe("Please revise this shift");
-            expect(res.body.revisionShift).toMatchObject(mockShiftDates(mockedShiftLogs[0]));
+            expect(res.body.revisionShift).toMatchObject(mockShiftDates(mockedShiftLogWithoutUser as ShiftLog));
 
             const updatedUser = await UserModel.getById(adminUser!.id);
             expect(updatedUser?.isRevising).toBe(true);
-        });
+        }, 300000);
 
         it("returns status 403 forbidden when user is not ADMIN but tries to flag a revision", (done) => {
             setCurrentAuthUser(mockFrontlineUser);

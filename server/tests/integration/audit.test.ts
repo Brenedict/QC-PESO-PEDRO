@@ -10,6 +10,7 @@ import AuditModel from "../../src/models/audit.model";
 import { mockAdminUser, mockFrontlineUser, mockSuperAdminUser } from "../fixtures/user.fixture";
 import { buildMockAuditLog } from "../fixtures/auditLog.fixture";
 import auditRoute from "../../src/routes/audit.route";
+import UserModel from "../../src/models/user.model";
 
 jest.unmock("../../src/middlewares/authorized.middleware");
 jest.unmock("../../src/middlewares/zod.middleware");
