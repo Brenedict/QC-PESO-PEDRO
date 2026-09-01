@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 
 // PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/enums";
+import { LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
 import {
     TransactionAnalyticsQuerySchema,
     TransactionFormCreateSchema,
@@ -18,12 +19,14 @@ import {
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { requireAccessLevel } from "../middlewares/authorized.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
+import { auditLog } from "../middlewares/audit.middleware";
 
 // Model
 import TransactionModel from "../models/transaction.model";
 
 // Service
 import TransactionService from "../service/transaction.service";
+import AuditService from "../service/audit.service";
 
 export default {
     getTransactions: [
@@ -89,9 +92,29 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
         validateSchema("body", TransactionFormCreateSchema),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const transaction = req.body as TransactionCreateType;
+
+            // Main result following the request
             const result = await TransactionService.createTransactionWithCode(transaction);
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.TRANSACTION_CREATED,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "TRANSACTION",
+                    result.txCode,
+                    result?.applicantFullName ?? ""
+                );
+            }
+
             res.status(201).json({ transaction: result });
         },
     ],
@@ -100,36 +123,115 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
         validateSchema("body", TransactionFormUpdateSchema),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const { transactionId } = req.params;
             const id = transactionId as string;
             const { isNumeric, numericId, exists } = await TransactionService.resolveTransactionId(id);
 
+            const transaction = req.body as TransactionUpdateType;
+
             if (!exists) return res.status(404).json({ error: "Transaction not found" });
 
-            const transaction = isNumeric
-                ? await TransactionModel.updateTransactionById(numericId, req.body as TransactionUpdateType)
-                : await TransactionModel.updateTransactionByTxCode(id, req.body as TransactionUpdateType);
-            res.status(200).json({ transaction });
+            // Main result following the request
+            const result = isNumeric
+                ? await TransactionModel.updateTransactionById(numericId, transaction)
+                : await TransactionModel.updateTransactionByTxCode(id, transaction);
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.TRANSACTION_EDITED,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "TRANSACTION",
+                    result.txCode,
+                    result?.applicantFullName ?? "",
+                    Object.keys(transaction).join(", ")
+                );
+            }
+
+            res.status(200).json({ result });
         },
     ],
 
     deleteTransaction: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const { transactionId } = req.params;
             const id = transactionId as string;
             const { isNumeric, numericId, exists } = await TransactionService.resolveTransactionId(id);
 
             if (!exists) return res.status(404).json({ error: "Transaction not found" });
 
+            // Main result following the request
+            let result;
+
             if (isNumeric) {
-                await TransactionModel.deleteTransactionById(numericId);
+                result = await TransactionModel.deleteTransactionById(numericId);
             } else {
-                await TransactionModel.deleteTransactionByTxCode(id);
+                result = await TransactionModel.deleteTransactionByTxCode(id);
             }
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.TRANSACTION_DELETED,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "TRANSACTION",
+                    result.txCode,
+                    result?.applicantFullName ?? ""
+                );
+            }
+
             res.status(204).end();
+        },
+    ],
+
+    postReportsDownload: [
+        jwtAccessAuth,
+        requireAccessLevel(AccessLevel.SUPERADMIN),
+        auditLog,
+        async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
+            const type = req.params.type as string;
+
+            const mapType: Record<string, LogAction> = {
+                DAILY: LogAction.REPORTS_DOWNLOAD_DAILY,
+                WEEKLY: LogAction.REPORTS_DOWNLOAD_WEEKLY,
+                MONTHLY: LogAction.REPORTS_DOWNLOAD_MONTHLY,
+                OVERALL: LogAction.REPORTS_DOWNLOAD_OVERALL,
+            };
+
+            if (!type) {
+                return res.status(404).json({ error: "Missing parameter" });
+            }
+            const dateUnitCoverage = type.toUpperCase();
+            AuditService.createAuditLogMetadata(
+                res,
+                mapType[dateUnitCoverage] ?? LogAction.REPORTS_DOWNLOAD_DAILY,
+                requestor.id,
+                requestor?.fullName ?? "",
+                requestor.role,
+                "TRANSACTION",
+                "-",
+                ""
+            );
+
+            res.status(200).end();
         },
     ],
 };

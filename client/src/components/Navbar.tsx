@@ -120,7 +120,7 @@ function NavBody({ userType }: { userType?: Role }) {
                             <NavButton linkType="reports" to="/reports" disabled={user?.hasEndedShift} />
                         </>
                     )}
-                    <NavButton linkType="audit_logs" to="/audit-logs" disabled={user?.hasEndedShift} />
+                    <NavButton linkType="audit_logs" to="/audit-logs" />
                     <NavButton linkType="user_management" to="/user-management" disabled={user?.hasEndedShift} />
                 </>
             )}

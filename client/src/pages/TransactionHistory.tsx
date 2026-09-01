@@ -7,10 +7,11 @@ import { Outcome, TransactionType, type Transaction, type User } from "@qcpesope
 
 // Components
 import PageHeader from "../components/PageHeader";
-import Button from "../components/Button";
 import Table from "../components/Table";
 import Status from "../components/Status";
+import { SelectInput } from "../components/Input";
 import { ActionButtons, ColumnText, DateTime, Identifier, TextAndDateTime } from "../components/TableCells";
+import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 
 // Material UI Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
@@ -19,9 +20,7 @@ import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 // Hooks
 import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 import useSearchParamsTable from "../hooks/useSearchParamsTable";
-import { SelectInput } from "../components/Input";
 import useTimeframeFilter, { type TimeframeFilter } from "../hooks/useTimeFrameFilter";
-import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 import { useAuth } from "../context/AuthContext";
 
 export function TransactionExtraFilters({ timeframeFilter }: { timeframeFilter?: TimeframeFilter }) {

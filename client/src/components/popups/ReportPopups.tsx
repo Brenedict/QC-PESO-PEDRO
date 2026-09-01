@@ -1,5 +1,5 @@
 // General Imports
-import { usePDF } from "react-to-pdf";
+import { usePDF, type Options } from "react-to-pdf";
 import { useLoaderData } from "react-router";
 import { type ReactNode, type RefObject } from "react";
 
@@ -20,6 +20,8 @@ import { formatDDMMYYYY, formatLongMonthYear } from "../../utils/time";
 
 // Types
 import type { ColorVariant } from "../../types/common";
+import { apiFetch } from "../../api/httpClient";
+import { ensureOk } from "../../api/actionService";
 
 function PaperContainer({ targetRef, children }: { targetRef: RefObject<null>; children: ReactNode }) {
     return (
@@ -85,6 +87,28 @@ function BreakdownTitle() {
             <hr className="mt-2 mb-4 border-0 bg-off-white-border h-0.5" />
         </>
     );
+}
+
+async function handlePDFDownload(type: string, toPDF: (options?: Options) => void) {
+    toPDF();
+
+    try {
+        const res = await apiFetch(`/transaction/download-reports/${type}`, {
+            retry: true,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+        });
+
+        await ensureOk(res, "Failed to download PDF");
+
+        return;
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
 }
 
 export function PopupReportPreview({ type }: { type: string }) {
@@ -162,7 +186,7 @@ export function PopupReportPreview({ type }: { type: string }) {
                 </PopupButton>
                 <PopupButton
                     variant="blue"
-                    onClick={() => toPDF()}
+                    onClick={() => handlePDFDownload(type, toPDF)}
                     leftIcon={{ icon: FileDownloadOutlinedIcon, variant: "white" }}
                 >
                     Download PDF
