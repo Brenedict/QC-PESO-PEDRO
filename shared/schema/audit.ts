@@ -9,6 +9,16 @@ import { LogAction } from "@qcpesopedro/shared/prisma/browser";
 
 import { dateRangeFields, withDateRange } from "./date";
 
+export const RecordSchema = z.enum(["USER", "TRANSACTION", "SHIFT"]);
+
+export const AuditLogQuerySchema = withDateRange(
+    z.object({
+        ...dateRangeFields,
+        search: z.string().optional(),
+        actionPerformed: RecordSchema.optional(),
+    })
+);
+
 export const AuditLogFormCreateSchema = zfd.formData(
     AuditLogUncheckedCreateInputObjectZodSchema.omit({
         id: true,
@@ -37,6 +47,8 @@ export const AuditLogResponseSchema = z.object({
 
 export const AuditLogsResponseSchema = z.array(AuditLogResponseSchema);
 
+export type AuditLogQueryType = z.infer<typeof AuditLogQuerySchema>;
+export type RecordType = z.infer<typeof RecordSchema>;
 export type AuditLogUserType = z.infer<typeof AuditLogUserSchema>;
 export type AuditLogResponseType = z.infer<typeof AuditLogResponseSchema>;
 export type AuditLogsResponseType = z.infer<typeof AuditLogsResponseSchema>;

@@ -127,7 +127,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "USER",
-                    result.id,
+                    result.username,
                     result?.fullName ?? ""
                 );
             }
@@ -183,7 +183,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "USER",
-                    result.id,
+                    result.username,
                     result?.fullName ?? "",
                     remarks
                 );
@@ -220,7 +220,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "USER",
-                    result.id,
+                    result.username,
                     result?.fullName ?? ""
                 );
             }
@@ -256,7 +256,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "USER",
-                    result.id,
+                    result.username,
                     result?.fullName ?? ""
                 );
             }
@@ -313,7 +313,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "USER",
-                    result.id,
+                    result.username,
                     result?.fullName ?? "",
                     "Password changed email sent"
                 );

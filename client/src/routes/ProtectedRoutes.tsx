@@ -256,7 +256,7 @@ export const protectedRoutes: RouteObject[] = [
                     {
                         path: "audit-logs",
                         element: <SystemAuditLogs />,
-                        loader: requireAccess(AccessLevel.ADMIN, getAuditLogs),
+                        loader: requireAccess(AccessLevel.ADMIN, todayRedirectLoader(getAuditLogs)),
                         children: [...shiftPopups(ROUTES.auditLogs.root)],
                     },
                     {

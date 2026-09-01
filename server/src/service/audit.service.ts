@@ -1,9 +1,9 @@
-import { type AuditLogFormCreateType } from "@qcpesopedro/shared/schema/audit";
+import { type AuditLogFormCreateType, type AuditLogQueryType, type RecordType } from "@qcpesopedro/shared/schema/audit";
 import type { Request, Response } from "express";
 import type { Prisma, Role } from "@qcpesopedro/shared/prisma/browser";
 import AuditModel from "../models/audit.model";
 import type { LogAction, User } from "@qcpesopedro/shared/prisma/browser";
-import type { AuditLogFindManyArgs } from "@qcpesopedro/shared/prisma/models";
+import type { AuditLogFindManyArgs, AuditLogWhereInput } from "@qcpesopedro/shared/prisma/models";
 
 export interface LogMetaData {
     actionPerformed: LogAction;
@@ -33,10 +33,10 @@ export const AUDIT_MESSAGE_MAP: Record<LogAction, (details: string) => string> =
     USER_ACCOUNT_DISABLED: (details) => `Disabled user account: ${details}`,
     EMAIL_SENT_RESET_LINK: (details) => `Sent password reset email to: ${details}`,
     EMAIL_SENT_PASSWORD_CHANGE: (details) => `Sent password change email to: ${details}`,
-    REPORTS_DOWNLOAD_DAILY: (details) => `Downloaded daily report: ${details}`,
-    REPORTS_DOWNLOAD_WEEKLY: (details) => `Downloaded weekly report: ${details}`,
-    REPORTS_DOWNLOAD_MONTHLY: (details) => `Downloaded monthly report: ${details}`,
-    REPORTS_DOWNLOAD_OVERALL: (details) => `Downloaded overall report: ${details}`,
+    REPORTS_DOWNLOAD_DAILY: (_details) => `Downloaded daily report`,
+    REPORTS_DOWNLOAD_WEEKLY: (_details) => `Downloaded weekly report`,
+    REPORTS_DOWNLOAD_MONTHLY: (_details) => `Downloaded monthly report`,
+    REPORTS_DOWNLOAD_OVERALL: (_details) => `Downloaded overall report`,
 };
 
 export default {
@@ -57,10 +57,26 @@ export default {
         return await this.createAuditLog(auditLog);
     },
 
-    async getAuditLogs(filters, args?: AuditLogFindManyArgs) {
-        const where: Prisma.AuditLogWhereInput = {};
+    async getAuditLogs(query: AuditLogQueryType) {
+        const { startDate, endDate, actionPerformed, search } = query;
 
-        return AuditModel.getAuditLogs({ where: { ...where, ...args?.where }, ...args });
+        return AuditModel.getAuditLogs({
+            where: {
+                AND: [
+                    actionPerformed ? resolveRecordTypeQuery(actionPerformed) : {},
+                    search
+                        ? {
+                              OR: [
+                                  { changesDetails: { contains: search, mode: "insensitive" } },
+                                  { remarks: { contains: search, mode: "insensitive" } },
+                                  { user: { fullName: { contains: search, mode: "insensitive" } } },
+                              ],
+                          }
+                        : {},
+                ],
+                createdAt: { gte: startDate, lte: endDate },
+            },
+        });
     },
 
     async getTotalAuditLogCount() {
@@ -73,7 +89,7 @@ export default {
         requestorId: number,
         requestorFullName: string,
         requestorRole: Role,
-        recordType: "USER" | "TRANSACTION" | "SHIFT",
+        recordType: RecordType,
         affectedRecordId: string | number,
         changesDetails: string,
         remarks?: string
@@ -81,9 +97,9 @@ export default {
         affectedRecordId = typeof affectedRecordId == "string" ? affectedRecordId : String(affectedRecordId);
 
         const affectedRecordFormatted: Record<string, (id: string) => string> = {
-            USER: (id) => `Account: ${id}`,
-            TRANSACTION: (id) => `Transaction: ${id}`,
-            SHIFT: (id) => `Shift: ${id}`,
+            USER: (id) => `${id}`,
+            TRANSACTION: (id) => `${id}`,
+            SHIFT: (id) => `Shift-${id}`,
         };
 
         res.locals.auditMetadata = {
@@ -95,3 +111,45 @@ export default {
         };
     },
 };
+
+function resolveRecordTypeQuery(type: RecordType): AuditLogWhereInput {
+    switch (type) {
+        case "TRANSACTION":
+            return {
+                OR: [
+                    { actionPerformed: "TRANSACTION_CREATED" },
+                    { actionPerformed: "TRANSACTION_EDITED" },
+                    { actionPerformed: "TRANSACTION_DELETED" },
+                    { actionPerformed: "REPORTS_DOWNLOAD_DAILY" },
+                    { actionPerformed: "REPORTS_DOWNLOAD_WEEKLY" },
+                    { actionPerformed: "REPORTS_DOWNLOAD_MONTHLY" },
+                    { actionPerformed: "REPORTS_DOWNLOAD_OVERALL" },
+                ],
+            };
+        case "SHIFT":
+            return {
+                OR: [
+                    { actionPerformed: "SUBMITTED_END_SHIFT_STATUS" },
+                    { actionPerformed: "TAGGED_END_SHIFT_STATUS_APPROVE" },
+                    { actionPerformed: "TAGGED_END_SHIFT_STATUS_REJECTED" },
+                    { actionPerformed: "TAGGED_END_SHIFT_STATUS_REVISION" },
+                ],
+            };
+        case "USER":
+            return {
+                OR: [
+                    { actionPerformed: "USER_CREATED" },
+                    { actionPerformed: "USER_PASSWORD_RESET" },
+                    { actionPerformed: "USER_PASSWORD_CHANGE" },
+                    { actionPerformed: "USER_EDITED" },
+                    { actionPerformed: "USER_DELETED" },
+                    { actionPerformed: "USER_PROMOTED" },
+                    { actionPerformed: "USER_DEMOTED" },
+                    { actionPerformed: "USER_ACCOUNT_ENABLED" },
+                    { actionPerformed: "USER_ACCOUNT_DISABLED" },
+                    { actionPerformed: "EMAIL_SENT_RESET_LINK" },
+                    { actionPerformed: "EMAIL_SENT_PASSWORD_CHANGE" },
+                ],
+            };
+    }
+}

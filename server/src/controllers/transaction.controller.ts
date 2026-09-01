@@ -110,7 +110,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "TRANSACTION",
-                    result.id,
+                    result.txCode,
                     result?.applicantFullName ?? ""
                 );
             }
@@ -149,7 +149,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "TRANSACTION",
-                    result.id,
+                    result.txCode,
                     result?.applicantFullName ?? "",
                     Object.keys(transaction).join(", ")
                 );
@@ -190,7 +190,7 @@ export default {
                     requestor?.fullName ?? "",
                     requestor.role,
                     "TRANSACTION",
-                    result.id,
+                    result.txCode,
                     result?.applicantFullName ?? ""
                 );
             }

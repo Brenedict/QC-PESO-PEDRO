@@ -60,18 +60,21 @@ jest.mock("./src/middlewares/zod.middleware", () => ({
     },
 }));
 
+jest.mock("./src/middlewares/audit.middleware", () => ({
+    auditLog: (_req: Request, _res: Response, next: NextFunction) => {
+        next();
+    },
+}));
+
 beforeEach(async () => {
-    // Reset current mock user state
     mockCurrentAuthUser = mockUser;
 
-    // Clear tables in correct relation order
     await prisma.$transaction([
         prisma.transaction.deleteMany(),
         prisma.shiftLog.deleteMany(),
         prisma.user.deleteMany(),
     ]);
 
-    // Re-create the mock auth user in DB so foreign keys work!
     await prisma.user.create({
         data: mockUser,
     });
