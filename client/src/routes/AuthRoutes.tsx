@@ -19,6 +19,7 @@ import InMemoryStore from "../api/inMemoryStore";
 import { ROUTES } from "../hooks/useNavigateDefault";
 
 import { changePasswordPatch } from "../api/userService";
+import { JSON_HEADERS } from "../api/actionService";
 
 export const authRoutes: RouteObject[] = [
     {
@@ -39,10 +40,7 @@ export const authRoutes: RouteObject[] = [
             const res = await apiFetch("/auth/login", {
                 retry: false,
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
+                headers: JSON_HEADERS,
                 body: JSON.stringify({ email: user?.email, password: user?.password }),
             });
 

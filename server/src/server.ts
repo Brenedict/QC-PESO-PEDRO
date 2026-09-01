@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.route";
 import transactionRoutes from "./routes/transaction.route";
 import userRoutes from "./routes/user.route";
 import shiftRoutes from "./routes/shift.route";
+import logRoutes from "./routes/log.route";
 
 // Middlewares
 import handleShutdown from "./middlewares/shutdown.middleware";
@@ -66,6 +67,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/shift", shiftRoutes);
+app.use("/api/v1/log", logRoutes);
 
 app.use(errorMiddleware.notFoundError);
 app.use(errorMiddleware.internalError);

@@ -1,9 +1,13 @@
 // General Imports
 import passport from "passport";
+import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
 
 // PEDRO SHARED IMPORTS
 import type { User } from "@qcpesopedro/shared/prisma/client";
+
+// Service
+import LogService from "../service/log.service";
 
 type PPError = Error | null;
 type PPUser = User | false;
@@ -30,12 +34,15 @@ export const localAuth = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const jwtAuth = (type: "access" | "refresh") => (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate(`jwt-${type}`, { session: false }, (err: PPError, user: PPUser) => {
+    passport.authenticate(`jwt-${type}`, { session: false }, async (err: PPError, user: PPUser) => {
         if (err) {
             return res.status(500).json({ error: "Internal server error" });
         }
 
         if (!user) {
+            if (type === "refresh") {
+                await LogService.closeOpenLogOnExpiredRefresh(req);
+            }
             return res.status(401).json({ error: "User is unauthorized" });
         }
 

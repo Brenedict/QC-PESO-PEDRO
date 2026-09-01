@@ -1,5 +1,7 @@
 // General Imports
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { AccountLogFormUpdateSchema, type AccountLogFormUpdateType } from "@qcpesopedro/shared/schema/login";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 
 // PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/enums";
@@ -8,7 +10,7 @@ import type { User } from "@qcpesopedro/shared/prisma/browser";
 // API Services
 import { apiFetch } from "./httpClient";
 import InMemoryStore from "./inMemoryStore";
-import { apiJson, ensureOk, handleErrRedirect } from "./actionService";
+import { apiJson, ensureOk, handleErrRedirect, validateForm } from "./actionService";
 
 // Custom Hooks
 import { ROUTES } from "../hooks/useNavigateDefault";
@@ -39,41 +41,47 @@ export const checkAuthService = async (): Promise<boolean> => {
     }
 };
 
-export const logoutService = async (): Promise<boolean> => {
+export const logoutService = async (formData: AccountLogFormUpdateType): Promise<boolean> => {
     try {
-        const res = await apiFetch("/auth/logout", {
-            retry: false,
+        const res = await apiJson("/auth/logout", {
             method: "POST",
             credentials: "include",
+            body: JSON.stringify(formData),
         });
 
-        if (res.ok) {
-            InMemoryStore.setAccessToken(null);
-        }
+        await ensureOk(res, "Failed to logout");
+        InMemoryStore.setAccessToken(null);
 
-        return res.ok;
+        return true;
     } catch (err) {
         console.error("Logout network error:", err);
         return false;
     }
 };
 
-export const logoutAction = async () => {
-    const success = await logoutService();
+export const logoutAction = async ({ request }: ActionFunctionArgs) => {
+    try {
+        const formData = await request.formData();
+        const logoutForm = validateForm(formData, AccountLogFormUpdateSchema, "Invalid logout data");
 
-    if (success) {
-        return redirect(ROUTES.auth.root);
+        const success = await logoutService(logoutForm);
+
+        if (success) {
+            return redirect(ROUTES.auth.root);
+        }
+        return null;
+    } catch (err) {
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
     }
-    return null;
 };
 
 export const requireAccess = (minLevel: AccessLevel, loaderFn?: Function) => {
-    return async (args: any) => {
+    return async (args: unknown) => {
         // Fetch current user details
-        const user = (await primaryAuthLoader()).user as User;
-
+        const user = InMemoryStore.getUser() ?? ((await primaryAuthLoader()).user as UserContextType);
         if (!user || AccessLevel[user.role] < minLevel) {
             // Instantly redirect unauthorized roles before firing the endpoint loader
+            console.log("testtttt");
             throw redirect("/404");
         }
 
@@ -83,7 +91,7 @@ export const requireAccess = (minLevel: AccessLevel, loaderFn?: Function) => {
 };
 
 // GET: Fetches the data of the currently logged-in user. If the user is not authenticated, it will log them out and return null.
-export const getUserContextLoader = async () => {
+export const getUserContextLoader = async (): Promise<UserContextType | null> => {
     try {
         const res = await apiFetch("/user/me", {
             retry: true,
@@ -99,10 +107,10 @@ export const getUserContextLoader = async () => {
             throw new Error(`Failed to get user data ${res.status} => ${error}`);
         }
 
-        return await res.json();
+        return res.json();
     } catch (err) {
         console.error(err);
-        await logoutService();
+        await logoutService({ reason: "System error" });
         return null;
     }
 };

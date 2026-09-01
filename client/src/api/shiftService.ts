@@ -116,7 +116,7 @@ export const patchEndShift =
             const userRole = InMemoryStore.getUser()?.role;
             if (!redirect && userRole !== "SUPERADMIN") {
                 // Logout of user
-                const logOutRes = await logoutAction();
+                const logOutRes = await logoutService({ reason: "Ended Shift" });
 
                 if (logOutRes) {
                     return logOutRes;

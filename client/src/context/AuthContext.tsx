@@ -21,8 +21,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const isAuthenticated = !!user;
     // isAuthenticated is now implied: if we got here, the loader already confirmed it
 
-    const logout = async () => {
-        await logoutService();
+    const logout = async (reason?: string) => {
+        await logoutService({ reason });
         InMemoryStore.setUser(null);
         setUser(null);
     };

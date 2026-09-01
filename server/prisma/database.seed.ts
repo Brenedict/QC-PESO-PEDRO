@@ -234,7 +234,6 @@ async function buildUserDummy(spec: SeedUserSpec): Promise<UserUncheckedCreateIn
         email: spec.email,
         password: await HashUtil.hashPassword("password123"),
         role: spec.role,
-        status: "ONLINE",
         shift: spec.shift,
         firstName: spec.firstName,
         lastName: spec.lastName,
@@ -345,8 +344,8 @@ async function main() {
             createdUsers.push(user);
         }
 
-        // 2. Build shift-day pool (mostly today).
-        const shiftDayPool = buildShiftDayPool(15, 20);
+        // 2. Build shift-day pool (today only).
+        const shiftDayPool = [getMostRecentBusinessDay(new Date())];
         const today = getMostRecentBusinessDay(new Date());
 
         // 3. Create shift logs + transactions.
@@ -356,7 +355,7 @@ async function main() {
         for (const user of createdUsers) {
             if (user.role === "SUPERADMIN") continue;
 
-            const shiftCount = randomInt(2, 4);
+            const shiftCount = 1;
             for (let s = 0; s < shiftCount; s++) {
                 const day = randomItem(shiftDayPool);
                 const adminUsers = createdUsers.filter((user) => user.role === "ADMIN" || user.role === "SUPERADMIN");

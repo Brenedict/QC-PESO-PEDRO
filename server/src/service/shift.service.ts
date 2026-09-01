@@ -13,29 +13,26 @@ import type { ShiftDetailsQueryType, ShiftQueryIncludeType } from "@qcpesopedro/
 
 export default {
     async getShiftLogs(args?: ShiftLogFindManyArgs, startDate?: Date, endDate?: Date) {
-        return ShiftModel.getShiftLogs({
+        const result = ShiftModel.getShiftLogs({
             ...args,
             where: {
                 ...(args?.where ?? {}),
                 ...buildShiftDateRange(startDate, endDate),
             },
         });
+        return result;
     },
     async getStatusCount(status: ESSStatus, startDate?: Date, endDate?: Date) {
-        return ShiftModel.count({
+        const result = ShiftModel.count({
             where: {
                 ...buildShiftDateRange(startDate, endDate),
                 status,
             },
         });
+        return result;
     },
     async getAvgApproval(startDate?: Date, endDate?: Date) {
-        if (!startDate || !endDate) {
-            startDate = new Date(0);
-            endDate = new Date();
-        }
-
-        const result = await prisma.$queryRawTyped(calcAvgShiftApproval(startDate, endDate));
+        const result = await prisma.$queryRawTyped(calcAvgShiftApproval(startDate ?? null, endDate ?? null));
         const firstRow = result[0];
         const averageSecondsNum = firstRow?.averageSeconds ? firstRow.averageSeconds.toNumber() : 0;
         return DateUtil.formatInterval(averageSecondsNum);
