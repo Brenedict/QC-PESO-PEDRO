@@ -29,7 +29,7 @@ export function Identifier({ children }: { children: ReactNode }) {
     );
 }
 
-export function DateTime({ dateTime }: { dateTime: Date | null }) {
+export function DateTime({ dateTime }: { dateTime: Date | string | null }) {
     if (dateTime === null) {
         return (
             <>
@@ -42,12 +42,25 @@ export function DateTime({ dateTime }: { dateTime: Date | null }) {
         );
     }
 
-    const formattedDate = formatRelativeDateTime(dateTime);
+    const dateObj = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
+
+    // Check for invalid date strings (e.g., "invalid-date")
+    if (isNaN(dateObj.getTime())) {
+        return (
+            <div>
+                <Text size="description" variant="black" align="center" weight="medium">
+                    -
+                </Text>
+            </div>
+        );
+    }
+
+    const formattedDate = formatRelativeDateTime(dateObj);
     return (
         <>
             <div>
                 <Text size="description" variant="black" align="center" weight="medium">
-                    {formatShortMonthYear(dateTime)}
+                    {formatShortMonthYear(dateObj)}
                 </Text>
                 <Text size="small" variant="grayish-blue" align="center" weight="normal">
                     {formattedDate}

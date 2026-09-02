@@ -59,7 +59,17 @@ export default {
     },
 
     async updateShiftById(id: number, data: ShiftLogUncheckedUpdateInput) {
-        return prisma.shiftLog.update({ where: { id }, data });
+        return prisma.shiftLog.update({
+            where: { id },
+            data,
+            include: {
+                user: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+            },
+        });
     },
 
     async count(args?: ShiftLogCountArgs) {

@@ -7,7 +7,7 @@ import {
     UserFormCreateSchema,
     UserFormUpdateSchema,
 } from "@qcpesopedro/shared/schema/users";
-import type { User } from "@qcpesopedro/shared/prisma/browser";
+import { LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
 
 // API Services
 import {
@@ -47,30 +47,32 @@ export const createUser = async ({ request }: ActionFunctionArgs) => {
 };
 
 // PATCH: Applies to all user updates (included na here actions: disable, edit, demote/promote)
-export const updateUser = async ({ params, request }: ActionFunctionArgs) => {
-    try {
-        const { userId } = params;
-        const decodedId = Number(decode(userId));
+export const updateUser =
+    (action: LogAction) =>
+    async ({ params, request }: ActionFunctionArgs) => {
+        try {
+            const { userId } = params;
+            const decodedId = Number(decode(userId));
 
-        const formData = await request.formData();
+            const formData = await request.formData();
 
-        // ZOD Schema Checking
-        const user = validateForm(formData, UserFormUpdateSchema, "Invalid user data");
+            // ZOD Schema Checking
+            const user = validateForm(formData, UserFormUpdateSchema, "Invalid user data");
 
-        // Main Fetch Request
-        const res = await apiJson(`/user/${decodedId}`, {
-            method: "PATCH",
-            body: JSON.stringify(user),
-        });
+            // Main Fetch Request
+            const res = await apiJson(`/user/${decodedId}/${action}`, {
+                method: "PATCH",
+                body: JSON.stringify(user),
+            });
 
-        await ensureOk(res, "Failed to update user");
+            await ensureOk(res, "Failed to update user");
 
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
-    } catch (err) {
-        return handleErrRedirect(err, request, ROUTES.userManagement.root);
-    }
-};
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.userManagement.root);
+        } catch (err) {
+            return handleErrRedirect(err, request, ROUTES.userManagement.root);
+        }
+    };
 
 // PATCH: Special patch method for resetting password to default
 export const resetPassword = async ({ params, request }: ActionFunctionArgs) => {
@@ -137,14 +139,14 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         const actionType = formData.get("manageAction");
 
         if (actionType === "deactivate") {
-            const res = await apiJson(`/user/${decodedId}`, {
+            const res = await apiJson(`/user/${decodedId}/${LogAction.USER_ACCOUNT_DISABLED}`, {
                 method: "PATCH",
                 body: JSON.stringify({ status: "DISABLED" }),
             });
 
             await ensureOk(res, "Failed to deactivate user");
         } else if (actionType === "reactivate") {
-            const res = await apiJson(`/user/${decodedId}`, {
+            const res = await apiJson(`/user/${decodedId}/${LogAction.USER_ACCOUNT_ENABLED}`, {
                 method: "PATCH",
                 body: JSON.stringify({ status: "LOGGED_OUT" }),
             });

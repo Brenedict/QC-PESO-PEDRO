@@ -9,7 +9,7 @@ import {
     type UserQueryType,
     UserFormChangePasswordSchema,
 } from "@qcpesopedro/shared/schema/users";
-import type { Role, Status, User } from "@qcpesopedro/shared/prisma/client";
+import { LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 
@@ -17,14 +17,15 @@ import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
 import { requireAccessLevel } from "../middlewares/authorized.middleware";
+import { auditLog } from "../middlewares/audit.middleware";
 
 // Models
 import UserModel from "../models/user.model";
-import ShiftModel from "../models/shift.model";
 
 // Service
 import EmailService from "../service/email.service";
 import UserService from "../service/user.service";
+import AuditService from "../service/audit.service";
 
 // Utils
 import HashUtil from "../utils/hash.util";
@@ -101,7 +102,11 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
         validateSchema("body", UserFormCreateSchema),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             const user = req.body as User;
             const { email, username } = user;
 
@@ -111,7 +116,21 @@ export default {
             if (await UserService.usernameExist(username))
                 return res.status(409).json({ message: "Username already exists" });
 
+            // Main result following the request
             const result = await UserService.createUser(user);
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.USER_CREATED,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "USER",
+                    result.username,
+                    result?.fullName ?? ""
+                );
+            }
 
             return res.json(result);
         },
@@ -121,7 +140,11 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
         validateSchema("body", UserFormUpdateSchema),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -130,7 +153,8 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
-            const requestor = req.user as User;
+            // Extract user update specification
+            const action = req.params.action as LogAction;
 
             const userUpdate = req.body as User;
 
@@ -138,7 +162,32 @@ export default {
                 return res.status(403).json({ message: "Forbidden: Cannot grant Super Administrator privileges." });
             }
 
+            // Main result following the request
             const result = await UserService.updateUser(userId, userUpdate);
+
+            let remarks;
+
+            if (action == LogAction.USER_PROMOTED || action == LogAction.USER_DEMOTED) {
+                remarks = `${user.role} → ${result?.role}`;
+            } else if (action == LogAction.USER_ACCOUNT_DISABLED || action == LogAction.USER_ACCOUNT_ENABLED) {
+                remarks = "";
+            } else {
+                remarks = `Updated Fields: [${Object.keys(userUpdate).join(", ")}]`;
+            }
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    action,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "USER",
+                    result.username,
+                    result?.fullName ?? "",
+                    remarks
+                );
+            }
 
             return res.status(201).json(result);
         },
@@ -147,7 +196,11 @@ export default {
     delete: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -156,7 +209,21 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
+            // Main result following the request
             const result = await UserModel.deleteById(userId);
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.USER_DELETED,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "USER",
+                    result.username,
+                    result?.fullName ?? ""
+                );
+            }
 
             return res.status(204).json(result);
         },
@@ -165,7 +232,11 @@ export default {
     resetPassword: [
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.ADMIN),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -174,7 +245,21 @@ export default {
                 return res.status(404).json({ message: "User doesn't exist" });
             }
 
+            // Main result following the request
             const result = await UserService.resetPassword(userId, user);
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.USER_PASSWORD_RESET,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "USER",
+                    result.username,
+                    result?.fullName ?? ""
+                );
+            }
 
             return res.status(204).json(result);
         },
@@ -184,7 +269,11 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.FRONTLINE),
         validateSchema("body", UserFormChangePasswordSchema),
+        auditLog,
         async (req: Request, res: Response) => {
+            // User Data of the Original Requestor
+            const requestor = req.user as User;
+
             // Default user check
             const userId = Number(req.params.userId);
             const user = await UserService.ensureUserExist(userId);
@@ -211,9 +300,24 @@ export default {
                     .json({ code: "DUPLICATE_PASSWORD", message: "Old Password Can't Be New Password" });
             }
 
-            const result = UserService.changePassword(user.id, newPassword);
+            // Main result following the request
+            const result = await UserService.changePassword(user.id, newPassword);
 
             EmailService.sendPasswordChangeEmail(user.firstName, user.email, user.updatedAt);
+
+            if (result) {
+                AuditService.createAuditLogMetadata(
+                    res,
+                    LogAction.USER_PASSWORD_CHANGE,
+                    requestor.id,
+                    requestor?.fullName ?? "",
+                    requestor.role,
+                    "USER",
+                    result.username,
+                    result?.fullName ?? "",
+                    "Password changed email sent"
+                );
+            }
 
             return res.status(200).json({ message: "Password Changed Successfully" });
         },

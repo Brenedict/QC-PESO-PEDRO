@@ -205,13 +205,19 @@ describe("User Routes", () => {
         it("returns 404 when updating a non existing user", (done) => {
             setCurrentAuthUser(mockAdminUser);
 
-            request(app).patch("/user/999999").send({ username: "lebron_jr_67" }).expect(404, done);
+            request(app)
+                .patch("/user/999999/USER_EDITED")
+                .send({ username: "lebron_jr_67" })
+                .expect(404, done);
         });
 
         it("forbids an ADMIN from granting SUPERADMIN privileges", async () => {
             setCurrentAuthUser(mockAdminUser);
 
-            await request(app).patch(`/user/${mockFrontlineUser.id}`).send({ role: "SUPERADMIN" }).expect(403);
+            await request(app)
+                .patch(`/user/${mockFrontlineUser.id}/USER_PROMOTED`)
+                .send({ role: "SUPERADMIN" })
+                .expect(403);
 
             const unchanged = await UserModel.getById(mockFrontlineUser.id);
             expect(unchanged?.role).not.toBe("SUPERADMIN");
@@ -220,7 +226,10 @@ describe("User Routes", () => {
         it("allows a SUPERADMIN to grant SUPERADMIN privileges", async () => {
             setCurrentAuthUser(mockSuperAdminUser);
 
-            await request(app).patch(`/user/${mockFrontlineUser.id}`).send({ role: "SUPERADMIN" }).expect(201);
+            await request(app)
+                .patch(`/user/${mockFrontlineUser.id}/USER_PROMOTED`)
+                .send({ role: "SUPERADMIN" })
+                .expect(201);
 
             const updated = await UserModel.getById(mockFrontlineUser.id);
             expect(updated?.role).toBe("SUPERADMIN");
@@ -229,7 +238,10 @@ describe("User Routes", () => {
         it("persists field updates to the database", async () => {
             setCurrentAuthUser(mockAdminUser);
 
-            await request(app).patch(`/user/${mockFrontlineUser.id}`).send({ firstName: "Updated" }).expect(201);
+            await request(app)
+                .patch(`/user/${mockFrontlineUser.id}/USER_EDITED`)
+                .send({ firstName: "Updated" })
+                .expect(201);
 
             const updated = await UserModel.getById(mockFrontlineUser.id);
             expect(updated?.firstName).toBe("Updated");

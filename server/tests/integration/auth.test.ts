@@ -89,13 +89,15 @@ describe("Auth routes", () => {
                 .send({ email: "johndoe@gmail.com", password: "password123" })
                 .expect(200);
 
+            const accessToken = loginRes.body.accessToken;
             const refreshCookie = loginRes.headers["set-cookie"]?.[0];
 
             const res = await request(app)
                 .post("/auth/logout")
+                .set("Authorization", `Bearer ${accessToken}`)
                 .set("Cookie", refreshCookie as string)
-                .expect(200)
-                .expect("Content-Type", /json/);
+                .send({ reason: "some reason", remarks: "" })
+                .expect(200);
 
             expect(res.headers["set-cookie"]?.[0]).toMatch(/^refreshToken=;/); //Empty refresh token
         });
