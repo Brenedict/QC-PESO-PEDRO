@@ -25,7 +25,6 @@ class InMemoryStore {
 
     public setAccessToken = (token: string | null) => {
         this.accessToken = token;
-        this.notify();
     };
 
     public setUser = (user: UserContextType | null) => {

@@ -106,7 +106,7 @@ export default {
                     const result = await AuthService.createResetToken(user.id, hashedToken, smtpExpirationOffset);
 
                     if (result) {
-                        await AuditService.createAuditLogMetadata(
+                        AuditService.createAuditLogMetadata(
                             res,
                             LogAction.EMAIL_SENT_RESET_LINK,
                             result.id,
@@ -188,7 +188,7 @@ export default {
 
             if (emailSent) {
                 if (result) {
-                    await AuditService.createAuditLogMetadata(
+                    AuditService.createAuditLogMetadata(
                         res,
                         LogAction.EMAIL_SENT_PASSWORD_CHANGE,
                         result.id,

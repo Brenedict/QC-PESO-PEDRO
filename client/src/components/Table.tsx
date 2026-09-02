@@ -54,6 +54,7 @@ function Data({ children, nowrap }: { children: ReactNode; nowrap?: boolean }) {
         </td>
     );
 }
+
 function PaginationButtons({
     highlighted = false,
     children,
@@ -114,7 +115,7 @@ function FilterSection() {
     };
 
     return (
-        <Card.Header variant="white">
+        <Card.Header variant="white" className="overflow-x-auto">
             <Form
                 method="POST"
                 className="flex justify-between items-center w-full"
@@ -122,11 +123,11 @@ function FilterSection() {
                 onChange={handleChange}
                 id="tableFilter"
             >
-                <div className="flex items-center gap-4 grow">
+                <div className="flex items-center gap-4 min-w-0 grow shrink-0">
                     <SearchInput
                         name="search"
                         placeholder="Search by keywords..."
-                        className="rounded-xl w-full"
+                        className="rounded-xl w-full min-w-30"
                         defaultValue={searchParams.search ?? ""}
                     />
 
