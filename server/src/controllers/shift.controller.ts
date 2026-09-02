@@ -16,6 +16,8 @@ import {
     type ShiftFormCreateType,
     type ShiftFormVerifyType,
     type ShiftQueryType,
+    ShiftAnalyticsQuerySchema,
+    type ShiftAnalyticsQueryType,
 } from "@qcpesopedro/shared/schema/shift";
 
 // Models
@@ -214,6 +216,18 @@ export default {
         resolveShiftConflicts,
         async (_req: Request, res: Response) => {
             return res.json({ message: "Shift status check passed" });
+        },
+    ],
+
+    getAnalytics: [
+        jwtAccessAuth,
+        requireAccessLevel(AccessLevel.SUPERADMIN),
+        validateSchema("query", ShiftAnalyticsQuerySchema),
+        async (req: Request, res: Response) => {
+            const { startDate, endDate } = req.query as unknown as ShiftAnalyticsQueryType;
+            const analytics = await ShiftService.getEnvironmentTagAnalytics(startDate, endDate);
+            const total = analytics.reduce((acc, curr) => acc + curr.count, 0);
+            return res.json({ total, analytics });
         },
     ],
 };

@@ -4,6 +4,7 @@ import controller from "../controllers/shift.controller";
 const router = express.Router();
 
 // Shift Status Route
+router.get("/analytics", controller.getAnalytics);
 router.get("/status", controller.getShiftStatus);
 router.get("/:shiftId", controller.getShift);
 router.get("/", controller.getShifts);

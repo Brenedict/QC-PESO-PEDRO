@@ -17,7 +17,7 @@ export default {
             ...args,
             where: {
                 ...(args?.where ?? {}),
-                ...buildShiftDateRange(startDate, endDate),
+                ...this.buildShiftDateRange(startDate, endDate),
             },
         });
         return result;
@@ -25,7 +25,7 @@ export default {
     async getStatusCount(status: ESSStatus, startDate?: Date, endDate?: Date) {
         const result = ShiftModel.count({
             where: {
-                ...buildShiftDateRange(startDate, endDate),
+                ...this.buildShiftDateRange(startDate, endDate),
                 status,
             },
         });
@@ -95,30 +95,67 @@ export default {
         const { startDate } = DateUtil.buildDayRange(new Date()); // today
         return shiftIn >= startDate;
     },
-};
 
-function buildShiftDateRange(startDate?: Date, endDate?: Date): ShiftLogWhereInput {
-    return {
-        ...(startDate || endDate
-            ? {
-                  OR: [
-                      {
-                          timeIn: {
-                              ...(startDate ? { gte: startDate } : {}),
-                              ...(endDate ? { lte: endDate } : {}),
+    async getEnvironmentTagCounts(startDate?: Date, endDate?: Date) {
+        const shifts = await ShiftModel.getShiftLogs({
+            where: { ...this.buildShiftDateRange(startDate, endDate) },
+            select: { environmentTags: true },
+        });
+
+        const tagCounts: Record<string, number> = {};
+        for (const shift of shifts) {
+            for (const tag of shift.environmentTags) {
+                tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+            }
+        }
+
+        return tagCounts;
+    },
+
+    async getEnvironmentTagAnalytics(startDate?: Date, endDate?: Date) {
+        const currentCounts = await this.getEnvironmentTagCounts(startDate, endDate);
+
+        let previousCounts: Record<string, number> = {};
+        if (startDate && endDate) {
+            const { startDate: prevStart, endDate: prevEnd } = DateUtil.getPreviousDateRange(
+                new Date(startDate),
+                new Date(endDate)
+            );
+            previousCounts = await this.getEnvironmentTagCounts(prevStart, prevEnd);
+        }
+
+        const allTags = new Set([...Object.keys(currentCounts), ...Object.keys(previousCounts)]);
+
+        return Array.from(allTags).map((tag) => ({
+            environmentTag: tag,
+            count: currentCounts[tag] ?? 0,
+            previous: previousCounts[tag] ?? 0,
+        }));
+    },
+
+    buildShiftDateRange(startDate?: Date, endDate?: Date): ShiftLogWhereInput {
+        return {
+            ...(startDate || endDate
+                ? {
+                      OR: [
+                          {
+                              timeIn: {
+                                  ...(startDate ? { gte: startDate } : {}),
+                                  ...(endDate ? { lte: endDate } : {}),
+                              },
                           },
-                      },
-                      {
-                          timeOut: {
-                              ...(startDate ? { gte: startDate } : {}),
-                              ...(endDate ? { lte: endDate } : {}),
+                          {
+                              timeOut: {
+                                  ...(startDate ? { gte: startDate } : {}),
+                                  ...(endDate ? { lte: endDate } : {}),
+                              },
                           },
-                      },
-                  ],
-              }
-            : {}),
-    };
-}
+                      ],
+                  }
+                : {}),
+        };
+    },
+};
 
 async function getShiftSources(shiftId: number, query: ShiftDetailsQueryType) {
     if (!query.analytics) return {};

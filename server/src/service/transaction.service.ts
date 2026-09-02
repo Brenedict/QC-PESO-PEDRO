@@ -197,10 +197,10 @@ export default {
 
                 ...(search && {
                     OR: [
-                        { applicantFullName: { contains: search as string, mode: "insensitive" } },
-                        { txCode: { contains: search as string, mode: "insensitive" } },
+                        { applicantFullName: { contains: search as string, mode: "insensitive" as const } },
+                        { txCode: { contains: search as string, mode: "insensitive" as const } },
                         ...(include?.includes("user") // If it includes a user add a search to it also
-                            ? [{ user: { fullName: { contains: search as string, mode: "insensitive" } } }]
+                            ? [{ user: { fullName: { contains: search as string, mode: "insensitive" as const } } }]
                             : []),
                     ],
                 }),

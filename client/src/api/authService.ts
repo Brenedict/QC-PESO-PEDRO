@@ -81,7 +81,6 @@ export const requireAccess = (minLevel: AccessLevel, loaderFn?: Function) => {
         const user = InMemoryStore.getUser() ?? ((await primaryAuthLoader()).user as UserContextType);
         if (!user || AccessLevel[user.role] < minLevel) {
             // Instantly redirect unauthorized roles before firing the endpoint loader
-            console.log("testtttt");
             throw redirect("/404");
         }
 

@@ -1,6 +1,6 @@
 // General Imports
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLoaderData } from "react-router";
 
 // Components
 import { Card } from "../components/Card";
@@ -35,6 +35,10 @@ import { sampleScatterData, sampleScatterOptions } from "../data/chartsConfigs";
 import type { MaterialIcon } from "../types/common";
 import { apiJson, ensureOk } from "../api/actionService";
 import { DASHBOARD_OVERVIEW_REQUEST } from "../api/analyticsService";
+import { formatLabel } from "../utils/text";
+import { ChartColorClasses } from "../types/charts";
+import { findMostFrequent } from "../api/contextService";
+import { EnvironmentTag } from "@qcpesopedro/shared/prisma/browser";
 
 function StatCard({
     value,
@@ -163,7 +167,82 @@ function SectionHeader({
     );
 }
 
+function InsightsStatGrid({
+    transactionCount,
+    types,
+    outcomes,
+    tags,
+    shiftCount,
+}: {
+    transactionCount: number;
+    types: Record<string, number> | undefined;
+    outcomes: Record<string, number> | undefined;
+    tags: Array<{ environmentTag: string; count: number }>;
+    shiftCount: number;
+}) {
+    const primarySource = findMostFrequent(types);
+    const commonOutcome = findMostFrequent(outcomes);
+    const frequentTag = tags.length > 0 ? tags.reduce((max, tag) => (tag.count > max.count ? tag : max)) : null;
+    const tagPercentage = shiftCount > 0 && frequentTag ? Math.round((frequentTag.count / shiftCount) * 100) : 0;
+
+    return (
+        <div className="grid grid-cols-4 gap-3 mb-6">
+            <StatCard
+                value={transactionCount}
+                description="Total Transactions"
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+            />
+            <StatCard
+                value={primarySource ? formatLabel(primarySource.name) : "N/A"}
+                description="Primary Source"
+                subValue={primarySource ? `${primarySource.percent}%` : undefined}
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+            />
+            <StatCard
+                value={commonOutcome ? formatLabel(commonOutcome.name) : "N/A"}
+                description="Most Common Outcome"
+                subValue={commonOutcome ? `${commonOutcome.percent}%` : undefined}
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+            />
+            <StatCard
+                value={frequentTag && tagPercentage > 0 ? formatLabel(frequentTag.environmentTag) : "N/A"}
+                description="Most Frequent Tag"
+                subValue={frequentTag && tagPercentage > 0 ? `${tagPercentage}%` : undefined}
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+                valueVariant="red"
+            />
+        </div>
+    );
+}
+
 function InsightSection() {
+    const { transaction, shift } = useLoaderData();
+
+    const { types, outcomes } = transaction;
+    const { analytics } = shift ?? {};
+
+    const lastMonthTags = analytics
+        ? analytics.map((tag: { environmentTag: string; previous: number }) => ({
+              environmentTag: tag.environmentTag,
+              count: tag.previous,
+          }))
+        : [];
+
+    const thisMonthTags = analytics
+        ? analytics.map((tag: { environmentTag: string; count: number }) => ({
+              environmentTag: tag.environmentTag,
+              count: tag.count,
+          }))
+        : [];
+
     return (
         <Card className="border-3 border-primary-blue">
             <Card.Body>
@@ -171,78 +250,25 @@ function InsightSection() {
                     primaryText="Context Analytics"
                     icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
                     divider={false}
-                ></SectionHeader>
+                />
 
-                <h1>Last Month</h1>
-                {/* Should probably use map function */}
-                <div className="grid grid-cols-4 gap-3 mb-6">
-                    <StatCard
-                        value={427}
-                        description="Total Transactions"
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Walk-In"}
-                        description="Primary Source"
-                        subValue={"39%"}
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Successful"}
-                        description="Most Common Outcome"
-                        subValue={"74%"}
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Slow Internet"}
-                        description="Most Frequent Tag"
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                        valueVariant="red"
-                    ></StatCard>
-                </div>
+                <h1 className="mb-2">Last Month</h1>
+                <InsightsStatGrid
+                    transactionCount={types?.previous?.count ?? 0}
+                    types={types?.previous?.grouped}
+                    outcomes={outcomes?.previous?.grouped}
+                    tags={lastMonthTags}
+                    shiftCount={shift?.total ?? 0}
+                />
 
-                <h1>This Month</h1>
-                <div className="grid grid-cols-4 gap-3 mb-6">
-                    <StatCard
-                        value={427}
-                        description="Total Transactions"
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Walk-In"}
-                        description="Primary Source"
-                        subValue={"39%"}
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Successful"}
-                        description="Most Common Outcome"
-                        subValue={"74%"}
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Slow Internet"}
-                        description="Most Frequent Tag"
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                        valueVariant="red"
-                    ></StatCard>
-                </div>
+                <h1 className="mb-2">This Month</h1>
+                <InsightsStatGrid
+                    transactionCount={types?.current?.count ?? 0}
+                    types={types?.current?.grouped}
+                    outcomes={outcomes?.current?.grouped}
+                    tags={thisMonthTags}
+                    shiftCount={shift?.total ?? 0}
+                />
 
                 <Card dropShadow={false}>
                     <Card.Body variant="off-white">
@@ -262,26 +288,30 @@ function InsightSection() {
 }
 
 function Level1Section() {
+    const {
+        transaction: { types },
+    } = useLoaderData();
+
+    const sourceCards = (grouped: Record<string, number> | undefined) => (
+        <div className="col-span-5 grid grid-cols-3 gap-3">
+            <StatCard value={grouped?.WALK_IN_REFERRAL ?? 0} description="Walk-in Referral" />
+            <StatCard value={grouped?.ONLINE_REFERRAL ?? 0} description="Online Referral" />
+            <StatCard value={grouped?.IN_HOUSE_RECRUITMENT ?? 0} description="Inhouse Recruitment" />
+        </div>
+    );
+
     return (
         <section>
             <SectionHeader
                 primaryText="Level 1: Transaction Origin"
                 secondaryText="Where did applicants come from?"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
-            ></SectionHeader>
+            />
             <div className="grid grid-cols-5 gap-3 mb-6">
                 <h1>Previous Month</h1>
-                <div className="col-span-5 grid grid-cols-3 gap-3">
-                    <StatCard value={38} description="Walk-in Referral"></StatCard>
-                    <StatCard value={197} description="Online Referral"></StatCard>
-                    <StatCard value={175} description="Inhouse Recruitment"></StatCard>
-                </div>
+                {sourceCards(types?.previous?.grouped)}
                 <h1>This Month</h1>
-                <div className="col-span-5 grid grid-cols-3 gap-3">
-                    <StatCard value={38} description="Walk-in Referral"></StatCard>
-                    <StatCard value={197} description="Online Referral"></StatCard>
-                    <StatCard value={175} description="Inhouse Recruitment"></StatCard>
-                </div>
+                {sourceCards(types?.current?.grouped)}
                 <div className="col-span-5">
                     <ContextTipCard
                         icon={LightbulbOutlinedIcon}
@@ -297,6 +327,48 @@ function Level1Section() {
 }
 
 function Level2Section() {
+    const {
+        transaction: {
+            walkinoutcomes: { current: currentWalkins, previous: previousWalkins },
+            onlineoutcomes: { current: currentOnline, previous: previousOnline },
+            inhouseoutcomes: { current: currentInhouse, previous: previousInhouse },
+        },
+    } = useLoaderData();
+
+    type GroupedData = { grouped?: Record<string, number> };
+    const buildOutcomesData = (walkins?: GroupedData, online?: GroupedData, inhouse?: GroupedData) => ({
+        labels: ["Walk-In Referral", "Online Referral", "Inhouse Recruitment"],
+        datasets: [
+            {
+                label: "Successful",
+                data: [walkins?.grouped?.SUCCESS ?? 0, online?.grouped?.SUCCESS ?? 0, inhouse?.grouped?.SUCCESS ?? 0],
+                backgroundColor: ChartColorClasses["green"],
+            },
+            {
+                label: "Pending",
+                data: [walkins?.grouped?.PENDING ?? 0, online?.grouped?.PENDING ?? 0, inhouse?.grouped?.PENDING ?? 0],
+                backgroundColor: ChartColorClasses["light-blue"],
+            },
+            {
+                label: "Mismatched",
+                data: [
+                    walkins?.grouped?.MISMATCH ?? 0,
+                    online?.grouped?.MISMATCH ?? 0,
+                    inhouse?.grouped?.MISMATCH ?? 0,
+                ],
+                backgroundColor: ChartColorClasses["red"],
+            },
+            {
+                label: "None",
+                data: [walkins?.grouped?.NONE ?? 0, online?.grouped?.NONE ?? 0, inhouse?.grouped?.NONE ?? 0],
+                backgroundColor: ChartColorClasses["yellow"],
+            },
+        ],
+    });
+
+    const lastMonthData = buildOutcomesData(previousWalkins, previousOnline, previousInhouse);
+    const thisMonthData = buildOutcomesData(currentWalkins, currentOnline, currentInhouse);
+
     return (
         <section>
             <SectionHeader
@@ -313,7 +385,7 @@ function Level2Section() {
                     <Card.Body>
                         <BarChart
                             options={sampleContextBarOptions}
-                            data={sampleContextBarData}
+                            data={lastMonthData}
                             wrapperClassName="relative w-full h-[350px]!"
                         ></BarChart>
                     </Card.Body>
@@ -327,7 +399,7 @@ function Level2Section() {
                     <Card.Body>
                         <BarChart
                             options={sampleContextBarOptions}
-                            data={sampleContextBarData}
+                            data={thisMonthData}
                             wrapperClassName="relative w-full h-[350px]!"
                         ></BarChart>
                     </Card.Body>
@@ -347,15 +419,57 @@ function Level2Section() {
 }
 
 function Level3Section() {
+    const {
+        shift: { analytics },
+    } = useLoaderData();
+
+    const getTag = (key: string) => analytics?.find((tag: { environmentTag: string }) => tag.environmentTag === key);
+
+    const tagMap = {
+        slowInternet: getTag(EnvironmentTag.SLOW_INTERNET),
+        brokenEquipment: getTag(EnvironmentTag.BROKEN_EQUIPMENT),
+        heavyRain: getTag(EnvironmentTag.HEAVY_RAIN),
+        feelingUnwell: getTag(EnvironmentTag.FEELING_UNWELL),
+        brokenSoftware: getTag(EnvironmentTag.BROKEN_SOFTWARE_SYSTEM),
+        applicantIssues: getTag(EnvironmentTag.APPLICANT_ISSUES),
+    } as const;
+
+    const buildTagsData = (key: "count" | "previous") => ({
+        labels: [
+            "Slow Internet",
+            "Broken Equipment",
+            "Heavy Rain",
+            "Feeling Unwell",
+            "Broken Software",
+            "Applicant Issues",
+        ],
+        datasets: [
+            {
+                label: "Number of Shifts",
+                data: [
+                    tagMap.slowInternet?.[key] ?? 0,
+                    tagMap.brokenEquipment?.[key] ?? 0,
+                    tagMap.heavyRain?.[key] ?? 0,
+                    tagMap.feelingUnwell?.[key] ?? 0,
+                    tagMap.brokenSoftware?.[key] ?? 0,
+                    tagMap.applicantIssues?.[key] ?? 0,
+                ],
+                backgroundColor: ChartColorClasses["primary-blue"],
+            },
+        ],
+    });
+
+    const lastMonthData = buildTagsData("previous");
+    const thisMonthData = buildTagsData("count");
+
     return (
         <section>
             <SectionHeader
                 primaryText="Level 3: Operational Environment"
                 secondaryText="What is the frequent issues in the working environment?"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
-            ></SectionHeader>
+            />
             <div className="grid grid-cols-6 gap-6">
-                {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
                         <Text weight="bold">Last Month: Tags Mentioned By Staff</Text>
@@ -363,13 +477,12 @@ function Level3Section() {
                     <Card.Body>
                         <BarChart
                             options={sampleContextBarOptions}
-                            data={sampleContextBarData}
+                            data={lastMonthData}
                             wrapperClassName="relative w-full h-[350px]!"
-                        ></BarChart>
+                        />
                     </Card.Body>
                 </Card>
 
-                {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
                         <Text weight="bold">This Month: Tags Mentioned By Staff</Text>
@@ -377,9 +490,9 @@ function Level3Section() {
                     <Card.Body>
                         <BarChart
                             options={sampleContextBarOptions}
-                            data={sampleContextBarData}
+                            data={thisMonthData}
                             wrapperClassName="relative w-full h-[350px]!"
-                        ></BarChart>
+                        />
                     </Card.Body>
                 </Card>
                 <div className="col-span-6">
@@ -397,6 +510,7 @@ function Level3Section() {
 }
 
 export function ContextAnalytics() {
+    useLoaderData();
     const [generateInsights, setGenerateInsights] = useState(true);
     const [tempInsights, setTempInsights] = useState("");
 

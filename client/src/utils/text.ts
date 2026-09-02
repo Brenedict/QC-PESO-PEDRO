@@ -13,3 +13,12 @@ export function capitalizeWords(sentence: string) {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(" ");
 }
+
+export function formatLabel(name: string): string {
+    // Convert "WALK_IN_REFERRAL" -> "Walk-In Referral"
+    return name
+        .toLowerCase()
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+}

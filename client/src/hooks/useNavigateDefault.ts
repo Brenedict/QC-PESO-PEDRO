@@ -16,7 +16,7 @@ const BASE_ROUTES = {
     reports: "/reports",
     auditLogs: "/audit-logs",
     userManagement: "/user-management",
-    contextAnalysis: "/context-analysis",
+    contextAnalysis: "/context-analytics",
 };
 
 export const ROUTES = {

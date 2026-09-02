@@ -261,6 +261,7 @@ export function PopupLogout({ root }: { root: string }) {
 }
 
 export function PopupEndshiftSummary({ root }: { root: string }) {
+    console.log("PopupEndshiftSummary is rendering!", root);
     const { total, pending } = useLoaderData();
 
     const navigate = useNavigateDefault();

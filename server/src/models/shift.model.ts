@@ -4,6 +4,7 @@ import type {
     ShiftLogCreateArgs,
     ShiftLogCreateManyArgs,
     ShiftLogFindManyArgs,
+    ShiftLogGroupByArgs,
     ShiftLogInclude,
     ShiftLogOrderByWithRelationInput,
     ShiftLogSelectScalar,
@@ -74,5 +75,11 @@ export default {
 
     async count(args?: ShiftLogCountArgs) {
         return prisma.shiftLog.count(args);
+    },
+
+    async groupBy(args: ShiftLogGroupByArgs) {
+        // eslint-disable-next-line
+        // @ts-ignore
+        return prisma.shiftLog.groupBy(args);
     },
 };

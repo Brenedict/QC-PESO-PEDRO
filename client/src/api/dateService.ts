@@ -97,16 +97,16 @@ export function buildWeekRangeParam(
     return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
 }
 
-export function buildMonthRangeParam(date: Date) {
-    const startDate = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
-    const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
+export function buildMonthRangeParam(date: Date, offset = 0) {
+    const startDate = new Date(date.getFullYear(), date.getMonth() + offset, 1, 0, 0, 0, 0);
+    const endDate = new Date(date.getFullYear(), date.getMonth() + 1 + offset, 0, 23, 59, 59, 999);
     return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
 }
 
-export function buildYearRangeParam(date: Date) {
+export function buildYearRangeParam(date: Date, offset = 0) {
     const year = date.getFullYear();
-    const startDate = new Date(year, 0, 1, 0, 0, 0, 0);
-    const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
+    const startDate = new Date(year + offset, 0, 1, 0, 0, 0, 0);
+    const endDate = new Date(year + offset, 11, 31, 23, 59, 59, 999);
     return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
 }
 
