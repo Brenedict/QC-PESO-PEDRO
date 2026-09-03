@@ -4,15 +4,14 @@ import type { Request, Response } from "express";
 // PEDRO SHARED IMPORTS
 import { AccessLevel } from "@qcpesopedro/shared/enums";
 import { InsightsRequestSchema, type InsightsRequestType } from "@qcpesopedro/shared/schema/insights";
-import type { TransactionAnalyticsQueryType } from "@qcpesopedro/shared/schema/transactions";
 
 // Middlewares
 import { jwtAccessAuth } from "../middlewares/passport.middleware";
 import { requireAccessLevel } from "../middlewares/authorized.middleware";
 import { validateSchema } from "../middlewares/zod.middleware";
+import cache from "../middlewares/cache.middleware";
 
 // Service
-import TransactionService from "../service/transaction.service";
 import OllamaService from "../service/ollama.service";
 
 export default {
@@ -20,27 +19,27 @@ export default {
         jwtAccessAuth,
         requireAccessLevel(AccessLevel.SUPERADMIN),
         validateSchema("body", InsightsRequestSchema),
+        cache("5 minutes"),
         async (req: Request, res: Response) => {
-            const { focus, ...queryBody } = req.body as InsightsRequestType;
-
-            // Reuse the exact same resolution path /transaction/analytics uses,
-            // so the LLM narrates the same numbers the dashboard charts show.
-            const parsedQuery = TransactionService.parseTransactionAnalyticsQuery(
-                queryBody as TransactionAnalyticsQueryType
-            );
-            const analytics = await TransactionService.resolveAnalyticsFilter(parsedQuery);
+            const { focus, ...analytics } = req.body as InsightsRequestType;
 
             try {
                 console.log("==========================================");
-                console.log("Generating insights for analytics:", analytics, "with focus:", focus);
+                console.log(
+                    "Generating insights for analytics:",
+                    JSON.stringify(analytics, null, 2),
+                    "with focus:",
+                    JSON.stringify(focus, null, 2)
+                );
                 console.log("==========================================");
-                const insight = await OllamaService.generateAnalyticsInsight(analytics, focus);
+
+                const insights = await OllamaService.generateAnalyticsInsight(analytics, focus);
 
                 console.log("==========================================");
-                console.log("Generated insights:", insight);
+                console.log("Generated insights:", `\n${JSON.stringify(Object.values(insights).join("\n"), null, 2)}`);
                 console.log("==========================================");
 
-                res.json({ analytics, insight });
+                res.json({ analytics, insights });
             } catch (err) {
                 // Ollama down/unreachable shouldn't break the dashboard — still return
                 console.error("Ollama insight generation failed:", err);

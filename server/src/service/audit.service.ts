@@ -74,7 +74,13 @@ export default {
                           }
                         : {},
                 ],
-                createdAt: { gte: startDate, lte: endDate },
+                createdAt:
+                    startDate || endDate
+                        ? {
+                              ...(startDate && { gte: startDate }),
+                              ...(endDate && { lte: endDate }),
+                          }
+                        : undefined,
             },
         });
     },

@@ -11,15 +11,48 @@ import type { AccountLogQueryOverviewType } from "@qcpesopedro/shared/schema/log
 export default {
     async getCurrentlyLogged(query: AccountLogQueryOverviewType) {
         const { startDate, endDate } = query;
-        return LogModel.count({ where: { logOut: null, logIn: { gte: startDate, lte: endDate } } });
+        return LogModel.count({
+            where: {
+                logOut: null,
+                logIn:
+                    startDate || endDate
+                        ? {
+                              ...(startDate && { gte: startDate }),
+                              ...(endDate && { lte: endDate }),
+                          }
+                        : undefined,
+            },
+        });
     },
     async getTotalLogIn(query: AccountLogQueryOverviewType) {
         const { startDate, endDate } = query;
-        return LogModel.count({ where: { logIn: { gte: startDate, lte: endDate } } });
+        return LogModel.count({
+            where: {
+                logIn:
+                    startDate || endDate
+                        ? {
+                              ...(startDate && { gte: startDate }),
+                              ...(endDate && { lte: endDate }),
+                          }
+                        : undefined,
+            },
+        });
     },
     async getTotalLogOut(query: AccountLogQueryOverviewType) {
         const { startDate, endDate } = query;
-        return LogModel.count({ where: { logOut: { not: null, gte: startDate, lte: endDate } } });
+        return LogModel.count({
+            where: {
+                logOut: {
+                    not: null,
+                    ...(startDate || endDate
+                        ? {
+                              ...(startDate && { gte: startDate }),
+                              ...(endDate && { lte: endDate }),
+                          }
+                        : undefined),
+                },
+            },
+        });
     },
 
     async getLatestLog(userId: number) {

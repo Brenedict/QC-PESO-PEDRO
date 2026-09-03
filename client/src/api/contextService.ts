@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { apiJson, ensureOk, handleErrRedirect } from "./actionService";
-import { CONTEXT_ANALYTICS_REQUEST } from "./analyticsService";
+import { CONTEXT_ANALYTICS_REQUEST, type AnalyticsData } from "./analyticsService";
 import { buildMonthRangeParam, buildParamString } from "./dateService";
 import { ROUTES } from "../hooks/useNavigateDefault";
 

@@ -130,11 +130,7 @@ function LoginMonitoring() {
     return (
         <>
             {/* Page Header */}
-            <PageHeader
-                primaryText="Login Monitoring"
-                secondaryText="Monitor employee attendance and login history."
-                icon={{ variant: "primary-blue", icon: OndemandVideoIcon, size: "bigger" }}
-            >
+            <PageHeader primaryText="Login Monitoring" secondaryText="Monitor employee attendance and login history.">
                 <div>
                     <TimeframeSelect
                         timeframe={timeframeFilter.timeframe}

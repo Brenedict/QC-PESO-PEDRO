@@ -1,35 +1,26 @@
 // General Imports
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
 
 // Components
 import { Card } from "../components/Card";
 import { Text } from "../components/Text";
-import { ProgressChart } from "../components/ProgressChart";
-import { DoughnutChart } from "../components/DoughnutChart";
 import { BarChart } from "../components/BarChart";
-import { ScatterChart } from "../components/ScatterChart";
 import PageHeader from "../components/PageHeader";
 import type { IconProps } from "../components/Icon";
-import { LineChart } from "../components/LineChart";
 import Icon from "../components/Icon";
 import Button from "../components/Button";
 
 // Icons
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import QuickreplyOutlinedIcon from "@mui/icons-material/QuickreplyOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import TrackChangesOutlinedIcon from "@mui/icons-material/TrackChangesOutlined";
+import ReportGmailerrorredOutlinedIcon from "@mui/icons-material/ReportGmailerrorredOutlined";
 
 // Default Chart configs
-import {
-    sampleContextBarData,
-    sampleContextBarOptions,
-    sampleContextLineData,
-    sampleContextLineOptions,
-    sampleContextDoughnut1Data,
-    sampleContextDoughnutOptions,
-    sampleContextDoughnut2Data,
-} from "../data/chartsConfigs";
-import { sampleScatterData, sampleScatterOptions } from "../data/chartsConfigs";
+import { sampleContextBarOptions } from "../data/chartsConfigs";
 
 // Types
 import type { MaterialIcon } from "../types/common";
@@ -68,13 +59,13 @@ function StatCard({
             <Card.Body className={`p-6! flex ${alignClasses[align]} ${invertOrder ? "flex-col-reverse" : "flex-col"}`}>
                 <div className="flex justify-center items-center gap-1">
                     {/* Main Text */}
-                    <Text size="big" variant={valueVariant} weight="bold">
+                    <Text size="bigMedium" variant={valueVariant} weight="bold">
                         {value}
                     </Text>
 
                     {/* Percentage */}
                     {subValue && (
-                        <Text size="description" weight="normal" variant="grayish-blue">
+                        <Text size="description" weight="medium" variant="grayish-blue">
                             ({subValue})
                         </Text>
                     )}
@@ -149,7 +140,7 @@ function SectionHeader({
 }) {
     return (
         <div>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-4">
                 <Text
                     size="medium"
                     weight="bold"
@@ -195,17 +186,17 @@ function InsightsStatGrid({
                 dropShadow={false}
             />
             <StatCard
-                value={primarySource ? formatLabel(primarySource.name) : "N/A"}
+                value={primarySource && primarySource.percent > 0 ? formatLabel(primarySource.name) : "N/A"}
                 description="Primary Source"
-                subValue={primarySource ? `${primarySource.percent}%` : undefined}
+                subValue={primarySource && primarySource.percent > 0 ? `${primarySource.percent}%` : undefined}
                 invertOrder={true}
                 align="left"
                 dropShadow={false}
             />
             <StatCard
-                value={commonOutcome ? formatLabel(commonOutcome.name) : "N/A"}
+                value={commonOutcome && commonOutcome.percent > 0 ? formatLabel(commonOutcome.name) : "N/A"}
                 description="Most Common Outcome"
-                subValue={commonOutcome ? `${commonOutcome.percent}%` : undefined}
+                subValue={commonOutcome && commonOutcome.percent > 0 ? `${commonOutcome.percent}%` : undefined}
                 invertOrder={true}
                 align="left"
                 dropShadow={false}
@@ -223,7 +214,7 @@ function InsightsStatGrid({
     );
 }
 
-function InsightSection() {
+function InsightSection({ insight }: { insight: string }) {
     const { transaction, shift } = useLoaderData();
 
     const { types, outcomes } = transaction;
@@ -244,15 +235,17 @@ function InsightSection() {
         : [];
 
     return (
-        <Card className="border-3 border-primary-blue">
+        <Card className="border-3 border-primary-blue mb-8">
             <Card.Body>
                 <SectionHeader
                     primaryText="Context Analytics"
-                    icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
+                    icon={{ variant: "primary-blue", icon: QuickreplyOutlinedIcon, size: "big" }}
                     divider={false}
                 />
 
-                <h1 className="mb-2">Last Month</h1>
+                <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
+                    Last Month
+                </Text>
                 <InsightsStatGrid
                     transactionCount={types?.previous?.count ?? 0}
                     types={types?.previous?.grouped}
@@ -261,7 +254,9 @@ function InsightSection() {
                     shiftCount={shift?.total ?? 0}
                 />
 
-                <h1 className="mb-2">This Month</h1>
+                <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
+                    This Month
+                </Text>
                 <InsightsStatGrid
                     transactionCount={types?.current?.count ?? 0}
                     types={types?.current?.grouped}
@@ -276,9 +271,7 @@ function InsightSection() {
                             AI Recommendation:
                         </Text>
                         <Text size="description" variant="grayish-blue" weight="normal">
-                            Increase support staff during Job Caravan events and coordinate with IT to resolve recurring
-                            internet issues, as days affected by connectivity problems consistently process 28% fewer
-                            applicants.
+                            {insight}
                         </Text>
                     </Card.Body>
                 </Card>
@@ -287,7 +280,7 @@ function InsightSection() {
     );
 }
 
-function Level1Section() {
+function Level1Section({ insight }: { insight: string }) {
     const {
         transaction: { types },
     } = useLoaderData();
@@ -301,32 +294,28 @@ function Level1Section() {
     );
 
     return (
-        <section>
+        <section className="mb-12">
             <SectionHeader
                 primaryText="Level 1: Transaction Origin"
                 secondaryText="Where did applicants come from?"
-                icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
+                icon={{ variant: "primary-blue", icon: LocationOnOutlinedIcon, size: "big" }}
             />
-            <div className="grid grid-cols-5 gap-3 mb-6">
-                <h1>Previous Month</h1>
-                {sourceCards(types?.previous?.grouped)}
-                <h1>This Month</h1>
-                {sourceCards(types?.current?.grouped)}
-                <div className="col-span-5">
-                    <ContextTipCard
-                        icon={LightbulbOutlinedIcon}
-                        variant="white"
-                        description={
-                            "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
-                        }
-                    />
-                </div>
+            <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
+                Last Month
+            </Text>
+            {sourceCards(types?.previous?.grouped)}
+            <Text size="normal" variant="primary-blue" weight="bold" className="mb-1 mt-4">
+                This Month
+            </Text>
+            {sourceCards(types?.current?.grouped)}
+            <div className="col-span-5 mt-5">
+                <ContextTipCard icon={LightbulbOutlinedIcon} variant="white" description={insight} />
             </div>
         </section>
     );
 }
 
-function Level2Section() {
+function Level2Section({ insight }: { insight: string }) {
     const {
         transaction: {
             walkinoutcomes: { current: currentWalkins, previous: previousWalkins },
@@ -370,17 +359,19 @@ function Level2Section() {
     const thisMonthData = buildOutcomesData(currentWalkins, currentOnline, currentInhouse);
 
     return (
-        <section>
+        <section className="mb-12">
             <SectionHeader
                 primaryText="Level 2: Transaction Outcome"
                 secondaryText="Quality of transactions and skill gaps"
-                icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
+                icon={{ variant: "primary-blue", icon: TrackChangesOutlinedIcon, size: "big" }}
             ></SectionHeader>
             <div className="grid grid-cols-6 gap-6">
                 {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Last Month: Outcomes by Applicant Source</Text>
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            Last Month: Outcomes by Applicant Source
+                        </Text>
                     </Card.Header>
                     <Card.Body>
                         <BarChart
@@ -394,7 +385,9 @@ function Level2Section() {
                 {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">This Month: Outcomes by Applicant Source</Text>
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            This Month: Outcomes by Applicant Source
+                        </Text>
                     </Card.Header>
                     <Card.Body>
                         <BarChart
@@ -405,20 +398,14 @@ function Level2Section() {
                     </Card.Body>
                 </Card>
                 <div className="col-span-6">
-                    <ContextTipCard
-                        icon={LightbulbOutlinedIcon}
-                        variant="white"
-                        description={
-                            "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
-                        }
-                    />
+                    <ContextTipCard icon={LightbulbOutlinedIcon} variant="white" description={insight} />
                 </div>
             </div>
         </section>
     );
 }
 
-function Level3Section() {
+function Level3Section({ insight }: { insight: string }) {
     const {
         shift: { analytics },
     } = useLoaderData();
@@ -445,7 +432,7 @@ function Level3Section() {
         ],
         datasets: [
             {
-                label: "Number of Shifts",
+                label: "Number of Tagged Shifts",
                 data: [
                     tagMap.slowInternet?.[key] ?? 0,
                     tagMap.brokenEquipment?.[key] ?? 0,
@@ -467,12 +454,14 @@ function Level3Section() {
             <SectionHeader
                 primaryText="Level 3: Operational Environment"
                 secondaryText="What is the frequent issues in the working environment?"
-                icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
+                icon={{ variant: "primary-blue", icon: ReportGmailerrorredOutlinedIcon, size: "big" }}
             />
             <div className="grid grid-cols-6 gap-6">
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Last Month: Tags Mentioned By Staff</Text>
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            Last Month: Tags Mentioned By Staff
+                        </Text>
                     </Card.Header>
                     <Card.Body>
                         <BarChart
@@ -485,7 +474,9 @@ function Level3Section() {
 
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">This Month: Tags Mentioned By Staff</Text>
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            This Month: Tags Mentioned By Staff
+                        </Text>
                     </Card.Header>
                     <Card.Body>
                         <BarChart
@@ -496,13 +487,7 @@ function Level3Section() {
                     </Card.Body>
                 </Card>
                 <div className="col-span-6">
-                    <ContextTipCard
-                        icon={LightbulbOutlinedIcon}
-                        variant="white"
-                        description={
-                            "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
-                        }
-                    />
+                    <ContextTipCard icon={LightbulbOutlinedIcon} variant="white" description={insight} />
                 </div>
             </div>
         </section>
@@ -510,35 +495,41 @@ function Level3Section() {
 }
 
 export function ContextAnalytics() {
-    useLoaderData();
-    const [generateInsights, setGenerateInsights] = useState(true);
-    const [tempInsights, setTempInsights] = useState("");
+    const analytics = useLoaderData();
+    const [insights, setInsights] = useState<Record<string, string>>({});
+    const hasGeneratedInsights = useRef(false);
 
-    const handleGenerateInsights = async () => {
-        try {
-            const res = await apiJson(`/insight/`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()),
-            });
+    useEffect(() => {
+        if (hasGeneratedInsights.current) return;
+        hasGeneratedInsights.current = true;
 
-            await ensureOk(res, "Failed to generate insights");
+        const focus = {
+            summary:
+                "Synthesize the other focus areas into the single most important takeaway for PESO management this month, then give one concrete, actionable recommendation. Do not repeat a point already made in another paragraph verbatim.",
+            level1: "Analyze referral source trends, volumes, and spikes across Walk-In Referral, Online Referral, and In-House Recruitment.",
+            level2: "Analyze outcome quality by source (Success, Pending, Mismatch, None), highlighting skill gaps or mismatches.",
+            level3: "Analyze operational environment tag frequency (Slow Internet, Broken Equipment, Heavy Rain, etc.) and how these issues affect throughput.",
+        };
 
-            const result = await res.json();
+        const generateInsights = async () => {
+            try {
+                const res = await apiJson(`/insight/`, {
+                    method: "POST",
+                    body: JSON.stringify({ analytics, focus }),
+                });
 
-            console.log("Insights generated successfully:", result);
-            setTempInsights(result.insight);
-            setGenerateInsights(true);
+                await ensureOk(res, "Failed to generate insights");
 
-            return;
-        } catch (err) {
-            console.error(err);
-            return null;
-        }
-    };
+                const result = await res.json();
+
+                console.log("Insights generated successfully:", result);
+                setInsights(result.insights);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        generateInsights();
+    }, [analytics]);
 
     return (
         <>
@@ -547,20 +538,16 @@ export function ContextAnalytics() {
                 secondaryText="Quality of transactions and skill gaps"
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
             />
-            {generateInsights == false ? (
-                <main className="flex flex-col gap-6">
-                    <Button onClick={handleGenerateInsights}>Generate</Button>
-                </main>
-            ) : (
-                <main className="flex flex-col gap-6">
-                    {/* <h1 className="font-bold">This is temporary unformatted ai reply</h1>
+
+            <main className="flex flex-col">
+                {/* <h1 className="font-bold">This is temporary unformatted ai reply</h1>
                     <h1>{tempInsights}</h1> */}
-                    <InsightSection />
-                    <Level1Section />
-                    <Level2Section />
-                    <Level3Section />
-                </main>
-            )}
+                <InsightSection insight={insights.summary ?? "Gathering insights..."} />
+                <Level1Section insight={insights.level1 ?? "Gathering insights..."} />
+                <Level2Section insight={insights.level2 ?? "Gathering insights..."} />
+                <Level3Section insight={insights.level3 ?? "Gathering insights..."} />
+            </main>
+
             <Outlet />
         </>
     );

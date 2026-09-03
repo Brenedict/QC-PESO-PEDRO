@@ -139,15 +139,18 @@ export const getTransactionsInRange = (
 };
 
 export const getExpectedGrouped = (transactions: (TransactionCreateType | Transaction)[], groupBy: GroupByTypes) => {
-    return transactions.reduce(
-        (result, transaction) => {
-            const value = transaction[groupBy] as string;
-            if (value == null) return result;
-            result[value] = (result[value] ?? 0) + 1;
-            return result;
-        },
-        {} as Record<string, number>
-    );
+    let result: Record<string, number> = {};
+
+    if (groupBy === "applicantSex" && transactions.length === 0) {
+        result = { MALE: 0, FEMALE: 0 };
+    }
+
+    return transactions.reduce((result, transaction) => {
+        const value = transaction[groupBy] as string;
+        if (value == null) return result;
+        result[value] = (result[value] ?? 0) + 1;
+        return result;
+    }, result);
 };
 
 export const getExpectedBreakdown = (
