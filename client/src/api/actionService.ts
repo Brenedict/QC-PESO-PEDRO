@@ -33,8 +33,13 @@ export const extractQueryToObject = (request: Request, omit?: string[]) => {
     return { query: queryObject, omitted: omittedObject };
 };
 
-export const redirectWithQuery = (request: Request, path: string) => {
+export const redirectWithQuery = (request: Request, path: string, notifQuery?: string) => {
     const query = extractQuery(request).query.toString();
+
+    if (notifQuery) {
+        return redirect(`${path}?${query}&${notifQuery}`);
+    }
+
     return redirect(`${path}?${query}`);
 };
 

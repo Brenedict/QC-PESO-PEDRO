@@ -40,7 +40,7 @@ export const createUser = async ({ request }: ActionFunctionArgs) => {
         await ensureOk(res, "Failed to create user");
 
         // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User created successfully`);
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
@@ -68,7 +68,7 @@ export const updateUser =
             await ensureOk(res, "Failed to update user");
 
             // Returns to root directory + queries
-            return redirectWithQuery(request, ROUTES.userManagement.root);
+            return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User details updated successfully`);
         } catch (err) {
             return handleErrRedirect(err, request, ROUTES.userManagement.root);
         }
@@ -87,7 +87,7 @@ export const resetPassword = async ({ params, request }: ActionFunctionArgs) => 
         await ensureOk(res, "Failed to reset password");
 
         // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User password resetted successfully`);
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
@@ -145,6 +145,13 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
             });
 
             await ensureOk(res, "Failed to deactivate user");
+
+            // Returns to root directory + queries
+            return redirectWithQuery(
+                request,
+                ROUTES.userManagement.root,
+                `NOTIF=User account deactivated successfully`
+            );
         } else if (actionType === "reactivate") {
             const res = await apiJson(`/user/${decodedId}/${LogAction.USER_ACCOUNT_ENABLED}`, {
                 method: "PATCH",
@@ -152,14 +159,25 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
             });
 
             await ensureOk(res, "Failed to reactivate user");
+
+            // Returns to root directory + queries
+            return redirectWithQuery(
+                request,
+                ROUTES.userManagement.root,
+                "NOTIF=User account reactivated successfully"
+            );
         } else if (actionType === "delete") {
             const res = await apiJson(`/user/${decodedId}`, {
                 method: "DELETE",
             });
 
             await ensureOk(res, "Failed to delete user");
+
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User account deleted successfully`);
         }
 
+        // Baseline redirect for no notifs
         // Returns to root directory and queries
         return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {

@@ -1,5 +1,5 @@
 // General Imports
-import { type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 
 //
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
@@ -172,7 +172,7 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         }
 
         // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
+        return redirectWithQuery(request, ROUTES.applicantForm.root, "NOTIF=Transaction created successfully");
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.applicantForm.root);
     }
@@ -272,7 +272,7 @@ export const deleteTransaction =
             }
 
             // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return redirectWithQuery(request, nextPage, "NOTIF=Transaction deleted successfully");
         } catch (err) {
             return handleErrRedirect(err, request, nextPage);
         }
@@ -302,7 +302,7 @@ export const updateTransaction =
             await ensureOk(res, "Failed to update transaction");
 
             // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return redirectWithQuery(request, nextPage, "NOTIF=Transaction updated successfully");
         } catch (err) {
             return handleErrRedirect(err, request, nextPage);
         }

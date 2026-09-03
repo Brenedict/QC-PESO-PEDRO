@@ -1,5 +1,5 @@
 // General Imports
-import { Form, Outlet, useLoaderData, useActionData } from "react-router";
+import { Form, Outlet, useLoaderData, useActionData, useSearchParams } from "react-router";
 import { useEffect, useRef, useState } from "react";
 
 // PEDRO SHARED IMPORTS
@@ -33,6 +33,7 @@ import { createTransaction } from "../api/transactionService";
 
 // Contexts
 import { useAuth } from "../context/AuthContext";
+import { NotificationPopup } from "../components/popups/NotificationPopups";
 
 interface FormRow1Props {
     txCode?: string;
@@ -366,6 +367,30 @@ function TransactionsLedger() {
 }
 
 function TransactionsInputPagePage() {
+    const [searchParamsNotif, setSearchParamsNotif] = useSearchParams();
+    const [notif, setNotif] = useState("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParamsNotif.get("NOTIF");
+
+        // Only trigger if NOTIF exists AND we haven't already opened the modal for it
+        if (statusKey && !notifModalOpen) {
+            setNotif(statusKey);
+            setNotifModalOpen(true);
+
+            // Clone existing search params (keeping page=2, etc.) and only delete NOTIF
+            const newParams = new URLSearchParams(searchParamsNotif);
+            newParams.delete("NOTIF");
+            setSearchParamsNotif(newParams, { replace: true });
+        }
+    }, [searchParamsNotif, notifModalOpen, setSearchParamsNotif]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setNotif(""); // Reset string state on close
+    };
+
     return (
         <>
             <PageHeader
@@ -376,6 +401,15 @@ function TransactionsInputPagePage() {
                 <TransactionsInputForm />
                 <TransactionsLedger />
             </div>
+
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={notif}
+                    icon="notification"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
 
             {/* Popup Uses */}
             <Outlet />
