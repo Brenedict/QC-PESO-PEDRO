@@ -432,7 +432,7 @@ function Level3Section({ insight }: { insight: string }) {
         ],
         datasets: [
             {
-                label: "Number of Tagged Shifts",
+                label: key === "count" ? "This Month" : "Last Month",
                 data: [
                     tagMap.slowInternet?.[key] ?? 0,
                     tagMap.brokenEquipment?.[key] ?? 0,
@@ -441,7 +441,14 @@ function Level3Section({ insight }: { insight: string }) {
                     tagMap.brokenSoftware?.[key] ?? 0,
                     tagMap.applicantIssues?.[key] ?? 0,
                 ],
-                backgroundColor: ChartColorClasses["primary-blue"],
+                backgroundColor: [
+                    ChartColorClasses["primary-blue"],
+                    ChartColorClasses["red"],
+                    ChartColorClasses["light-blue"],
+                    ChartColorClasses["green"],
+                    ChartColorClasses["purple"],
+                    ChartColorClasses["yellow"],
+                ],
             },
         ],
     });
