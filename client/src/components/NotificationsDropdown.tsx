@@ -16,6 +16,7 @@ import { Card } from "./Card";
 
 // API Services
 import { getNotifications, markAllNotificationsRead } from "../api/notifService";
+import { refreshUserContext } from "../api/authService";
 
 // Context
 import { useAuth } from "../context/AuthContext";
@@ -23,6 +24,17 @@ import { useAuth } from "../context/AuthContext";
 // Utils
 import { formatRelativeDateTime } from "../utils/time";
 import { playNotificationSound, unlockAudio } from "../utils/notifSound";
+import type { LogAction } from "@qcpesopedro/shared/prisma/browser";
+
+const ACCOUNT_CHANGE_ACTIONS = new Set<LogAction>([
+    "USER_PROMOTED",
+    "USER_DEMOTED",
+    "USER_EDITED",
+    "USER_ACCOUNT_ENABLED",
+    "USER_ACCOUNT_DISABLED",
+    "USER_PASSWORD_RESET",
+    "USER_PASSWORD_CHANGE",
+]);
 
 function NotificationItem({ notification }: { notification: NotificationResponseType }) {
     const auditLog = notification.auditLog;
@@ -66,6 +78,7 @@ export default function NotificationsDropdown() {
     const openRef = useRef(open);
     const prevUnreadRef = useRef(0);
     const firstLoadRef = useRef(true);
+    const handledIdsRef = useRef<Set<number>>(new Set());
 
     useEffect(() => {
         openRef.current = open;
@@ -78,6 +91,21 @@ export default function NotificationsDropdown() {
             // Play sound if unread count has increased
             if (!firstLoadRef.current && !openRef.current && feed.unreadCount > prevUnreadRef.current && soundEnabled) {
                 playNotificationSound();
+            }
+
+            // Account actions (e.g. yung mga promote/demote/edit/enable/disable) refresh natin topBar
+            // para mag reflect yung change sa user
+            const newAccountChanges = feed.notifications.filter(
+                (notification) =>
+                    !handledIdsRef.current.has(notification.id) &&
+                    notification.auditLog &&
+                    ACCOUNT_CHANGE_ACTIONS.has(notification.auditLog.actionPerformed as LogAction)
+            );
+
+            newAccountChanges.forEach((notification) => handledIdsRef.current.add(notification.id));
+
+            if (newAccountChanges.length > 0) {
+                void refreshUserContext();
             }
 
             firstLoadRef.current = false;
