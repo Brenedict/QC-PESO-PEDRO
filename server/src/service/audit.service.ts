@@ -1,9 +1,10 @@
 import { type AuditLogFormCreateType, type AuditLogQueryType, type RecordType } from "@qcpesopedro/shared/schema/audit";
-import type { Request, Response } from "express";
-import type { Prisma, Role } from "@qcpesopedro/shared/prisma/browser";
+import type { Response } from "express";
+import type { Role } from "@qcpesopedro/shared/prisma/browser";
 import AuditModel from "../models/audit.model";
-import type { LogAction, User } from "@qcpesopedro/shared/prisma/browser";
-import type { AuditLogFindManyArgs, AuditLogWhereInput } from "@qcpesopedro/shared/prisma/models";
+import NotificationModel from "../models/notification.model";
+import type { LogAction } from "@qcpesopedro/shared/prisma/browser";
+import type { AuditLogWhereInput } from "@qcpesopedro/shared/prisma/models";
 
 export interface LogMetaData {
     actionPerformed: LogAction;
@@ -12,6 +13,7 @@ export interface LogMetaData {
     changesDetails: string;
     createdAt?: Date;
     remarks?: string;
+    recipientUserIds?: number[];
 }
 
 export const AUDIT_MESSAGE_MAP: Record<LogAction, (details: string) => string> = {
@@ -54,7 +56,22 @@ export default {
             remarks: metaData?.remarks ?? "-",
         };
 
-        return await this.createAuditLog(auditLog);
+        const created = await this.createAuditLog(auditLog);
+
+        const recipientIds = metaData.recipientUserIds ? [...new Set(metaData.recipientUserIds)] : [];
+
+        for (const recipientId of recipientIds) {
+            try {
+                await NotificationModel.createNotification({
+                    recipientId,
+                    auditLogId: created.id,
+                });
+            } catch (error) {
+                console.error("Failed to create notification", error);
+            }
+        }
+
+        return created;
     },
 
     async getAuditLogs(query: AuditLogQueryType) {
@@ -98,9 +115,13 @@ export default {
         recordType: RecordType,
         affectedRecordId: string | number,
         changesDetails: string,
-        remarks?: string
+        remarks?: string,
+        recipientUserIds?: number | number[]
     ) {
         affectedRecordId = typeof affectedRecordId == "string" ? affectedRecordId : String(affectedRecordId);
+
+        const normalizedRecipients =
+            recipientUserIds == null ? undefined : Array.isArray(recipientUserIds) ? recipientUserIds : [recipientUserIds];
 
         const affectedRecordFormatted: Record<string, (id: string) => string> = {
             USER: (id) => `${id}`,
@@ -114,6 +135,7 @@ export default {
             affectedRecordId: affectedRecordFormatted[recordType]?.(affectedRecordId),
             changesDetails: changesDetails,
             remarks: remarks,
+            recipientUserIds: normalizedRecipients,
         };
     },
 };

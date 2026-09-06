@@ -21,12 +21,10 @@ export function ProtectedRoute() {
         email: user.email,
         shift: user.shift,
         status: user.status ?? "ONLINE",
-        hasNotif: false,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
         onSearchChange: () => {},
-        onNotifClick: () => {},
     };
     return (
         <UserGlobalProvider value={userGlobalContext}>

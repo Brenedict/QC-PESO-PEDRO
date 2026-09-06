@@ -127,6 +127,16 @@ export default {
             const user = await UserModel.updateUser(result.userId, { isRevising: false });
 
             if (result) {
+                // Notify the shift submissons as well as admins/superadmins who review shift submissions.
+                const shiftOwnerId = result.userId ?? requestor.id;
+
+                const verifierUsers = await UserModel.getUsers({
+                    where: { role: { in: [Role.ADMIN, Role.SUPERADMIN] } },
+                    select: { id: true },
+                });
+
+                const verifierIds = (verifierUsers ?? []).map((verifier) => verifier.id).filter((id) => id !== requestor.id);
+
                 AuditService.createAuditLogMetadata(
                     res,
                     LogAction.SUBMITTED_END_SHIFT_STATUS,
@@ -136,7 +146,8 @@ export default {
                     "SHIFT",
                     result.id,
                     user?.fullName ?? "",
-                    result?.adminRemarks ?? ""
+                    result?.adminRemarks ?? "",
+                    [shiftOwnerId, ...verifierIds]
                 );
             }
 
@@ -186,7 +197,8 @@ export default {
                     "SHIFT",
                     result.id,
                     result.user?.fullName ?? "",
-                    result?.adminRemarks ?? ""
+                    result?.adminRemarks ?? "",
+                    result.user?.id
                 );
             }
 

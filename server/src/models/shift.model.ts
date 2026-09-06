@@ -66,6 +66,7 @@ export default {
             include: {
                 user: {
                     select: {
+                        id: true,
                         fullName: true,
                     },
                 },

@@ -185,7 +185,8 @@ export default {
                     "USER",
                     result.username,
                     result?.fullName ?? "",
-                    remarks
+                    remarks,
+                    result.id
                 );
             }
 
@@ -257,7 +258,9 @@ export default {
                     requestor.role,
                     "USER",
                     result.username,
-                    result?.fullName ?? ""
+                    result?.fullName ?? "",
+                    undefined,
+                    result.id
                 );
             }
 
@@ -315,7 +318,8 @@ export default {
                     "USER",
                     result.username,
                     result?.fullName ?? "",
-                    "Password changed email sent"
+                    "Password changed email sent",
+                    requestor.id
                 );
             }
 

@@ -194,13 +194,14 @@ model User {
     /// @zod.string.min(1, { message: "Last Name cannot be empty" }).max(256)
     lastName String @db.VarChar(256)
 
-    createdAt         DateTime      @default(now()) @db.Timestamptz(0)
-    updatedAt         DateTime      @default(now()) @updatedAt @db.Timestamptz(0)
-    fullName          String?       @default(dbgenerated()) @db.VarChar(256)
+    createdAt         DateTime       @default(now()) @db.Timestamptz(0)
+    updatedAt         DateTime       @default(now()) @updatedAt @db.Timestamptz(0)
+    fullName          String?        @default(dbgenerated()) @db.VarChar(256)
     accountLogs       AccountLog[]
     auditLogs         AuditLog[]
-    shiftLogs         ShiftLog[]    @relation("UserShiftLogs")
-    verifiedShiftLogs ShiftLog[]    @relation("VerifiedShiftLogs")
+    notifications     Notification[]
+    shiftLogs         ShiftLog[]     @relation("UserShiftLogs")
+    verifiedShiftLogs ShiftLog[]     @relation("VerifiedShiftLogs")
     transactions      Transaction[]
 
     resetToken          String?   @unique
@@ -224,9 +225,29 @@ model AuditLog {
     actionPerformed  LogAction
     affectedRecordId String
     changesDetails   String
-    remarks String
+    remarks          String
+
+    notifications Notification[]
 
     @@index([userId, createdAt(sort: Desc)])
+}
+
+model Notification {
+    id Int @id @default(autoincrement())
+
+    // The user affected by this notification
+    recipient   User @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+    recipientId Int
+
+    // The audit log that produced this notification.
+    auditLog   AuditLog? @relation(fields: [auditLogId], references: [id], onDelete: SetNull)
+    auditLogId Int?
+
+    // When the notification was read by the recipient
+    readAt    DateTime? @db.Timestamptz(0)
+    createdAt DateTime  @default(now()) @db.Timestamptz(0)
+
+    @@index([recipientId, createdAt(sort: Desc)])
 }
 
 model AccountLog {
