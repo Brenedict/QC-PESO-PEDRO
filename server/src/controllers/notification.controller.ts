@@ -40,7 +40,7 @@ export default {
 
             await NotificationService.markAllRead(user.id);
 
-            return res.status(200).json({ success: true });
+            return res.sendStatus(200);
         },
     ],
 };

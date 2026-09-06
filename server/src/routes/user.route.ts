@@ -15,6 +15,7 @@ router.get("/", controller.getUsers);
 router.post("/", controller.createUser);
 
 // PATCH
+router.patch("/preferences", controller.patchPreferences);
 router.patch("/:userId/reset-password", controller.resetPassword);
 router.patch("/:userId/change-password", controller.changePassword);
 router.patch("/:userId/:action", controller.patch);

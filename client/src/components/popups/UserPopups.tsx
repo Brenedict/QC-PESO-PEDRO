@@ -316,6 +316,7 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
                         id="role"
                         name="role"
                         defaultValue={privilegeType == "promote" ? "ADMIN" : "FRONTLINE"}
+                        hidden
                     />
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
@@ -372,6 +373,8 @@ export function PopupResetUser() {
     const user = useLoaderData() as User;
     if (!user) return null;
 
+    const dateString = new Date().toLocaleDateString("sv-SE");
+
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
             <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.userManagement.root, true)}>
@@ -390,6 +393,25 @@ export function PopupResetUser() {
                     <PopupRadio value="generate" defaultChecked={true}>
                         Generate Temporary Password
                     </PopupRadio>
+                    <br className="block mb-4" />
+                    <PopupNotice
+                        additionalSection={
+                            <Text align="center" size="description" weight="bold" variant="red">
+                                Temporary Password:
+                            </Text>
+                        }
+                    >
+                        QCPESO-FIRSTNAME-LASTNAME-CURRENTDATE
+                    </PopupNotice>
+                    <br className="block mb-4" />
+                    <PopupNotice
+                        variant="off-white"
+                        additionalSection={
+                            <Text align="center" size="description" weight="bold" variant="grayish-blue">
+                                Example:
+                            </Text>
+                        }
+                    >{`QCPESO-JOHNBENEDICT-DOE-${dateString}`}</PopupNotice>
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">

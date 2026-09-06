@@ -264,6 +264,9 @@ export const TRANSACTION_REPORT_REQUEST = (type: ReportTypes): TransactionAnalyt
             {
                 id: "success",
                 type: "DATE_RANGE",
+                filters: {
+                    outcome: "SUCCESS",
+                },
                 ...dateRange,
             },
             {

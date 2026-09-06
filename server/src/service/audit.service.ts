@@ -99,6 +99,7 @@ export default {
                           }
                         : undefined,
             },
+            orderBy: [{ createdAt: "desc" }, { id: "asc" }],
         });
     },
 
@@ -121,7 +122,11 @@ export default {
         affectedRecordId = typeof affectedRecordId == "string" ? affectedRecordId : String(affectedRecordId);
 
         const normalizedRecipients =
-            recipientUserIds == null ? undefined : Array.isArray(recipientUserIds) ? recipientUserIds : [recipientUserIds];
+            recipientUserIds == null
+                ? undefined
+                : Array.isArray(recipientUserIds)
+                  ? recipientUserIds
+                  : [recipientUserIds];
 
         const affectedRecordFormatted: Record<string, (id: string) => string> = {
             USER: (id) => `${id}`,

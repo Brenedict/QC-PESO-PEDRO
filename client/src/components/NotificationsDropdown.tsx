@@ -17,8 +17,12 @@ import { Card } from "./Card";
 // API Services
 import { getNotifications, markAllNotificationsRead } from "../api/notifService";
 
+// Context
+import { useAuth } from "../context/AuthContext";
+
 // Utils
 import { formatRelativeDateTime } from "../utils/time";
+import { playNotificationSound, unlockAudio } from "../utils/notifSound";
 
 function NotificationItem({ notification }: { notification: NotificationResponseType }) {
     const auditLog = notification.auditLog;
@@ -56,15 +60,35 @@ export default function NotificationsDropdown() {
     const [notifications, setNotifications] = useState<NotificationResponseType[]>([]);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
+    const { user } = useAuth();
+    const soundEnabled = user?.notifSoundEnabled ?? true;
+
+    const openRef = useRef(open);
+    const prevUnreadRef = useRef(0);
+    const firstLoadRef = useRef(true);
+
+    useEffect(() => {
+        openRef.current = open;
+    }, [open]);
+
     const refresh = useCallback(async () => {
         try {
             const feed = await getNotifications();
+
+            // Play sound if unread count has increased
+            if (!firstLoadRef.current && !openRef.current && feed.unreadCount > prevUnreadRef.current && soundEnabled) {
+                playNotificationSound();
+            }
+
+            firstLoadRef.current = false;
+            prevUnreadRef.current = feed.unreadCount;
+
             setUnreadCount(feed.unreadCount);
             setNotifications(feed.notifications);
         } catch (err) {
             console.error("Failed to fetch notifications:", err);
         }
-    }, []);
+    }, [soundEnabled]);
 
     // Fetch on mount and find new notifications every 60 seconds.
     useEffect(() => {
@@ -102,6 +126,7 @@ export default function NotificationsDropdown() {
     const markAllRead = async () => {
         try {
             await markAllNotificationsRead();
+            prevUnreadRef.current = 0;
             setUnreadCount(0);
             setNotifications((prev) => prev.map((n) => (n.readAt == null ? { ...n, readAt: new Date() } : n)));
         } catch (err) {
@@ -110,6 +135,8 @@ export default function NotificationsDropdown() {
     };
 
     const handleBellClick = async () => {
+        unlockAudio();
+
         if (open) {
             setOpen(false);
             return;

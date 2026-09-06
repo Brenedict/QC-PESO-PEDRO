@@ -216,7 +216,7 @@ export function Overview() {
     return (
         <>
             <PageHeader primaryText="Overview" secondaryText="Welcome back. Here's what's happening today.">
-                {!user?.hasEndedShift && (
+                {!user?.hasEndedShift && user?.role !== "FRONTLINE" && (
                     <Button
                         size="small"
                         variant="white-black"

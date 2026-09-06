@@ -188,6 +188,8 @@ model User {
     status Status @default(LOGGED_OUT)
     shift  Shift  @default(NONE)
 
+    notifSoundEnabled Boolean @default(true)
+
     /// @zod.string.min(1, { message: "First Name cannot be empty" }).max(256)
     firstName String @db.VarChar(256)
 

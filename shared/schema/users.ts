@@ -52,6 +52,13 @@ export const UserFormChangePasswordSchema = zfd
         path: ["confirmPassword"],
     });
 
+export const UserPreferencesSchema = zfd.formData(
+    z.object({
+        notifSoundEnabled: zfd.checkbox(),
+    })
+);
+
+export type UserPreferencesType = z.infer<typeof UserPreferencesSchema>;
 export type UserFormUpdateType = z.infer<typeof UserFormUpdateSchema>;
 export type UserQueryType = z.infer<typeof UserQuerySchema>;
 export type UserQueryInput = z.input<typeof UserQuerySchema>;
