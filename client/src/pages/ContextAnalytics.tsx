@@ -216,6 +216,7 @@ function InsightsStatGrid({
 
 function InsightSection({ insight }: { insight: string }) {
     const { transaction, shift } = useLoaderData();
+    console.log(shift);
 
     const { types, outcomes } = transaction;
     const { analytics } = shift ?? {};
@@ -251,7 +252,7 @@ function InsightSection({ insight }: { insight: string }) {
                     types={types?.previous?.grouped}
                     outcomes={outcomes?.previous?.grouped}
                     tags={lastMonthTags}
-                    shiftCount={shift?.total ?? 0}
+                    shiftCount={shift?.total?.previous ?? 0}
                 />
 
                 <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
@@ -262,7 +263,7 @@ function InsightSection({ insight }: { insight: string }) {
                     types={types?.current?.grouped}
                     outcomes={outcomes?.current?.grouped}
                     tags={thisMonthTags}
-                    shiftCount={shift?.total ?? 0}
+                    shiftCount={shift?.total?.count ?? 0}
                 />
 
                 <Card dropShadow={false}>

@@ -226,8 +226,9 @@ export default {
         async (req: Request, res: Response) => {
             const { startDate, endDate } = req.query as unknown as ShiftAnalyticsQueryType;
             const analytics = await ShiftService.getEnvironmentTagAnalytics(startDate, endDate);
-            const total = analytics.reduce((acc, curr) => acc + curr.count, 0);
-            return res.json({ total, analytics });
+            const count = analytics.reduce((acc, curr) => acc + curr.count, 0);
+            const previous = analytics.reduce((acc, curr) => acc + curr.previous, 0);
+            return res.json({ total: { count, previous }, analytics });
         },
     ],
 };
