@@ -2,7 +2,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
 // PEDRO SHARED IMPORTS
-import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import { EnvironmentTag, Outcome, Sex, TransactionType } from "@qcpesopedro/shared/prisma/client";
 import type { TransactionScalarFieldEnum } from "@qcpesopedro/shared/zod/schemas";
 import { groupByInterval, groupByIntervalWithColumn } from "@qcpesopedro/shared/prisma/sql";
 import type { Transaction } from "@qcpesopedro/shared/prisma/client";
@@ -197,10 +197,10 @@ export default {
 
                 ...(search && {
                     OR: [
-                        { applicantFullName: { contains: search as string, mode: "insensitive" } },
-                        { txCode: { contains: search as string, mode: "insensitive" } },
+                        { applicantFullName: { contains: search as string, mode: "insensitive" as const } },
+                        { txCode: { contains: search as string, mode: "insensitive" as const } },
                         ...(include?.includes("user") // If it includes a user add a search to it also
-                            ? [{ user: { fullName: { contains: search as string, mode: "insensitive" } } }]
+                            ? [{ user: { fullName: { contains: search as string, mode: "insensitive" as const } } }]
                             : []),
                     ],
                 }),
@@ -337,7 +337,31 @@ async function formatTransactionQueryByResult(
     result: Awaited<ReturnType<typeof TransactionModel.groupBy>>,
     groupBy: TransactionScalarFieldEnum
 ) {
-    const response: Record<string, number> = {};
+    const prefillGroupedWithEnums = (result: Record<string, number>, enumObj: Record<string, string>) => {
+        const prefixed: Record<string, number> = {};
+        Object.values(enumObj).forEach((key) => {
+            prefixed[key] = 0;
+        });
+        Object.entries(result).forEach(([key, value]) => {
+            if (Object.hasOwn(enumObj, key)) {
+                prefixed[key] = value;
+            }
+        });
+        return prefixed;
+    };
+
+    // Prefill with enum values
+    let response: Record<string, number> = {};
+    const groupByMap = new Map<TransactionScalarFieldEnum, Record<string, string>>([
+        ["transactionType", TransactionType],
+        ["transactionOutcome", Outcome],
+        ["applicantSex", Sex],
+    ]);
+
+    const enumObj = groupByMap.get(groupBy);
+    if (enumObj) {
+        response = prefillGroupedWithEnums(response, enumObj);
+    }
 
     result.forEach((data) => {
         // format the data into

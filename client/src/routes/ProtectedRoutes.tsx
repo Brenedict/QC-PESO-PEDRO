@@ -58,6 +58,7 @@ import { todayRedirectLoader } from "../api/dateService";
 import { ignoreQueries } from "../api/httpClient";
 import { LogAction } from "@qcpesopedro/shared/prisma/enums";
 import { getAccountLog, getAccountLogOverview } from "../api/logService";
+import { getContextAnalytics } from "../api/contextService";
 
 export const protectedRoutes: RouteObject[] = [
     {
@@ -329,7 +330,7 @@ export const protectedRoutes: RouteObject[] = [
                         path: "context-analytics",
                         element: <ContextAnalytics />,
                         // Just added this for now, if not correct access level change it
-                        loader: requireAccess(AccessLevel.SUPERADMIN),
+                        loader: requireAccess(AccessLevel.SUPERADMIN, getContextAnalytics),
                         children: [...shiftPopups(ROUTES.contextAnalysis.root)],
                     },
                 ],

@@ -4,7 +4,7 @@ import type {
     TransactionAnalyticsFilterType,
     TransactionAnalyticsQueryInput,
 } from "@qcpesopedro/shared/schema/transactions";
-import { getDateParams } from "./dateService";
+import { buildMonthRangeParam, getDateParams } from "./dateService";
 
 // API Services
 import { getOverviewAnalytics, getRecentTransactions } from "../api/transactionService";
@@ -296,6 +296,60 @@ export const TRANSACTION_REPORT_REQUEST = (type: ReportTypes): TransactionAnalyt
         ],
     };
 };
+
+export const CONTEXT_ANALYTICS_REQUEST = (): TransactionAnalyticsQueryInput => {
+    const { monthParam } = getDateParams();
+
+    return {
+        queries: [
+            {
+                type: "DATE_RANGE",
+                id: "types",
+                groupBy: "transactionType",
+                includePrevious: true,
+                ...monthParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "outcomes",
+                groupBy: "transactionOutcome",
+                includePrevious: true,
+                ...monthParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "walkinoutcomes",
+                groupBy: "transactionOutcome",
+                includePrevious: true,
+                filters: {
+                    type: "WALK_IN_REFERRAL",
+                },
+                ...monthParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "onlineoutcomes",
+                groupBy: "transactionOutcome",
+                includePrevious: true,
+                filters: {
+                    type: "ONLINE_REFERRAL",
+                },
+                ...monthParam,
+            },
+            {
+                type: "DATE_RANGE",
+                id: "inhouseoutcomes",
+                groupBy: "transactionOutcome",
+                includePrevious: true,
+                filters: {
+                    type: "IN_HOUSE_RECRUITMENT",
+                },
+                ...monthParam,
+            },
+        ],
+    };
+};
+
 export const getQueryIds = (query: TransactionAnalyticsQueryInput, start?: number, end?: number) => {
     return query?.queries?.map((q) => q.id).slice(start, end);
 };
@@ -322,4 +376,4 @@ export const getAnalytics = async (args: LoaderFunctionArgs) => {
 // console.log();
 // console.log("====== DETAILS ========\n", JSON.stringify(DASHBOARD_DETAILS_REQUEST()));
 // console.log("====== REPORT ========\n", JSON.stringify(TRANSACTION_REPORT_REQUEST("DAILY")));
-//
+console.log("====== REPORT ========\n", JSON.stringify(CONTEXT_ANALYTICS_REQUEST()));

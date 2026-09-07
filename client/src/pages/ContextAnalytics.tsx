@@ -1,33 +1,35 @@
+// General Imports
+import { useEffect, useRef, useState } from "react";
+import { Outlet, useLoaderData } from "react-router";
+
 // Components
 import { Card } from "../components/Card";
 import { Text } from "../components/Text";
-import { ProgressChart } from "../components/ProgressChart";
-import { DoughnutChart } from "../components/DoughnutChart";
 import { BarChart } from "../components/BarChart";
-import { ScatterChart } from "../components/ScatterChart";
 import PageHeader from "../components/PageHeader";
 import type { IconProps } from "../components/Icon";
-import { LineChart } from "../components/LineChart";
 import Icon from "../components/Icon";
+import Button from "../components/Button";
 
 // Icons
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
+import QuickreplyOutlinedIcon from "@mui/icons-material/QuickreplyOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import TrackChangesOutlinedIcon from "@mui/icons-material/TrackChangesOutlined";
+import ReportGmailerrorredOutlinedIcon from "@mui/icons-material/ReportGmailerrorredOutlined";
 
 // Default Chart configs
-import {
-    sampleContextBarData,
-    sampleContextBarOptions,
-    sampleContextLineData,
-    sampleContextLineOptions,
-    sampleContextDoughnut1Data,
-    sampleContextDoughnutOptions,
-    sampleContextDoughnut2Data,
-} from "../data/chartsConfigs";
-import { sampleScatterData, sampleScatterOptions } from "../data/chartsConfigs";
+import { sampleContextBarOptions } from "../data/chartsConfigs";
 
 // Types
 import type { MaterialIcon } from "../types/common";
+import { apiJson, ensureOk } from "../api/actionService";
+import { DASHBOARD_OVERVIEW_REQUEST } from "../api/analyticsService";
+import { formatLabel } from "../utils/text";
+import { ChartColorClasses } from "../types/charts";
+import { findMostFrequent } from "../api/contextService";
+import { EnvironmentTag } from "@qcpesopedro/shared/prisma/browser";
 
 function StatCard({
     value,
@@ -57,13 +59,13 @@ function StatCard({
             <Card.Body className={`p-6! flex ${alignClasses[align]} ${invertOrder ? "flex-col-reverse" : "flex-col"}`}>
                 <div className="flex justify-center items-center gap-1">
                     {/* Main Text */}
-                    <Text size="big" variant={valueVariant} weight="bold">
+                    <Text size="bigMedium" variant={valueVariant} weight="bold">
                         {value}
                     </Text>
 
                     {/* Percentage */}
                     {subValue && (
-                        <Text size="description" weight="normal" variant="grayish-blue">
+                        <Text size="description" weight="medium" variant="grayish-blue">
                             ({subValue})
                         </Text>
                     )}
@@ -76,10 +78,18 @@ function StatCard({
     );
 }
 
-function ContextTipCard({ icon, description }: { icon: MaterialIcon; description: string }) {
+function ContextTipCard({
+    icon,
+    description,
+    variant = "off-white",
+}: {
+    icon: MaterialIcon;
+    description: string;
+    variant?: "white" | "off-white";
+}) {
     return (
         <Card dropShadow={false}>
-            <Card.Body className="flex gap-4 px-4!" variant="off-white">
+            <Card.Body className="flex gap-4 px-4!" variant={variant}>
                 <div>
                     <Icon
                         icon={icon}
@@ -130,7 +140,7 @@ function SectionHeader({
 }) {
     return (
         <div>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-4">
                 <Text
                     size="medium"
                     weight="bold"
@@ -148,57 +158,113 @@ function SectionHeader({
     );
 }
 
-function InsightSection() {
+function InsightsStatGrid({
+    transactionCount,
+    types,
+    outcomes,
+    tags,
+    shiftCount,
+}: {
+    transactionCount: number;
+    types: Record<string, number> | undefined;
+    outcomes: Record<string, number> | undefined;
+    tags: Array<{ environmentTag: string; count: number }>;
+    shiftCount: number;
+}) {
+    const primarySource = findMostFrequent(types);
+    const commonOutcome = findMostFrequent(outcomes);
+    const frequentTag = tags.length > 0 ? tags.reduce((max, tag) => (tag.count > max.count ? tag : max)) : null;
+    const tagPercentage = shiftCount > 0 && frequentTag ? Math.round((frequentTag.count / shiftCount) * 100) : 0;
+
     return (
-        <Card className="border-3 border-primary-blue">
+        <div className="grid grid-cols-4 gap-3 mb-6">
+            <StatCard
+                value={transactionCount}
+                description="Total Transactions"
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+            />
+            <StatCard
+                value={primarySource && primarySource.percent > 0 ? formatLabel(primarySource.name) : "N/A"}
+                description="Primary Source"
+                subValue={primarySource && primarySource.percent > 0 ? `${primarySource.percent}%` : undefined}
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+            />
+            <StatCard
+                value={commonOutcome && commonOutcome.percent > 0 ? formatLabel(commonOutcome.name) : "N/A"}
+                description="Most Common Outcome"
+                subValue={commonOutcome && commonOutcome.percent > 0 ? `${commonOutcome.percent}%` : undefined}
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+            />
+            <StatCard
+                value={frequentTag && tagPercentage > 0 ? formatLabel(frequentTag.environmentTag) : "N/A"}
+                description="Most Frequent Tag"
+                subValue={frequentTag && tagPercentage > 0 ? `${tagPercentage}%` : undefined}
+                invertOrder={true}
+                align="left"
+                dropShadow={false}
+                valueVariant="red"
+            />
+        </div>
+    );
+}
+
+function InsightSection({ insight }: { insight: string }) {
+    const { transaction, shift } = useLoaderData();
+    console.log(shift);
+
+    const { types, outcomes } = transaction;
+    const { analytics } = shift ?? {};
+
+    const lastMonthTags = analytics
+        ? analytics.map((tag: { environmentTag: string; previous: number }) => ({
+              environmentTag: tag.environmentTag,
+              count: tag.previous,
+          }))
+        : [];
+
+    const thisMonthTags = analytics
+        ? analytics.map((tag: { environmentTag: string; count: number }) => ({
+              environmentTag: tag.environmentTag,
+              count: tag.count,
+          }))
+        : [];
+
+    return (
+        <Card className="border-3 border-primary-blue mb-8">
             <Card.Body>
                 <SectionHeader
                     primaryText="Context Analytics"
-                    icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
+                    icon={{ variant: "primary-blue", icon: QuickreplyOutlinedIcon, size: "big" }}
                     divider={false}
-                ></SectionHeader>
+                />
 
-                {/* Should probably use map function */}
-                <div className="grid grid-cols-5 gap-3 mb-6">
-                    <StatCard
-                        value={427}
-                        description="Total Transactions"
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Walk-In"}
-                        description="Primary Source"
-                        subValue={"39%"}
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Successful"}
-                        description="Most Common Outcome"
-                        subValue={"74%"}
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                    <StatCard
-                        value={"Slow Internet"}
-                        description="Most Frequent Issue"
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                        valueVariant="red"
-                    ></StatCard>
-                    <StatCard
-                        value={"Lack of NC II"}
-                        description="Most Common Skill Gap"
-                        invertOrder={true}
-                        align="left"
-                        dropShadow={false}
-                    ></StatCard>
-                </div>
+                <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
+                    Last Month
+                </Text>
+                <InsightsStatGrid
+                    transactionCount={types?.previous?.count ?? 0}
+                    types={types?.previous?.grouped}
+                    outcomes={outcomes?.previous?.grouped}
+                    tags={lastMonthTags}
+                    shiftCount={shift?.total?.previous ?? 0}
+                />
+
+                <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
+                    This Month
+                </Text>
+                <InsightsStatGrid
+                    transactionCount={types?.current?.count ?? 0}
+                    types={types?.current?.grouped}
+                    outcomes={outcomes?.current?.grouped}
+                    tags={thisMonthTags}
+                    shiftCount={shift?.total?.count ?? 0}
+                />
 
                 <Card dropShadow={false}>
                     <Card.Body variant="off-white">
@@ -206,9 +272,7 @@ function InsightSection() {
                             AI Recommendation:
                         </Text>
                         <Text size="description" variant="grayish-blue" weight="normal">
-                            Increase support staff during Job Caravan events and coordinate with IT to resolve recurring
-                            internet issues, as days affected by connectivity problems consistently process 28% fewer
-                            applicants.
+                            {insight}
                         </Text>
                     </Card.Body>
                 </Card>
@@ -217,182 +281,264 @@ function InsightSection() {
     );
 }
 
-function Level1Section() {
+function Level1Section({ insight }: { insight: string }) {
+    const {
+        transaction: { types },
+    } = useLoaderData();
+
+    const sourceCards = (grouped: Record<string, number> | undefined) => (
+        <div className="col-span-5 grid grid-cols-3 gap-3">
+            <StatCard value={grouped?.WALK_IN_REFERRAL ?? 0} description="Walk-in Referral" />
+            <StatCard value={grouped?.ONLINE_REFERRAL ?? 0} description="Online Referral" />
+            <StatCard value={grouped?.IN_HOUSE_RECRUITMENT ?? 0} description="Inhouse Recruitment" />
+        </div>
+    );
+
     return (
-        <section>
+        <section className="mb-12">
             <SectionHeader
-                primaryText="Context Analytics"
+                primaryText="Level 1: Transaction Origin"
                 secondaryText="Where did applicants come from?"
-                icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
-            ></SectionHeader>
-
-            <div className="grid grid-cols-6 gap-3 mb-6">
-                <StatCard value={38} description="Walk-in Referral"></StatCard>
-                <StatCard value={197} description="Online Referral"></StatCard>
-                <StatCard value={175} description="Inhouse Recruitment"></StatCard>
-                <StatCard value={198} description="Partner Agencies"></StatCard>
-                <StatCard value={44} description="Immersion"></StatCard>
-                <StatCard value={216} description="PESO Referral"></StatCard>
-            </div>
-
-            <div className="grid grid-cols-6 gap-6">
-                {/* Doughnut Chart */}
-                <Card className="col-span-2">
-                    <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Applicant Source Distribution</Text>
-                    </Card.Header>
-                    <Card.Body className="h-fit">
-                        <DoughnutChart
-                            options={sampleContextDoughnutOptions}
-                            data={sampleContextDoughnut1Data}
-                            wrapperClassName="relative w-full h-[400px]"
-                        ></DoughnutChart>
-                    </Card.Body>
-                </Card>
-
-                {/* Line Chart */}
-                <Card className="col-span-4">
-                    <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Transaction Summary Preview</Text>
-                    </Card.Header>
-                    <Card.Body>
-                        <LineChart
-                            options={sampleContextLineOptions}
-                            data={sampleContextLineData}
-                            wrapperClassName="relative w-full h-[300px]!"
-                        ></LineChart>
-                    </Card.Body>
-                    <Card.Footer bordered={false} variant="white">
-                        <ContextTipCard
-                            icon={LightbulbOutlinedIcon}
-                            description={
-                                "Job Caravan contributed 41% of today's applicants. Notice the sudden spike on Wednesday, perfectly correlating with the off-site event."
-                            }
-                        />
-                    </Card.Footer>
-                </Card>
+                icon={{ variant: "primary-blue", icon: LocationOnOutlinedIcon, size: "big" }}
+            />
+            <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
+                Last Month
+            </Text>
+            {sourceCards(types?.previous?.grouped)}
+            <Text size="normal" variant="primary-blue" weight="bold" className="mb-1 mt-4">
+                This Month
+            </Text>
+            {sourceCards(types?.current?.grouped)}
+            <div className="col-span-5 mt-5">
+                <ContextTipCard icon={LightbulbOutlinedIcon} variant="white" description={insight} />
             </div>
         </section>
     );
 }
 
-function Level2Section() {
+function Level2Section({ insight }: { insight: string }) {
+    const {
+        transaction: {
+            walkinoutcomes: { current: currentWalkins, previous: previousWalkins },
+            onlineoutcomes: { current: currentOnline, previous: previousOnline },
+            inhouseoutcomes: { current: currentInhouse, previous: previousInhouse },
+        },
+    } = useLoaderData();
+
+    type GroupedData = { grouped?: Record<string, number> };
+    const buildOutcomesData = (walkins?: GroupedData, online?: GroupedData, inhouse?: GroupedData) => ({
+        labels: ["Walk-In Referral", "Online Referral", "Inhouse Recruitment"],
+        datasets: [
+            {
+                label: "Successful",
+                data: [walkins?.grouped?.SUCCESS ?? 0, online?.grouped?.SUCCESS ?? 0, inhouse?.grouped?.SUCCESS ?? 0],
+                backgroundColor: ChartColorClasses["green"],
+            },
+            {
+                label: "Pending",
+                data: [walkins?.grouped?.PENDING ?? 0, online?.grouped?.PENDING ?? 0, inhouse?.grouped?.PENDING ?? 0],
+                backgroundColor: ChartColorClasses["light-blue"],
+            },
+            {
+                label: "Mismatched",
+                data: [
+                    walkins?.grouped?.MISMATCH ?? 0,
+                    online?.grouped?.MISMATCH ?? 0,
+                    inhouse?.grouped?.MISMATCH ?? 0,
+                ],
+                backgroundColor: ChartColorClasses["red"],
+            },
+            {
+                label: "None",
+                data: [walkins?.grouped?.NONE ?? 0, online?.grouped?.NONE ?? 0, inhouse?.grouped?.NONE ?? 0],
+                backgroundColor: ChartColorClasses["yellow"],
+            },
+        ],
+    });
+
+    const lastMonthData = buildOutcomesData(previousWalkins, previousOnline, previousInhouse);
+    const thisMonthData = buildOutcomesData(currentWalkins, currentOnline, currentInhouse);
+
     return (
-        <section>
+        <section className="mb-12">
             <SectionHeader
-                primaryText="Context Analytics"
-                secondaryText="Where did applicants come from?"
-                icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
+                primaryText="Level 2: Transaction Outcome"
+                secondaryText="Quality of transactions and skill gaps"
+                icon={{ variant: "primary-blue", icon: TrackChangesOutlinedIcon, size: "big" }}
             ></SectionHeader>
             <div className="grid grid-cols-6 gap-6">
                 {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Outcomes by Applicant Source</Text>
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            Last Month: Outcomes by Applicant Source
+                        </Text>
                     </Card.Header>
                     <Card.Body>
                         <BarChart
                             options={sampleContextBarOptions}
-                            data={sampleContextBarData}
+                            data={lastMonthData}
                             wrapperClassName="relative w-full h-[350px]!"
                         ></BarChart>
                     </Card.Body>
                 </Card>
 
-                {/* Progress Chart */}
+                {/* Bar Chart */}
                 <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Most Common Reasons for Mismatched Skills</Text>
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            This Month: Outcomes by Applicant Source
+                        </Text>
                     </Card.Header>
-                    <Card.Body className="">
-                        <ProgressChart
-                            dataset={[
-                                { item: "Education Mismatch", percentage: 58, barColor: "primary-blue" },
-                                { item: "Lack of NC II Certification", percentage: 21, barColor: "light-blue" },
-                                { item: "No Relevant Experience", percentage: 14, barColor: "purple" },
-                                { item: "Incomplete Resume", percentage: 7, barColor: "yellow" },
-                            ]}
-                        />
+                    <Card.Body>
+                        <BarChart
+                            options={sampleContextBarOptions}
+                            data={thisMonthData}
+                            wrapperClassName="relative w-full h-[350px]!"
+                        ></BarChart>
                     </Card.Body>
-                    <Card.Footer bordered={false} variant="white">
-                        <ContextTipCard
-                            icon={LightbulbOutlinedIcon}
-                            description={
-                                "Most pending applications today were caused by incomplete documentary requirements, while the top skill gap remains NC II Certification."
-                            }
-                        />
-                    </Card.Footer>
                 </Card>
+                <div className="col-span-6">
+                    <ContextTipCard icon={LightbulbOutlinedIcon} variant="white" description={insight} />
+                </div>
             </div>
         </section>
     );
 }
 
-function Level3Section() {
+function Level3Section({ insight }: { insight: string }) {
+    const {
+        shift: { analytics },
+    } = useLoaderData();
+
+    const getTag = (key: string) => analytics?.find((tag: { environmentTag: string }) => tag.environmentTag === key);
+
+    const tagMap = {
+        slowInternet: getTag(EnvironmentTag.SLOW_INTERNET),
+        brokenEquipment: getTag(EnvironmentTag.BROKEN_EQUIPMENT),
+        heavyRain: getTag(EnvironmentTag.HEAVY_RAIN),
+        feelingUnwell: getTag(EnvironmentTag.FEELING_UNWELL),
+        brokenSoftware: getTag(EnvironmentTag.BROKEN_SOFTWARE_SYSTEM),
+        applicantIssues: getTag(EnvironmentTag.APPLICANT_ISSUES),
+    } as const;
+
+    const buildTagsData = (key: "count" | "previous") => ({
+        labels: [
+            "Slow Internet",
+            "Broken Equipment",
+            "Heavy Rain",
+            "Feeling Unwell",
+            "Broken Software",
+            "Applicant Issues",
+        ],
+        datasets: [
+            {
+                label: key === "count" ? "This Month" : "Last Month",
+                data: [
+                    tagMap.slowInternet?.[key] ?? 0,
+                    tagMap.brokenEquipment?.[key] ?? 0,
+                    tagMap.heavyRain?.[key] ?? 0,
+                    tagMap.feelingUnwell?.[key] ?? 0,
+                    tagMap.brokenSoftware?.[key] ?? 0,
+                    tagMap.applicantIssues?.[key] ?? 0,
+                ],
+                backgroundColor: [
+                    ChartColorClasses["primary-blue"],
+                    ChartColorClasses["red"],
+                    ChartColorClasses["light-blue"],
+                    ChartColorClasses["green"],
+                    ChartColorClasses["purple"],
+                    ChartColorClasses["yellow"],
+                ],
+            },
+        ],
+    });
+
+    const lastMonthData = buildTagsData("previous");
+    const thisMonthData = buildTagsData("count");
+
     return (
         <section>
             <SectionHeader
-                primaryText="Operational Environment"
-                secondaryText="The reason productivity changed"
-                icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
-            ></SectionHeader>
+                primaryText="Level 3: Operational Environment"
+                secondaryText="What is the frequent issues in the working environment?"
+                icon={{ variant: "primary-blue", icon: ReportGmailerrorredOutlinedIcon, size: "big" }}
+            />
             <div className="grid grid-cols-6 gap-6">
-                {/* Doughnut Chart */}
-                <Card className="col-span-2">
+                <Card className="col-span-3">
                     <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Applicant Source Distribution</Text>
-                    </Card.Header>
-                    <Card.Body className="flex flex-col gap-3">
-                        <div className="w-full">
-                            <DoughnutChart
-                                options={sampleContextDoughnutOptions}
-                                data={sampleContextDoughnut2Data}
-                                wrapperClassName="relative w-full h-[300px]!"
-                            ></DoughnutChart>
-                        </div>
-                        <hr className="border-1.2 border-grayish-blue-opaque" />
-                        <Text size="description" weight="bold">
-                            Event Timeline
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            Last Month: Tags Mentioned By Staff
                         </Text>
-
-                        {/* Use Map function here */}
-                        <div className="flex flex-col gap-3 overflow-y-auto  h-40">
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                            <EventTimelineCard title="Slow Internet" reporter="Staff A" time="8:45 AM" />
-                        </div>
-                    </Card.Body>
-                </Card>
-
-                {/* Scatter Chart */}
-                <Card className="col-span-4">
-                    <Card.Header bordered={false} variant="white">
-                        <Text weight="bold">Correlation: Operational Issue vs Transactions Processed</Text>
                     </Card.Header>
                     <Card.Body>
-                        <ScatterChart
-                            options={sampleScatterOptions}
-                            data={sampleScatterData}
-                            wrapperClassName="relative w-full h-[400px]!"
-                        ></ScatterChart>
-                    </Card.Body>
-                    <Card.Footer bordered={false} variant="white">
-                        <ContextTipCard
-                            icon={LightbulbOutlinedIcon}
-                            description={
-                                "Days with Slow Internet processed approximately 28% fewer applicants. System Downtime completely halts throughput, dropping the average to just 40 transactions."
-                            }
+                        <BarChart
+                            options={sampleContextBarOptions}
+                            data={lastMonthData}
+                            wrapperClassName="relative w-full h-[350px]!"
                         />
-                    </Card.Footer>
+                    </Card.Body>
                 </Card>
+
+                <Card className="col-span-3">
+                    <Card.Header bordered={false} variant="white">
+                        <Text size="normal" variant="primary-blue" weight="bold">
+                            This Month: Tags Mentioned By Staff
+                        </Text>
+                    </Card.Header>
+                    <Card.Body>
+                        <BarChart
+                            options={sampleContextBarOptions}
+                            data={thisMonthData}
+                            wrapperClassName="relative w-full h-[350px]!"
+                        />
+                    </Card.Body>
+                </Card>
+                <div className="col-span-6">
+                    <ContextTipCard icon={LightbulbOutlinedIcon} variant="white" description={insight} />
+                </div>
             </div>
         </section>
     );
 }
 
 export function ContextAnalytics() {
+    const analytics = useLoaderData();
+    const [insights, setInsights] = useState<Record<string, string>>({});
+    const hasGeneratedInsights = useRef(false);
+
+    useEffect(() => {
+        if (hasGeneratedInsights.current) return;
+        hasGeneratedInsights.current = true;
+
+        const focus = {
+            summary:
+                "Synthesize the other focus areas into the single most important takeaway for PESO management this month, then give one concrete, actionable recommendation. Do not repeat a point already made in another paragraph verbatim.",
+            level1: "Analyze referral source trends, volumes, and spikes across Walk-In Referral, Online Referral, and In-House Recruitment.",
+            level2: "Analyze outcome quality by source (Success, Pending, Mismatch, None), highlighting skill gaps or mismatches.",
+            level3: "Analyze operational environment tag frequency (Slow Internet, Broken Equipment, Heavy Rain, etc.) and how these issues affect throughput.",
+        };
+
+        const generateInsights = async () => {
+            try {
+                const res = await apiJson(`/insight/`, {
+                    method: "POST",
+                    body: JSON.stringify({ analytics, focus }),
+                });
+
+                await ensureOk(res, "Failed to generate insights");
+
+                const result = await res.json();
+
+                console.log("Insights generated successfully:", result);
+                setInsights(result.insights);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        generateInsights();
+    }, [analytics]);
+
     return (
         <>
             <PageHeader
@@ -401,12 +547,16 @@ export function ContextAnalytics() {
                 icon={{ variant: "primary-blue", icon: QueryStatsIcon, size: "bigger" }}
             />
 
-            <main className="flex flex-col gap-6">
-                <InsightSection />
-                <Level1Section />
-                <Level2Section />
-                <Level3Section />
+            <main className="flex flex-col">
+                {/* <h1 className="font-bold">This is temporary unformatted ai reply</h1>
+                    <h1>{tempInsights}</h1> */}
+                <InsightSection insight={insights.summary ?? "Gathering insights..."} />
+                <Level1Section insight={insights.level1 ?? "Gathering insights..."} />
+                <Level2Section insight={insights.level2 ?? "Gathering insights..."} />
+                <Level3Section insight={insights.level3 ?? "Gathering insights..."} />
             </main>
+
+            <Outlet />
         </>
     );
 }

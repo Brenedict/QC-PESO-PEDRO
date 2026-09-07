@@ -14,6 +14,12 @@ export const ShiftQuerySchema = withDateRange(
     })
 );
 
+export const ShiftAnalyticsQuerySchema = withDateRange(
+    z.object({
+        ...dateRangeFields,
+    })
+);
+
 export const ShiftFormCreateSchema = zfd.formData(
     z.object({
         userId: zfd.numeric(z.number().int().positive()),
@@ -60,6 +66,7 @@ export const ShiftDetailsQuerySchema = z.object({
 
 export type ShiftQueryIncludeType = z.infer<typeof ShiftIncludeQuerySchema>;
 export type ShiftQueryType = z.infer<typeof ShiftQuerySchema>;
+export type ShiftAnalyticsQueryType = z.infer<typeof ShiftAnalyticsQuerySchema>;
 export type ShiftDetailsQueryType = z.infer<typeof ShiftDetailsQuerySchema>;
 export type ShiftFormCreateType = z.infer<typeof ShiftFormCreateSchema>;
 export type ShiftFormEndType = z.infer<typeof ShiftFormEndSchema>;

@@ -51,11 +51,11 @@ export const getShiftDetailsOverview =
     async ({ params, request }: LoaderFunctionArgs) => {
         const apiParams = buildParamString(query as Record<string, string | string[]>);
         try {
-            let shiftUrl = "/shift/";
+            let shiftUrl: string;
 
             if (useUserShift) {
                 const { id: userShiftId } = InMemoryStore.getUser()?.shiftLog ?? {};
-                if (!userShiftId) throw Error("Failed to end shift log.");
+                if (!userShiftId) throw Error("Failed to get end shift details.");
                 shiftUrl = `/shift/${userShiftId}`;
             } else {
                 const shiftId = decode(params.shiftId);
@@ -68,10 +68,9 @@ export const getShiftDetailsOverview =
             });
 
             await ensureOk(res, "Failed to retrieve shift details");
-
             return res.json();
         } catch (err) {
-            return handleErrRedirect(err, request, ROUTES.endshift.root);
+            return handleErrRedirect(err, request, ROUTES.dashboard.root);
         }
     };
 // PATCH: Review shift (Admin)
