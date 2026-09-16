@@ -1,15 +1,20 @@
+// Components
 import { CardHeader } from "../components/DashboardCard";
-import type { MaterialIcon } from "../types/common";
 import { Card } from "./Card";
 import { Divider, FemaleText, MaleText, NumberText, NumberTitle, PercentageChange } from "./DashboardCard";
+
+// Materials UI Icons
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
+
+// Types
+import type { MaterialIcon } from "../types/common";
 
 interface StatsCardProps {
     title: string;
-    total: number;
-    male: number;
-    female: number;
-    previous: number;
+    total: number | string;
+    male: number | string;
+    female: number | string;
+    previous: number | string;
     className?: string;
     specialIcon?: MaterialIcon;
     onClick?: React.MouseEventHandler<HTMLDivElement>;

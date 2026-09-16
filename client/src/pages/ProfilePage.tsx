@@ -1,7 +1,8 @@
 // General Imports
-import { Outlet } from "react-router";
+import { Outlet, useSearchParams } from "react-router";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
-// Componentss
+// Components
 import { Text } from "../components/Text";
 import PageHeader from "../components/PageHeader";
 import Profile from "../components/Profile";
@@ -23,17 +24,23 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import type { MaterialIcon } from "../types/common";
 
 // Context
-import { useTopBar } from "../context/TopbarContext.tsx";
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+import { useAuth } from "../context/AuthContext.tsx";
+import { useEffect, useState } from "react";
+import { NotificationPopup } from "../components/popups/NotificationPopups.tsx";
+
+// API Services
+import { updateUserPreferences } from "../api/userService";
 
 //  Profile picture, name, role, and change password button
 function ProfileSummaryCard() {
-    const { firstName, lastName, role } = useTopBar();
+    const { firstName, lastName, role } = useUserGlobal();
+    const navigate = useNavigateDefault();
     return (
         <Card className="w-full md:w-1/3 flex flex-col">
             <Card.Header variant="off-white" bordered={true} className="h-28">
                 {null}
             </Card.Header>
-
             <Card.Body className="flex-1 flex flex-col items-center text-center relative pt-0">
                 {/*Profile Picture*/}
                 <div className="absolute -top-12">
@@ -60,13 +67,13 @@ function ProfileSummaryCard() {
                     Processing daily walk-ins and referral transactions for the Public Employment Division.
                 </Text>
             </Card.Body>
-
             <Card.Footer variant="white" bordered={false} className="pt-2 pb-6 px-6">
                 <Button
                     variant="white-black"
                     size="normal"
                     className="w-full text-sm font-semibold"
                     leftIcon={{ icon: KeyOutlinedIcon, size: "medium", variant: "black" }}
+                    onClick={() => navigate(ROUTES.profile.changePassword, true)}
                 >
                     Change Password
                 </Button>
@@ -77,6 +84,22 @@ function ProfileSummaryCard() {
 
 // read-only inputs and system toggles
 function AccountInfoCard() {
+    const { firstName, lastName, email, role, shift } = useUserGlobal();
+    const { user } = useAuth();
+
+    const savedNotifSoundEnabled = user?.notifSoundEnabled ?? true;
+    const [notifSoundEnabled, setNotifSoundEnabled] = useState(savedNotifSoundEnabled);
+
+    const isChanged = notifSoundEnabled !== savedNotifSoundEnabled;
+
+    const savePreferences = async () => {
+        try {
+            await updateUserPreferences({ notifSoundEnabled });
+        } catch (err) {
+            console.error("Failed to save preferences:", err);
+        }
+    };
+
     const renderLabel = (IconComponent: MaterialIcon, text: string) => (
         <div className="uppercase mb-2">
             <Text
@@ -105,7 +128,7 @@ function AccountInfoCard() {
                         id="fullName"
                         label={renderLabel(PersonOutlineOutlinedIcon, "Full Name")}
                         placeholder="Enter full name"
-                        value="Juan Dela Cruz"
+                        value={`${firstName} ${lastName}`}
                         readOnly
                         className="cursor-not-allowed bg-gray-100 text-gray-600 focus:outline-none"
                     />
@@ -114,7 +137,7 @@ function AccountInfoCard() {
                         id="email"
                         label={renderLabel(MailOutlineOutlinedIcon, "QC Government Email")}
                         placeholder="Enter email"
-                        value="juan.cruz@quezoncity.gov.ph"
+                        value={email}
                         readOnly
                         className="cursor-not-allowed bg-gray-100 text-gray-600 focus:outline-none"
                     />
@@ -123,16 +146,16 @@ function AccountInfoCard() {
                         id="role"
                         label={renderLabel(BadgeOutlinedIcon, "Role")}
                         placeholder="Enter role"
-                        value="Frontline Encoder"
+                        value={role}
                         readOnly
                         className="cursor-not-allowed bg-gray-100 text-gray-600 focus:outline-none"
                     />
                     <GeneralInput
                         type="text"
                         id="department"
-                        label={renderLabel(BusinessOutlinedIcon, "Department")}
+                        label={renderLabel(BusinessOutlinedIcon, "Shift")}
                         placeholder="Enter department"
-                        value="Public Employment Division (PED)"
+                        value={shift}
                         readOnly
                         className="cursor-not-allowed bg-gray-100 text-gray-600 focus:outline-none"
                     />
@@ -146,16 +169,24 @@ function AccountInfoCard() {
 
                 {/*Notification Toggles*/}
                 <div className="mt-4 flex flex-col gap-4">
-                    <ChoiceItem inputVariant="checkbox" stylized={false} defaultChecked>
-                        Enable email notifications for system announcements
-                    </ChoiceItem>
-                    <ChoiceItem inputVariant="checkbox" stylized={false} defaultChecked>
+                    <ChoiceItem
+                        inputVariant="checkbox"
+                        stylized={false}
+                        checked={notifSoundEnabled}
+                        onChange={(e) => setNotifSoundEnabled(e.target.checked)}
+                    >
                         Play sound for incoming notifications
                     </ChoiceItem>
                 </div>
 
                 <div className="mt-8 flex justify-end">
-                    <Button variant="blue" size="normal" className="text-description!">
+                    <Button
+                        variant="blue"
+                        size="normal"
+                        className="text-description!"
+                        onClick={savePreferences}
+                        disabled={!isChanged}
+                    >
                         Save Preferences
                     </Button>
                 </div>
@@ -166,6 +197,29 @@ function AccountInfoCard() {
 
 // Sidebar, Topbar, and the Profile Content
 function ProfilePage() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [passwordChangeStatus, setPasswordChangeStatus] = useState<string>("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParams.get("passwordChangeStatus");
+
+        if (statusKey) {
+            setPasswordChangeStatus(statusKey);
+            setNotifModalOpen(true);
+
+            // Clean up query param from URL
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("passwordChangeStatus");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setPasswordChangeStatus(""); // Reset string state on close
+    };
+
     return (
         <>
             <PageHeader
@@ -179,8 +233,16 @@ function ProfilePage() {
 
             {/* Popup Uses */}
             <Outlet />
+
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={passwordChangeStatus}
+                    icon="notification"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
         </>
     );
 }
-
 export default ProfilePage;

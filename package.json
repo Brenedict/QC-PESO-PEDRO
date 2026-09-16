@@ -8,10 +8,18 @@
         "shared/"
     ],
     "scripts": {
-        "dev:client": "npm run dev --workspace=client/",
-        "dev:server": "npm run dev --workspace=server/",
         "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
-        "prisma:generate": "npx prisma generate --schema=server/prisma/schema.prisma"
+        "dev:client": "npm run dev -w client/",
+        "dev:server": "npm run dev -w server/",
+        "test:server": "npm test -w server/",
+        "mig:prisma": "npm run mig:prisma -w server/",
+        "res:prisma": "npm run res:prisma -w server/",
+        "gen:prisma": "npm run gen:prisma -w server/",
+        "seed:prisma": "npm run seed:prisma -w server/",
+        "gensql:prisma": "npm run gensql:prisma -w server/",
+        "create:prisma": "npm run create:prisma -w server/",
+        "studio:prisma": "npm run studio:prisma -w server/",
+        "pull:prisma": "npm run pull:prisma -w server/"
     },
     "devDependencies": {
         "concurrently": "^8.2.2"

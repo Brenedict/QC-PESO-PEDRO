@@ -7,9 +7,9 @@ generator client {
     provider               = "prisma-client"
     output                 = "../../shared/prisma"
     previewFeatures        = ["typedSql"]
-    moduleFormat           = "esm"
     generatedFileExtension = "ts"
     importFileExtension    = "ts"
+    moduleFormat           = "esm"
 }
 
 generator zod {
@@ -25,18 +25,24 @@ datasource db {
 // ------------------------ Enums ---------------------------
 
 enum LogAction {
-    TRANSACTION_CREATE
-    TRANSACTION_EDIT
-    TRANSACTION_DELETE
-    SUBMIT_ESS
-    TAG_ESS_REJECT
-    TAG_ESS_REVISION
-    TAG_ESS_APPROVE
-    USER_ADD
-    USER_RESET_PASSWORD
-    USER_EDIT
-    USER_PROMOTE
-    USER_DEMOTE
+    TRANSACTION_CREATED
+    TRANSACTION_EDITED
+    TRANSACTION_DELETED
+    SUBMITTED_END_SHIFT_STATUS
+    TAGGED_END_SHIFT_STATUS_REJECTED
+    TAGGED_END_SHIFT_STATUS_REVISION
+    TAGGED_END_SHIFT_STATUS_APPROVE
+    USER_CREATED
+    USER_PASSWORD_RESET
+    USER_PASSWORD_CHANGE
+    USER_EDITED
+    USER_DELETED
+    USER_PROMOTED
+    USER_DEMOTED
+    USER_ACCOUNT_DISABLED
+    USER_ACCOUNT_ENABLED
+    EMAIL_SENT_RESET_LINK
+    EMAIL_SENT_PASSWORD_CHANGE
     REPORTS_DOWNLOAD_DAILY
     REPORTS_DOWNLOAD_WEEKLY
     REPORTS_DOWNLOAD_MONTHLY
@@ -44,10 +50,10 @@ enum LogAction {
 }
 
 enum Status {
-    DISABLED
     ONLINE
     OFFLINE
     LOGGED_OUT
+    DISABLED
 }
 
 enum Sex {
@@ -62,9 +68,9 @@ enum Role {
 }
 
 enum Shift {
-    NONE
     MORNING
     AFTERNOON
+    NONE
 }
 
 enum TransactionType {
@@ -85,6 +91,7 @@ enum ESSStatus {
     REJECTED
     REVISION
     APPROVED
+    ONGOING
 }
 
 enum Demographic {
@@ -107,17 +114,15 @@ enum EnvironmentTag {
 // ------------------------ Models ---------------------------
 
 model Transaction {
-    id     Int    @id @default(autoincrement())
-    txCode String @unique
-    user   User   @relation(fields: [userId], references: [id])
+    id Int @id @default(autoincrement())
 
     /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
-    userId Int
-
-    shiftLog ShiftLog @relation(fields: [shiftLogId], references: [id])
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId Int?
 
     /// @zod.string.min(1, { message: "Shift Log Id cannot be empty" }).max(256)
-    shiftLogId Int
+    shiftLog   ShiftLog? @relation(fields: [shiftLogId], references: [id], onDelete: SetNull)
+    shiftLogId Int?
 
     /// @zod.trim().min(1, "Application last name cannot be empty")
     applicantFirstName String @db.VarChar(256)
@@ -126,35 +131,45 @@ model Transaction {
     applicantLastName String @db.VarChar(256)
 
     // Para mag span yung search sa full name string
-    applicantFullName String? @db.VarChar(256)
+    applicantFullName String? @default(dbgenerated()) @db.VarChar(256)
 
     applicantSex       Sex
     transactionOutcome Outcome         @default(NONE)
     createdAt          DateTime        @default(now()) @db.Timestamptz(0)
-    updatedAt          DateTime        @default(now()) @db.Timestamptz(0)
     transactionType    TransactionType @default(WALK_IN_REFERRAL)
     remarks            String?
+    demographics       Demographic[]
+    txCode             String          @unique
+    updatedAt          DateTime        @default(now()) @db.Timestamptz(0)
 
-    demographics Demographic[]
+    @@index([applicantFullName])
+    @@index([userId, createdAt(sort: Desc)])
+    @@index([shiftLogId, createdAt(sort: Desc)])
+    @@index([createdAt])
 }
 
 model ShiftLog {
-    id     Int  @id @default(autoincrement())
-    user   User @relation(fields: [userId], references: [id])
-    userId Int
+    id Int @id @default(autoincrement())
+
+    userId Int?
+    user   User? @relation("UserShiftLogs", fields: [userId], references: [id], onDelete: SetNull)
+
+    verifierId Int?
+    verifier   User? @relation("VerifiedShiftLogs", fields: [verifierId], references: [id], onDelete: SetNull)
 
     // Sa unang insert timeIn palang yung pwede mailagay
-
-    timeIn         DateTime  @default(now()) @db.Timestamptz(0)
-    timeOut        DateTime? @db.Timestamptz(0)
-    status         ESSStatus @default(PENDING) // Meron pa ring status
-    generalRemarks String?
-    adminRemarks   String?
-    lastVerifiedBy String?
-    lastVerifiedAt DateTime? @db.Timestamptz(0)
-
-    transactions    Transaction[]
+    timeIn          DateTime         @default(now()) @db.Timestamptz(0)
+    timeOut         DateTime?        @db.Timestamptz(0)
+    status          ESSStatus        @default(ONGOING) // Meron pa ring status
+    generalRemarks  String?
+    adminRemarks    String?
+    lastVerifiedAt  DateTime?        @db.Timestamptz(0)
     environmentTags EnvironmentTag[]
+    transactions    Transaction[]
+
+    @@index([userId])
+    @@index([status])
+    @@index([verifierId])
 }
 
 model User {
@@ -173,40 +188,81 @@ model User {
     status Status @default(LOGGED_OUT)
     shift  Shift  @default(NONE)
 
+    notifSoundEnabled Boolean @default(true)
+
     /// @zod.string.min(1, { message: "First Name cannot be empty" }).max(256)
     firstName String @db.VarChar(256)
 
     /// @zod.string.min(1, { message: "Last Name cannot be empty" }).max(256)
     lastName String @db.VarChar(256)
 
-    createdAt DateTime @default(now()) @db.Timestamptz(0)
-    updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(0)
+    createdAt         DateTime       @default(now()) @db.Timestamptz(0)
+    updatedAt         DateTime       @default(now()) @updatedAt @db.Timestamptz(0)
+    fullName          String?        @default(dbgenerated()) @db.VarChar(256)
+    accountLogs       AccountLog[]
+    auditLogs         AuditLog[]
+    notifications     Notification[]
+    shiftLogs         ShiftLog[]     @relation("UserShiftLogs")
+    verifiedShiftLogs ShiftLog[]     @relation("VerifiedShiftLogs")
+    transactions      Transaction[]
 
-    auditLogs    AuditLog[]
-    accountLogs  AccountLog[]
-    shiftLogs    ShiftLog[]
-    transactions Transaction[]
+    resetToken          String?   @unique
+    resetTokenExpiresAt DateTime?
+
+    // check if user is currently revising a shift
+    isRevising Boolean @default(false)
+
+    @@index([fullName])
+    @@index([role, status])
+    @@index([createdAt(sort: Desc)])
 }
 
 model AuditLog {
-    id     Int  @id @default(autoincrement())
-    user   User @relation(fields: [userId], references: [id])
-    userId Int
+    id Int @id @default(autoincrement())
+
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
     createdAt        DateTime  @default(now()) @db.Timestamptz(0)
     actionPerformed  LogAction
-    affectedRecordId Int
+    affectedRecordId String
     changesDetails   String
+    remarks          String
+
+    notifications Notification[]
+
+    @@index([userId, createdAt(sort: Desc)])
+}
+
+model Notification {
+    id Int @id @default(autoincrement())
+
+    // The user affected by this notification
+    recipient   User @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+    recipientId Int
+
+    // The audit log that produced this notification.
+    auditLog   AuditLog? @relation(fields: [auditLogId], references: [id], onDelete: SetNull)
+    auditLogId Int?
+
+    // When the notification was read by the recipient
+    readAt    DateTime? @db.Timestamptz(0)
+    createdAt DateTime  @default(now()) @db.Timestamptz(0)
+
+    @@index([recipientId, createdAt(sort: Desc)])
 }
 
 model AccountLog {
-    id     Int  @id @default(autoincrement())
-    user   User @relation(fields: [userId], references: [id])
-    userId Int
+    id Int @id @default(autoincrement())
+
+    userId Int?
+    user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
     // Sa unang insert logIn palang yung pwede mailagay
     logIn   DateTime  @default(now()) @db.Timestamptz(0)
     logOut  DateTime? @db.Timestamptz(0)
     reason  String?
     remarks String?
+
+    @@index([userId, logIn(sort: Desc)])
 }

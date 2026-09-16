@@ -1,6 +1,10 @@
 // General Imports
-import { Form, Outlet, useLoaderData, useActionData } from "react-router";
+import { Form, Outlet, useLoaderData, useActionData, useSearchParams } from "react-router";
 import { useEffect, useRef, useState } from "react";
+
+// PEDRO SHARED IMPORTS
+import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
+import { Demographic, TransactionType, Sex, type Transaction, Outcome } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import { Text } from "../components/Text";
@@ -12,21 +16,24 @@ import { GeneralInput, SelectInput, TextAreaInput } from "../components/Input";
 import { ActionButtons, ColumnText, DateTime } from "../components/TableCells";
 import ChoiceItem from "../components/ChoiceItem";
 import Status from "../components/Status";
+import { TransactionExtraFilters } from "./TransactionHistory";
 
-// Icons
+// Material UI Icons
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
-// Hooks
-import { useNavigateDefault, ROUTES } from "../hooks/reroute";
-import { Demographic, TransactionType, Sex, type Transaction, Outcome } from "@qcpesopedro/shared/prisma/browser";
-import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
-import { useAuth } from "../context/AuthContext";
+// Custom Hooks
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
+
+// API Services
 import { createTransaction } from "../api/transactionService";
-import { TransactionExtraFilters } from "./TransactionHistory";
+
+// Contexts
+import { useAuth } from "../context/AuthContext";
+import { NotificationPopup } from "../components/popups/NotificationPopups";
 
 interface FormRow1Props {
     txCode?: string;
@@ -43,13 +50,13 @@ export function FormRow1({ applicantFirstName, applicantLastName }: FormRow1Prop
                 name={TransactionScalarFieldEnum.userId}
                 type="number"
                 hidden={true}
-                defaultValue={user?.id}
+                defaultValue={user?.id ?? ""}
             />
             <GeneralInput
                 name={TransactionScalarFieldEnum.shiftLogId}
                 type="number"
                 hidden={true}
-                defaultValue={user?.shiftLogId}
+                defaultValue={user?.shiftLog?.id ?? ""}
             />
 
             <GeneralInput
@@ -254,6 +261,8 @@ function TransactionsInputForm() {
                         className="text-sm font-semibold text-black"
                         leftIcon={{ icon: CloseRoundedIcon, size: "normal", variant: "black" }}
                         type="reset"
+                        onClick={() => setIsFormValid(false)}
+                        disabled={!isFormValid}
                     >
                         Cancel
                     </Button>
@@ -358,6 +367,30 @@ function TransactionsLedger() {
 }
 
 function TransactionsInputPagePage() {
+    const [searchParamsNotif, setSearchParamsNotif] = useSearchParams();
+    const [notif, setNotif] = useState("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParamsNotif.get("NOTIF");
+
+        // Only trigger if NOTIF exists AND we haven't already opened the modal for it
+        if (statusKey && !notifModalOpen) {
+            setNotif(statusKey);
+            setNotifModalOpen(true);
+
+            // Clone existing search params (keeping page=2, etc.) and only delete NOTIF
+            const newParams = new URLSearchParams(searchParamsNotif);
+            newParams.delete("NOTIF");
+            setSearchParamsNotif(newParams, { replace: true });
+        }
+    }, [searchParamsNotif, notifModalOpen, setSearchParamsNotif]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setNotif(""); // Reset string state on close
+    };
+
     return (
         <>
             <PageHeader
@@ -368,6 +401,15 @@ function TransactionsInputPagePage() {
                 <TransactionsInputForm />
                 <TransactionsLedger />
             </div>
+
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={notif}
+                    icon="notification"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
 
             {/* Popup Uses */}
             <Outlet />

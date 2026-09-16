@@ -1,24 +1,34 @@
+// General Imports
 import type { ReactNode } from "react";
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import type { MaterialIcon } from "../../types/common";
+import { Link, useLoaderData, useLocation } from "react-router";
+
+// Components
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
+import { BarChart } from "../BarChart";
+import Table from "../Table";
+import { DoughnutChart } from "../DoughnutChart";
+
+// Material UI Icons
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import { Link, useLoaderData, useLocation } from "react-router";
-import Table from "../Table";
-import { shiftRecords } from "../../data/shiftRecords";
-import { BarChart } from "../BarChart";
-import { samplePieData, samplePieOptions, samplePopupBarData, samplePopupBarOptions } from "../../data/chartsConfigs";
-import { DoughnutChart } from "../DoughnutChart";
-import { CARD_MAP, extractGroupedFromData, type AnalyticsData } from "../../api/analyticsRequests";
+
+// API Services
+import { extractGroupedFromData, type AnalyticsData } from "../../api/analyticsService";
+import { DASHBOARD_CARD_MAP } from "../../api/transactionService";
 import {
     buildCategoryChartData,
     buildTimeSeriesChartData,
     type CategorySeriesConfig,
     type TimeSeriesConfig,
 } from "../../api/chartService";
-import { Sex } from "@qcpesopedro/shared/prisma/browser";
+
+// Custom Hooks
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
+
+// Types
+import type { MaterialIcon } from "../../types/common";
+import { useAuth } from "../../context/AuthContext";
 
 function TransactionMiniCard({ label, value }: { label: string; value: number }) {
     return (
@@ -70,11 +80,12 @@ function ChartContainer({ children, ...props }: { children: ReactNode } & ChartL
 export function PopupTransactionDetails() {
     const location = useLocation();
     const id = location.pathname.split("/").at(-1) as string | undefined;
+    const { user } = useAuth();
 
     const data = useLoaderData() as AnalyticsData;
     const navigate = useNavigateDefault();
 
-    const label = id && CARD_MAP?.[id]?.title ? CARD_MAP?.[id].title : "Unknown";
+    const label = id && DASHBOARD_CARD_MAP?.[id]?.title ? DASHBOARD_CARD_MAP?.[id].title : "Unknown";
 
     const hourlySeries: TimeSeriesConfig[] = [
         {
@@ -119,14 +130,16 @@ export function PopupTransactionDetails() {
                 <div className="flex justify-between mb-4">
                     <LabelText label="Most Active Frontline Staff" />
                     <Link to={ROUTES.history.root}>
-                        <Text
-                            variant="primary-blue"
-                            size="description"
-                            weight="medium"
-                            className="w-max! hover:underline"
-                        >
-                            View Ledger →
-                        </Text>
+                        {!user?.hasEndedShift && user?.role !== "FRONTLINE" && (
+                            <Text
+                                variant="primary-blue"
+                                size="description"
+                                weight="medium"
+                                className="w-max! hover:underline"
+                            >
+                                View Ledger →
+                            </Text>
+                        )}
                     </Link>
                 </div>
                 <Table noCardStyle={true}>
@@ -135,12 +148,15 @@ export function PopupTransactionDetails() {
                         <Table.Header text="processed today" />
                     </Table.Row>
 
-                    {staffs.slice(0, 3).map((staff, i) => (
-                        <Table.Row key={i}>
-                            <Table.Data>{staff[0]}</Table.Data> {/* Name */}
-                            <Table.Data>{staff[1]}</Table.Data> {/* Processed Transactions */}
-                        </Table.Row>
-                    ))}
+                    {staffs
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 3)
+                        .map((staff, i) => (
+                            <Table.Row key={i}>
+                                <Table.Data>{staff[0]}</Table.Data> {/* Name */}
+                                <Table.Data>{staff[1]}</Table.Data> {/* Processed Transactions */}
+                            </Table.Row>
+                        ))}
                 </Table>
             </Dialog.Body>
         </Dialog>

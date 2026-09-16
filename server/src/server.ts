@@ -1,9 +1,8 @@
+// General Imports
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import handleShutdown from "./middlewares/shutdown.middleware";
-import errorMiddleware from "./middlewares/error.middleware";
 import env from "./config/env.config";
 import "./config/passport.config";
 
@@ -11,6 +10,15 @@ import "./config/passport.config";
 import authRoutes from "./routes/auth.route";
 import transactionRoutes from "./routes/transaction.route";
 import userRoutes from "./routes/user.route";
+import shiftRoutes from "./routes/shift.route";
+import auditRoutes from "./routes/audit.route";
+import logRoutes from "./routes/log.route";
+import notificationRoutes from "./routes/notification.route";
+import insightsRoutes from "./routes/insights.route";
+
+// Middlewares
+import handleShutdown from "./middlewares/shutdown.middleware";
+import errorMiddleware from "./middlewares/error.middleware";
 
 // Initializers
 const app = express();
@@ -23,6 +31,18 @@ const server = app.listen(port, () => {
 // ----------------- SERVER MIDDLEWARES ------------------------------
 
 // Form and Json submission request config
+
+// Make req.query mutable like body
+app.use((req, _res, next) => {
+    Object.defineProperty(req, "query", {
+        ...Object.getOwnPropertyDescriptor(req, "query"),
+        value: req.query,
+        writable: true,
+    });
+    next();
+});
+
+// Parse HTML Form to Object
 app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS for all routes and origins
@@ -49,6 +69,12 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/shift", shiftRoutes);
+app.use("/api/v1/audit", auditRoutes);
+app.use("/api/v1/log", logRoutes);
+app.use("/api/v1/notification", notificationRoutes);
+app.use("/api/v1/insight", insightsRoutes);
+
 app.use(errorMiddleware.notFoundError);
 app.use(errorMiddleware.internalError);
 

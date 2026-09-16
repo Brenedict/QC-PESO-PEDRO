@@ -1,7 +1,15 @@
-import type { ReactNode } from "react";
-import { NavLink } from "react-router";
+// PEDRO SHARED IMPORTS
+import { Role } from "@qcpesopedro/shared/prisma/enums";
+
+// General Imports
+import { type MouseEventHandler, type ReactNode } from "react";
+import { NavLink, useLocation } from "react-router";
+
+// Components
 import { Text } from "./Text";
 import Profile, { type ProfileBaseProps } from "./Profile";
+
+// Material UI Icons
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
@@ -13,7 +21,7 @@ import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
 import SensorOccupiedOutlinedIcon from "@mui/icons-material/SensorOccupiedOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import type { Role } from "../types/common.ts";
+import { useAuth } from "../context/AuthContext";
 
 function NavHeader({ userFullName, profilePicUrl, children }: { children: ReactNode } & ProfileBaseProps) {
     return (
@@ -42,12 +50,27 @@ const linkTypeMap = {
 // Use keyof typeof to get the keys as a union type
 export type LinkType = keyof typeof linkTypeMap;
 
-function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to: string; isLogout?: boolean }) {
+interface NavButtonProps {
+    linkType: LinkType;
+    to: string;
+    isLogout?: boolean;
+    disabled?: boolean;
+}
+
+function NavButton({ linkType, to, isLogout = false, disabled = false }: NavButtonProps) {
     const { content, icon: LinkIcon } = linkTypeMap[linkType];
+
+    const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
+        const isActive = location.pathname === to;
+        if (isActive) {
+            e.preventDefault();
+        }
+    };
 
     return (
         <NavLink
             to={to}
+            onClick={disabled ? (e) => e.preventDefault() : handleClick}
             className={({ isActive }) =>
                 `px-3 py-2.5 mb-1 text-white rounded-xl block transition-colors ${
                     isActive
@@ -57,8 +80,11 @@ function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to:
                         : !isLogout
                           ? `hover:bg-blue-900`
                           : `hover:bg-red-900`
-                }`
+                } 
+                ${disabled ? "pointer-events-none opacity-50 cursor-not-allowed" : null}
+                `
             }
+            tabIndex={disabled ? -1 : 0}
         >
             <Text
                 size="description"
@@ -72,46 +98,43 @@ function NavButton({ linkType, to, isLogout = false }: { linkType: LinkType; to:
     );
 }
 
-function NavBodyFrontline() {
-    return (
-        <>
-            <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/applicant-form" />
-            <NavButton linkType="transaction_history" to="/history" />
-            <NavButton linkType="settings" to="/profile" />
-        </>
-    );
-}
-
-function NavBodyAdmin() {
-    return (
-        <>
-            <NavButton linkType="dashboard" to="/" />
-            <NavButton linkType="transaction_entry" to="/applicant-form" />
-            <NavButton linkType="transaction_history" to="/history" />
-            <NavButton linkType="end_shift_verification" to="/end-shift" />
-            <NavButton linkType="login_monitoring" to="/monitoring" />
-            <NavButton linkType="context_analytics" to="/context-analytics" />
-            <NavButton linkType="reports" to="/reports" />
-            <NavButton linkType="audit_logs" to="/audit-logs" />
-            <NavButton linkType="user_management" to="/user-management" />
-            <NavButton linkType="settings" to="/profile" />
-        </>
-    );
-}
-
 function NavBody({ userType }: { userType?: Role }) {
+    const { user } = useAuth();
+
     return (
         <div className="py-6 px-4 flex flex-col">
-            {userType === "ADMIN" || userType === "SUPERADMIN" ? <NavBodyAdmin /> : <NavBodyFrontline />}
+            <NavButton linkType="dashboard" to="/" />
+            <NavButton linkType="transaction_entry" to="/applicant-form" disabled={user?.hasEndedShift} />
+            <NavButton linkType="transaction_history" to="/history" disabled={user?.hasEndedShift} />
+            {(userType === "ADMIN" || userType === "SUPERADMIN") && (
+                <>
+                    <NavButton linkType="end_shift_verification" to="/end-shift" />
+                    <NavButton linkType="login_monitoring" to="/monitoring" disabled={user?.hasEndedShift} />
+                    {userType === "SUPERADMIN" && (
+                        <>
+                            <NavButton
+                                linkType="context_analytics"
+                                to="/context-analytics"
+                                disabled={user?.hasEndedShift}
+                            />
+                            <NavButton linkType="reports" to="/reports" disabled={user?.hasEndedShift} />
+                        </>
+                    )}
+                    <NavButton linkType="audit_logs" to="/audit-logs" />
+                    <NavButton linkType="user_management" to="/user-management" disabled={user?.hasEndedShift} />
+                </>
+            )}
+            <NavButton linkType="settings" to="/profile" disabled={user?.hasEndedShift} />
         </div>
     );
 }
 
 function NavFooter() {
+    const location = useLocation();
+    const redirectPath = `${location.pathname}${location.pathname.at(-1) === "/" ? "log-out" : "/log-out"}`;
     return (
         <div className="p-4">
-            <NavButton linkType="logout" to="/log-out" isLogout />
+            <NavButton linkType="logout" to={redirectPath} isLogout />
         </div>
     );
 }

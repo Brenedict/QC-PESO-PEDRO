@@ -1,6 +1,8 @@
+// Components
 import { Card } from "./Card";
 import { CardHeader, Divider, FemaleText, MaleText, NumberText, NumberTitle } from "./DashboardCard";
 
+// Material UI Icons
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
 
 interface WHIPCardProps {

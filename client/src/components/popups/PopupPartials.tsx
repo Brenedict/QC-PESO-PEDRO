@@ -1,9 +1,15 @@
-import type { ReactNode } from "react";
-import type { ColorVariant, MaterialIcon, SizeVariant } from "../../types/common";
+// General Imports
+import { useState, type InputHTMLAttributes, type ReactNode } from "react";
+
+// Components
 import Button, { type ButtonVariant } from "../Button";
 import { Card } from "../Card";
 import { Text, type WeightVariant } from "../Text";
 import Icon from "../Icon";
+
+// Types
+import type { ColorVariant, MaterialIcon, SizeVariant } from "../../types/common";
+import { formatCapitalize } from "../../utils/text";
 
 export function GrayMiniCard({
     descriptionText,
@@ -65,13 +71,33 @@ export function LabeledSection({ label, children }: { label: string; children: R
     );
 }
 
-export function ContextBadge({ highlighted = false, children }: { highlighted?: boolean; children: ReactNode }) {
+export function ContextBadge({
+    clickable = true,
+    children,
+    defaultChecked = false,
+    ...props
+}: { children: ReactNode; clickable?: boolean } & InputHTMLAttributes<HTMLInputElement>) {
+    const [selected, setSelected] = useState(defaultChecked);
+
+    if (!clickable) {
+        return (
+            <label
+                className={`block w-fit px-3 py-1 text-small-description rounded-3xl select-none bg-off-white text-grayish-blue border border-off-white-border font-medium    }`}
+            >
+                <input type="checkbox" name="context" hidden defaultChecked={defaultChecked} {...props} />
+                {formatCapitalize(children as string)}
+            </label>
+        );
+    }
+
     return (
-        <div
-            className={`font-medium w-fit px-3 py-1 text-small-description rounded-3xl ${highlighted ? "bg-primary-blue text-white" : "bg-off-white text-grayish-blue border border-off-white-border  "}`}
+        <label
+            className={`cursor-pointer block w-fit px-3 py-1 text-small-description rounded-3xl transition-transform hover:scale-105 select-none ${selected ? "bg-primary-blue text-white font-bold hover:bg-blue-950" : "bg-off-white text-grayish-blue border border-off-white-border font-medium hover:bg-off-white-border  "}`}
+            onChange={() => setSelected((prevSelected) => !prevSelected)}
         >
+            <input type="checkbox" name="context" hidden defaultChecked={defaultChecked} {...props} />
             {children}
-        </div>
+        </label>
     );
 }
 

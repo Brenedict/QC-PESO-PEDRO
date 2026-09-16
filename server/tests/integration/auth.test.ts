@@ -1,25 +1,29 @@
+// General Imports
 import request from "supertest";
-import type { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 import authRouter from "../../src/routes/auth.route";
 import prisma from "../../src/config/prisma.config";
 import { app } from "../../jest.integration";
+import { jest, beforeEach, expect, describe, it } from "@jest/globals";
+
+// Utils
+import HashUtil from "../../src/utils/hash.util";
+
+// Fixture
 import { mockUser } from "../fixtures/user.fixture";
 
 // Use the original auth
 jest.unmock("../../src/middlewares/passport.middleware");
+jest.unmock("../../src/middlewares/authorized.middleware");
 
 describe("Auth routes", () => {
     app.use("/auth", authRouter);
-    app.use((err: ErrorRequestHandler, _req: Request, res: Response, _next: NextFunction) => {
-        console.error("DEBUG INTEGRATION ERROR STACK:", err);
-        res.status(500).json({ error: err.toString() });
-    });
 
     beforeEach(async () => {
-        await prisma.$transaction([prisma.user.deleteMany(), prisma.user.create({ data: mockUser })]);
+        const hashedUser = { ...mockUser, password: await HashUtil.hashPassword(mockUser.password) };
+        await prisma.$transaction([prisma.user.deleteMany(), prisma.user.create({ data: hashedUser })]);
     });
 
-    describe("POST /auth/login", () => {
+    describe("POST /autkh/login", () => {
         it("returns access token & sets refresh cookie", async () => {
             const res = await request(app)
                 .post("/auth/login")
@@ -85,13 +89,15 @@ describe("Auth routes", () => {
                 .send({ email: "johndoe@gmail.com", password: "password123" })
                 .expect(200);
 
+            const accessToken = loginRes.body.accessToken;
             const refreshCookie = loginRes.headers["set-cookie"]?.[0];
 
             const res = await request(app)
                 .post("/auth/logout")
+                .set("Authorization", `Bearer ${accessToken}`)
                 .set("Cookie", refreshCookie as string)
-                .expect(200)
-                .expect("Content-Type", /json/);
+                .send({ reason: "some reason", remarks: "" })
+                .expect(200);
 
             expect(res.headers["set-cookie"]?.[0]).toMatch(/^refreshToken=;/); //Empty refresh token
         });

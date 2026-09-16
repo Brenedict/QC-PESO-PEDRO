@@ -1,17 +1,24 @@
-import { type ActionFunctionArgs } from "react-router";
-import { ROUTES, type transactionRootPage } from "../hooks/reroute";
+// General Imports
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+
+//
+import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
+import AssignmentIndOutlinedIcon from "@mui/icons-material/AssignmentIndOutlined";
+import FindInPageOutlinedIcon from "@mui/icons-material/FindInPageOutlined";
+
+// PEDRO SHARED IMPORTS
+import type { Transaction, TransactionType } from "@qcpesopedro/shared/prisma/browser";
 import {
     TransactionFormCreateSchema,
     TransactionFormDeleteSchema,
     TransactionFormUpdateSchema,
     type TransactionAnalyticsFilterType,
 } from "@qcpesopedro/shared/schema/transactions";
+
+// API Services
 import { decode } from "../utils/hashids";
-import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
 import {
     apiJson,
-    buildDayRangeParam,
-    buildParamString,
     ensureOk,
     extractQueryToObject,
     handleErrRedirect,
@@ -24,18 +31,73 @@ import {
     TRANSACTION_REPORT_REQUEST,
     TRANSACTION_SUMMARY_REQUEST,
     type ReportTypes,
-} from "./analyticsRequests";
+} from "./analyticsService";
+import type { MaterialIcon } from "../types/common";
+import { buildDayRangeParam, buildParamString, getStartEndHour, type ParamArgs } from "./dateService";
+
+// Custom Hooks
+import { ROUTES, type transactionRootPage } from "../hooks/useNavigateDefault";
+import InMemoryStore from "./inMemoryStore";
+
+// ------------------------- MAPS -------------------------------------------------------
+export const DASHBOARD_CARD_MAP: Record<string, { title: string; specialIcon?: MaterialIcon }> = {
+    total: { title: "Total Transaction" },
+    "walk-in": { title: "Walk-in Transaction" },
+    online: { title: "Online Referral" },
+    "in-house": { title: "In-house Referral" },
+    "work-immersion": { title: "Work Immersion", specialIcon: BusinessCenterOutlinedIcon },
+    "job-seeker": { title: "First Time Job Seekers", specialIcon: AssignmentIndOutlinedIcon },
+    pwd: { title: "Persons With Disability", specialIcon: AssignmentIndOutlinedIcon },
+    senior: { title: "Senior Citizens", specialIcon: AssignmentIndOutlinedIcon },
+    ["young-worker"]: { title: "Young Workers", specialIcon: AssignmentIndOutlinedIcon },
+    ["success"]: { title: "Successful Referrals", specialIcon: BusinessCenterOutlinedIcon },
+    ["pending"]: { title: "Pending Applications", specialIcon: FindInPageOutlinedIcon },
+    ["mismatch"]: { title: "Mismatched Skills", specialIcon: FindInPageOutlinedIcon },
+    ["none"]: { title: "None", specialIcon: FindInPageOutlinedIcon },
+} as const;
+
+export const RECENT_TRANSACTION_MAP: Record<TransactionType, string> = {
+    WALK_IN_REFERRAL: DASHBOARD_CARD_MAP["walk-in"].title,
+    ONLINE_REFERRAL: DASHBOARD_CARD_MAP.online.title,
+    IN_HOUSE_RECRUITMENT: DASHBOARD_CARD_MAP["in-house"].title,
+};
+
+// ------------------------------- API --------------------------------------------------
 
 // GET: Fetches all transactions
 export const getTransactions =
     (daily: boolean) =>
-    async ({ request }: ActionFunctionArgs) => {
-        // 8AM to 5PM
-        const dayRangeParam = daily ? buildDayRangeParam(new Date(), 8, 17) : {};
-        const otherParams = extractQueryToObject(request, ["page"]);
-        const apiParams = buildParamString({ ...dayRangeParam, ...otherParams });
+    async ({ request }: LoaderFunctionArgs) => {
+        const dayRangeParam = daily ? buildDayRangeParam(new Date()) : {};
+        const { query } = extractQueryToObject(request, ["page", "timeframe"]);
+        const startEndHour = getStartEndHour(query.startDate, query.endDate);
+
+        const paramsObject: Record<string, string | string[]> = {
+            ...dayRangeParam,
+            ...query,
+            ...startEndHour,
+        };
 
         try {
+            const user = InMemoryStore.getUser();
+
+            if (user) {
+                if (daily) {
+                    // Sa applicant form dapat sa current shift lang
+                    const { id: shiftLogId } = user.shiftLog ?? {};
+                    paramsObject.shiftLogId = String(shiftLogId);
+                }
+
+                if (user.role === "FRONTLINE" && !daily) {
+                    paramsObject.userId = String(user.id); // Kapag history sa current user lang (Frontline)
+                }
+                if (user.role !== "FRONTLINE") {
+                    paramsObject.include = ["user"]; // View history, include users when user is atleast admin role
+                }
+            }
+
+            const apiParams = buildParamString(paramsObject as ParamArgs);
+
             // Main Fetch Request
             const res = await apiJson(`/transaction?${apiParams}`, { method: "GET" });
 
@@ -67,9 +129,9 @@ export const getTransactionById = async ({ params, request }: ActionFunctionArgs
 
 // GET: Transactions as recent activity
 export const getRecentTransactions = async ({ request }: ActionFunctionArgs) => {
-    const dayRangeParam = buildDayRangeParam(new Date(), 8, 17);
+    const dayRangeParam = buildDayRangeParam(new Date());
     const apiParams = buildParamString({ ...dayRangeParam, include: ["user"], limit: "4" });
-    console.log(`/transaction?${apiParams}`);
+    // console.log(`/transaction?${apiParams}`);
 
     try {
         // Main Fetch Request
@@ -110,19 +172,20 @@ export const createTransaction = async ({ request }: ActionFunctionArgs) => {
         }
 
         // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.applicantForm.root);
+        return redirectWithQuery(request, ROUTES.applicantForm.root, "NOTIF=Transaction created successfully");
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.applicantForm.root);
     }
 };
 
-// POST: Fetches analytics
+// POST: Fetches analytics (used by loader)
 export const getOverviewAnalytics = async ({ request }: ActionFunctionArgs) => {
+    console.log(JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()));
     try {
         // Main Fetch Request
         const res = await apiJson("/transaction/analytics", {
             method: "POST",
-            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST),
+            body: JSON.stringify(DASHBOARD_OVERVIEW_REQUEST()),
         });
 
         await ensureOk(res, "Failed to query dashboard");
@@ -157,7 +220,7 @@ export const getTransactionSummary = async ({ request }: ActionFunctionArgs) => 
         // Main Fetch Request
         const res = await apiJson("/transaction/analytics", {
             method: "POST",
-            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST),
+            body: JSON.stringify(TRANSACTION_SUMMARY_REQUEST()),
         });
 
         await ensureOk(res, "Failed to query transaction summary");
@@ -209,7 +272,7 @@ export const deleteTransaction =
             }
 
             // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return redirectWithQuery(request, nextPage, "NOTIF=Transaction deleted successfully");
         } catch (err) {
             return handleErrRedirect(err, request, nextPage);
         }
@@ -239,7 +302,7 @@ export const updateTransaction =
             await ensureOk(res, "Failed to update transaction");
 
             // Returns to root directory + queries
-            return redirectWithQuery(request, nextPage);
+            return redirectWithQuery(request, nextPage, "NOTIF=Transaction updated successfully");
         } catch (err) {
             return handleErrRedirect(err, request, nextPage);
         }

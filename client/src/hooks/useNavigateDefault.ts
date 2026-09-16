@@ -1,8 +1,12 @@
+// General Imports
 import { useLocation, useNavigate } from "react-router";
+
+// Utils
 import { encode } from "../utils/hashids";
 
 const BASE_ROUTES = {
     auth: "/auth",
+    forgotPassword: "/forgot-password",
     dashboard: "/",
     profile: "/profile",
     history: "/history",
@@ -12,7 +16,7 @@ const BASE_ROUTES = {
     reports: "/reports",
     auditLogs: "/audit-logs",
     userManagement: "/user-management",
-    contextAnalysis: "/context-analysis",
+    contextAnalysis: "/context-analytics",
 };
 
 export const ROUTES = {
@@ -23,12 +27,16 @@ export const ROUTES = {
     auth: {
         root: BASE_ROUTES.auth,
     },
+    forgotPassword: {
+        root: BASE_ROUTES.forgotPassword,
+    },
     dashboard: {
         root: BASE_ROUTES.dashboard,
         preview: (type: string) => `${BASE_ROUTES.dashboard}/${type}`,
     },
     profile: {
         root: BASE_ROUTES.profile,
+        changePassword: `${BASE_ROUTES.profile}/change-password`,
     },
     history: {
         root: BASE_ROUTES.history,
@@ -45,6 +53,7 @@ export const ROUTES = {
     endshift: {
         root: BASE_ROUTES.endshift,
         review: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${encode(shiftId)}/review`,
+        details: (shiftId: string | number) => `${BASE_ROUTES.endshift}/${encode(shiftId)}/details`,
     },
     monitoring: {
         root: BASE_ROUTES.monitoring,
@@ -74,7 +83,7 @@ export const ROUTES = {
 
 export type transactionRootPage = "history" | "entry";
 
-export function useNavigateDefault() {
+function useNavigateDefault() {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -85,3 +94,5 @@ export function useNavigateDefault() {
         navigate(route, { state: { backgroundLocation: location } });
     };
 }
+
+export default useNavigateDefault;

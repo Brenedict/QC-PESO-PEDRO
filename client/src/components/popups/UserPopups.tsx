@@ -1,6 +1,8 @@
 // General Imports
-import { Form, useLoaderData } from "react-router";
-import { useState, type ReactNode } from "react";
+import { Form, Link, useLoaderData, useSearchParams } from "react-router";
+import { useEffect, useState, type ReactNode } from "react";
+
+// PEDRO SHARED IMPORTS
 import type { Role, Shift } from "@qcpesopedro/shared/prisma/browser";
 import type { User } from "@qcpesopedro/shared/prisma/browser";
 
@@ -10,14 +12,15 @@ import { Text } from "../Text";
 import { GeneralInput, SelectInput } from "../Input";
 import ChoiceItem from "../ChoiceItem";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
+import { PasswordInput } from "../Input";
 
-// Icons
-import PersonOffOutlinedIcon from "@mui/icons-material/PersonOffOutlined";
+// Material UI Icons
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
 
-// Helpers
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+// Custom Hooks
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
+import { useUserGlobal } from "../../context/UserGlobalContext";
 
 type PopupUser = {
     id?: number;
@@ -32,7 +35,7 @@ type PopupUser = {
 type PopupUserFormsProps = {
     formId: string;
     user?: PopupUser;
-    onChange?: React.FormEventHandler<HTMLFormElement>;
+    onChange?: React.ChangeEventHandler<HTMLFormElement>;
 };
 
 function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
@@ -46,6 +49,8 @@ function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
                     name="firstName"
                     placeholder="John"
                     defaultValue={user?.firstName}
+                    required
+                    isRequired={true}
                 />
                 <GeneralInput
                     type="text"
@@ -54,6 +59,8 @@ function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
                     name="lastName"
                     placeholder="Doe"
                     defaultValue={user?.lastName}
+                    required
+                    isRequired={true}
                 />
             </div>
             <GeneralInput
@@ -107,11 +114,11 @@ function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
 }
 export function PopupAddUser() {
     const navigate = useNavigateDefault();
-    const isoDate = new Date().toISOString().split("T")[0];
+    const dateString = new Date().toLocaleDateString("sv-SE");
 
     // Form Validation
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 
@@ -138,7 +145,7 @@ export function PopupAddUser() {
                             Example:
                         </Text>
                     }
-                >{`QCPESO-JOHNBENEDICT-DOE-${isoDate}`}</PopupNotice>
+                >{`QCPESO-JOHNBENEDICT-DOE-${dateString}`}</PopupNotice>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white-black" onClick={() => navigate(ROUTES.userManagement.root, true)}>
@@ -160,7 +167,7 @@ export function PopupEditUser() {
     const user = useLoaderData() as User;
     if (!user) return null;
 
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 
@@ -309,6 +316,7 @@ export function PopupUserPriveleges({ privilegeType }: { privilegeType: UserPriv
                         id="role"
                         name="role"
                         defaultValue={privilegeType == "promote" ? "ADMIN" : "FRONTLINE"}
+                        hidden
                     />
                 </Form>
                 <section className="flex flex-col justify-center max-w-md">
@@ -351,11 +359,11 @@ function PopupRadio({
     children: ReactNode;
 }) {
     return (
-        <div className="border border-off-white-border bg-off-white p-3 rounded-xl cursor-pointer hover:bg-[#F3FAFC] transition-colors">
+        <label className="border block border-off-white-border bg-off-white p-3 rounded-xl cursor-pointer hover:bg-[#F3FAFC] transition-colors">
             <ChoiceItem inputVariant="radio" name={name} value={value} defaultChecked={defaultChecked}>
                 {children}
             </ChoiceItem>
-        </div>
+        </label>
     );
 }
 
@@ -364,6 +372,8 @@ export function PopupResetUser() {
 
     const user = useLoaderData() as User;
     if (!user) return null;
+
+    const dateString = new Date().toLocaleDateString("sv-SE");
 
     return (
         <Dialog dropShadow={true} onClose={() => navigate(ROUTES.userManagement.root, true)}>
@@ -383,6 +393,25 @@ export function PopupResetUser() {
                     <PopupRadio value="generate" defaultChecked={true}>
                         Generate Temporary Password
                     </PopupRadio>
+                    <br className="block mb-4" />
+                    <PopupNotice
+                        additionalSection={
+                            <Text align="center" size="description" weight="bold" variant="red">
+                                Temporary Password:
+                            </Text>
+                        }
+                    >
+                        QCPESO-FIRSTNAME-LASTNAME-CURRENTDATE
+                    </PopupNotice>
+                    <br className="block mb-4" />
+                    <PopupNotice
+                        variant="off-white"
+                        additionalSection={
+                            <Text align="center" size="description" weight="bold" variant="grayish-blue">
+                                Example:
+                            </Text>
+                        }
+                    >{`QCPESO-JOHNBENEDICT-DOE-${dateString}`}</PopupNotice>
                 </section>
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
@@ -391,6 +420,127 @@ export function PopupResetUser() {
                 </PopupButton>
                 <PopupButton variant="blue" form="userFormResetPassword" type="submit">
                     Reset Password
+                </PopupButton>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupChangePassword() {
+    const navigate = useNavigateDefault();
+
+    // User Global Context
+    const { id } = useUserGlobal();
+    if (!id) return null;
+
+    // Checks URL for error notif queries
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [currentPasswordError, setCurrentPasswordError] = useState<string>("");
+
+    const [newPasswordError, setNewPasswordError] = useState("");
+
+    // Form Validation Checker
+    const [isFormValid, setIsFormValid] = useState(false);
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
+        setIsFormValid(e.currentTarget.checkValidity());
+    };
+
+    const validatePasswords = (e: React.SubmitEvent<HTMLFormElement>) => {
+        const formData = new FormData(e.currentTarget);
+        const newPassword = formData.get("newPassword") as string;
+        const confirmPassword = formData.get("confirmPassword") as string;
+
+        if (newPassword !== confirmPassword) {
+            e.preventDefault();
+            setNewPasswordError("New password do not match.");
+        } else {
+            setNewPasswordError("");
+        }
+    };
+
+    useEffect(() => {
+        const incorrectPassword = searchParams.get("INCORRECT_PASSWORD");
+        const duplicatePassword = searchParams.get("DUPLICATE_PASSWORD");
+
+        if (incorrectPassword) {
+            setCurrentPasswordError(incorrectPassword);
+
+            // Clean up error from URL so it doesn't persist on page refresh
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("INCORRECT_PASSWORD");
+            setSearchParams(newParams, { replace: true });
+        }
+
+        if (duplicatePassword) {
+            setNewPasswordError(duplicatePassword);
+
+            // Clean up error from URL so it doesn't persist on page refresh
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("DUPLICATE_PASSWORD");
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
+    return (
+        <Dialog dropShadow={true} onClose={() => navigate(ROUTES.profile.root, true)}>
+            <Dialog.Header toggleRightIcon={true} onRightAction={() => navigate(ROUTES.profile.root, true)}>
+                <Text weight="bold">Change Password</Text>
+            </Dialog.Header>
+            <Dialog.Body className="p-6!">
+                <Form
+                    method="post"
+                    id="userFormChangePassword"
+                    onSubmit={validatePasswords}
+                    className="flex flex-col h-fit gap-4"
+                    onChange={handleFormChange}
+                >
+                    {/* Hidden User Id To Be Submitted with FormData */}
+                    <input hidden type="text" name="id" value={id} />
+
+                    <PasswordInput
+                        id="currentPassword"
+                        name="currentPassword"
+                        label="Current password"
+                        placeholder="Enter your current password"
+                        isRequired={true}
+                        onChange={() => setCurrentPasswordError("")}
+                        error={currentPasswordError}
+                    />
+
+                    <div className="flex justify-end -mt-3 mb-2">
+                        <Link to={ROUTES.forgotPassword.root}>
+                            <Text size="small" variant="primary-blue" className="cursor-pointer hover:underline">
+                                Don't know your password?
+                            </Text>
+                        </Link>
+                    </div>
+
+                    <PasswordInput
+                        id="newPassword"
+                        name="newPassword"
+                        label="New password"
+                        placeholder="Enter your new password"
+                        isRequired={true}
+                        onChange={() => setNewPasswordError("")}
+                    />
+
+                    <PasswordInput
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        label="Confirm new password"
+                        placeholder="Confirm your new password"
+                        isRequired={true}
+                        error={newPasswordError}
+                        onChange={() => setNewPasswordError("")}
+                    />
+                </Form>
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end mt-2">
+                <PopupButton variant="white-black" onClick={() => navigate(ROUTES.profile.root, true)}>
+                    Cancel
+                </PopupButton>
+                <PopupButton variant="blue" type="submit" form="userFormChangePassword" disabled={!isFormValid}>
+                    Change Password
                 </PopupButton>
             </Dialog.Footer>
         </Dialog>

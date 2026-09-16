@@ -1,4 +1,13 @@
+// PEDRO SHARED IMPORTS
 import type { QueryBreakdownType } from "@qcpesopedro/shared/schema/transactions";
+
+export const TODAY = new Date("2026-08-19T00:00:00.000Z");
+
+export const YESTERDAY = new Date(TODAY.getDate() - 1);
+YESTERDAY.setHours(0, 0, 0, 0);
+
+export const TOMORROW = new Date(TODAY.getDate() + 1);
+TOMORROW.setHours(23, 59, 59, 999);
 
 export default {
     getFormattedDate(date: Date) {
@@ -59,5 +68,48 @@ export default {
             case "YEARLY":
                 return `${year}`;
         }
+    },
+    formatInterval(totalSeconds: number): string {
+        if (totalSeconds <= 0) return "N/A";
+
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+        if (hours <= 0) return `${minutes}m`;
+
+        return `${hours}h ${minutes}m`;
+    },
+
+    offsetHours(date: Date, offset: number) {
+        const offsetted = new Date(date);
+        offsetted.setHours(offsetted.getHours() + offset);
+
+        return offsetted;
+    },
+    offsetMinutes(date: Date, offset: number) {
+        const offsetted = new Date(date);
+        offsetted.setMinutes(offsetted.getMinutes() + offset);
+
+        return offsetted;
+    },
+    offsetDays(date: Date, offset: number) {
+        const offsetted = new Date(date);
+        offsetted.setDate(offsetted.getDate() + offset);
+
+        return offsetted;
+    },
+
+    formatResetLinkDurationEmail(durationStr: string): string {
+        const value = parseInt(durationStr, 10) || 15;
+        const unit = durationStr.slice(-1).toLowerCase();
+
+        const unitMap: Record<string, string> = {
+            s: "seconds",
+            m: "minutes",
+            h: "hours",
+            d: "days",
+        };
+
+        return `${value} ${unitMap[unit] || "minutes"}`;
     },
 };

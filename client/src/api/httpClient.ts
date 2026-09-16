@@ -1,4 +1,6 @@
-import TokenStore from "./tokenStore";
+// API Services
+import type { ShouldRevalidateFunction } from "react-router";
+import InMemoryStore from "./inMemoryStore";
 
 export type FetchOptions = RequestInit & { retry?: boolean };
 
@@ -9,7 +11,7 @@ export const getApiUrl = (route: string): string => {
 };
 
 const addAuthHeader = (headers: HeadersInit = {}): HeadersInit => {
-    const token = TokenStore.getAccessToken();
+    const token = InMemoryStore.getAccessToken();
     if (token) {
         return {
             ...headers,
@@ -37,11 +39,33 @@ export const apiFetch = async (route: string, options: FetchOptions = {}): Promi
 
         if (refreshRes.ok) {
             const { accessToken } = await refreshRes.json();
-            TokenStore.setAccessToken(accessToken);
+            InMemoryStore.setAccessToken(accessToken);
             // retry original request with new token
             return await apiFetch(route, { ...rest, retry: false });
         }
     }
 
     return res;
+};
+
+export const ignoreQueries = (queries: string[]): ShouldRevalidateFunction => {
+    return ({ currentUrl, nextUrl, formMethod, defaultShouldRevalidate }) => {
+        // always revalidate (run loader) when we submit a form
+        if (formMethod && formMethod.toUpperCase() !== "GET") {
+            return defaultShouldRevalidate;
+        }
+
+        const getParamsWithoutIgnored = (url: URL) => {
+            const params = [...url.searchParams.entries()]
+                .filter(([key]) => !queries.includes(key))
+                .sort(([a], [b]) => a.localeCompare(b));
+            return JSON.stringify(params);
+        };
+
+        const current = getParamsWithoutIgnored(currentUrl);
+        const next = getParamsWithoutIgnored(nextUrl);
+
+        // false = don't revalidate when only ignored queries changed
+        return current !== next;
+    };
 };

@@ -1,10 +1,16 @@
-import passportJwt from "passport-jwt";
-import env from "./env.config";
-import UserModel from "../models/user.model";
+// General Imports
 import type { Request } from "express";
-import { Strategy as LocalStrategy, type VerifyFunction } from "passport-local";
-
 import passport from "passport";
+import passportJwt from "passport-jwt";
+import { Strategy as LocalStrategy, type VerifyFunction } from "passport-local";
+import env from "./env.config";
+
+// Model
+import UserModel from "../models/user.model";
+
+// Utils
+import HashUtil from "../utils/hash.util";
+import { Status } from "@qcpesopedro/shared/prisma/enums";
 
 // ------------------- PASSPORT LOCAL STRATEGY -------------------------------------
 
@@ -20,8 +26,10 @@ const verifyFunction: VerifyFunction = async (email, password, done) => {
 
         if (!user) return done(null, false, { message: "Email not found" });
 
-        const match = password === user.password; // Temporary (must use bcrypt)
+        const match = await HashUtil.comparePassword(password, user.password);
         if (!match) return done(null, false, { message: "Password Incorrect" });
+
+        if (user.status == Status.DISABLED) return done(null, false, { message: "Account is Disabled" });
 
         return done(null, user);
     } catch (err) {

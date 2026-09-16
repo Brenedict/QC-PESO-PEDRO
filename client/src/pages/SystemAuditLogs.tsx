@@ -1,16 +1,22 @@
 // General Imports
-import React from "react";
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
+import { formatCapitalize } from "../utils/text";
+
+// PEDRO SHARED IMPORTS
+import { type AuditLogsResponseType } from "@qcpesopedro/shared/schema/audit";
 
 // Components
 import PageHeader from "../components/PageHeader";
 import Table from "../components/Table";
 import { Text } from "../components/Text";
 import { ColumnDesc, ColumnDescItalic, DateTime, Identifier } from "../components/TableCells";
-import { GeneralInput, SelectInput } from "../components/Input";
+import { GeneralInput, LeftLabeledInput, SelectInput } from "../components/Input";
 
 // Test Data
 import type { AuditLogRecord } from "../data/auditLogs";
+import { LogAction, Role } from "@qcpesopedro/shared/prisma/enums";
+import useTimeframeFilter from "../hooks/useTimeFrameFilter";
+import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 
 // Define the props
 interface SystemAuditLogsProps {
@@ -32,38 +38,27 @@ function UserCell({ name, role }: { name: string; role: string }) {
 }
 
 // Main Page
-function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
-    const handleFilterSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-    };
+function SystemAuditLogs() {
+    const timeframeFilter = useTimeframeFilter("day");
+    const auditLogs: AuditLogsResponseType = useLoaderData();
 
     // Extra filter inputs for the Table Filter Section
     const extraFilters = (
         <div className="flex gap-4 items-center">
-            {/* Start Date */}
-            <div className="flex items-center gap-2">
-                <Text size="description" variant="grayish-blue" weight="medium">
-                    From:
-                </Text>
-                <GeneralInput type="date" placeholder="Start Date" className="w-36! h-9.5! px-2! py-0! rounded-xl!" />
-            </div>
-
-            {/* End Date */}
-            <div className="flex items-center gap-2">
-                <Text size="description" variant="grayish-blue" weight="medium">
-                    To:
-                </Text>
-                <GeneralInput type="date" placeholder="End Date" className="w-36! h-9.5! px-2! py-0! rounded-xl!" />
-            </div>
-
-            {/* Action Filter */}
+            <TimeframeInputs
+                startDate={timeframeFilter.startDate}
+                endDate={timeframeFilter.endDate}
+                handleStartDateChange={timeframeFilter.handleStartDateChange}
+                handleEndDateChange={timeframeFilter.handleEndDateChange}
+            />
             <SelectInput
                 optionList={[
                     { content: "All Actions", value: "" },
-                    { content: "Transaction Created", value: "created" },
-                    { content: "End Shift Approved", value: "approved" },
-                    { content: "User Role Changed", value: "role_changed" },
+                    { content: "Transaction Actions", value: "TRANSACTION" },
+                    { content: "End Shift Actions", value: "SHIFT" },
+                    { content: "User Role Actions", value: "USER" },
                 ]}
+                name="actionPerformed"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
             />
         </div>
@@ -74,9 +69,19 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
             <PageHeader
                 primaryText="System Audit Logs"
                 secondaryText="Review transaction modifications, shift approvals, and data integrity events."
-            />
+            >
+                <TimeframeSelect
+                    timeframe={timeframeFilter.timeframe}
+                    handleTimeframeChange={timeframeFilter.handleTimeframeChange}
+                />
+            </PageHeader>
 
-            <Table pagination={true} filterView={true} extraFilters={extraFilters}>
+            <Table
+                pagination={true}
+                filterView={true}
+                extraFilters={extraFilters}
+                isExternalFilterChanged={timeframeFilter.isTimeframeChanged}
+            >
                 <Table.Row>
                     <Table.Header text="DATE & TIME" />
                     <Table.Header text="USER" />
@@ -86,24 +91,27 @@ function SystemAuditLogs({ logsData }: SystemAuditLogsProps) {
                     <Table.Header text="REMARKS" />
                 </Table.Row>
 
-                {logsData.map((row) => (
+                {auditLogs.map((row) => (
                     <Table.Row key={row.id}>
                         <Table.Data>
-                            <DateTime dateTime={row.dateTime} />
+                            <DateTime dateTime={row.createdAt} />
                         </Table.Data>
                         <Table.Data>
-                            <UserCell name={row.userName} role={row.userRole} />
+                            <UserCell
+                                name={`${row.user?.firstName} ${row.user?.lastName}`}
+                                role={row.user?.role ?? Role.FRONTLINE}
+                            />
                         </Table.Data>
                         <Table.Data>
                             <Text size="description" variant="dark-blue" weight="bold" align="center">
-                                {row.action}
+                                {formatCapitalize(String(row.actionPerformed))}
                             </Text>
                         </Table.Data>
                         <Table.Data>
-                            <Identifier>{row.recordId}</Identifier>
+                            <Identifier>{row.affectedRecordId}</Identifier>
                         </Table.Data>
                         <Table.Data>
-                            <ColumnDesc>{row.details}</ColumnDesc>
+                            <ColumnDesc>{row.changesDetails}</ColumnDesc>
                         </Table.Data>
                         <Table.Data>
                             <ColumnDescItalic>{row.remarks}</ColumnDescItalic>

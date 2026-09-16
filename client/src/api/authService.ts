@@ -1,7 +1,19 @@
-import { redirect } from "react-router";
+// General Imports
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { AccountLogFormUpdateSchema, type AccountLogFormUpdateType } from "@qcpesopedro/shared/schema/login";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
+
+// PEDRO SHARED IMPORTS
+import { AccessLevel } from "@qcpesopedro/shared/enums";
+import type { User } from "@qcpesopedro/shared/prisma/browser";
+
+// API Services
 import { apiFetch } from "./httpClient";
-import TokenStore from "./tokenStore";
-import { ROUTES } from "../hooks/reroute";
+import InMemoryStore from "./inMemoryStore";
+import { apiJson, ensureOk, handleErrRedirect, validateForm } from "./actionService";
+
+// Custom Hooks
+import { ROUTES } from "../hooks/useNavigateDefault";
 
 // Auth helpers
 
@@ -15,6 +27,7 @@ export const primaryAuthLoader = async () => {
         throw redirect(ROUTES.auth.root);
     }
     const user = await getUserContextLoader();
+    InMemoryStore.setUser(user);
     return { user };
 };
 
@@ -28,27 +41,56 @@ export const checkAuthService = async (): Promise<boolean> => {
     }
 };
 
-export const logoutService = async (): Promise<boolean> => {
+export const logoutService = async (formData: AccountLogFormUpdateType): Promise<boolean> => {
     try {
-        const res = await apiFetch("/auth/logout", {
-            retry: false,
+        const res = await apiJson("/auth/logout", {
             method: "POST",
             credentials: "include",
+            body: JSON.stringify(formData),
         });
 
-        if (res.ok) {
-            TokenStore.setAccessToken(null);
-        }
+        await ensureOk(res, "Failed to logout");
+        InMemoryStore.setAccessToken(null);
 
-        return res.ok;
+        return true;
     } catch (err) {
         console.error("Logout network error:", err);
         return false;
     }
 };
 
+export const logoutAction = async ({ request }: ActionFunctionArgs) => {
+    try {
+        const formData = await request.formData();
+        const logoutForm = validateForm(formData, AccountLogFormUpdateSchema, "Invalid logout data");
+
+        const success = await logoutService(logoutForm);
+
+        if (success) {
+            return redirect(ROUTES.auth.root);
+        }
+        return null;
+    } catch (err) {
+        return handleErrRedirect(err, request, ROUTES.dashboard.root);
+    }
+};
+
+export const requireAccess = (minLevel: AccessLevel, loaderFn?: Function) => {
+    return async (args: unknown) => {
+        // Fetch current user details
+        const user = InMemoryStore.getUser() ?? ((await primaryAuthLoader()).user as UserContextType);
+        if (!user || AccessLevel[user.role] < minLevel) {
+            // Instantly redirect unauthorized roles before firing the endpoint loader
+            throw redirect("/404");
+        }
+
+        // If authorized and a loader exists, proceed
+        return loaderFn ? await loaderFn(args) : null;
+    };
+};
+
 // GET: Fetches the data of the currently logged-in user. If the user is not authenticated, it will log them out and return null.
-export const getUserContextLoader = async () => {
+export const getUserContextLoader = async (): Promise<UserContextType | null> => {
     try {
         const res = await apiFetch("/user/me", {
             retry: true,
@@ -64,10 +106,80 @@ export const getUserContextLoader = async () => {
             throw new Error(`Failed to get user data ${res.status} => ${error}`);
         }
 
-        return await res.json();
+        return res.json();
     } catch (err) {
         console.error(err);
-        await logoutService();
+        await logoutService({ reason: "System error" });
+        return null;
+    }
+};
+
+export const refreshUserContext = async (): Promise<void> => {
+    try {
+        const res = await apiJson("/user/me", { method: "GET" });
+
+        if (!res.ok) {
+            console.error(`Failed to refresh user context: ${res.status}`);
+            return;
+        }
+
+        const user = (await res.json()) as UserContextType;
+        InMemoryStore.setUser(user);
+    } catch (err) {
+        console.error("Failed to refresh user context:", err);
+    }
+};
+
+export const checkResetToken = async ({ request }: ActionFunctionArgs) => {
+    try {
+        // Create URL object for query extraction
+        const url = new URL(request.url);
+
+        // Extract the 'token' query parameter
+        const token = url.searchParams.get("token") ?? "";
+
+        // Initial check for token length, prevents wasteful query on fake tokens
+        if (token.trim().length === 0 || token.trim().length <= 63) {
+            throw redirect(ROUTES.auth.root);
+        }
+
+        const res = await apiJson(`/auth/protected/reset-password?token=${token}`, { method: "GET" });
+
+        const result: { isTokenExpired: boolean; email: string; message: string } = await res.json();
+
+        // If (Expired/Invalid Token) handle as business logic instead of throwing an error
+        if (res.status >= 400 && res.status < 500) {
+            return {
+                isTokenExpired: true,
+                email: "",
+                message: result.message,
+            };
+        }
+
+        // Only responsible for 500 status codes
+        await ensureOk(res, "Failed to authenticate reset token");
+
+        return result;
+    } catch (err) {
+        return handleErrRedirect(err, request, ROUTES.auth.root, false);
+    }
+};
+
+export const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>): Promise<boolean | null> => {
+    try {
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get("email");
+
+        e.preventDefault(); // Stop full page reload
+
+        const response = await apiJson("/auth/forgot-password", {
+            method: "PATCH",
+            body: JSON.stringify({ email }),
+        });
+
+        return response.ok;
+    } catch (err) {
+        console.error(err);
         return null;
     }
 };

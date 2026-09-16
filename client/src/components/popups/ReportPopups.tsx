@@ -1,16 +1,31 @@
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
+// General Imports
+import { type ReactNode, type RefObject } from "react";
+
+// Components
 import { Dialog } from "../Dialog";
 import { PopupButton } from "./PopupPartials";
 import { Text } from "../Text";
-import { useRef, type ReactNode, type RefObject } from "react";
-import { formatDDMMYYYY, formatLongMonthYear } from "../../utils/time";
-import type { ColorVariant } from "../../types/common";
 import Table from "../Table";
+
+// Material UI Icons
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+
+// File Download
 import { usePDF } from "react-to-pdf";
 import { useLoaderData } from "react-router";
-import type { AnalyticsData } from "../../api/analyticsRequests";
+import type { AnalyticsData } from "../../api/analyticsService";
 import * as XLSX from "xlsx";
+
+// Custom Hooks
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
+
+// Utils
+import { formatDDMMYYYY, formatLongMonthYear } from "../../utils/time";
+
+// Types
+import type { ColorVariant } from "../../types/common";
+import { apiFetch } from "../../api/httpClient";
+import { ensureOk } from "../../api/actionService";
 
 function PaperContainer({ targetRef, children }: { targetRef: RefObject<null>; children: ReactNode }) {
     return (
@@ -78,7 +93,8 @@ function BreakdownTitle() {
     );
 }
 
-function downloadExcel(data: any, date: Date, type: string, fileName: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function handleExcelDownload(data: any, date: Date, type: string, fileName: string) {
     const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
 
     const rows = [
@@ -93,9 +109,24 @@ function downloadExcel(data: any, date: Date, type: string, fileName: string) {
         ["Successful Referrals", data?.success?.count ?? 0],
         [],
         ["Type", "Total", "Male", "Female"],
-        ["Walk-In Transactions", data?.walkin?.count ?? 0, data?.walkin?.grouped?.MALE ?? 0, data?.walkin?.grouped?.FEMALE ?? 0],
-        ["Online Referrals", data?.online?.count ?? 0, data?.online?.grouped?.MALE ?? 0, data?.online?.grouped?.FEMALE ?? 0],
-        ["In-House Referral", data?.inhouse?.count ?? 0, data?.inhouse?.grouped?.MALE ?? 0, data?.inhouse?.grouped?.FEMALE ?? 0],
+        [
+            "Walk-In Transactions",
+            data?.walkin?.count ?? 0,
+            data?.walkin?.grouped?.MALE ?? 0,
+            data?.walkin?.grouped?.FEMALE ?? 0,
+        ],
+        [
+            "Online Referrals",
+            data?.online?.count ?? 0,
+            data?.online?.grouped?.MALE ?? 0,
+            data?.online?.grouped?.FEMALE ?? 0,
+        ],
+        [
+            "In-House Referral",
+            data?.inhouse?.count ?? 0,
+            data?.inhouse?.grouped?.MALE ?? 0,
+            data?.inhouse?.grouped?.FEMALE ?? 0,
+        ],
     ];
 
     const worksheet = XLSX.utils.aoa_to_sheet(rows);
@@ -103,6 +134,28 @@ function downloadExcel(data: any, date: Date, type: string, fileName: string) {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
 
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
+}
+
+async function handlePDFDownload(type: string, toPDF: (options?: Options) => void) {
+    toPDF();
+
+    try {
+        const res = await apiFetch(`/transaction/download-reports/${type}`, {
+            retry: true,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+        });
+
+        await ensureOk(res, "Failed to download PDF");
+
+        return;
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
 }
 
 export function PopupReportPreview({ type }: { type: string }) {
@@ -133,12 +186,12 @@ export function PopupReportPreview({ type }: { type: string }) {
                     <div className="flex gap-8  mb-8">
                         <ReportMiniCard
                             label="total transactions"
-                            value={data?.total?.count ?? 0}
+                            value={data?.total?.count ?? "N/A"}
                             valueVariant="primary-blue"
                         />
                         <ReportMiniCard
                             label="successful referrals"
-                            value={data?.success?.count ?? 0}
+                            value={data?.success?.count ?? "N/A"}
                             valueVariant="green"
                         />
                     </div>
@@ -153,23 +206,23 @@ export function PopupReportPreview({ type }: { type: string }) {
 
                         <Table.Row>
                             <Table.Data>Walk-In Transactions</Table.Data>
-                            <Table.Data>{data?.walkin?.count ?? 0}</Table.Data>
-                            <Table.Data>{data?.walkin?.grouped?.MALE ?? 0}</Table.Data>
-                            <Table.Data>{data?.walkin?.grouped?.FEMALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.walkin?.count ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.walkin?.grouped?.MALE ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.walkin?.grouped?.FEMALE ?? "N/A"}</Table.Data>
                         </Table.Row>
 
                         <Table.Row>
                             <Table.Data>Online Referrals</Table.Data>
-                            <Table.Data>{data?.online?.count ?? 0}</Table.Data>
-                            <Table.Data>{data?.online?.grouped?.MALE ?? 0}</Table.Data>
-                            <Table.Data>{data?.online?.grouped?.FEMALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.online?.count ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.online?.grouped?.MALE ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.online?.grouped?.FEMALE ?? "N/A"}</Table.Data>
                         </Table.Row>
 
                         <Table.Row>
                             <Table.Data>In-House Referral</Table.Data>
-                            <Table.Data>{data?.inhouse?.count ?? 0}</Table.Data>
-                            <Table.Data>{data?.inhouse?.grouped?.MALE ?? 0}</Table.Data>
-                            <Table.Data>{data?.inhouse?.grouped?.FEMALE ?? 0}</Table.Data>
+                            <Table.Data>{data?.inhouse?.count ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.inhouse?.grouped?.MALE ?? "N/A"}</Table.Data>
+                            <Table.Data>{data?.inhouse?.grouped?.FEMALE ?? "N/A"}</Table.Data>
                         </Table.Row>
                     </Table>
                 </PaperContainer>
@@ -180,14 +233,14 @@ export function PopupReportPreview({ type }: { type: string }) {
                 </PopupButton>
                 <PopupButton
                     variant="blue"
-                    onClick={() => toPDF()}
+                    onClick={() => handlePDFDownload(type, toPDF)}
                     leftIcon={{ icon: FileDownloadOutlinedIcon, variant: "white" }}
                 >
                     Download PDF
                 </PopupButton>
                 <PopupButton
                     variant="green"
-                    onClick={() => downloadExcel(data, dateNow, type, fileName)}
+                    onClick={() => handleExcelDownload(data, dateNow, type, fileName)}
                     leftIcon={{ icon: FileDownloadOutlinedIcon, variant: "white" }}
                 >
                     Download Excel

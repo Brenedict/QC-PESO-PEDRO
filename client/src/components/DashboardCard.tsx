@@ -1,9 +1,16 @@
+// General Imports
+import type { ReactNode } from "react";
+
+// Components
 import { Text } from "./Text";
+
+// Icons
 import MaleOutlinedIcon from "@mui/icons-material/MaleOutlined";
 import FemaleOutlinedIcon from "@mui/icons-material/FemaleOutlined";
 import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
 import TrendingDownOutlinedIcon from "@mui/icons-material/TrendingDownOutlined";
-import type { ReactNode } from "react";
+
+// Types
 import type { AlignVariant, MaterialIcon } from "../types/common";
 
 interface ExtendedTextProps extends React.HTMLAttributes<HTMLParagraphElement> {

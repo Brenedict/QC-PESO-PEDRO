@@ -1,34 +1,46 @@
 // General Imports
-
-import { useLoaderData } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 import { Outlet } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { Outcome, TransactionType, type Transaction, type User } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import PageHeader from "../components/PageHeader";
-import Button from "../components/Button";
 import Table from "../components/Table";
 import Status from "../components/Status";
-import { ActionButtons, ColumnText, DateTime, Identifier } from "../components/TableCells";
+import { SelectInput } from "../components/Input";
+import { ActionButtons, ColumnText, DateTime, Identifier, TextAndDateTime } from "../components/TableCells";
+import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
 
-// Icons
+// Material UI Icons
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import PersonRemoveOutlinedIcon from "@mui/icons-material/PersonRemoveOutlined";
 
-// Data
-import { Outcome, TransactionType, type Transaction } from "@qcpesopedro/shared/prisma/browser";
-
 // Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import { useSearchParamsTable } from "../hooks/table";
-import { SelectInput } from "../components/Input";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
+import useSearchParamsTable from "../hooks/useSearchParamsTable";
+import useTimeframeFilter, { type TimeframeFilter } from "../hooks/useTimeFrameFilter";
+import { useAuth } from "../context/AuthContext";
+import { NotificationPopup } from "../components/popups/NotificationPopups";
+import { useEffect, useState } from "react";
 
-export function TransactionExtraFilters() {
+export function TransactionExtraFilters({ timeframeFilter }: { timeframeFilter?: TimeframeFilter }) {
     const { searchParams } = useSearchParamsTable();
 
     return (
         <div className="flex gap-4 items-center">
-            {/* Action Filter */}
+            {timeframeFilter && (
+                <>
+                    <TimeframeInputs
+                        startDate={timeframeFilter.startDate}
+                        endDate={timeframeFilter.endDate}
+                        handleStartDateChange={timeframeFilter.handleStartDateChange}
+                        handleEndDateChange={timeframeFilter.handleEndDateChange}
+                    />
+                </>
+            )}
+
             <SelectInput
                 optionList={[
                     { content: "All Types", value: "" },
@@ -57,10 +69,36 @@ export function TransactionExtraFilters() {
 }
 
 function TransactionHistory() {
+    const [searchParamsNotif, setSearchParamsNotif] = useSearchParams();
+    const [notif, setNotif] = useState("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParamsNotif.get("NOTIF");
+
+        // Only trigger if NOTIF exists AND we haven't already opened the modal for it
+        if (statusKey && !notifModalOpen) {
+            setNotif(statusKey);
+            setNotifModalOpen(true);
+
+            // Clone existing search params (keeping page=2, etc.) and only delete NOTIF
+            const newParams = new URLSearchParams(searchParamsNotif);
+            newParams.delete("NOTIF");
+            setSearchParamsNotif(newParams, { replace: true });
+        }
+    }, [searchParamsNotif, notifModalOpen, setSearchParamsNotif]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setNotif(""); // Reset string state on close
+    };
+
+    const { user } = useAuth();
+    const timeframeFilter = useTimeframeFilter();
     const data = useLoaderData();
     const navigate = useNavigateDefault();
 
-    const transactions = data.transactions as Transaction[];
+    const transactions = data.transactions as (Transaction & { user?: User })[];
 
     const handleEdit = (id: string) => () => {
         navigate(ROUTES.history.edit(id), true);
@@ -73,24 +111,29 @@ function TransactionHistory() {
     return (
         <>
             <PageHeader primaryText="History Ledger" secondaryText="Comprehensive view of all historical transactions">
-                <Button
-                    size="small"
-                    variant="white-black"
-                    leftIcon={{ icon: FileDownloadOutlinedIcon, size: "medium", variant: "black" }}
-                >
-                    Export
-                </Button>
+                <div>
+                    <TimeframeSelect
+                        timeframe={timeframeFilter.timeframe}
+                        handleTimeframeChange={timeframeFilter.handleTimeframeChange}
+                    />
+                </div>
             </PageHeader>
 
-            <Table pagination={true} filterView={true} extraFilters={<TransactionExtraFilters />}>
+            <Table
+                pagination={true}
+                filterView={true}
+                extraFilters={<TransactionExtraFilters timeframeFilter={timeframeFilter} />}
+                isExternalFilterChanged={timeframeFilter.isTimeframeChanged}
+            >
                 {/* Header row */}
                 <Table.Row>
                     <Table.Header text="ID" />
                     <Table.Header text="Date/Time" />
                     <Table.Header text="Type" />
                     <Table.Header text="Applicant Name" />
+                    {transactions?.[0]?.user && <Table.Header text="Processed By" />}
                     <Table.Header text="Outcome" />
-                    <Table.Header text="Actions" />
+                    {user?.role !== "FRONTLINE" && <Table.Header text="Actions" />}
                 </Table.Row>
 
                 {/* Data rows */}
@@ -108,31 +151,50 @@ function TransactionHistory() {
                         <Table.Data>
                             <ColumnText>{transaction.applicantFullName}</ColumnText>
                         </Table.Data>
+                        {transaction.user && (
+                            <Table.Data>
+                                <TextAndDateTime
+                                    dateTime={new Date(transaction.updatedAt)}
+                                    text={transaction.user.fullName ?? "N/A"}
+                                />
+                            </Table.Data>
+                        )}
                         <Table.Data>
                             <Status type="outcome" variant={transaction.transactionOutcome} />
                         </Table.Data>
-                        <Table.Data>
-                            <ActionButtons
-                                id={transaction.txCode}
-                                actions={[
-                                    {
-                                        color: "black",
-                                        icon: BorderColorOutlinedIcon,
-                                        handleClick: handleEdit,
-                                        text: "Edit",
-                                    },
-                                    {
-                                        color: "red",
-                                        icon: PersonRemoveOutlinedIcon,
-                                        handleClick: handleDelete,
-                                        text: "Delete",
-                                    },
-                                ]}
-                            />
-                        </Table.Data>
+                        {user?.role !== "FRONTLINE" && (
+                            <Table.Data>
+                                <ActionButtons
+                                    id={transaction.txCode}
+                                    actions={[
+                                        {
+                                            color: "black",
+                                            icon: BorderColorOutlinedIcon,
+                                            handleClick: handleEdit,
+                                            text: "Edit",
+                                        },
+                                        {
+                                            color: "red",
+                                            icon: PersonRemoveOutlinedIcon,
+                                            handleClick: handleDelete,
+                                            text: "Delete",
+                                        },
+                                    ]}
+                                />
+                            </Table.Data>
+                        )}
                     </Table.Row>
                 ))}
             </Table>
+
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={notif}
+                    icon="notification"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
 
             {/* Popup Uses */}
             <Outlet />

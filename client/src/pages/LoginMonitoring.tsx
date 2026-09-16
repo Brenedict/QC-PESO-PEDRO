@@ -1,6 +1,6 @@
 // General Imports
 import type { ReactNode } from "react";
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 
 // Components
 import { Card } from "../components/Card";
@@ -11,7 +11,7 @@ import Status from "../components/Status";
 import { ActionButton, ColumnText, DateTime, RoleBadge } from "../components/TableCells";
 import PageHeader from "../components/PageHeader";
 
-// Icons
+// Material UI Icons
 import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import LaptopOutlinedIcon from "@mui/icons-material/LaptopOutlined";
@@ -25,7 +25,12 @@ import { type MaterialIcon } from "../types/common";
 import { type EmployeeSession } from "../data/employeeSessions";
 
 // Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
+import { Role, Status as StatusType } from "@qcpesopedro/shared/prisma/browser";
+import { SelectInput } from "../components/Input";
+import useSearchParamsTable from "../hooks/useSearchParamsTable";
+import { TimeframeInputs, TimeframeSelect } from "../components/Timeframe";
+import useTimeframeFilter from "../hooks/useTimeFrameFilter";
 
 const iconClasses = {
     green: { variant: "green", bgVariant: "green-opaque" },
@@ -72,54 +77,92 @@ function MonitorCardGroup({ children }: { children: ReactNode }) {
     return <section className="flex gap-4">{children}</section>;
 }
 
-interface LoginMonitoringProps {
-    //employees
-    currentlyLogged: ReactNode;
-    totalLogins: ReactNode;
-    totalLogouts: ReactNode;
-    sessionDuration: ReactNode;
-    employeeSessions: EmployeeSession[];
+interface AccountLog {
+    id: number;
+    fullName: string;
+    role: Role;
+    loginCount: number;
+    lastLogin: string | null;
+    status: StatusType;
 }
 
-function LoginMonitoring({
-    currentlyLogged,
-    totalLogins,
-    totalLogouts,
-    sessionDuration,
-    employeeSessions,
-}: LoginMonitoringProps) {
+function LoginMonitoring() {
+    const timeframeFilter = useTimeframeFilter("day");
+    const { searchParams } = useSearchParamsTable();
+    const data = useLoaderData();
     const navigate = useNavigateDefault();
-
     const handleHistory = (id: string) => () => navigate(ROUTES.monitoring.view(id), true);
+
+    const extraFilters = (
+        <div className="flex gap-4 items-center">
+            <TimeframeInputs
+                startDate={timeframeFilter.startDate}
+                endDate={timeframeFilter.endDate}
+                handleStartDateChange={timeframeFilter.handleStartDateChange}
+                handleEndDateChange={timeframeFilter.handleEndDateChange}
+            />
+            <SelectInput
+                optionList={[
+                    { content: "All Roles", value: "" },
+                    { content: "Super Administrator", value: Role.SUPERADMIN },
+                    { content: "Administrator", value: Role.ADMIN },
+                    { content: "Frontline Encoder", value: Role.FRONTLINE },
+                ]}
+                name="role"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.role}
+            />
+            <SelectInput
+                optionList={[
+                    { content: "All Statuses", value: "" },
+                    { content: "Online", value: StatusType.ONLINE },
+                    { content: "Offline", value: StatusType.OFFLINE },
+                    { content: "Logged Out", value: StatusType.LOGGED_OUT },
+                    { content: "Disabled", value: StatusType.DISABLED },
+                ]}
+                name="status"
+                className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.status}
+            />
+        </div>
+    );
 
     return (
         <>
             {/* Page Header */}
-            <PageHeader
-                primaryText="Login Monitoring"
-                secondaryText="Monitor employee attendance and login history."
-                icon={{ variant: "primary-blue", icon: OndemandVideoIcon, size: "bigger" }}
-            />
+            <PageHeader primaryText="Login Monitoring" secondaryText="Monitor employee attendance and login history.">
+                <div>
+                    <TimeframeSelect
+                        timeframe={timeframeFilter.timeframe}
+                        handleTimeframeChange={timeframeFilter.handleTimeframeChange}
+                    />
+                </div>
+            </PageHeader>
 
             {/* Monitoring Cards */}
             <MonitorCardGroup>
                 <MonitorCard color="green" icon={PeopleAltOutlinedIcon} description="Employees Currently Logged In">
-                    {currentlyLogged}
+                    {data?.currentlyLogged ?? "N/A"}
                 </MonitorCard>
-                <MonitorCard color="blue" icon={LaptopOutlinedIcon} description="Total Logins Today">
-                    {totalLogins}
+                <MonitorCard color="blue" icon={LaptopOutlinedIcon} description="Total Logins">
+                    {data?.totalLogIn ?? "N/A"}
                 </MonitorCard>
-                <MonitorCard color="red" icon={WarningAmberOutlinedIcon} description="Total Logouts Today">
-                    {totalLogouts}
+                <MonitorCard color="red" icon={WarningAmberOutlinedIcon} description="Total Logouts">
+                    {data?.totalLogOut ?? "N/A"}
                 </MonitorCard>
                 <MonitorCard color="gray" icon={AccessTimeOutlinedIcon} description="Avg Session Duration">
-                    {sessionDuration}
+                    {data?.avgSession ?? "N/A"}
                 </MonitorCard>
             </MonitorCardGroup>
             <br className="block mb-6" />
 
             {/* Table Data */}
-            <Table filterView={true}>
+            <Table
+                filterView={true}
+                extraFilters={extraFilters}
+                pagination={true}
+                isExternalFilterChanged={timeframeFilter.isTimeframeChanged}
+            >
                 <Table.Row>
                     <Table.Header text="Employee Name" />
                     <Table.Header text="Role" />
@@ -130,27 +173,31 @@ function LoginMonitoring({
                 </Table.Row>
 
                 {/*  Sessions Data */}
-                {employeeSessions.map((employee) => (
-                    <Table.Row key={employee.id}>
+                {data?.accountLogs?.map((log: AccountLog) => (
+                    <Table.Row key={log.id}>
                         <Table.Data>
-                            <ColumnText>{employee.name}</ColumnText>
+                            <ColumnText>{log.fullName}</ColumnText>
                         </Table.Data>
                         <Table.Data>
-                            <RoleBadge role={employee.role} />
+                            <RoleBadge role={log.role} />
                         </Table.Data>
                         <Table.Data>
-                            <ColumnText>{employee.totalLoginSessions}</ColumnText>
+                            <ColumnText>{log.loginCount}</ColumnText>
                         </Table.Data>
                         <Table.Data>
-                            <DateTime dateTime={employee.lastLogin} />
+                            {log.lastLogin ? (
+                                <DateTime dateTime={new Date(log.lastLogin)} />
+                            ) : (
+                                <ColumnText>-</ColumnText>
+                            )}
                         </Table.Data>
                         <Table.Data>
-                            <Status type="connection" variant={employee.status} />
+                            <Status type="status" variant={log.status} />
                         </Table.Data>
 
                         <Table.Data>
-                            <ActionButton id={employee.id} handleClick={handleHistory} text="View History" />
-                            {/* Yung employee.name di pa final yan dapat id */}
+                            <ActionButton id={String(log.id)} handleClick={handleHistory} text="View History" />
+                            {/* Yung log.name di pa final yan dapat id */}
                         </Table.Data>
                     </Table.Row>
                 ))}

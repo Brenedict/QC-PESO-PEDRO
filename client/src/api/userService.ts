@@ -1,9 +1,29 @@
-import { type ActionFunctionArgs } from "react-router";
-import { UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
+// General Imports
+import { redirect, type ActionFunctionArgs } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { UserFormChangePasswordSchema, UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
+import { LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
+
+// API Services
+import InMemoryStore from "./inMemoryStore";
+
+// API Services
+import {
+    apiJson,
+    ensureOk,
+    extractQueryToObject,
+    handleErrRedirect,
+    redirectWithQuery,
+    validateForm,
+} from "./actionService";
+
+// Utils
 import { decode } from "../utils/hashids";
-import type { User } from "@qcpesopedro/shared/prisma/browser";
-import { ROUTES } from "../hooks/reroute";
-import { apiJson, ensureOk, handleErrRedirect, redirectWithQuery, validateForm } from "./actionService";
+
+// Custom Hooks
+import { ROUTES } from "../hooks/useNavigateDefault";
+import { buildParamString } from "./dateService";
 
 // POST: User Creation Method
 export const createUser = async ({ request }: ActionFunctionArgs) => {
@@ -19,37 +39,39 @@ export const createUser = async ({ request }: ActionFunctionArgs) => {
         await ensureOk(res, "Failed to create user");
 
         // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User created successfully`);
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
 };
 
 // PATCH: Applies to all user updates (included na here actions: disable, edit, demote/promote)
-export const updateUser = async ({ params, request }: ActionFunctionArgs) => {
-    try {
-        const { userId } = params;
-        const decodedId = Number(decode(userId));
+export const updateUser =
+    (action: LogAction) =>
+    async ({ params, request }: ActionFunctionArgs) => {
+        try {
+            const { userId } = params;
+            const decodedId = Number(decode(userId));
 
-        const formData = await request.formData();
+            const formData = await request.formData();
 
-        // ZOD Schema Checking
-        const user = validateForm(formData, UserFormUpdateSchema, "Invalid user data");
+            // ZOD Schema Checking
+            const user = validateForm(formData, UserFormUpdateSchema, "Invalid user data");
 
-        // Main Fetch Request
-        const res = await apiJson(`/user/${decodedId}`, {
-            method: "PATCH",
-            body: JSON.stringify(user),
-        });
+            // Main Fetch Request
+            const res = await apiJson(`/user/${decodedId}/${action}`, {
+                method: "PATCH",
+                body: JSON.stringify(user),
+            });
 
-        await ensureOk(res, "Failed to update user");
+            await ensureOk(res, "Failed to update user");
 
-        // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
-    } catch (err) {
-        return handleErrRedirect(err, request, ROUTES.userManagement.root);
-    }
-};
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User details updated successfully`);
+        } catch (err) {
+            return handleErrRedirect(err, request, ROUTES.userManagement.root);
+        }
+    };
 
 // PATCH: Special patch method for resetting password to default
 export const resetPassword = async ({ params, request }: ActionFunctionArgs) => {
@@ -64,7 +86,7 @@ export const resetPassword = async ({ params, request }: ActionFunctionArgs) => 
         await ensureOk(res, "Failed to reset password");
 
         // Returns to root directory + queries
-        return redirectWithQuery(request, ROUTES.userManagement.root);
+        return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User password resetted successfully`);
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
@@ -72,9 +94,13 @@ export const resetPassword = async ({ params, request }: ActionFunctionArgs) => 
 
 // GET: Fetches all users
 export const getUsers = async ({ request }: ActionFunctionArgs) => {
+    const { query } = extractQueryToObject(request, ["page", "timeframe"]);
+    const apiParams = buildParamString(query);
+    console.log(apiParams);
+
     try {
         // Main Fetch Request
-        const res = await apiJson("/user", { method: "GET" });
+        const res = await apiJson(`/user?${apiParams}`, { method: "GET" });
 
         await ensureOk(res, "Failed to retrieve users");
 
@@ -108,33 +134,121 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
         const { userId } = params;
         const decodedId = Number(decode(userId));
         const formData = await request.formData();
+
         const actionType = formData.get("manageAction");
 
         if (actionType === "deactivate") {
-            const res = await apiJson(`/user/${decodedId}`, {
+            const res = await apiJson(`/user/${decodedId}/${LogAction.USER_ACCOUNT_DISABLED}`, {
                 method: "PATCH",
                 body: JSON.stringify({ status: "DISABLED" }),
             });
 
             await ensureOk(res, "Failed to deactivate user");
+
+            // Returns to root directory + queries
+            return redirectWithQuery(
+                request,
+                ROUTES.userManagement.root,
+                `NOTIF=User account deactivated successfully`
+            );
         } else if (actionType === "reactivate") {
-            const res = await apiJson(`/user/${decodedId}`, {
+            const res = await apiJson(`/user/${decodedId}/${LogAction.USER_ACCOUNT_ENABLED}`, {
                 method: "PATCH",
                 body: JSON.stringify({ status: "LOGGED_OUT" }),
             });
 
             await ensureOk(res, "Failed to reactivate user");
+
+            // Returns to root directory + queries
+            return redirectWithQuery(
+                request,
+                ROUTES.userManagement.root,
+                "NOTIF=User account reactivated successfully"
+            );
         } else if (actionType === "delete") {
             const res = await apiJson(`/user/${decodedId}`, {
                 method: "DELETE",
             });
 
             await ensureOk(res, "Failed to delete user");
+
+            // Returns to root directory + queries
+            return redirectWithQuery(request, ROUTES.userManagement.root, `NOTIF=User account deleted successfully`);
         }
 
+        // Baseline redirect for no notifs
         // Returns to root directory and queries
         return redirectWithQuery(request, ROUTES.userManagement.root);
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.userManagement.root);
+    }
+};
+
+// PATCH: Saves the current user's notification preferences 
+export const updateUserPreferences = async (preferences: { notifSoundEnabled: boolean }) => {
+    const res = await apiJson("/user/preferences", {
+        method: "PATCH",
+        body: JSON.stringify(preferences),
+    });
+
+    await ensureOk(res, "Failed to save preferences");
+
+    const updatedUser = await res.json();
+
+    InMemoryStore.setUser({ ...InMemoryStore.getUser(), ...updatedUser });
+
+    return updatedUser;
+};
+
+// Change password fetch but this one is used for the /reset-password
+export const changePasswordPatch = async (formData: FormData, resetToken: string): Promise<number | null> => {
+    try {
+        const payload = validateForm(formData, UserFormChangePasswordSchema, "Invalid password credentials");
+
+        const response = await apiJson(`/auth/change-password?token=${resetToken}`, {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        });
+
+        // Returns to root directory and queries
+        return response.status;
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
+};
+
+// Change password fetch but this one is used for the /profile/change-password
+export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
+    try {
+        const formData = await request.formData();
+
+        const userId = parseInt(formData.get("id") as string);
+
+        // Removes id to fit UserFormChangePasswordSchema
+        formData.delete("id");
+
+        const payload = validateForm(formData, UserFormChangePasswordSchema, "Invalid password credentials");
+
+        const response = await apiJson(`/user/${userId}/change-password`, {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (response.status == 422 && result.code == "INCORRECT_PASSWORD") {
+            return redirect(`${ROUTES.profile.changePassword}?INCORRECT_PASSWORD=${result.message}`);
+        }
+
+        if (response.status == 422 && result.code == "DUPLICATE_PASSWORD") {
+            return redirect(`${ROUTES.profile.changePassword}?DUPLICATE_PASSWORD=${result.message}`);
+        }
+
+        // Returns to root directory and queries
+        return redirect(`${ROUTES.profile.root}?passwordChangeStatus=${result.message}`);
+    } catch (err) {
+        console.error(err);
+        return null;
     }
 };

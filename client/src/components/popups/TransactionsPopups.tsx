@@ -2,24 +2,25 @@
 import { Form, useLoaderData, useParams } from "react-router";
 import { useState } from "react";
 
-// Hooks
-import { ROUTES, useNavigateDefault, type transactionRootPage } from "../../hooks/reroute";
+// PEDRO SHARED IMPORTS
+import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
+import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
 import { Dialog } from "..//Dialog";
 import { Text } from "../Text";
 import { GeneralInput } from "../Input";
 import { FormRow1, FormRow2, FormRow3, FormRow4 } from "../../pages/TransactionsInputPage";
-
-// Icons
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-
-// Test Data
-import { decode } from "../../utils/hashids";
 import { PopupButton, PopupDescription, PopupHeader, PopupIcon, PopupNotice } from "./PopupPartials";
 
-import { TransactionScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
-import type { Transaction } from "@qcpesopedro/shared/prisma/browser";
+// Material UI Icons
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+
+// Custom Hooks
+import useNavigateDefault, { ROUTES, type transactionRootPage } from "../../hooks/useNavigateDefault";
+
+// Utils
+import { decode } from "../../utils/hashids";
 
 export function PopupViewEditTransaction({ root = "history" }: { root: transactionRootPage }) {
     const navigate = useNavigateDefault();
@@ -83,7 +84,7 @@ export function PopupDeleteTransaction({ root = "history" }: { root: transaction
 
     const decodedId = decode(transactionId);
 
-    // Determines reroute on cancel between transactionEntry & transactionHistory page
+    // Determines useNavigateDefault on cancel between transactionEntry & transactionHistory page
     const returnPageOnClose = root == "history" ? ROUTES.history.root : ROUTES.applicantForm.root;
 
     return (

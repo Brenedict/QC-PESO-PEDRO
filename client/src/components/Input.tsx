@@ -1,9 +1,15 @@
+// General Imports
+import { useState, type ReactNode } from "react";
+
+// Components
+import Icon from "./Icon";
+
+// Material UI Icons
 import VisiblityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { useState, type ReactNode } from "react";
-import Icon from "./Icon";
 import ArrowDropDownOutlinedIcon from "@mui/icons-material/ArrowDropDownOutlined";
+import { Text } from "./Text";
 
 interface LabelProp {
     htmlFor?: string;
@@ -30,7 +36,7 @@ interface SelectProp extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 interface GeneralInputProp extends LabelProp, InputProp {
-    type: "text" | "email" | "number" | "time" | "date";
+    type: "text" | "email" | "number" | "time" | "date" | "datetime-local";
     hidden?: boolean;
 }
 
@@ -114,23 +120,28 @@ export function PasswordInput({
     };
 
     return (
-        <div className={`text-dark-blue w-full relative ${hidden ? "hidden" : ""}`}>
+        <div className={`text-dark-blue w-full ${hidden ? "hidden" : ""}`}>
             <Label htmlFor={props.id} label={label} isRequired={isRequired} />
-            <BaseInput
-                type={visible ? "text" : "password"}
-                placeholder={placeholder}
-                className={`pr-12 text-sm px-4 py-3 rounded-2xl ${className}`}
-                error={error}
-                required={isRequired}
-                aria-required={isRequired}
-                {...props}
-            />
-
-            <div className="absolute bottom-2 right-3">
-                <label className="cursor-pointer hover:bg-gray-200 transition-colors p-1 rounded-lg box-content flex items-center">
-                    <input type="checkbox" onChange={handleVisible} checked={visible} className="sr-only" />
-                    <Icon icon={visible ? VisiblityIcon : VisibilityOffIcon} variant="grayish-blue" size="bigMedium" />
-                </label>
+            <div className="relative">
+                <BaseInput
+                    type={visible ? "text" : "password"}
+                    placeholder={placeholder}
+                    className={`pr-12 text-sm px-4 py-3 rounded-2xl ${className}`}
+                    error={error}
+                    required={isRequired}
+                    aria-required={isRequired}
+                    {...props}
+                />
+                <div className="absolute top-1/2 -translate-y-1/2 right-3 flex items-center">
+                    <label className="cursor-pointer hover:bg-gray-200 transition-colors p-1 rounded-lg box-content flex items-center">
+                        <input type="checkbox" onChange={handleVisible} checked={visible} className="sr-only" />
+                        <Icon
+                            icon={visible ? VisiblityIcon : VisibilityOffIcon}
+                            variant="grayish-blue"
+                            size="bigMedium"
+                        />
+                    </label>
+                </div>
             </div>
             <ErrorMessage error={error} />
         </div>
@@ -231,12 +242,23 @@ export function SelectInput({
                     ))}
                 </select>
 
-                <span className={`shrink-0 ml-[-2.5rem] pointer-events-none ${iconClassName}`}>
+                <span className={`shrink-0 -ml-10 pointer-events-none ${iconClassName}`}>
                     <Icon icon={ArrowDropDownOutlinedIcon} size="bigger" variant="grayish-blue" />
                 </span>
             </div>
 
             <ErrorMessage error={error} />
+        </div>
+    );
+}
+
+export function LeftLabeledInput({ label, children }: { label: string; children: ReactNode }) {
+    return (
+        <div className="flex items-center gap-2">
+            <Text size="description" variant="grayish-blue" weight="medium">
+                {label}
+            </Text>
+            {children}
         </div>
     );
 }

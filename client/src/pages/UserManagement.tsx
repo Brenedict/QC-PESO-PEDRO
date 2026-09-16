@@ -1,4 +1,9 @@
-import { Outlet, useLoaderData } from "react-router";
+// General Imports
+import { Outlet, useLoaderData, useSearchParams } from "react-router";
+
+// PEDRO SHARED IMPORTS
+import { Role } from "@qcpesopedro/shared/prisma/enums.ts";
+import type { UserFormCreateType } from "@qcpesopedro/shared/schema/users";
 
 // Components
 import PageHeader from "../components/PageHeader";
@@ -11,7 +16,7 @@ import { SelectInput } from "../components/Input";
 import { ActionButtons, RoleBadge, type ActionTypes } from "../components/TableCells";
 import Status from "../components/Status";
 
-// Icons
+// Material UI Icons
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import RemoveModeratorOutlinedIcon from "@mui/icons-material/RemoveModeratorOutlined";
@@ -19,13 +24,16 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 
-// Types
-import type { Role } from "../types/common";
+// Custom Hooks
+import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 
-// Hooks
-import { ROUTES, useNavigateDefault } from "../hooks/reroute";
-import type { UserFormCreateType } from "../../../shared/schema/users";
-import { useTopBar } from "../context/TopbarContext.tsx";
+// Contexts
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+import useSearchParamsTable from "../hooks/useSearchParamsTable.ts";
+import type { User } from "@qcpesopedro/shared/prisma/browser.ts";
+import { useAuth } from "../context/AuthContext.tsx";
+import { useEffect, useState } from "react";
+import { NotificationPopup } from "../components/popups/NotificationPopups.tsx";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -73,13 +81,38 @@ type RoleButton = {
 };
 
 function UserManagement() {
+    const [searchParamsNotif, setSearchParamsNotif] = useSearchParams();
+    const [notif, setNotif] = useState("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParamsNotif.get("NOTIF");
+
+        // Only trigger if NOTIF exists AND we haven't already opened the modal for it
+        if (statusKey && !notifModalOpen) {
+            setNotif(statusKey);
+            setNotifModalOpen(true);
+
+            // Clone existing search params (keeping page=2, etc.) and only delete NOTIF
+            const newParams = new URLSearchParams(searchParamsNotif);
+            newParams.delete("NOTIF");
+            setSearchParamsNotif(newParams, { replace: true });
+        }
+    }, [searchParamsNotif, notifModalOpen, setSearchParamsNotif]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setNotif(""); // Reset string state on close
+    };
+
+    const { user } = useAuth();
+    const { searchParams } = useSearchParamsTable();
     const navigate = useNavigateDefault();
 
-    const users = useLoaderData() as UserFormCreateType[];
+    const { total, active, inactive, roles, users } = useLoaderData();
 
-    const { role } = useTopBar();
+    const { role } = useUserGlobal();
     const userRole = role;
-    console.log("User Role:", userRole); // Debugging line to check the role value
 
     const RoleButtonMap: Record<Role, RoleButton | null> = {
         SUPERADMIN: null,
@@ -140,44 +173,50 @@ function UserManagement() {
             <SelectInput
                 optionList={[
                     { content: "All Roles", value: "" },
-                    { content: "Super Administrator", value: "superadmin" },
-                    { content: "Administrator", value: "admin" },
-                    { content: "Frontline Encoder", value: "frontline" },
+                    { content: "Super Administrator", value: Role.SUPERADMIN },
+                    { content: "Administrator", value: Role.ADMIN },
+                    { content: "Frontline Encoder", value: Role.FRONTLINE },
                 ]}
+                name="role"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.role}
             />
             <SelectInput
                 optionList={[
                     { content: "All Statuses", value: "" },
-                    { content: "Active", value: "active" },
-                    { content: "Inactive", value: "inactive" },
+                    { content: "Active", value: "ACTIVE" },
+                    { content: "Inactive", value: "INACTIVE" },
                 ]}
+                name="status"
                 className="w-48! h-9.5! px-3! py-0!  rounded-xl!"
+                defaultValue={searchParams.status}
             />
         </div>
     );
 
     return (
-        <div className="flex flex-col w-full">
+        <main className="flex flex-col w-full">
             <PageHeader
                 primaryText="User Management"
                 secondaryText="Manage system access, roles, and employee accounts."
             >
-                <Button
-                    size="normal"
-                    variant="blue"
-                    leftIcon={{ icon: PersonAddOutlinedIcon, size: "medium", variant: "white" }}
-                    onClick={() => navigate(ROUTES.userManagement.create)}
-                >
-                    Add User
-                </Button>
+                {user?.role === "SUPERADMIN" && (
+                    <Button
+                        size="normal"
+                        variant="blue"
+                        leftIcon={{ icon: PersonAddOutlinedIcon, size: "medium", variant: "white" }}
+                        onClick={() => navigate(ROUTES.userManagement.create)}
+                    >
+                        Add User
+                    </Button>
+                )}
             </PageHeader>
 
             <div className="flex flex-col md:flex-row gap-4 mb-8 w-full">
-                <StatCard title="Total Users" value={24} />
-                <StatCard title="Active Users" value={20} />
-                <StatCard title="Inactive Users" value={4} />
-                <StatCard title="Roles" value={3} />
+                <StatCard title="Total Users" value={total} />
+                <StatCard title="Active Users" value={active} />
+                <StatCard title="Inactive Users" value={inactive} />
+                <StatCard title="Roles" value={roles} />
             </div>
 
             <Table pagination={true} filterView={true} extraFilters={extraFilters}>
@@ -189,7 +228,7 @@ function UserManagement() {
                     <Table.Header text="ACTIONS" />
                 </Table.Row>
 
-                {users.map((user) => (
+                {users.map((user: User) => (
                     <Table.Row key={user.id}>
                         <Table.Data>
                             <UserCell name={`${user.firstName} ${user.lastName}`} email={user.email} />
@@ -222,8 +261,17 @@ function UserManagement() {
                 ))}
             </Table>
 
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={notif}
+                    icon="notification"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
+
             <Outlet />
-        </div>
+        </main>
     );
 }
 

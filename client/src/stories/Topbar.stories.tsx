@@ -1,8 +1,57 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { fn } from "storybook/test";
+import { MemoryRouter } from "react-router";
 import Topbar from "../components/Topbar";
+import { UserGlobalContext } from "../context/UserGlobalContext";
+import { AuthContext } from "../context/AuthContext";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import "../index.css";
+
+const mockUserGlobal = (role: "SUPERADMIN" | "ADMIN" | "FRONTLINE", status: string) => ({
+    id: 1,
+    email: "juan.cruz@example.com",
+    shift: "NONE" as const,
+    status: (status.toUpperCase() === "ONLINE" ? "ONLINE" : "LOGGED_OUT") as "ONLINE" | "LOGGED_OUT",
+    firstName: "Juan",
+    lastName: "Cruz",
+    role,
+    onSearchChange: fn(),
+});
+
+const mockUser: UserContextType = {
+    id: 1,
+    username: "juan.cruz",
+    email: "juan.cruz@example.com",
+    role: "ADMIN",
+    status: "ONLINE",
+    shift: "NONE",
+    firstName: "Juan",
+    lastName: "Cruz",
+    hasEndedShift: false,
+    isRevising: false,
+};
+
+const wrapper = (role: "SUPERADMIN" | "ADMIN" | "FRONTLINE", status: string) => {
+    const Wrapper = ({ children }: { children: React.ReactNode }) => (
+        <MemoryRouter>
+            <div className="w-400">
+                <AuthContext
+                    value={{
+                        isAuthenticated: true,
+                        loading: false,
+                        user: mockUser,
+                        logout: async () => {},
+                        setUser: () => {},
+                    }}
+                >
+                    <UserGlobalContext value={mockUserGlobal(role, status)}>{children}</UserGlobalContext>
+                </AuthContext>
+            </div>
+        </MemoryRouter>
+    );
+    return Wrapper;
+};
 
 const meta = {
     title: "Topbar",
@@ -11,71 +60,19 @@ const meta = {
         layout: "centered",
     },
     tags: ["autodocs"],
-    args: {
-        hasNotif: true,
-        userFullName: "Juan Cruz",
-        profilePicUrl: undefined,
-        onNotifClick: fn(),
-        onSearchChange: fn(),
-        roleType: "admin",
-        status: "online",
-    },
 } satisfies Meta<typeof Topbar>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
 export const TopBarAdmin: Story = {
-    args: {
-        hasNotif: true,
-        userFullName: "Juan Cruz",
-        profilePicUrl: undefined,
-        onNotifClick: fn(),
-        onSearchChange: fn(),
-        roleType: "admin",
-        status: "online",
-    },
-
-    render: (args) => (
-        <div className="w-400">
-            <Topbar {...args} />
-        </div>
-    ),
+    decorators: [(Story) => wrapper("ADMIN", "online")({ children: <Story /> })],
 };
 
 export const TopBarFronline: Story = {
-    args: {
-        hasNotif: true,
-        userFullName: "Juan Cruz",
-        profilePicUrl: undefined,
-        onNotifClick: fn(),
-        onSearchChange: fn(),
-        roleType: "frontline",
-        status: "online",
-    },
-
-    render: (args) => (
-        <div className="w-400">
-            <Topbar {...args} />
-        </div>
-    ),
+    decorators: [(Story) => wrapper("FRONTLINE", "online")({ children: <Story /> })],
 };
 
 export const TopBarOffline: Story = {
-    args: {
-        hasNotif: true,
-        userFullName: "Juan Cruz",
-        profilePicUrl: undefined,
-        onNotifClick: fn(),
-        onSearchChange: fn(),
-        roleType: "frontline",
-        status: "offline",
-    },
-
-    render: (args) => (
-        <div className="w-400">
-            <Topbar {...args} />
-        </div>
-    ),
+    decorators: [(Story) => wrapper("FRONTLINE", "offline")({ children: <Story /> })],
 };

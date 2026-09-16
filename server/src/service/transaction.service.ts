@@ -1,7 +1,11 @@
-import type { Outcome, TransactionType } from "@qcpesopedro/shared/prisma/client";
-import TransactionModel from "../models/transaction.model";
-import UserModel from "../models/user.model";
+// General Imports
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 
+// PEDRO SHARED IMPORTS
+import { EnvironmentTag, Outcome, Sex, TransactionType } from "@qcpesopedro/shared/prisma/client";
+import type { TransactionScalarFieldEnum } from "@qcpesopedro/shared/zod/schemas";
+import { groupByInterval, groupByIntervalWithColumn } from "@qcpesopedro/shared/prisma/sql";
+import type { Transaction } from "@qcpesopedro/shared/prisma/client";
 import type {
     QueryBreakdownType,
     QueryDateRangeType,
@@ -9,7 +13,6 @@ import type {
     TransactionCreateType,
     TransactionQueryType,
 } from "@qcpesopedro/shared/schema/transactions";
-
 import type {
     DateTimeFilter,
     TransactionCountArgs,
@@ -19,14 +22,15 @@ import type {
     TransactionWhereInput,
 } from "@qcpesopedro/shared/prisma/models";
 
-import type { Transaction } from "@qcpesopedro/shared/prisma/client";
+// Models
+import TransactionModel from "../models/transaction.model";
+import UserModel from "../models/user.model";
 
-import ValidateUtil from "../utils/validate.util";
-import type { TransactionScalarFieldEnum } from "@qcpesopedro/shared/zod/schemas";
-import prisma from "../config/prisma.config";
+// Utils
 import DateUtil from "../utils/date.util";
-import { groupByInterval, groupByIntervalWithColumn } from "@qcpesopedro/shared/prisma/sql";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
+
+// Prisma.config
+import prisma from "../config/prisma.config";
 
 // -----------------------------  TYPES & INTERFACES -----------------------------------------------
 
@@ -111,7 +115,7 @@ export default {
     },
 
     async getTransactionsPerDay(date: Date, orderBy?: TransactionOrderByWithRelationInput) {
-        const { startDate, endDate } = DateUtil.buildDayRange(date, 8, 17);
+        const { startDate, endDate } = DateUtil.buildDayRange(date);
 
         return await TransactionModel.getTransactions({
             where: {
@@ -140,7 +144,7 @@ export default {
     },
 
     async countByDay(date: Date) {
-        const { startDate, endDate } = DateUtil.buildDayRange(date, 8, 17);
+        const { startDate, endDate } = DateUtil.buildDayRange(date);
 
         return TransactionModel.count({
             where: {
@@ -175,10 +179,12 @@ export default {
     },
 
     parseTransactionQuery(query: TransactionQueryType): TransactionFindManyArgs {
-        const { startDate, endDate, type, outcome, page, limit, search, include } = query;
+        const { shiftLogId, userId, startDate, endDate, type, outcome, page, limit, search, include } = query;
 
         return {
             where: {
+                userId,
+                shiftLogId,
                 transactionType: type as TransactionType | undefined,
                 transactionOutcome: outcome as Outcome | undefined,
                 createdAt:
@@ -191,12 +197,15 @@ export default {
 
                 ...(search && {
                     OR: [
-                        { applicantFullName: { contains: search as string, mode: "insensitive" } },
-                        { txCode: { contains: search as string, mode: "insensitive" } },
+                        { applicantFullName: { contains: search as string, mode: "insensitive" as const } },
+                        { txCode: { contains: search as string, mode: "insensitive" as const } },
+                        ...(include?.includes("user") // If it includes a user add a search to it also
+                            ? [{ user: { fullName: { contains: search as string, mode: "insensitive" as const } } }]
+                            : []),
                     ],
                 }),
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: [{ createdAt: "desc" }, { id: "asc" }],
             include: include?.length ? Object.fromEntries(include.map((key) => [key, true])) : undefined,
             skip: page,
             take: limit,
@@ -309,7 +318,7 @@ async function resolveTransactionQuery(
 }
 
 async function resolveSingleTransactionQuery(args: TransactionGroupByArgs | TransactionCountArgs) {
-    const isGroupByArgs = ValidateUtil.isGroupByArgs(args);
+    const isGroupByArgs = args && "by" in args && args.by?.length > 0;
 
     // return only count when we dont have groupBy
     if (!isGroupByArgs) {
@@ -328,7 +337,31 @@ async function formatTransactionQueryByResult(
     result: Awaited<ReturnType<typeof TransactionModel.groupBy>>,
     groupBy: TransactionScalarFieldEnum
 ) {
-    const response: Record<string, number> = {};
+    const prefillGroupedWithEnums = (result: Record<string, number>, enumObj: Record<string, string>) => {
+        const prefixed: Record<string, number> = {};
+        Object.values(enumObj).forEach((key) => {
+            prefixed[key] = 0;
+        });
+        Object.entries(result).forEach(([key, value]) => {
+            if (Object.hasOwn(enumObj, key)) {
+                prefixed[key] = value;
+            }
+        });
+        return prefixed;
+    };
+
+    // Prefill with enum values
+    let response: Record<string, number> = {};
+    const groupByMap = new Map<TransactionScalarFieldEnum, Record<string, string>>([
+        ["transactionType", TransactionType],
+        ["transactionOutcome", Outcome],
+        ["applicantSex", Sex],
+    ]);
+
+    const enumObj = groupByMap.get(groupBy);
+    if (enumObj) {
+        response = prefillGroupedWithEnums(response, enumObj);
+    }
 
     result.forEach((data) => {
         // format the data into
@@ -412,11 +445,8 @@ function formatTransactionBreakdownResult(
             const groupValue = (row as groupByIntervalWithColumn.Result).groupValue ?? "UNKNOWN";
             const count = Number(row.count ?? 0);
 
-            if (!response[bucket]) {
-                response[bucket] = {};
-            }
-
-            response[bucket][groupValue] = count;
+            response[bucket] ??= {};
+            response[bucket][groupValue] = (response[bucket][groupValue] ?? 0) + count;
         }
 
         return response;
@@ -431,7 +461,7 @@ function formatTransactionBreakdownResult(
         const bucket = DateUtil.formatDateBucket(row.bucket, breakdown);
         const count = Number(row.count ?? 0);
 
-        response[bucket] = count;
+        response[bucket] = (response[bucket] ?? 0) + count;
     }
 
     return response;

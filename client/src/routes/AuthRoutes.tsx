@@ -1,11 +1,25 @@
-import { redirect, type RouteObject } from "react-router";
-import LoginPage from "../pages/LoginPage";
-import { checkAuthService } from "../api/authService";
-import TokenStore from "../api/tokenStore";
-import { apiFetch } from "../api/httpClient";
-import { ROUTES } from "../hooks/reroute";
-import SystemErrorPage from "../pages/SystemErrorPage";
+// General Imports
+import { redirect, useSearchParams, type ActionFunctionArgs, type RouteObject } from "react-router";
+
+// PEDRO SHARED IMPORTS
 import { LoginSchema } from "@qcpesopedro/shared/schema/login";
+
+// Components
+import LoginPage from "../pages/LoginPage";
+import { ForgotPassword } from "../pages/ForgotPassword";
+import { ResetPassword } from "../pages/ResetPassword";
+import SystemErrorPage from "../pages/SystemErrorPage";
+
+// API Services
+import { checkAuthService, checkResetToken, handleForgotPassword } from "../api/authService";
+import { apiFetch } from "../api/httpClient";
+import InMemoryStore from "../api/inMemoryStore";
+
+// Custom Hooks
+import { ROUTES } from "../hooks/useNavigateDefault";
+
+import { changePasswordPatch } from "../api/userService";
+import { JSON_HEADERS } from "../api/actionService";
 
 export const authRoutes: RouteObject[] = [
     {
@@ -26,28 +40,50 @@ export const authRoutes: RouteObject[] = [
             const res = await apiFetch("/auth/login", {
                 retry: false,
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
+                headers: JSON_HEADERS,
                 body: JSON.stringify({ email: user?.email, password: user?.password }),
             });
 
             if (res.status === 200) {
                 const data = await res.json();
 
-                TokenStore.setAccessToken(data.accessToken);
+                InMemoryStore.setAccessToken(data.accessToken);
                 return redirect(ROUTES.dashboard.root);
             }
-            alert("Invalid credentials");
+
+            if (res.status === 401) {
+                const data: { message: string } = await res.json();
+
+                return redirect(`${ROUTES.auth.root}?NOTIF=${data.message}`);
+            }
+
+            if (res.status === 409) {
+                const data: { message: string } = await res.json();
+
+                return redirect(`${ROUTES.auth.root}?NOTIF=${data.message}`);
+            }
+
             return null;
         },
         loader: async () => {
-            const success = await checkAuthService();
-            if (success) {
-                return redirect(ROUTES.dashboard.root);
+            try {
+                const success = await checkAuthService();
+                if (success) {
+                    return redirect(ROUTES.dashboard.root);
+                }
+                return null;
+            } catch (err) {
+                return null;
             }
-            return null;
         },
+    },
+    {
+        path: "forgot-password",
+        element: <ForgotPassword onSubmit={handleForgotPassword} />,
+    },
+    {
+        path: "reset-password",
+        element: <ResetPassword onSubmit={changePasswordPatch} />,
+        loader: checkResetToken,
     },
 ];

@@ -1,10 +1,14 @@
-import { createContext, useContext, type MouseEventHandler, type ReactNode } from "react";
+// General Imports
+import { createContext, useContext, type ReactNode } from "react";
 
 export interface TableContextValue {
     pagination?: boolean;
     filterView?: boolean;
     extraFilters?: ReactNode;
+    pageKey?: string;
     noCardStyle?: boolean;
+
+    isExternalFilterChanged?: () => boolean;
 }
 
 export const TableContext = createContext<TableContextValue | null>(null);

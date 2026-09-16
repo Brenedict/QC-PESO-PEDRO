@@ -1,8 +1,19 @@
-import type { User } from "@qcpesopedro/shared/prisma/client";
+// General Imports
 import jwt from "jsonwebtoken";
 import env from "../config/env.config";
 import { type Response } from "express";
 import ms from "ms";
+import nodemailer from "nodemailer";
+
+// PEDRO SHARED IMPORTS
+import type { User } from "@qcpesopedro/shared/prisma/client";
+
+// Models
+import UserModel from "../models/user.model";
+
+// Utils
+import HashUtil from "../utils/hash.util";
+import TemplateUtil from "../utils/template.util";
 
 export default {
     // Helper to generate tokens
@@ -28,5 +39,28 @@ export default {
             sameSite: "lax", //balanced security
             maxAge: ms(env.JWT_REFRESH_EXPIRES_IN as ms.StringValue),
         });
+    },
+
+    async createResetToken(userId: number, hashedToken: string, expirationOffset: string) {
+        // Expiration 3 minutes from now
+        const resetTokenExpires = HashUtil.getExpirationDate(expirationOffset);
+
+        // Stores tokens used in password reset link
+        const updatedUser = {
+            resetToken: hashedToken.toString(),
+            resetTokenExpiresAt: resetTokenExpires,
+        } as User;
+
+        return await UserModel.updateUser(userId, updatedUser);
+    },
+
+    async clearResetToken(userId: number) {
+        // Clears reset tokens
+        const updatedUser = {
+            resetToken: null,
+            resetTokenExpiresAt: null,
+        } as User;
+
+        return await UserModel.updateUser(userId, updatedUser);
     },
 };

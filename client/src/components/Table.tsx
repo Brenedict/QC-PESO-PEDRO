@@ -1,24 +1,33 @@
+// General Imports
+import React, {
+    Children,
+    useEffect,
+    useState,
+    type ChangeEvent,
+    type MouseEventHandler,
+    type ReactNode,
+    type SubmitEvent,
+} from "react";
+import { Form } from "react-router";
+
+// Components
 import Button from "./Button";
 import { Card } from "./Card";
 import { SearchInput } from "./Input";
-import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import { Text } from "./Text";
-import {
-    Children,
-    useState,
-    type ChangeEventHandler,
-    type MouseEventHandler,
-    type ReactNode,
-    type SubmitEventHandler,
-} from "react";
 import Icon from "./Icon";
-import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
-import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
-import { Form } from "react-router";
-import CancelIcon from "@mui/icons-material/Cancel";
 import EmptyData from "./EmptyData";
+
+// Material UI Icons
+import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
+import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
+import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
+
+// Contexts
 import { TableProvider, useTable, type TableContextValue } from "../context/TableContext";
-import { useSearchParamsTable } from "../hooks/table";
+
+// Custom Hooks
+import useSearchParamsTable from "../hooks/useSearchParamsTable";
 
 function Row({ children }: { children: ReactNode }) {
     return <tr>{children}</tr>;
@@ -45,6 +54,7 @@ function Data({ children, nowrap }: { children: ReactNode; nowrap?: boolean }) {
         </td>
     );
 }
+
 function PaginationButtons({
     highlighted = false,
     children,
@@ -68,40 +78,73 @@ function PaginationButtons({
 
 function FilterSection() {
     const { searchParams, setSearchParams } = useSearchParamsTable();
-    const { filterView, extraFilters } = useTable();
+    const { filterView, extraFilters, isExternalFilterChanged } = useTable();
+    const [isChanged, setIsChanged] = useState(false);
 
     if (!filterView) return null;
 
-    const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    const externalFilterChanged = isExternalFilterChanged?.() ?? false;
+    const hasChanges = isChanged || externalFilterChanged;
+
+    const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const formElement = e.currentTarget;
-        if (!formElement) return;
-
-        const formData = new FormData(formElement);
+        const formData = new FormData(e.currentTarget);
         const params = Object.fromEntries(formData);
 
-        setSearchParams({ ...params, page: 1 });
+        setSearchParams({
+            ...params,
+            page: 1,
+        });
+
+        setIsChanged(false);
+    };
+
+    const handleChange = (e: ChangeEvent<HTMLFormElement>) => {
+        const formData = new FormData(e.currentTarget);
+
+        const currentParams = Object.fromEntries(formData) as Record<string, string>;
+
+        const changed = Object.entries(currentParams).some(([key, value]) => {
+            const searchValue = (searchParams as Record<string, string | undefined>)[key] ?? "";
+
+            return value !== searchValue;
+        });
+
+        setIsChanged(changed);
     };
 
     return (
-        <Card.Header variant="white">
-            <Form method="POST" className="flex justify-between items-center w-full" onSubmit={handleSubmit}>
-                <div className="flex items-center gap-4 grow">
+        <Card.Header variant="white" className="overflow-x-auto">
+            <Form
+                method="POST"
+                className="flex justify-between items-center w-full"
+                onSubmit={handleSubmit}
+                onChange={handleChange}
+                id="tableFilter"
+            >
+                <div className="flex items-center gap-4 min-w-0 grow shrink-0">
                     <SearchInput
                         name="search"
-                        placeholder="Search by applicant, ID, or keywords..."
-                        className="rounded-xl w-full"
-                        defaultValue={searchParams.search}
+                        placeholder="Search by keywords..."
+                        className="rounded-xl w-full min-w-30"
+                        defaultValue={searchParams.search ?? ""}
                     />
+
                     {extraFilters}
                 </div>
+
                 <Button
                     size="normal"
                     className="min-w-60! ml-20 text-description"
                     variant="navy"
-                    leftIcon={{ icon: FilterAltOutlinedIcon, variant: "white", size: "bigMedium" }}
+                    leftIcon={{
+                        icon: FilterAltOutlinedIcon,
+                        variant: "white",
+                        size: "bigMedium",
+                    }}
                     type="submit"
+                    disabled={!hasChanges}
                 >
                     Apply Filters
                 </Button>
@@ -117,7 +160,8 @@ interface PaginationSectionProps {
 }
 
 function PaginationSection({ pageNumbers, paginationText, windowSize = 5 }: PaginationSectionProps) {
-    const { page, handleSetPage } = useSearchParamsTable();
+    const { pageKey } = useTable();
+    const { page, handleSetPage } = useSearchParamsTable({}, pageKey);
     const { pagination } = useTable();
 
     if (!pagination) return null;
@@ -168,26 +212,43 @@ interface TableProps extends TableContextValue {
     children: ReactNode;
 }
 
-function Table({ children, items = 5, ...tableContext }: TableProps) {
+function Table({ children, items = 10, ...tableContext }: TableProps) {
     // Pagination hook
-    const { page } = useSearchParamsTable();
+    const { page, setSearchParams } = useSearchParamsTable({}, tableContext.pageKey);
 
-    const childrenArray = Children.toArray(children);
+    const childrenArray = Children.toArray(children).filter(
+        (child) => React.isValidElement(child) && child.type === Row
+    );
     const header = childrenArray[0];
     const rows = childrenArray.slice(1);
 
     let viewRows = rows;
     let paginationSection: ReactNode = null;
 
+    // Limit page from range 1 to pageNumbers
+    const pageNumbers = Math.ceil(rows.length / items);
+    const clampedPage = Math.min(Math.max(page, 1), Math.max(pageNumbers, 1));
+
+    // Runs when page changes
+    useEffect(() => {
+        if (page !== clampedPage) {
+            setSearchParams({
+                [tableContext.pageKey ?? "page"]: clampedPage,
+            });
+        }
+    }, [page, clampedPage, setSearchParams, tableContext.pageKey]);
+
     if (tableContext.pagination) {
-        const start = (page - 1) * items;
-        const end = page * items;
+        const start = (clampedPage - 1) * items;
+        const end = clampedPage * items;
 
         viewRows = rows.slice(start, end);
+
         const lastIndex = Math.min(end, rows.length);
 
-        const paginationText = `Showing ${viewRows.length > 0 ? `${start + 1} to ${lastIndex}` : "0"} out of ${rows.length}`;
-        const pageNumbers = Math.ceil(rows.length / items);
+        const paginationText = `Showing ${
+            viewRows.length > 0 ? `${start + 1} to ${lastIndex}` : "0"
+        } out of ${rows.length}`;
 
         paginationSection = <PaginationSection pageNumbers={pageNumbers} paginationText={paginationText} />;
     }

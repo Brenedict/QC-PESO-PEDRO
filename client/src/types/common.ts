@@ -5,9 +5,6 @@ export type MaterialIcon = OverridableComponent<SvgIconTypeMap<object, "svg">> &
     muiName: string;
 };
 
-// Role Types
-export type Role = "SUPERADMIN" | "ADMIN" | "FRONTLINE";
-
 // Size Classes (Text and SVG)
 export const SizeClasses = {
     iconHero: "text-icon-hero",

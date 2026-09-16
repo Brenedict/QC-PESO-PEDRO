@@ -1,20 +1,29 @@
+// General Imports
+import { useEffect, useState } from "react";
+
+// Components
 import Status from "./Status.tsx";
 import { Text } from "./Text";
 import { SearchInput } from "./Input.tsx";
-import { useEffect, useState } from "react";
-import { getDateTimeNow } from "../utils/time.ts";
-import Icon from "./Icon";
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import NotificationImportantOutlinedIcon from "@mui/icons-material/NotificationImportantOutlined";
 import Profile from "./Profile";
 import Button from "./Button.tsx";
+import NotificationsDropdown from "./NotificationsDropdown";
 
-import { useNavigateDefault } from "../hooks/reroute";
-import { useTopBar } from "../context/TopbarContext.tsx";
+// Material UI Icons
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+
+// Custom Hooks
+import useNavigateDefault from "../hooks/useNavigateDefault";
+
+// Contexts
+import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+
+// Utils
+import { getDateTimeNow } from "../utils/time.ts";
+import { useAuth } from "../context/AuthContext.tsx";
 
 function LeftSection() {
-    const { onSearchChange } = useTopBar();
+    const { onSearchChange } = useUserGlobal();
 
     return (
         <section className="flex items-center mr-20">
@@ -52,26 +61,11 @@ function DateTime() {
 }
 
 function NotifButton() {
-    const { onNotifClick, hasNotif } = useTopBar();
-
-    return (
-        <Button
-            onClick={onNotifClick}
-            size="small"
-            variant="white-black"
-            className="min-w-0! aspect-square h-10 w-auto"
-        >
-            <Icon
-                variant={hasNotif ? "red" : "grayish-blue"}
-                icon={hasNotif ? NotificationImportantOutlinedIcon : NotificationsNoneOutlinedIcon}
-                size="big"
-            />
-        </Button>
-    );
+    return <NotificationsDropdown />;
 }
 
 function ProfileSection() {
-    const { firstName, lastName, role } = useTopBar();
+    const { firstName, lastName, role } = useUserGlobal();
 
     return (
         <div className="flex">
@@ -95,7 +89,8 @@ function ProfileSection() {
 }
 
 function RightSection() {
-    const { status } = useTopBar();
+    const { user } = useAuth();
+    const { status } = useUserGlobal();
     const navigate = useNavigateDefault();
 
     return (
@@ -119,12 +114,17 @@ function RightSection() {
             </div>
 
             <Button
-                variant="red"
+                variant={user?.isRevising === true ? "blue" : "red"}
                 size="small"
                 className="px-4 py-2 rounded-xl"
-                onClick={() => navigate(`${window.location.pathname}/end-shift-confirmation`)}
+                disabled={user?.hasEndedShift}
+                onClick={() =>
+                    navigate(
+                        `${window.location.pathname}/${user?.isRevising === true ? "submit-revision" : "end-shift-confirmation"}`
+                    )
+                }
             >
-                End Shift
+                {user?.isRevising === true ? "Submit Revision" : "End Shift"}
             </Button>
         </section>
     );
@@ -132,8 +132,8 @@ function RightSection() {
 
 function TopBar() {
     return (
-        <header className="flex items-center justify-between px-8 py-4 shadow-default w-full min-w-max sticky top-0 z-50 bg-white">
-            <LeftSection />
+        <header className="flex items-center justify-end px-8 py-4 shadow-default w-full min-w-max sticky top-0 z-50 bg-white">
+            {/* <LeftSection /> */}
             <RightSection />
         </header>
     );

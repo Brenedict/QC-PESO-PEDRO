@@ -1,9 +1,15 @@
+// General Imporst
 import type { ReactNode } from "react";
+
+// Components
 import { Text } from "../components/Text";
 import Button from "../components/Button";
 
+// Types
 import type { ColorVariant, MaterialIcon, Role } from "../types/common";
-import { formatShortMonthYear, formatTime } from "../utils/time";
+
+// Utils
+import { formatRelativeDateTime, formatShortMonthYear, formatTime } from "../utils/time";
 
 export function ColumnText({ children }: { children: ReactNode }) {
     return (
@@ -23,38 +29,41 @@ export function Identifier({ children }: { children: ReactNode }) {
     );
 }
 
-export function DateTime({ dateTime }: { dateTime: Date }) {
-    // Date formatting component
-    const getRelativeDateTime = () => {
-        const now = new Date();
-        const target = new Date(dateTime);
+export function DateTime({ dateTime }: { dateTime: Date | string | null }) {
+    if (dateTime === null) {
+        return (
+            <>
+                <div>
+                    <Text size="description" variant="black" align="center" weight="medium">
+                        -
+                    </Text>
+                </div>
+            </>
+        );
+    }
 
-        const isToday = target.toDateString() === now.toDateString();
+    const dateObj = typeof dateTime === "string" ? new Date(dateTime) : dateTime;
 
-        const yesterday = new Date(now);
-        yesterday.setDate(now.getDate() - 1);
-        const isYesterday = target.toDateString() === yesterday.toDateString();
+    // Check for invalid date strings (e.g., "invalid-date")
+    if (isNaN(dateObj.getTime())) {
+        return (
+            <div>
+                <Text size="description" variant="black" align="center" weight="medium">
+                    -
+                </Text>
+            </div>
+        );
+    }
 
-        const timeString = formatTime(target);
-
-        if (isToday) {
-            return `Today, ${timeString}`;
-        }
-        if (isYesterday) {
-            return `Yesterday, ${timeString}`;
-        }
-
-        return timeString;
-    };
-
+    const formattedDate = formatRelativeDateTime(dateObj);
     return (
         <>
             <div>
                 <Text size="description" variant="black" align="center" weight="medium">
-                    {formatShortMonthYear(dateTime)}
+                    {formatShortMonthYear(dateObj)}
                 </Text>
                 <Text size="small" variant="grayish-blue" align="center" weight="normal">
-                    {getRelativeDateTime()}
+                    {formattedDate}
                 </Text>
             </div>
         </>
@@ -116,7 +125,7 @@ export function ActionButton({
     handleClick: (id: string) => React.MouseEventHandler<HTMLButtonElement>;
 }) {
     return (
-        <Button variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
+        <Button type="button" variant="opaque-blue" size="tiny" onClick={handleClick(id)}>
             {text}
         </Button>
     );
@@ -151,5 +160,21 @@ export function ColumnDescItalic({ children }: { children: ReactNode }) {
         <Text size="description" variant="grayish-blue" align="center" className="italic">
             {children}
         </Text>
+    );
+}
+
+export function TextAndDateTime({ text, dateTime }: { text: string; dateTime: Date }) {
+    const formattedDate = formatRelativeDateTime(dateTime, true);
+    return (
+        <>
+            <div>
+                <Text size="description" variant="black" align="center" weight="medium">
+                    {text}
+                </Text>
+                <Text size="small" variant="grayish-blue" align="center" weight="normal">
+                    {formattedDate}
+                </Text>
+            </div>
+        </>
     );
 }

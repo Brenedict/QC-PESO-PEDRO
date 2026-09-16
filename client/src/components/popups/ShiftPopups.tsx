@@ -1,23 +1,16 @@
 // General Imports
-import { Form, redirect, useParams } from "react-router";
+import { useState } from "react";
+import { Form, useLoaderData, type HTMLFormMethod } from "react-router";
 
-// Hooks
-import { ROUTES, useNavigateDefault } from "../../hooks/reroute";
-import { useState } from "react"; 
+// Shared Import
+import { EnvironmentTag } from "@qcpesopedro/shared/prisma/browser";
 
 // Components
-import { Card } from "../Card";
 import { Dialog } from "../Dialog";
 import { Text } from "../Text";
 import Icon from "../Icon";
 import Button from "../Button";
-
-// Icons
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-
-// Test Data
 import { GeneralInput, TextAreaInput } from "../Input";
-import { LogoutOutlined } from "@mui/icons-material";
 import {
     ContextBadge,
     GrayMiniCard,
@@ -27,12 +20,122 @@ import {
     PopupHeader,
     PopupIcon,
 } from "./PopupPartials";
-import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 
-export function PopupTimeIn({ root }: { root: string }) {
-    const navigate = useNavigateDefault();
+// Material UI Icons
+import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import { LogoutOutlined } from "@mui/icons-material";
+
+// Custom Hooks
+import useNavigateDefault, { ROUTES } from "../../hooks/useNavigateDefault";
+import { formatRelativeDateTime, formatShortMonthYear, formatTime } from "../../utils/time";
+import { logoutService } from "../../api/authService";
+import { useAuth } from "../../context/AuthContext";
+import { capitalizeWords } from "../../utils/text";
+import InMemoryStore from "../../api/inMemoryStore";
+import type { UserContextType } from "@qcpesopedro/shared/schema/login";
+import { ShiftLogScalarFieldEnum } from "@qcpesopedro/shared/prisma/internal/prismaNamespaceBrowser";
+const handleCancelTimeIn = (navigate: (route: string, keepQuery?: boolean) => void, reason: string) => async () => {
+    const success = await logoutService({ reason });
+
+    if (success) {
+        navigate(ROUTES.auth.root, true);
+    }
+};
+
+interface EndShiftFormProps {
+    method?: HTMLFormMethod;
+    id?: string;
+    total?: number;
+    pending?: number;
+}
+function EndShiftForm({ method = "patch", id = "timeInForm", total, pending }: EndShiftFormProps) {
+    const { user } = useAuth();
+    const environmentTags = (user?.shiftLog?.environmentTags as EnvironmentTag[]) ?? [];
+
     return (
-        <Dialog dropShadow={true} className="border-0!" onClose={() => navigate(root, true)}>
+        <Form method={method} id={id} className="flex flex-col gap-6">
+            {/* Time-In Data Input Holders */}
+            <div className="flex gap-4">
+                <GrayMiniCard
+                    descriptionText="Total Transactions"
+                    descriptionSize="description"
+                    valueSize="bigger"
+                    valueText={total ?? "N/A"}
+                    weight="bold"
+                />
+                <GrayMiniCard
+                    descriptionText="Pending"
+                    descriptionSize="description"
+                    valueSize="bigger"
+                    valueText={pending ?? "N/A"}
+                    weight="bold"
+                />
+            </div>
+            <LabeledSection label="Context Tags">
+                <div className="flex flex-wrap gap-2 max-w-200">
+                    <ContextBadge
+                        value={EnvironmentTag.SLOW_INTERNET}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.SLOW_INTERNET)}
+                    >
+                        Slow Internet
+                    </ContextBadge>
+                    <ContextBadge
+                        value={EnvironmentTag.HEAVY_RAIN}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.HEAVY_RAIN)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
+                        Heavy Rain
+                    </ContextBadge>
+                    <ContextBadge
+                        value={EnvironmentTag.BROKEN_EQUIPMENT}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.BROKEN_EQUIPMENT)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
+                        Broken Equipment
+                    </ContextBadge>
+                    <ContextBadge
+                        value={EnvironmentTag.APPLICANT_ISSUES}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.APPLICANT_ISSUES)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
+                        Applicant Issues
+                    </ContextBadge>
+                    <ContextBadge
+                        value={EnvironmentTag.FEELING_UNWELL}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.FEELING_UNWELL)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
+                        Feeling Unwell
+                    </ContextBadge>
+                    <ContextBadge
+                        value={EnvironmentTag.BROKEN_SOFTWARE_SYSTEM}
+                        defaultChecked={environmentTags?.includes(EnvironmentTag.BROKEN_SOFTWARE_SYSTEM)}
+                        name={ShiftLogScalarFieldEnum.environmentTags}
+                    >
+                        Broken Software System
+                    </ContextBadge>
+                </div>
+            </LabeledSection>
+
+            <TextAreaInput
+                label="Optional Remarks"
+                name="generalRemarks"
+                defaultValue={user?.shiftLog?.generalRemarks ?? ""}
+                placeholder="Problems, or any other concern during the shift..."
+            />
+        </Form>
+    );
+}
+
+export function PopupTimeIn() {
+    const { user } = useAuth();
+    const navigate = useNavigateDefault();
+    const today = new Date();
+
+    return (
+        <Dialog dropShadow={true} className="border-0!" onClose={() => {}}>
             <Dialog.Header variant="primary-blue" className="flex flex-col" toggleRightIcon={false}>
                 <div className="flex justify-center mt-3">
                     <Icon
@@ -56,21 +159,31 @@ export function PopupTimeIn({ root }: { root: string }) {
             <Dialog.Body>
                 <Form method="post" id="timeInForm">
                     {/* Time-In Data Input Holders */}
-                    <GeneralInput hidden={true} name="date" type="date" defaultValue={""}></GeneralInput>
-                    <GeneralInput hidden={true} name="time" type="time" defaultValue={""}></GeneralInput>
-                    <GeneralInput hidden={true} name="shift" type="text" defaultValue={"Morning Shift"}></GeneralInput>
                     <GeneralInput
                         hidden={true}
-                        name="assignedOffice"
+                        name="userId"
+                        type="number"
+                        defaultValue={user?.id ?? NaN}
+                    ></GeneralInput>
+                    <GeneralInput
+                        hidden={true}
+                        name="timeIn"
                         type="text"
-                        defaultValue={"Quezon City Hall (PESO)"}
+                        defaultValue={today.toLocaleString()}
                     ></GeneralInput>
                 </Form>
                 <section className="flex flex-col justify-center gap-6 max-w-md">
                     <div className="grid grid-cols-2 gap-3">
-                        <GrayMiniCard descriptionText="DATE" valueText="Jul 20, 2026" />
-                        <GrayMiniCard descriptionText="LIVE TIME" valueText="02:17 PM" variant="primary-blue" />
-                        <GrayMiniCard descriptionText="SHIFT" valueText="Morning Shift" />
+                        <GrayMiniCard descriptionText="DATE" valueText={formatShortMonthYear(today)} />
+                        <GrayMiniCard
+                            descriptionText="LIVE TIME"
+                            valueText={formatTime(today)}
+                            variant="primary-blue"
+                        />
+                        <GrayMiniCard
+                            descriptionText="SHIFT"
+                            valueText={user?.shift ? capitalizeWords(user.shift) : "N/A"}
+                        />
                         <GrayMiniCard
                             descriptionText="ASSIGNED OFFICE"
                             valueText="Quezon City Hall (PESO)"
@@ -83,11 +196,12 @@ export function PopupTimeIn({ root }: { root: string }) {
                 <PopupButton
                     leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
                     variant="white"
-                    onClick={() => navigate(root, true)}
+                    onClick={handleCancelTimeIn(navigate, "Cancelled time-in")}
+                    type="button"
                 >
                     Cancel Time In
                 </PopupButton>
-                <PopupButton variant="blue" onClick={() => navigate(root, true)}>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
                     Time In Now
                 </PopupButton>
             </Dialog.Footer>
@@ -97,7 +211,7 @@ export function PopupTimeIn({ root }: { root: string }) {
 export function PopupLogout({ root }: { root: string }) {
     const navigate = useNavigateDefault();
     const [isFormValid, setIsFormValid] = useState(false);
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
         setIsFormValid(e.currentTarget.checkValidity());
     };
 
@@ -113,7 +227,7 @@ export function PopupLogout({ root }: { root: string }) {
                     {/* Time-In Data Input Holders */}
                     <GeneralInput
                         label="Reason for Logout"
-                        name="date"
+                        name="reason"
                         type="text"
                         defaultValue={""}
                         required
@@ -121,7 +235,7 @@ export function PopupLogout({ root }: { root: string }) {
                     ></GeneralInput>
                     <TextAreaInput
                         label="Optional Remarks"
-                        name="time"
+                        name="remarks"
                         defaultValue={""}
                         placeholder="Enter additional details..."
                     ></TextAreaInput>
@@ -147,6 +261,9 @@ export function PopupLogout({ root }: { root: string }) {
 }
 
 export function PopupEndshiftSummary({ root }: { root: string }) {
+    console.log("PopupEndshiftSummary is rendering!", root);
+    const { total, pending } = useLoaderData();
+
     const navigate = useNavigateDefault();
     return (
         <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
@@ -156,46 +273,47 @@ export function PopupEndshiftSummary({ root }: { root: string }) {
                 </Text>
             </Dialog.Header>
             <Dialog.Body>
-                <Form method="post" id="timeInForm" className="flex flex-col gap-6">
-                    {/* Time-In Data Input Holders */}
-                    <div className="flex gap-4">
-                        <GrayMiniCard
-                            descriptionText="Total Transactions"
-                            descriptionSize="description"
-                            valueSize="bigger"
-                            valueText="42"
-                            weight="bold"
-                        />
-                        <GrayMiniCard
-                            descriptionText="Pending"
-                            descriptionSize="description"
-                            valueSize="bigger"
-                            valueText="3"
-                            weight="bold"
-                        />
-                    </div>
-                    <LabeledSection label="Context Tags">
-                        <div className="flex gap-2">
-                            <ContextBadge highlighted={true}>Normal Operation</ContextBadge>
-                            <ContextBadge>Slow Internet</ContextBadge>
-                            <ContextBadge>Heavy Rain</ContextBadge>
-                        </div>
-                    </LabeledSection>
-
-                    <TextAreaInput
-                        label="Optional Remarks"
-                        name="time"
-                        defaultValue={""}
-                        placeholder="Problems, or any other concern during the shift..."
-                    ></TextAreaInput>
-                </Form>
+                <PopupDescription>Review your shift details before submitting and ending your shift.</PopupDescription>
+                <EndShiftForm total={total} pending={pending} />
             </Dialog.Body>
             <Dialog.Footer className="flex gap-3 justify-end">
                 <PopupButton variant="white" onClick={() => navigate(root, true)}>
                     Cancel
                 </PopupButton>
-                <PopupButton variant="blue" type="submit" form="timeInForm" onClick={() => navigate(root, true)}>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
                     Submit & End Shift
+                </PopupButton>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupRevisionSummary({ root }: { root: string }) {
+    const { total, pending } = useLoaderData();
+    const revisionShift = InMemoryStore.getRevisionShift();
+
+    const navigate = useNavigateDefault();
+    return (
+        <Dialog dropShadow={true} onClose={() => navigate(root, true)}>
+            <Dialog.Header onRightAction={() => navigate(root, true)}>
+                <Text size="medium" weight="bold">
+                    Shift Revision Summary (
+                    {revisionShift?.timeOut ? formatRelativeDateTime(new Date(revisionShift?.timeOut), true) : "N/A"})
+                </Text>
+            </Dialog.Header>
+            <Dialog.Body>
+                <PopupDescription>
+                    Review your revised shift details before submitting. You will return to your current shift
+                    afterward.
+                </PopupDescription>
+                <EndShiftForm total={total} pending={pending} />
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <PopupButton variant="white" onClick={() => navigate(root, true)}>
+                    Cancel
+                </PopupButton>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
+                    Submit Revision
                 </PopupButton>
             </Dialog.Footer>
         </Dialog>
@@ -223,6 +341,81 @@ export function PopupSessionEnd({ root }: { root: string }) {
                     </Button>
                 </section>
             </Dialog.Body>
+        </Dialog>
+    );
+}
+
+export function PopupUnfinishedShift() {
+    const { user } = useAuth();
+    const { total, pending } = useLoaderData();
+    const navigate = useNavigateDefault();
+
+    return (
+        <Dialog dropShadow={true} onClose={() => {}}>
+            <Dialog.Body className="px-6! py-8!">
+                <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
+                <PopupHeader>
+                    You have an unfinished shift (
+                    {user?.shiftLog?.timeIn ? formatRelativeDateTime(new Date(user.shiftLog.timeIn), true) : "N/A"})
+                </PopupHeader>
+                <PopupDescription>Please submit it to ensure your shift record is saved.</PopupDescription>
+                <EndShiftForm total={total} pending={pending} />
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <PopupButton
+                    leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
+                    variant="white"
+                    onClick={handleCancelTimeIn(navigate, "Refused to resolve unfinished shift")}
+                    type="button"
+                >
+                    Log Out
+                </PopupButton>
+                <PopupButton variant="blue" type="submit" form="timeInForm">
+                    Submit Shift
+                </PopupButton>
+            </Dialog.Footer>
+        </Dialog>
+    );
+}
+
+export function PopupReviseShift() {
+    const revisionShift = InMemoryStore.getRevisionShift();
+    const navigate = useNavigateDefault();
+
+    return (
+        <Dialog dropShadow={true} onClose={() => {}}>
+            <Dialog.Body className="px-6! py-8!">
+                <PopupIcon icon={WarningAmberOutlinedIcon} variant="blue" />
+                <PopupHeader>
+                    Your shift requires revision (
+                    {revisionShift?.timeOut ? formatRelativeDateTime(new Date(revisionShift.timeOut), true) : "N/A"})
+                </PopupHeader>
+                <PopupDescription>
+                    Your shift requires revision. Review the remarks and make the necessary corrections before
+                    resubmitting.
+                </PopupDescription>
+                <GeneralInput
+                    label={`Reason for Revision (${revisionShift?.user?.fullName ?? "N/A"})`}
+                    type="text"
+                    defaultValue={revisionShift?.adminRemarks ?? "The verifier has no remarks."}
+                    disabled
+                />
+            </Dialog.Body>
+            <Dialog.Footer className="flex gap-3 justify-end">
+                <PopupButton
+                    leftIcon={{ icon: LogoutOutlined, variant: "grayish-blue" }}
+                    variant="white"
+                    onClick={handleCancelTimeIn(navigate, "Refused to resolve shift that needs revision")}
+                    type="button"
+                >
+                    Log Out
+                </PopupButton>
+                <Form method="patch">
+                    <PopupButton variant="blue" type="submit">
+                        Revise Shift
+                    </PopupButton>
+                </Form>
+            </Dialog.Footer>
         </Dialog>
     );
 }
