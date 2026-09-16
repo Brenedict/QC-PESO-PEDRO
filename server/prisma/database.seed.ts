@@ -242,7 +242,6 @@ async function buildUserDummy(spec: SeedUserSpec): Promise<UserUncheckedCreateIn
     };
 }
 
-// Shift-day pool (today weighted heavily for dashboard activity).
 function buildShiftDayPool(scatteredPastDays: number, todayWeight: number): Date[] {
     const today = getMostRecentBusinessDay(new Date());
     const pool: Date[] = [];
@@ -252,7 +251,7 @@ function buildShiftDayPool(scatteredPastDays: number, todayWeight: number): Date
     }
 
     for (let i = 0; i < scatteredPastDays; i++) {
-        pool.push(randomPastBusinessDay(1, 15));
+        pool.push(randomPastBusinessDay(1, 45));
     }
 
     return pool;
@@ -344,8 +343,8 @@ async function main() {
             createdUsers.push(user);
         }
 
-        // 2. Build shift-day pool (today only).
-        const shiftDayPool = [getMostRecentBusinessDay(new Date())];
+        // 2. Build shift-day pool spanning last month through this month.
+        const shiftDayPool = buildShiftDayPool(35, 2);
         const today = getMostRecentBusinessDay(new Date());
 
         // 3. Create shift logs + transactions.
@@ -355,7 +354,7 @@ async function main() {
         for (const user of createdUsers) {
             if (user.role === "SUPERADMIN") continue;
 
-            const shiftCount = 1;
+            const shiftCount = randomInt(3, 6);
             for (let s = 0; s < shiftCount; s++) {
                 const day = randomItem(shiftDayPool);
                 const adminUsers = createdUsers.filter((user) => user.role === "ADMIN" || user.role === "SUPERADMIN");

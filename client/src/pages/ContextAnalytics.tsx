@@ -251,7 +251,7 @@ function InsightSection({ insight }: { insight: string }) {
                     types={types?.previous?.grouped}
                     outcomes={outcomes?.previous?.grouped}
                     tags={lastMonthTags}
-                    shiftCount={shift?.total ?? 0}
+                    shiftCount={shift?.total?.previous ?? 0}
                 />
 
                 <Text size="normal" variant="primary-blue" weight="bold" className="mb-1">
@@ -262,7 +262,7 @@ function InsightSection({ insight }: { insight: string }) {
                     types={types?.current?.grouped}
                     outcomes={outcomes?.current?.grouped}
                     tags={thisMonthTags}
-                    shiftCount={shift?.total ?? 0}
+                    shiftCount={shift?.total?.count ?? 0}
                 />
 
                 <Card dropShadow={false}>
@@ -432,7 +432,7 @@ function Level3Section({ insight }: { insight: string }) {
         ],
         datasets: [
             {
-                label: "Number of Tagged Shifts",
+                label: key === "count" ? "This Month" : "Last Month",
                 data: [
                     tagMap.slowInternet?.[key] ?? 0,
                     tagMap.brokenEquipment?.[key] ?? 0,
@@ -441,7 +441,14 @@ function Level3Section({ insight }: { insight: string }) {
                     tagMap.brokenSoftware?.[key] ?? 0,
                     tagMap.applicantIssues?.[key] ?? 0,
                 ],
-                backgroundColor: ChartColorClasses["primary-blue"],
+                backgroundColor: [
+                    ChartColorClasses["primary-blue"],
+                    ChartColorClasses["red"],
+                    ChartColorClasses["light-blue"],
+                    ChartColorClasses["green"],
+                    ChartColorClasses["purple"],
+                    ChartColorClasses["yellow"],
+                ],
             },
         ],
     });

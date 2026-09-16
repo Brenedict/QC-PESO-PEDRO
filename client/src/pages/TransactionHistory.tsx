@@ -1,5 +1,5 @@
 // General Imports
-import { useLoaderData } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 import { Outlet } from "react-router";
 
 // PEDRO SHARED IMPORTS
@@ -22,6 +22,8 @@ import useNavigateDefault, { ROUTES } from "../hooks/useNavigateDefault";
 import useSearchParamsTable from "../hooks/useSearchParamsTable";
 import useTimeframeFilter, { type TimeframeFilter } from "../hooks/useTimeFrameFilter";
 import { useAuth } from "../context/AuthContext";
+import { NotificationPopup } from "../components/popups/NotificationPopups";
+import { useEffect, useState } from "react";
 
 export function TransactionExtraFilters({ timeframeFilter }: { timeframeFilter?: TimeframeFilter }) {
     const { searchParams } = useSearchParamsTable();
@@ -67,6 +69,30 @@ export function TransactionExtraFilters({ timeframeFilter }: { timeframeFilter?:
 }
 
 function TransactionHistory() {
+    const [searchParamsNotif, setSearchParamsNotif] = useSearchParams();
+    const [notif, setNotif] = useState("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParamsNotif.get("NOTIF");
+
+        // Only trigger if NOTIF exists AND we haven't already opened the modal for it
+        if (statusKey && !notifModalOpen) {
+            setNotif(statusKey);
+            setNotifModalOpen(true);
+
+            // Clone existing search params (keeping page=2, etc.) and only delete NOTIF
+            const newParams = new URLSearchParams(searchParamsNotif);
+            newParams.delete("NOTIF");
+            setSearchParamsNotif(newParams, { replace: true });
+        }
+    }, [searchParamsNotif, notifModalOpen, setSearchParamsNotif]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setNotif(""); // Reset string state on close
+    };
+
     const { user } = useAuth();
     const timeframeFilter = useTimeframeFilter();
     const data = useLoaderData();
@@ -160,6 +186,15 @@ function TransactionHistory() {
                     </Table.Row>
                 ))}
             </Table>
+
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={notif}
+                    icon="notification"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
 
             {/* Popup Uses */}
             <Outlet />

@@ -1,5 +1,5 @@
 // General Imports
-import { Outlet, useLoaderData } from "react-router";
+import { Outlet, useLoaderData, useSearchParams } from "react-router";
 
 // PEDRO SHARED IMPORTS
 import { Role } from "@qcpesopedro/shared/prisma/enums.ts";
@@ -32,6 +32,8 @@ import { useUserGlobal } from "../context/UserGlobalContext.tsx";
 import useSearchParamsTable from "../hooks/useSearchParamsTable.ts";
 import type { User } from "@qcpesopedro/shared/prisma/browser.ts";
 import { useAuth } from "../context/AuthContext.tsx";
+import { useEffect, useState } from "react";
+import { NotificationPopup } from "../components/popups/NotificationPopups.tsx";
 
 // Stat Card
 function StatCard({ title, value }: { title: string; value: string | number }) {
@@ -79,6 +81,30 @@ type RoleButton = {
 };
 
 function UserManagement() {
+    const [searchParamsNotif, setSearchParamsNotif] = useSearchParams();
+    const [notif, setNotif] = useState("");
+    const [notifModalOpen, setNotifModalOpen] = useState(false);
+
+    useEffect(() => {
+        const statusKey = searchParamsNotif.get("NOTIF");
+
+        // Only trigger if NOTIF exists AND we haven't already opened the modal for it
+        if (statusKey && !notifModalOpen) {
+            setNotif(statusKey);
+            setNotifModalOpen(true);
+
+            // Clone existing search params (keeping page=2, etc.) and only delete NOTIF
+            const newParams = new URLSearchParams(searchParamsNotif);
+            newParams.delete("NOTIF");
+            setSearchParamsNotif(newParams, { replace: true });
+        }
+    }, [searchParamsNotif, notifModalOpen, setSearchParamsNotif]);
+
+    const handleCloseModal = () => {
+        setNotifModalOpen(false);
+        setNotif(""); // Reset string state on close
+    };
+
     const { user } = useAuth();
     const { searchParams } = useSearchParamsTable();
     const navigate = useNavigateDefault();
@@ -169,7 +195,7 @@ function UserManagement() {
     );
 
     return (
-        <div className="flex flex-col w-full">
+        <main className="flex flex-col w-full">
             <PageHeader
                 primaryText="User Management"
                 secondaryText="Manage system access, roles, and employee accounts."
@@ -235,8 +261,17 @@ function UserManagement() {
                 ))}
             </Table>
 
+            {/* Render based on notifModalOpen boolean state */}
+            {notifModalOpen && (
+                <NotificationPopup
+                    header={notif}
+                    icon="notification"
+                    onClose={handleCloseModal} // Pass close handler to popup
+                />
+            )}
+
             <Outlet />
-        </div>
+        </main>
     );
 }
 
