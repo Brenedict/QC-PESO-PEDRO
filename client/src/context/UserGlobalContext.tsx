@@ -9,12 +9,10 @@ export interface UserGlobalContextValue {
     email: string;
     shift: Shift;
     status: Status;
-    hasNotif: boolean;
     firstName: string;
     lastName: string;
     role: Role;
     onSearchChange: () => void;
-    onNotifClick: () => void;
 }
 
 export const UserGlobalContext = createContext<UserGlobalContextValue | null>(null);

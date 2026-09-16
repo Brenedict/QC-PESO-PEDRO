@@ -32,6 +32,13 @@ describe("User Routes", () => {
                 data: [mockFrontlineUser, mockAdminUser, mockSuperAdminUser],
             }),
         ]);
+
+        // createMany with explicit ids does NOT advance the autoincrement sequence.
+        // Sync it to MAX(id) so a later insert-without-id (e.g. POST /user) never
+        // collides with the fixture rows.
+        await prisma.$executeRawUnsafe(
+            `SELECT setval(pg_get_serial_sequence('"User"', 'id'), (SELECT COALESCE(MAX(id), 1) FROM "User"))`
+        );
     });
 
     describe("GET /user/me", () => {
@@ -48,6 +55,7 @@ describe("User Routes", () => {
                 status: mockFrontlineUser.status,
                 firstName: mockFrontlineUser.firstName,
                 lastName: mockFrontlineUser.lastName,
+                notifSoundEnabled: true,
             });
         });
 
@@ -70,6 +78,34 @@ describe("User Routes", () => {
             setCurrentAuthUser(undefined as unknown as User);
 
             request(app).get("/user/me").expect(404, done);
+        });
+    });
+
+    describe("PATCH /user/preferences", () => {
+        it("updates the current user's notifSoundEnabled in the DB and reflects it on /user/me", async () => {
+            setCurrentAuthUser(mockFrontlineUser);
+
+            await request(app).patch("/user/preferences").send({ notifSoundEnabled: false }).expect(200);
+
+            const stored = await UserModel.getById(mockFrontlineUser.id);
+            expect(stored?.notifSoundEnabled).toBe(false);
+
+            setCurrentAuthUser({ ...mockFrontlineUser, notifSoundEnabled: false });
+            const res = await request(app).get("/user/me").expect(200);
+            expect(res.body.notifSoundEnabled).toBe(false);
+        });
+
+        it("does not affect another user's preference", async () => {
+            setCurrentAuthUser(mockFrontlineUser);
+
+            await request(app).patch("/user/preferences").send({ notifSoundEnabled: false }).expect(200);
+
+            const storedAdmin = await UserModel.getById(mockAdminUser.id);
+            expect(storedAdmin?.notifSoundEnabled).toBe(true);
+
+            setCurrentAuthUser(mockAdminUser);
+            const res = await request(app).get("/user/me").expect(200);
+            expect(res.body.notifSoundEnabled).toBe(true);
         });
     });
 

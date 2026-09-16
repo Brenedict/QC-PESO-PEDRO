@@ -216,7 +216,6 @@ function InsightsStatGrid({
 
 function InsightSection({ insight }: { insight: string }) {
     const { transaction, shift } = useLoaderData();
-    console.log(shift);
 
     const { types, outcomes } = transaction;
     const { analytics } = shift ?? {};

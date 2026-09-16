@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useSyncExternalStore, type ReactNode } from "react";
-import { getUserContextLoader, logoutService } from "../api/authService";
+import { logoutService } from "../api/authService";
 import type { UserContextType } from "@qcpesopedro/shared/schema/login";
 import { useRouteLoaderData } from "react-router";
 import InMemoryStore from "../api/inMemoryStore";
@@ -12,7 +12,7 @@ interface AuthContextType {
     setUser: React.Dispatch<React.SetStateAction<UserContextType | null>>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const data = useRouteLoaderData("protected") as { user: UserContextType } | undefined;

@@ -2,12 +2,11 @@
 import { redirect, type ActionFunctionArgs } from "react-router";
 
 // PEDRO SHARED IMPORTS
-import {
-    UserFormChangePasswordSchema,
-    UserFormCreateSchema,
-    UserFormUpdateSchema,
-} from "@qcpesopedro/shared/schema/users";
+import { UserFormChangePasswordSchema, UserFormCreateSchema, UserFormUpdateSchema } from "@qcpesopedro/shared/schema/users";
 import { LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
+
+// API Services
+import InMemoryStore from "./inMemoryStore";
 
 // API Services
 import {
@@ -183,6 +182,22 @@ export const manageUserAction = async ({ params, request }: ActionFunctionArgs) 
     } catch (err) {
         return handleErrRedirect(err, request, ROUTES.userManagement.root);
     }
+};
+
+// PATCH: Saves the current user's notification preferences 
+export const updateUserPreferences = async (preferences: { notifSoundEnabled: boolean }) => {
+    const res = await apiJson("/user/preferences", {
+        method: "PATCH",
+        body: JSON.stringify(preferences),
+    });
+
+    await ensureOk(res, "Failed to save preferences");
+
+    const updatedUser = await res.json();
+
+    InMemoryStore.setUser({ ...InMemoryStore.getUser(), ...updatedUser });
+
+    return updatedUser;
 };
 
 // Change password fetch but this one is used for the /reset-password

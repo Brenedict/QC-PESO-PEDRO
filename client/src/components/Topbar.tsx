@@ -1,18 +1,16 @@
 // General Imports
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 // Components
 import Status from "./Status.tsx";
 import { Text } from "./Text";
 import { SearchInput } from "./Input.tsx";
-import Icon from "./Icon";
 import Profile from "./Profile";
 import Button from "./Button.tsx";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 // Material UI Icons
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import NotificationImportantOutlinedIcon from "@mui/icons-material/NotificationImportantOutlined";
 
 // Custom Hooks
 import useNavigateDefault from "../hooks/useNavigateDefault";
@@ -63,22 +61,7 @@ function DateTime() {
 }
 
 function NotifButton() {
-    const { onNotifClick, hasNotif } = useUserGlobal();
-
-    return (
-        <Button
-            onClick={onNotifClick}
-            size="small"
-            variant="white-black"
-            className="min-w-0! aspect-square h-10 w-auto"
-        >
-            <Icon
-                variant={hasNotif ? "red" : "grayish-blue"}
-                icon={hasNotif ? NotificationImportantOutlinedIcon : NotificationsNoneOutlinedIcon}
-                size="big"
-            />
-        </Button>
-    );
+    return <NotificationsDropdown />;
 }
 
 function ProfileSection() {
@@ -149,8 +132,8 @@ function RightSection() {
 
 function TopBar() {
     return (
-        <header className="flex items-center justify-between px-8 py-4 shadow-default w-full min-w-max sticky top-0 z-50 bg-white">
-            <LeftSection />
+        <header className="flex items-center justify-end px-8 py-4 shadow-default w-full min-w-max sticky top-0 z-50 bg-white">
+            {/* <LeftSection /> */}
             <RightSection />
         </header>
     );

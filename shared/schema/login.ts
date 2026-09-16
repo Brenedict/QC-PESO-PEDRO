@@ -24,6 +24,7 @@ export const UserContextSchema = zfd.formData(
         password: true,
         createdAt: true,
         auditLogs: true,
+        notifications: true,
         shiftLogs: true,
         accountLogs: true,
         transactions: true,

@@ -1,7 +1,7 @@
 // Components
 import { Text } from "./Text";
 
-interface OptionsProp extends React.ButtonHTMLAttributes<HTMLInputElement> {
+interface OptionsProp extends React.InputHTMLAttributes<HTMLInputElement> {
     children: React.ReactNode;
     inputVariant?: "checkbox" | "radio";
     stylized?: boolean;

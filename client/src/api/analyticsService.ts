@@ -8,7 +8,6 @@ import { buildMonthRangeParam, getDateParams } from "./dateService";
 
 // API Services
 import { getOverviewAnalytics, getRecentTransactions } from "../api/transactionService";
-import InMemoryStore from "./inMemoryStore";
 import { getShifts } from "./shiftService";
 
 export interface DateRangeData {
@@ -264,6 +263,9 @@ export const TRANSACTION_REPORT_REQUEST = (type: ReportTypes): TransactionAnalyt
             {
                 id: "success",
                 type: "DATE_RANGE",
+                filters: {
+                    outcome: "SUCCESS",
+                },
                 ...dateRange,
             },
             {
@@ -360,13 +362,10 @@ export const extractGroupedFromData = (data: AnalyticsData, sourceKey: string) =
 };
 
 export const getAnalytics = async (args: LoaderFunctionArgs) => {
-    const user = InMemoryStore.getUser();
-
     const analytics = await getOverviewAnalytics(args);
     const recent = await getRecentTransactions(args);
 
-    let overview: unknown = undefined;
-    if (user?.role !== "FRONTLINE") overview = await getShifts(["pending", "approved", "revision"])(args);
+    const overview = await getShifts(["pending", "approved", "revision"])(args);
 
     return { analytics, recent, overview };
 };

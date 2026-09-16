@@ -8,6 +8,8 @@ import {
     UserQuerySchema,
     type UserQueryType,
     UserFormChangePasswordSchema,
+    UserPreferencesSchema,
+    type UserPreferencesType,
 } from "@qcpesopedro/shared/schema/users";
 import { LogAction, type User } from "@qcpesopedro/shared/prisma/browser";
 import { AccessLevel } from "@qcpesopedro/shared/enums";
@@ -57,11 +59,33 @@ export default {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 isRevising: user.isRevising,
+                notifSoundEnabled: user.notifSoundEnabled,
                 shiftLog,
                 hasEndedShift,
             };
 
             return res.json(userContextPayload);
+        },
+    ],
+
+    patchPreferences: [
+        jwtAccessAuth,
+        requireAccessLevel(AccessLevel.FRONTLINE),
+        validateSchema("body", UserPreferencesSchema),
+        async (req: Request, res: Response) => {
+            const requestor = req.user as User;
+
+            const preferences = req.body as unknown as UserPreferencesType;
+
+            const result = await UserModel.updateUser(requestor.id, {
+                notifSoundEnabled: preferences.notifSoundEnabled,
+            });
+
+            if (!result) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            return res.status(200).json(result);
         },
     ],
 
@@ -185,7 +209,8 @@ export default {
                     "USER",
                     result.username,
                     result?.fullName ?? "",
-                    remarks
+                    remarks,
+                    result.id
                 );
             }
 
@@ -257,7 +282,9 @@ export default {
                     requestor.role,
                     "USER",
                     result.username,
-                    result?.fullName ?? ""
+                    result?.fullName ?? "",
+                    undefined,
+                    result.id
                 );
             }
 
@@ -315,7 +342,8 @@ export default {
                     "USER",
                     result.username,
                     result?.fullName ?? "",
-                    "Password changed email sent"
+                    "Password changed email sent",
+                    requestor.id
                 );
             }
 

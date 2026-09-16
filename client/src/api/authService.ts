@@ -114,6 +114,22 @@ export const getUserContextLoader = async (): Promise<UserContextType | null> =>
     }
 };
 
+export const refreshUserContext = async (): Promise<void> => {
+    try {
+        const res = await apiJson("/user/me", { method: "GET" });
+
+        if (!res.ok) {
+            console.error(`Failed to refresh user context: ${res.status}`);
+            return;
+        }
+
+        const user = (await res.json()) as UserContextType;
+        InMemoryStore.setUser(user);
+    } catch (err) {
+        console.error("Failed to refresh user context:", err);
+    }
+};
+
 export const checkResetToken = async ({ request }: ActionFunctionArgs) => {
     try {
         // Create URL object for query extraction

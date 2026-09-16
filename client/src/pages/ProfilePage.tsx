@@ -25,8 +25,12 @@ import type { MaterialIcon } from "../types/common";
 
 // Context
 import { useUserGlobal } from "../context/UserGlobalContext.tsx";
+import { useAuth } from "../context/AuthContext.tsx";
 import { useEffect, useState } from "react";
 import { NotificationPopup } from "../components/popups/NotificationPopups.tsx";
+
+// API Services
+import { updateUserPreferences } from "../api/userService";
 
 //  Profile picture, name, role, and change password button
 function ProfileSummaryCard() {
@@ -81,6 +85,20 @@ function ProfileSummaryCard() {
 // read-only inputs and system toggles
 function AccountInfoCard() {
     const { firstName, lastName, email, role, shift } = useUserGlobal();
+    const { user } = useAuth();
+
+    const savedNotifSoundEnabled = user?.notifSoundEnabled ?? true;
+    const [notifSoundEnabled, setNotifSoundEnabled] = useState(savedNotifSoundEnabled);
+
+    const isChanged = notifSoundEnabled !== savedNotifSoundEnabled;
+
+    const savePreferences = async () => {
+        try {
+            await updateUserPreferences({ notifSoundEnabled });
+        } catch (err) {
+            console.error("Failed to save preferences:", err);
+        }
+    };
 
     const renderLabel = (IconComponent: MaterialIcon, text: string) => (
         <div className="uppercase mb-2">
@@ -151,16 +169,24 @@ function AccountInfoCard() {
 
                 {/*Notification Toggles*/}
                 <div className="mt-4 flex flex-col gap-4">
-                    <ChoiceItem inputVariant="checkbox" stylized={false} defaultChecked>
-                        Enable email notifications for system announcements
-                    </ChoiceItem>
-                    <ChoiceItem inputVariant="checkbox" stylized={false} defaultChecked>
+                    <ChoiceItem
+                        inputVariant="checkbox"
+                        stylized={false}
+                        checked={notifSoundEnabled}
+                        onChange={(e) => setNotifSoundEnabled(e.target.checked)}
+                    >
                         Play sound for incoming notifications
                     </ChoiceItem>
                 </div>
 
                 <div className="mt-8 flex justify-end">
-                    <Button variant="blue" size="normal" className="text-description!">
+                    <Button
+                        variant="blue"
+                        size="normal"
+                        className="text-description!"
+                        onClick={savePreferences}
+                        disabled={!isChanged}
+                    >
                         Save Preferences
                     </Button>
                 </div>
