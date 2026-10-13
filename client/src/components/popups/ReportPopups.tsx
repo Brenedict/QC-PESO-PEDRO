@@ -30,7 +30,7 @@ import { ensureOk } from "../../api/actionService";
 const MASTHEAD = {
     ministry: "Quezon City Government",
     office: "Public Employment Service Office (QC PESO)",
-    system: "PED Daily Monitoring and Tracking System",
+    system: "PED Monitoring and Tracking System",
 } as const;
 
 const TRANSACTION_TYPE_ROWS = [

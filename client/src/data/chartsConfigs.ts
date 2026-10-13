@@ -22,6 +22,16 @@ export const sampleContextBarOptions = {
             position: "top",
             align: "center",
         },
+
+        tooltip: {
+            enabled: true,
+            intersect: false,
+            mode: "index",
+        },
+    },
+    interaction: {
+        mode: "index",
+        intersect: false,
     },
     scales: {
         x: {
@@ -203,6 +213,15 @@ export const sampleLineOptions = {
             position: "top",
             align: "center",
         },
+        tooltip: {
+            enabled: true,
+            intersect: false,
+            mode: "index",
+        },
+    },
+    interaction: {
+        mode: "index",
+        intersect: false,
     },
 } as const;
 
