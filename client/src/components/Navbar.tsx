@@ -143,7 +143,7 @@ export function NavBar({
     userType,
     userFullName = "Quezon City",
     profilePicUrl,
-    headerText = "PED System",
+    headerText = "PEDRO System",
 }: {
     userType?: Role;
     headerText?: string;

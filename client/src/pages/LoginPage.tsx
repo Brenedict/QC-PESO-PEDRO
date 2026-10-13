@@ -72,11 +72,11 @@ function MainHeader({ className }: React.HTMLAttributes<HTMLDivElement>) {
             </div>
             <h1 className="mb-2">
                 <Text variant="dark-blue" size="bigger" weight="bold" align="center">
-                    PED System
+                    P.E.D.R.O.
                 </Text>
             </h1>
             <Text variant="grayish-blue" size="normal" weight="medium" align="center">
-                Daily Monitoring and Tracking System
+                Public Employment Records Organizer
             </Text>
         </div>
     );
@@ -137,7 +137,7 @@ function RightSection() {
             <LoginForm className="mb-6" />
             <span className="mt-auto">
                 <Text size="small" variant="grayish-blue" weight="normal" align="center">
-                    v2.0.1 • QC PESO Public Employment Division
+                    v1.0.0 • QC PESO Public Employment Division
                 </Text>
             </span>
         </section>

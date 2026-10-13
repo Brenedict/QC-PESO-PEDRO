@@ -4,7 +4,7 @@ import type {
     TransactionAnalyticsFilterType,
     TransactionAnalyticsQueryInput,
 } from "@qcpesopedro/shared/schema/transactions";
-import { buildMonthRangeParam, getDateParams } from "./dateService";
+import { getDateParams } from "./dateService";
 
 // API Services
 import { getOverviewAnalytics, getRecentTransactions } from "../api/transactionService";
@@ -292,6 +292,51 @@ export const TRANSACTION_REPORT_REQUEST = (type: ReportTypes): TransactionAnalyt
                 groupBy: "applicantSex",
                 filters: {
                     type: "IN_HOUSE_RECRUITMENT",
+                },
+                ...dateRange,
+            },
+            {
+                id: "job-seeker",
+                type: "DATE_RANGE",
+                groupBy: "applicantSex",
+                filters: {
+                    demographics: "FIRST_TIME_JOB_SEEKER",
+                },
+                ...dateRange,
+            },
+            {
+                id: "pwd",
+                type: "DATE_RANGE",
+                groupBy: "applicantSex",
+                filters: {
+                    demographics: "PERSONS_WITH_DISABILITY",
+                },
+                ...dateRange,
+            },
+            {
+                id: "senior",
+                type: "DATE_RANGE",
+                groupBy: "applicantSex",
+                filters: {
+                    demographics: "SENIOR_CITIZEN",
+                },
+                ...dateRange,
+            },
+            {
+                id: "young-worker",
+                type: "DATE_RANGE",
+                groupBy: "applicantSex",
+                filters: {
+                    demographics: "YOUNG_WORKER",
+                },
+                ...dateRange,
+            },
+            {
+                id: "work-immersion",
+                type: "DATE_RANGE",
+                groupBy: "applicantSex",
+                filters: {
+                    demographics: "WORK_IMMERSION_INTERNSHIP",
                 },
                 ...dateRange,
             },

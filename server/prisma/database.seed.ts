@@ -155,12 +155,12 @@ interface SeedUserSpec {
 // Fixed roster: 1 superadmin, 2 admins, several frontline staff.
 const userSpecs: SeedUserSpec[] = [
     {
-        username: "john",
-        email: "johndoe@gmail.com",
-        firstName: "John",
-        lastName: "Doe",
+        username: "kenneth.pabillo",
+        email: "pabillokenneth81@gmail.com",
+        firstName: "Kenneth",
+        lastName: "Pabillo",
         role: "SUPERADMIN",
-        shift: "NONE",
+        shift: "AFTERNOON",
     },
     {
         username: "maria.santos",
