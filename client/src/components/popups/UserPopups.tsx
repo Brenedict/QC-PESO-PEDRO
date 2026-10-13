@@ -96,19 +96,22 @@ function PopupUserForms({ formId, user, onChange }: PopupUserFormsProps) {
                     { content: "Administrator", value: "ADMIN" },
                     { content: "Frontline Encoder", value: "FRONTLINE" },
                 ]}
+                hidden
             />
 
-            <SelectInput
-                defaultValue={user?.shift ?? "NONE"}
-                label="Shift"
-                id="shift"
-                name="shift"
-                optionList={[
-                    { content: "None", value: "NONE" },
-                    { content: "Morning", value: "MORNING" },
-                    { content: "Afternoon", value: "AFTERNOON" },
-                ]}
-            />
+            <div className="col-span-2">
+                <SelectInput
+                    defaultValue={user?.shift ?? "NONE"}
+                    label="Shift"
+                    id="shift"
+                    name="shift"
+                    optionList={[
+                        { content: "None", value: "NONE" },
+                        { content: "Morning", value: "MORNING" },
+                        { content: "Afternoon", value: "AFTERNOON" },
+                    ]}
+                />
+            </div>
         </Form>
     );
 }
