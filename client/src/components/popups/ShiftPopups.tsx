@@ -225,19 +225,20 @@ export function PopupLogout({ root }: { root: string }) {
             <Dialog.Body>
                 <Form method="post" id="timeInForm" className="flex flex-col gap-6" onChange={handleFormChange}>
                     {/* Time-In Data Input Holders */}
-                    <GeneralInput
+                    <TextAreaInput
                         label="Reason for Logout"
                         name="reason"
-                        type="text"
                         defaultValue={""}
+                        placeholder="Enter reason for logout..."
                         required
                         isRequired={true}
-                    ></GeneralInput>
+                    ></TextAreaInput>
                     <TextAreaInput
                         label="Optional Remarks"
                         name="remarks"
                         defaultValue={""}
                         placeholder="Enter additional details..."
+                        hidden
                     ></TextAreaInput>
                 </Form>
             </Dialog.Body>
