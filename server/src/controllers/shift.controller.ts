@@ -210,7 +210,7 @@ export default {
 
     patchShiftRevise: [
         jwtAccessAuth,
-        requireAccessLevel(AccessLevel.ADMIN),
+        requireAccessLevel(AccessLevel.FRONTLINE),
         auditLog,
         async (req: Request, res: Response) => {
             const { shiftId } = req.params;

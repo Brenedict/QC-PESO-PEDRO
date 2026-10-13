@@ -43,7 +43,7 @@ const linkTypeMap = {
     reports: { content: "Reports", icon: PieChartOutlineOutlinedIcon },
     audit_logs: { content: "Audit Logs", icon: AssignmentOutlinedIcon },
     user_management: { content: "User Management", icon: SensorOccupiedOutlinedIcon },
-    settings: { content: "Settings", icon: SettingsOutlinedIcon },
+    settings: { content: "Profile", icon: SettingsOutlinedIcon },
     logout: { content: "Logout", icon: LogoutOutlinedIcon },
 } as const;
 
