@@ -7,6 +7,26 @@ This repository contains a full-stack TypeScript application architecture separa
 
 ---
 
+## User Manual
+
+See the [P.E.D.R.O. User Manual](docs/USER_MANUAL.md) for role-based instructions, feature walkthroughs, screenshots, and troubleshooting.
+
+---
+
+## Tech Stack
+
+| Layer | Technologies |
+| --- | --- |
+| **Frontend** | React 19, TypeScript 6, Vite 8, React Router 7, Tailwind CSS 4 |
+| **Backend** | Node.js 24+, Express 5, Zod 4, Passport.js (JWT) |
+| **Database** | PostgreSQL, Prisma 7 |
+| **AI insights** | Ollama |
+| **Testing & tooling** | Jest, Vitest, Storybook, ESLint, Prettier, Docker Compose |
+
+PEDRO is a TypeScript monorepo with three npm workspaces: `client/`, `server/`, and `shared/`. The shared workspace provides common types and Zod schemas to both the frontend and backend.
+
+---
+
 ## Project Structure
 
 ```text
@@ -32,6 +52,13 @@ QC-PESO-PEDRO/
 │   │
 │   ├── .env.example         # Example environment variables for server
 │   └── package.json         # Server dependencies and scripts
+│
+├── shared/                  # Shared Prisma types, enums, and Zod schemas
+│
+├── docs/                    # Project documentation
+│   ├── screenshots/         # User manual screenshots
+│   ├── STORYBOOK_GUIDE.md   # Storybook guide
+│   └── USER_MANUAL.md       # End-user manual
 │
 ├── .gitignore               # Root gitignore
 └── README.md                # Project documentation
